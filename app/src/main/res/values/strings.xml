@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">pinterest_clone_test2</string>
+    <string name="title_home">Home</string>
+    <string name="title_search">Search</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_pin">Pin</string>
+    <string name="title_account">Account</string>
+    <string name="btn_share">Share</string>
+    <string name="tv_author_default">Author</string>
+    <string name="tv_title_default">Title</string>
+    <string name="tv_description_default">Description</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="tv_relevant_images">More to explore</string>
+</resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_account_tab"
+    app:startDestination="@id/navigation_account">
+
+    <fragment
+        android:id="@+id/navigation_account"
+        android:name="com.example.pinterest_clone_test2.ui.account.AccountFragment"
+        android:label="@string/title_account"
+        tools:layout="@layout/fragment_account">
+        <action
+            android:id="@+id/action_navigation_account_to_settingsDrawerFragment"
+            app:destination="@id/settingsDrawerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/settingsDrawerFragment"
+        android:name="com.example.pinterest_clone_test2.ui.settings.SettingsDrawerFragment"
+        android:label="fragment_settings_drawer"
+        tools:layout="@layout/fragment_settings_drawer" />
+</navigation>
