@@ -1,26 +1,22 @@
 package com.example.pinterest_clone_test2.ui.search;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.SavedStateHandle;
-import androidx.lifecycle.SavedStateViewModelFactory;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.fragment.FragmentNavigator;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.SavedStateViewModelFactory;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
@@ -42,13 +38,6 @@ public class SearchResultFragment extends Fragment {
 
     List<Pin> pins;
     SearchResultViewModel view_model;
-
-    public static SearchResultFragment newInstance() {
-        SearchResultFragment fragment = new SearchResultFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -123,7 +112,7 @@ public class SearchResultFragment extends Fragment {
             }
         });
 
-        PinListAdapter adapter = new PinListAdapter(pins, imageClickListener, 0);
+        PinListAdapter adapter = new PinListAdapter(pins, imageClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.rvSearchResult.setAdapter(adapter);
 
@@ -159,19 +148,12 @@ public class SearchResultFragment extends Fragment {
             Bundle args = new Bundle();
             args.putParcelableArrayList("pins", new ArrayList<>(pins));
             args.putInt("position", position);
-            args.putInt("depth", 0);
-
-            Log.d("transitionName", v.getTransitionName());
-
-            FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
-                    .addSharedElement(v, v.getTransitionName())
-                    .build();
 
             navController.navigate(
                     R.id.action_navigation_search_result_to_pinFragment,
                     args,
                     null,
-                    extras
+                    null
             );
         }
     };

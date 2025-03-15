@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -50,7 +49,7 @@ public class TabObjectFragment extends Fragment {
         view_model = new ViewModelProvider(this).get(TabObjectViewModel.class);
 
         recycler_view = view.findViewById(R.id.home_pager_recycler_view);
-        PinListAdapter adapter = new PinListAdapter(pins, imageClickListener, 0);
+        PinListAdapter adapter = new PinListAdapter(pins, imageClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         recycler_view.setAdapter(adapter);
 
@@ -102,19 +101,12 @@ public class TabObjectFragment extends Fragment {
             Bundle args = new Bundle();
             args.putParcelableArrayList("pins", new ArrayList<>(pins));
             args.putInt("position", position);
-            args.putInt("depth", 0);
-
-            Log.d("transitionName", v.getTransitionName());
-
-            FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
-                    .addSharedElement(v, v.getTransitionName())
-                    .build();
 
             navController.navigate(
                     R.id.action_navigation_home_to_pinFragment,
                     args,
                     null,
-                    extras
+                    null
             );
         }
     };

@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.interfaces.SearchIdeaClickListener;
 
@@ -76,10 +77,30 @@ public class SearchIdeaAdapter extends RecyclerView.Adapter<SearchIdeaAdapter.Se
     public void onBindViewHolder(@NonNull SearchIdeaViewHolder holder, int position) {
         holder.tv_idea_text.setText(idea_texts.get(position));
         holder.tv_idea_query.setText(idea_queries.get(position));
-        holder.iv_image_1.setImageResource(image_groups.get(position).get(0));
-        holder.iv_image_2.setImageResource(image_groups.get(position).get(1));
-        holder.iv_image_3.setImageResource(image_groups.get(position).get(2));
-        holder.iv_image_4.setImageResource(image_groups.get(position).get(3));
+
+        Glide.with(holder.iv_image_1.getContext())
+                .load(image_groups.get(position).get(0))
+                .placeholder(R.drawable.karyl)
+                .fitCenter()
+                .into(holder.iv_image_1);
+
+        Glide.with(holder.iv_image_2.getContext())
+                .load(image_groups.get(position).get(1))
+                .placeholder(R.drawable.karyl)
+                .fitCenter()
+                .into(holder.iv_image_2);
+
+        Glide.with(holder.iv_image_3.getContext())
+                .load(image_groups.get(position).get(2))
+                .placeholder(R.drawable.karyl)
+                .fitCenter()
+                .into(holder.iv_image_3);
+
+        Glide.with(holder.iv_image_4.getContext())
+                .load(image_groups.get(position).get(3))
+                .placeholder(R.drawable.karyl)
+                .fitCenter()
+                .into(holder.iv_image_4);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

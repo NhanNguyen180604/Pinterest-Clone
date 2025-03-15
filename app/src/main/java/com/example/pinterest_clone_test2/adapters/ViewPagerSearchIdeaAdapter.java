@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.pinterest_clone_test2.R;
 
 import java.util.Arrays;
@@ -65,7 +66,11 @@ public class ViewPagerSearchIdeaAdapter extends RecyclerView.Adapter<ViewPagerSe
 
     @Override
     public void onBindViewHolder(@NonNull SearchIdeaPagerViewHolder holder, int position) {
-        holder.iv_idea_image.setImageResource(image_resources.get(position));
+        Glide.with(holder.iv_idea_image.getContext())
+                .load(image_resources.get(position))
+                .placeholder(R.drawable.karyl)
+                .fitCenter()
+                .into(holder.iv_idea_image);
         holder.tv_idea_text.setText(idea_texts.get(position));
         holder.tv_idea_query.setText(idea_queries.get(position));
     }

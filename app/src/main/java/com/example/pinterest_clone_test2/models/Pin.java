@@ -12,12 +12,12 @@ import java.util.List;
 
 public class Pin implements Parcelable {
     private String id;
-    private int image_source;  // for testing
+    private int media_url;  // for testing
     private String author_id;
 
-    public Pin(String id, int image_source, String author_id) {
+    public Pin(String id, int media_url, String author_id) {
         this.id = id;
-        this.image_source = image_source;
+        this.media_url = media_url;
         this.author_id = author_id;
     }
 
@@ -29,8 +29,8 @@ public class Pin implements Parcelable {
         return author_id;
     }
 
-    public int getImageSource() {
-        return image_source;
+    public int getMediaURL() {
+        return media_url;
     }
 
     public static List<Pin> testData = Arrays.asList(
@@ -68,7 +68,7 @@ public class Pin implements Parcelable {
 
     public void readFromParcel(Parcel in) {
         this.id = in.readString();
-        this.image_source = in.readInt();
+        this.media_url = in.readInt();
         this.author_id = in.readString();
     }
 
@@ -80,7 +80,7 @@ public class Pin implements Parcelable {
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeString(this.id);
-        dest.writeInt(this.image_source);
+        dest.writeInt(this.media_url);
         dest.writeString(this.author_id);
     }
 }

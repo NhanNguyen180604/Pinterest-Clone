@@ -9,8 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
 import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
 
 import java.util.List;
@@ -26,13 +26,11 @@ public class PinListAdapter extends RecyclerView.Adapter<PinListAdapter.PinViewH
     }
 
     List<Pin> pins;
-    int depth;
     ImageClickListener listener;
 
-    public PinListAdapter(List<Pin> pins, ImageClickListener listener, int depth) {
+    public PinListAdapter(List<Pin> pins, ImageClickListener listener) {
         this.pins = pins;
         this.listener = listener;
-        this.depth = depth;
     }
 
     @NonNull
@@ -44,11 +42,10 @@ public class PinListAdapter extends RecyclerView.Adapter<PinListAdapter.PinViewH
     @Override
     public void onBindViewHolder(@NonNull PinViewHolder holder, int position) {
         Glide.with(holder.itemView.getContext())
-                .load(pins.get(position).getImageSource())
+                .load(pins.get(position).getMediaURL())
                 .placeholder(R.drawable.karyl)
                 .fitCenter()
                 .into(holder.iv);
-        holder.iv.setTransitionName((Integer.toString(pins.get(position).getImageSource()) + depth + position).trim());
         holder.iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

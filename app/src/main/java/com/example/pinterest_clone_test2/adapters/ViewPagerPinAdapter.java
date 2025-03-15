@@ -11,20 +11,18 @@ import java.util.List;
 
 public class ViewPagerPinAdapter extends FragmentStateAdapter {
     List<Pin> pins;
-    int depth;
     int initial_position;
 
-    public ViewPagerPinAdapter(@NonNull Fragment fragment, List<Pin> pins, int depth, int initial_position) {
+    public ViewPagerPinAdapter(@NonNull Fragment fragment, List<Pin> pins, int initial_position) {
         super(fragment);
         this.pins = pins;
-        this.depth = depth;
         this.initial_position = initial_position;
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return new PinObjectFragment(pins.get(position), position, depth, position == initial_position);
+        return new PinObjectFragment(pins.get(position));
     }
 
     @Override
