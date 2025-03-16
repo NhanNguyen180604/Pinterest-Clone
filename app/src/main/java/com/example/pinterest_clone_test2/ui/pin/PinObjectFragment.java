@@ -2,10 +2,12 @@ package com.example.pinterest_clone_test2.ui.pin;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,19 +26,23 @@ import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Objects;
+
 public class PinObjectFragment extends Fragment {
     RecyclerView rv_relevant;
     ImageView iv_image;
     PinObjectViewModel view_model;
     FloatingActionButton fab_back;
     private Pin pin;
+    String source;
 
     // need this to prevent crash idk why
     public PinObjectFragment() {
     }
 
-    public PinObjectFragment(Pin pin) {
+    public PinObjectFragment(Pin pin, String source) {
         this.pin = pin;
+        this.source = source;
     }
 
     @Nullable
@@ -73,6 +79,11 @@ public class PinObjectFragment extends Fragment {
         if (pin_state != null) {
             pin = pin_state;
         }
+
+        String source_state = view_model.getSource();
+        if (source_state != null){
+            source = source_state;
+        }
     }
 
     @Override
@@ -83,6 +94,7 @@ public class PinObjectFragment extends Fragment {
         }
 //        appBarLayout.getTop();
         view_model.setPinState(pin);
+        view_model.setSourceState(source);
     }
 
     @Override
@@ -90,10 +102,15 @@ public class PinObjectFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         restoreStates();
 
-        Glide.with(iv_image.getContext())
-                .load(pin.getMediaURL())
-                .fitCenter()
-                .into(iv_image);
+        if (pin == null) {
+            Toast.makeText(getContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();
+            Log.d("error", "Pin is null, why is the view model dead??? How come the data are still intact, make no fucking sense");
+        } else {
+            Glide.with(iv_image.getContext())
+                    .load(pin.getMediaURL())
+                    .fitCenter()
+                    .into(iv_image);
+        }
     }
 
     private void initializeRelevantPins(@NonNull View view) {
@@ -113,10 +130,13 @@ public class PinObjectFragment extends Fragment {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
             Bundle bundle = new Bundle();
             bundle.putInt("position", position);
+            bundle.putString("source", source);
 //            bundle.putParcelableArrayList("pins", relevant_pins);  // use this when we have real relevant images
 
+            int action = Objects.equals(source, "home") ? R.id.action_pinFragment_self : R.id.action_pinFragment2_self;
+
             navController.navigate(
-                    R.id.action_pinFragment_self,
+                    action,
                     bundle,
                     null,
                     null

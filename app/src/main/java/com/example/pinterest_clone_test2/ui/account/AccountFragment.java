@@ -21,6 +21,9 @@ import com.google.android.material.tabs.TabLayoutMediator;
 public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
 
+    public AccountFragment(){
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

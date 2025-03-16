@@ -16,6 +16,9 @@ public class NotificationsFragment extends Fragment {
 
     private FragmentNotificationsBinding binding;
 
+    public NotificationsFragment(){
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         NotificationsViewModel notificationsViewModel =

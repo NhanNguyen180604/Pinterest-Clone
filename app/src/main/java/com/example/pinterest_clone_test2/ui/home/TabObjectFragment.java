@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -101,6 +102,7 @@ public class TabObjectFragment extends Fragment {
             Bundle args = new Bundle();
             args.putParcelableArrayList("pins", new ArrayList<>(pins));
             args.putInt("position", position);
+            args.putString("source", "home");
 
             navController.navigate(
                     R.id.action_navigation_home_to_pinFragment,

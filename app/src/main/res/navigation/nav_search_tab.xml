@@ -12,7 +12,11 @@
         tools:layout="@layout/fragment_search" >
         <action
             android:id="@+id/action_navigation_search_to_searchResultFragment"
-            app:destination="@id/navigation_search_result" />
+            app:destination="@id/navigation_search_result"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/navigation_search_result"
@@ -21,18 +25,34 @@
         tools:layout="@layout/fragment_search_result" >
         <action
             android:id="@+id/action_searchResultFragment_self"
-            app:destination="@id/navigation_search_result" />
+            app:destination="@id/navigation_search_result"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
         <action
-            android:id="@+id/action_navigation_search_result_to_pinFragment"
-            app:destination="@id/pinFragment" />
+            android:id="@+id/action_navigation_search_result_to_pinFragment2"
+            app:destination="@id/pinFragment2"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
-        android:id="@+id/pinFragment"
+        android:id="@+id/pinFragment2"
         android:name="com.example.pinterest_clone_test2.ui.pin.PinFragment"
         android:label="fragment_pin"
         tools:layout="@layout/fragment_pin" >
         <action
-            android:id="@+id/action_pinFragment_self"
-            app:destination="@id/pinFragment" />
+            android:id="@+id/action_pinFragment2_self"
+            app:destination="@id/pinFragment2"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+        <argument
+            android:name="source"
+            app:argType="string"
+            android:defaultValue="search" />
     </fragment>
 </navigation>

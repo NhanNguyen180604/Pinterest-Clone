@@ -11,6 +11,7 @@ public class PinObjectViewModel extends ViewModel {
     private final SavedStateHandle _savedStateHandle;
     public static String SCROLL_STATE_KEY = "scroll_state";
     public static String PIN_STATE_KEY = "pin_state";
+    public static String SOURCE_STATE_KEY = "source_state";
 
     public PinObjectViewModel(SavedStateHandle savedStateHandle) {
         _savedStateHandle = savedStateHandle;
@@ -30,5 +31,13 @@ public class PinObjectViewModel extends ViewModel {
 
     public void setPinState(Pin pin_state) {
         _savedStateHandle.set(PIN_STATE_KEY, pin_state);
+    }
+
+    public String getSource() {
+        return _savedStateHandle.get(SOURCE_STATE_KEY);
+    }
+
+    public void setSourceState(String new_state) {
+        _savedStateHandle.set(SOURCE_STATE_KEY, new_state);
     }
 }

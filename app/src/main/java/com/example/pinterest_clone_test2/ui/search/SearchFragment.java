@@ -23,6 +23,9 @@ import com.example.pinterest_clone_test2.interfaces.SearchIdeaClickListener;
 public class SearchFragment extends Fragment {
     private FragmentSearchBinding binding;
 
+    public SearchFragment(){
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -83,6 +86,7 @@ public class SearchFragment extends Fragment {
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
         Bundle args = new Bundle();
         args.putString("query", query);
+
         navController.navigate(
                 R.id.action_navigation_search_to_searchResultFragment,
                 args,

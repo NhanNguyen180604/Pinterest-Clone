@@ -19,7 +19,11 @@ public class PinFragment extends Fragment {
 
     FragmentPinBinding binding;
     List<Pin> pins;
-    private int initial_position;
+    int initial_position;
+    String source;
+
+    public PinFragment(){
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,6 +32,7 @@ public class PinFragment extends Fragment {
 //            pins = getArguments().getParcelableArrayList("pins");  // will use this when we have a backend server
             pins = Pin.testData;
             initial_position = getArguments().getInt("position");
+            source = getArguments().getString("source");
         }
     }
 
@@ -43,7 +48,7 @@ public class PinFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ViewPagerPinAdapter adapter = new ViewPagerPinAdapter(this, pins, initial_position);
+        ViewPagerPinAdapter adapter = new ViewPagerPinAdapter(this, pins, initial_position, source);
         binding.pinPager.setAdapter(adapter);
         binding.pinPager.setCurrentItem(initial_position, false);
     }

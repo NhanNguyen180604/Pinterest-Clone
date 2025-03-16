@@ -27,6 +27,9 @@ public class HomeFragment extends Fragment {
     ViewPager2 view_pager;
     TabLayout tab_layout;
 
+    public HomeFragment(){
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);

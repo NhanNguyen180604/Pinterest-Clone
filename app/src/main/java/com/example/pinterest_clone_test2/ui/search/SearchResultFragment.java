@@ -148,9 +148,10 @@ public class SearchResultFragment extends Fragment {
             Bundle args = new Bundle();
             args.putParcelableArrayList("pins", new ArrayList<>(pins));
             args.putInt("position", position);
+            args.putString("source", "search");
 
             navController.navigate(
-                    R.id.action_navigation_search_result_to_pinFragment,
+                    R.id.action_navigation_search_result_to_pinFragment2,
                     args,
                     null,
                     null
