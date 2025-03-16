@@ -1,4 +1,4 @@
-package com.example.pinterest_clone_test2.ui.modal_bottom_sheets;
+package com.example.pinterest_clone_test2.ui.pin_uploading;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,13 +14,13 @@ import androidx.annotation.Nullable;
 import com.example.pinterest_clone_test2.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-public class CreatingModalBottomSheet extends BottomSheetDialogFragment {
+public class UploadingModalBottomSheet extends BottomSheetDialogFragment {
 
     ImageButton btn_add_new_pin, btn_add_new_board;
     TextView tv_add_new_pin, tv_add_new_board;
     ImageButton btn_dismiss;
 
-    public static String TAG = "ModalBottomSheet";
+    public static String TAG = "PinUploadingBottomSheet";
 
     @Nullable
     @Override

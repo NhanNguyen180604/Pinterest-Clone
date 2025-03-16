@@ -34,6 +34,7 @@ public class PinFragment extends Fragment {
             initial_position = getArguments().getInt("position");
             source = getArguments().getString("source");
         }
+        postponeEnterTransition();
     }
 
     @Override
@@ -51,6 +52,8 @@ public class PinFragment extends Fragment {
         ViewPagerPinAdapter adapter = new ViewPagerPinAdapter(this, pins, initial_position, source);
         binding.pinPager.setAdapter(adapter);
         binding.pinPager.setCurrentItem(initial_position, false);
+        // delay transition until the viewpager item is created at initial_position
+        binding.pinPager.post(this::startPostponedEnterTransition);
     }
 
     @Override

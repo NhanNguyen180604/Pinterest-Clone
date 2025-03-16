@@ -15,7 +15,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.ViewPagerAccountAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentAccountBinding;
-import com.example.pinterest_clone_test2.ui.modal_bottom_sheets.CreatingModalBottomSheet;
+import com.example.pinterest_clone_test2.ui.pin_uploading.UploadingModalBottomSheet;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 public class AccountFragment extends Fragment {
@@ -82,8 +82,8 @@ public class AccountFragment extends Fragment {
         binding.btnAddNewPin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CreatingModalBottomSheet modalBottomSheet = new CreatingModalBottomSheet();
-                modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CreatingModalBottomSheet.TAG);
+                UploadingModalBottomSheet modalBottomSheet = new UploadingModalBottomSheet();
+                modalBottomSheet.show(requireActivity().getSupportFragmentManager(), UploadingModalBottomSheet.TAG);
             }
         });
     }
