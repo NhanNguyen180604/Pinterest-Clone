@@ -1,14 +1,15 @@
 package com.example.pinterest_clone_test2.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -18,9 +19,8 @@ import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.List;
 
-public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.CommentViewHolder> {
-    class CommentViewHolder extends RecyclerView.ViewHolder {
-        protected Comment _comment;
+public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    static class CommentViewHolder extends RecyclerView.ViewHolder {
         ShapeableImageView ivAvatar;
         TextView tvUsername;
         TextView tvTimestamp;
@@ -31,7 +31,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
         TextView tvClickableMore;
         ConstraintLayout layout;
 
-        CommentViewHolder(@NonNull View itemView, Context context) {
+        CommentViewHolder(@NonNull View itemView) {
             super(itemView);
 
             ivAvatar = itemView.findViewById(R.id.iv_avatar);
@@ -46,59 +46,117 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListAdapter.
         }
 
         public void adjustMarginStart() {
-            if (_comment != null && _comment.getReplyCommentId() != null) {
-                int startMarginDp = (int) layout.getContext().getResources().getDimension(R.dimen.reply_comment_start_margin);
-                layout.setPadding(startMarginDp, 0, 0, 0);
-            }
-        }
-
-        public void setComment(@NonNull Comment comment) {
-            _comment = comment;
+            int startMarginDp = (int) layout.getContext().getResources().getDimension(R.dimen.reply_comment_start_margin);
+            layout.setPadding(startMarginDp, 0, 0, 0);
         }
     }
 
-    List<Comment> _comments;
+    static class SpinnerViewHolder extends RecyclerView.ViewHolder {
+        ProgressBar progressBar;
 
-    public CommentListAdapter(List<Comment> comments) {
+        SpinnerViewHolder(@NonNull View itemView) {
+            super(itemView);
+            progressBar = itemView.findViewById(R.id.spinner);
+        }
+    }
+
+    final List<Comment> _comments;
+
+    // The minimum amount of items to have below your current scroll position before loading more.
+    private final int visibleThreshold = 2;
+    private int lastVisibleItem, totalItemCount;
+    private boolean loading;
+    private OnLoadMoreListener onLoadMoreListener;
+
+    final static int VIEW_ITEM = 1;
+    final static int VIEW_PROGRESS = 2;
+
+    public CommentListAdapter(List<Comment> comments, RecyclerView recyclerView) {
         _comments = comments;
-    }
 
-    public void setComments(List<Comment> comments, boolean append) {
-        if (append) {
-            _comments.addAll(comments);
-            notifyItemRangeInserted(_comments.size() - comments.size(), _comments.size());
-        } else {
-            _comments = comments;
-            notifyDataSetChanged();
+        if (recyclerView.getLayoutManager() != null) {
+            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+
+                    totalItemCount = layoutManager.getItemCount();
+                    lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                    if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                        // End has been reached
+                        // Do something
+                        if (onLoadMoreListener != null) {
+                            onLoadMoreListener.onLoadMore();
+                        }
+                        loading = true;
+                    }
+                }
+
+                @Override
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                }
+            });
         }
     }
 
     @NonNull
     @Override
-    public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_view_holder, parent, false);
-        return new CommentViewHolder(itemView, parent.getContext());
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        RecyclerView.ViewHolder vh;
+        if (viewType == VIEW_ITEM) {
+            vh = new CommentViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_view_holder, parent, false));
+        } else {
+            vh = new SpinnerViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.spinner, parent, false));
+        }
+        return vh;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Comment comment = _comments.get(position);
-        if (comment.getAttachmentUrl() != null) {
-            Glide.with(holder.ivAttachment.getContext())
-                    .load(Integer.parseInt(comment.getAttachmentUrl()))
-                    .fitCenter()
-                    .placeholder(R.drawable.karyl)
-                    .into(holder.ivAttachment);
-        } else {
-            holder.ivAttachment.setImageResource(0);
-        }
+        if (holder instanceof CommentViewHolder) {
+            CommentViewHolder vh = (CommentViewHolder) holder;
+            if (comment.getAttachmentUrl() != null) {
+                Glide.with(vh.ivAttachment.getContext())
+                        .load(Integer.parseInt(comment.getAttachmentUrl()))
+                        .fitCenter()
+                        .placeholder(R.drawable.karyl)
+                        .into(vh.ivAttachment);
+            } else {
+                vh.ivAttachment.setImageResource(0);
+            }
 
-        holder.tvContent.setText(comment.getContent());
-        holder.tvUsername.setText(comment.getAuthorName());
+            vh.tvContent.setText(comment.getContent());
+            vh.tvUsername.setText(comment.getAuthorName());
+            if (comment.getReplyCommentId() != null) {
+                vh.adjustMarginStart();
+            }
+        } else {
+            ((SpinnerViewHolder) holder).progressBar.setIndeterminate(true);
+        }
+    }
+
+    public void setLoaded() {
+        loading = false;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return _comments.get(position) != null ? VIEW_ITEM : VIEW_PROGRESS;
     }
 
     @Override
     public int getItemCount() {
-        return _comments != null ? _comments.size() : 0;
+        return _comments.size();
+    }
+
+    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
+        this.onLoadMoreListener = onLoadMoreListener;
+    }
+
+    public interface OnLoadMoreListener {
+        void onLoadMore();
     }
 }

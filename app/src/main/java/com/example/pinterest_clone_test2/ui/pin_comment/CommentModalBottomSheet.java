@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.CommentListAdapter;
@@ -22,6 +23,7 @@ import com.example.pinterest_clone_test2.models.Comment;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,56 +31,82 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     public static String TAG = "CommentBottomSheet";
     String _pinId;
     ICommentDao _commentDao = null;
+    List<Comment> _comments;
     Handler myHandler = new Handler();
+    int currentPage = 1;
+    final int perPage = 5;
+    boolean isOnLastPage = false;
 
     CommentModalBottomSheetBinding binding;
     CommentListAdapter commentListAdapter;
 
     public CommentModalBottomSheet(String pinId) {
         _pinId = pinId;
+        _commentDao = new MockCommentDao();
+        _comments = new ArrayList<>();
     }
 
     // update the UI with the comments
-    void populateComments(List<Comment> comments, boolean append) {
-        if (commentListAdapter == null) {
-            commentListAdapter = new CommentListAdapter(comments);
-            binding.rvComments.setAdapter(commentListAdapter);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-            binding.rvComments.setLayoutManager(layoutManager);
-        } else {
-            commentListAdapter.setComments(comments, append);
-        }
+    void populateComments() {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        binding.rvComments.setLayoutManager(layoutManager);
 
-        if (comments.size() > 1) {
-            binding.tvCount.setText(String.format(Locale.US, "Showing %d comments", comments.size()));
-        } else {
-            binding.tvCount.setText(String.format(Locale.US, "Showing %d comment", comments.size()));
-        }
+        commentListAdapter = new CommentListAdapter(_comments, binding.rvComments);
+        binding.rvComments.setAdapter(commentListAdapter);
 
-        Log.d("comment-modal-populating", "good shiet");
-    }
+        commentListAdapter.setOnLoadMoreListener(new CommentListAdapter.OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                if (isOnLastPage) {
+                    return;
+                }
 
-    void fetchCommentsTask(int page, int perPage) {
-        if (_commentDao == null) {
-            _commentDao = new MockCommentDao();
-        }
+                _comments.add(null);
+                commentListAdapter.notifyItemInserted(_comments.size() - 1);
 
-        List<Comment> comments;
-        if (page == 0 || perPage == 0) {
-            comments = _commentDao.getComments();
-        } else comments = _commentDao.getComments(page, perPage);
+                myHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        _comments.remove(_comments.size() - 1);
+                        commentListAdapter.notifyItemRemoved(_comments.size());
 
-        myHandler.post(() -> {
-            populateComments(comments, true);
+                        currentPage++;
+                        List<Comment> newComments = _commentDao.getComments(currentPage, perPage);
+
+                        if (newComments.isEmpty()) {
+                            isOnLastPage = true;
+                            return;
+                        }
+
+                        _comments.addAll(newComments);
+                        commentListAdapter.notifyItemRangeInserted(_comments.size() - newComments.size(), newComments.size());
+
+                        if (commentListAdapter.getItemCount() > 1) {
+                            binding.tvCount.setText(String.format(Locale.US, "Showing %d comments", commentListAdapter.getItemCount()));
+                        } else {
+                            binding.tvCount.setText(String.format(Locale.US, "Showing %d comment", commentListAdapter.getItemCount()));
+                        }
+                    }
+                }, 2000);
+            }
         });
+
+        if (_comments.size() > 1) {
+            binding.tvCount.setText(String.format(Locale.US, "Showing %d comments", _comments.size()));
+        } else {
+            binding.tvCount.setText(String.format(Locale.US, "Showing %d comment", _comments.size()));
+        }
     }
 
-    void fetchCommentsAsync(int page, int perPage) {
+    void fetchCommentsAsync() {
         Thread thread = new Thread(() -> {
-            fetchCommentsTask(page, perPage);
+            List<Comment> newComments = _commentDao.getComments(currentPage, perPage);
+            _comments.addAll(newComments);
+            myHandler.post(this::populateComments);
         });
         thread.start();
     }
+
 
     @Nullable
     @Override
@@ -94,22 +122,11 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         if (view != null) {
             BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) view.getParent());
             behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            behavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-                @Override
-                public void onStateChanged(@NonNull View bottomSheet, int newState) {
-
-                }
-
-                @Override
-                public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-                }
-            });
             CoordinatorLayout layout = view.findViewById(R.id.comment_layout_container);
             ViewGroup.LayoutParams params = layout.getLayoutParams();
             params.height = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.9);
             layout.setLayoutParams(params);
-            layout.post(() -> fetchCommentsAsync(1, 5));
+            layout.post(this::fetchCommentsAsync);
         }
     }
 

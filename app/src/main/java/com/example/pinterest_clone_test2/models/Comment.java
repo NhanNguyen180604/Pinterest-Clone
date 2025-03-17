@@ -1,7 +1,5 @@
 package com.example.pinterest_clone_test2.models;
 
-import androidx.annotation.Nullable;
-
 public class Comment {
     String _id;
     // will replace with User model
@@ -10,21 +8,6 @@ public class Comment {
     String _content;
     String _attachmentUrl = null;
     String _replyTo = null;
-
-    public Comment(String id, String authorId, String authorName, String content) {
-        _id = id;
-        _authorId = authorId;
-        _authorName = authorName;
-        _content = content;
-    }
-
-    public Comment(String id, String authorId, String authorName, String content, String attachmentUrl) {
-        _id = id;
-        _authorId = authorId;
-        _authorName = authorName;
-        _content = content;
-        _attachmentUrl = attachmentUrl;
-    }
 
     public String getId() {
         return _id;
@@ -38,18 +21,46 @@ public class Comment {
         return _authorName;
     }
 
-    @Nullable
-    public String getAttachmentUrl() {
-        return _attachmentUrl;
-    }
-
     public String getContent() {
         return _content;
     }
 
-    @Nullable
+    public String getAttachmentUrl() {
+        return _attachmentUrl;
+    }
+
     public String getReplyCommentId() {
         return _replyTo;
+    }
+
+    public Comment setId(String id) {
+        _id = id;
+        return this;
+    }
+
+    public Comment setAuthorId(String authorId) {
+        _authorId = authorId;
+        return this;
+    }
+
+    public Comment setAuthorName(String authorName) {
+        _authorName = authorName;
+        return this;
+    }
+
+    public Comment setContent(String content) {
+        _content = content;
+        return this;
+    }
+
+    public Comment setAttachmentUrl(String attachmentUrl) {
+        _attachmentUrl = attachmentUrl;
+        return this;
+    }
+
+    public Comment setReplyCommentId(String replyTo) {
+        _replyTo = replyTo;
+        return this;
     }
 }
 

@@ -12,15 +12,51 @@ import java.util.Objects;
 public class MockCommentDao implements ICommentDao {
     List<Comment> _comments = null;
 
+    // the backend should sort the comments such that reply always follow the original comment
+    // or else im gonna kms
     public MockCommentDao() {
-        _comments = Arrays.asList(
-                new Comment("comment01", "user01", "Nguyen Thanh Nhan", "lmao", Integer.toString(R.drawable.karyl)),
-                new Comment("comment01", "user01", "Nguyen Nhan Thanh", "what the hell"),
-                new Comment("comment01", "user01", "Nhan Nguyen Thanh", "requiem", Integer.toString(R.drawable.araragi)),
-                new Comment("comment01", "user01", "Nhan Thanh Nguyen", "lorem is my favorite thing of all times, it is so convenient, but i am too lazy to search the google for a lorem so here i am typing this myself god damn it no wonder it takes me forever to code something"),
-                new Comment("comment01", "user01", "Thanh Nhan Nguyen", "nani"),
-                new Comment("comment01", "user01", "Thanh Nguyen Nhan", "an endless journey, chasing the light, has brought us this way, the myth at last concludes")
-        );
+        _comments = new ArrayList<>(Arrays.asList(
+                new Comment()
+                        .setId("comment01")
+                        .setAuthorId("user01")
+                        .setAuthorName("Nguyen Thanh Nhan")
+                        .setContent("lmao")
+                        .setAttachmentUrl(Integer.toString(R.drawable.karyl)),
+                new Comment()
+                        .setId("comment02")
+                        .setAuthorId("user02")
+                        .setAuthorName("Nguyen Nhan Thanh")
+                        .setContent("")
+                        .setReplyCommentId("comment01")
+                        .setAttachmentUrl(Integer.toString(R.drawable.turtle_huh)),
+                new Comment()
+                        .setId("comment03")
+                        .setAuthorId("user03")
+                        .setAuthorName("Nhan Nguyen Thanh")
+                        .setContent("requiem")
+                        .setAttachmentUrl(Integer.toString(R.drawable.araragi)),
+                new Comment()
+                        .setId("comment04")
+                        .setAuthorId("user04")
+                        .setAuthorName("Nhan Thanh Nguyen")
+                        .setContent("lorem is my favorite thing of all times, it is so convenient, but i am too lazy to search the google for a lorem so here i am typing this myself god damn it no wonder it takes me forever to code something"),
+                new Comment()
+                        .setId("comment05")
+                        .setAuthorId("user05")
+                        .setAuthorName("Thanh Nhan Nguyen")
+                        .setContent("nani")
+                        .setReplyCommentId("comment04")
+                        .setAttachmentUrl(Integer.toString(R.drawable.turtle_huh)),
+                new Comment()
+                        .setId("comment06")
+                        .setAuthorId("user06")
+                        .setAuthorName("Thanh Nguyen Nhan")
+                        .setContent("An endless journey.\n" +
+                                "Chasing the light, brought us all this way.\n" +
+                                "The myth at last concludes.\n" +
+                                "Let us close our eyes, just as we've been told.\n" +
+                                "And let us dream, new dreams.")
+        ));
     }
 
     @Override
@@ -46,14 +82,15 @@ public class MockCommentDao implements ICommentDao {
 
     @Override
     public void addComment(Comment newComment) {
-        if (newComment == null){
+        if (newComment == null) {
             return;
         }
 
         // check if duplicate
-        if (_comments.stream().anyMatch(comment -> Objects.equals(comment.getId(), newComment.getId()))){
+        if (_comments.stream().anyMatch(comment -> Objects.equals(comment.getId(), newComment.getId()))) {
             return;
-        };
+        }
+        ;
 
         _comments.add(newComment);
     }
