@@ -3,7 +3,6 @@ package com.example.pinterest_clone_test2.ui.pin_comment;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +10,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.CommentListAdapter;
@@ -23,15 +22,13 @@ import com.example.pinterest_clone_test2.models.Comment;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     public static String TAG = "CommentBottomSheet";
     String _pinId;
-    ICommentDao _commentDao = null;
-    List<Comment> _comments;
+    ICommentDao _commentDao;
+    CommentModalViewModel viewModel;
     Handler myHandler = new Handler();
     int currentPage = 1;
     final int perPage = 5;
@@ -43,15 +40,15 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     public CommentModalBottomSheet(String pinId) {
         _pinId = pinId;
         _commentDao = new MockCommentDao();
-        _comments = new ArrayList<>();
     }
 
     // update the UI with the comments
-    void populateComments() {
+    void populateComments(List<Comment> newComments) {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         binding.rvComments.setLayoutManager(layoutManager);
 
-        commentListAdapter = new CommentListAdapter(_comments, binding.rvComments);
+        viewModel.addComments(newComments);
+        commentListAdapter = new CommentListAdapter(viewModel.getComments().getValue(), binding.rvComments);
         binding.rvComments.setAdapter(commentListAdapter);
 
         commentListAdapter.setOnLoadMoreListener(new CommentListAdapter.OnLoadMoreListener() {
@@ -61,14 +58,12 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                     return;
                 }
 
-                _comments.add(null);
-                commentListAdapter.notifyItemInserted(_comments.size() - 1);
+                viewModel.addComments(null);
 
-                myHandler.postDelayed(new Runnable() {
+                myHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        _comments.remove(_comments.size() - 1);
-                        commentListAdapter.notifyItemRemoved(_comments.size());
+                        viewModel.removeLastComment();
 
                         currentPage++;
                         List<Comment> newComments = _commentDao.getComments(currentPage, perPage);
@@ -78,35 +73,32 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                             return;
                         }
 
-                        _comments.addAll(newComments);
-                        commentListAdapter.notifyItemRangeInserted(_comments.size() - newComments.size(), newComments.size());
-
-                        if (commentListAdapter.getItemCount() > 1) {
-                            binding.tvCount.setText(String.format(Locale.US, "Showing %d comments", commentListAdapter.getItemCount()));
-                        } else {
-                            binding.tvCount.setText(String.format(Locale.US, "Showing %d comment", commentListAdapter.getItemCount()));
-                        }
+                        viewModel.addComments(newComments);
+                        commentListAdapter.setLoaded();
                     }
-                }, 2000);
+                });
             }
         });
 
-        if (_comments.size() > 1) {
-            binding.tvCount.setText(String.format(Locale.US, "Showing %d comments", _comments.size()));
-        } else {
-            binding.tvCount.setText(String.format(Locale.US, "Showing %d comment", _comments.size()));
-        }
+        viewModel.getComments().observe(this, comments -> {
+            commentListAdapter.notifyDataSetChanged();
+            binding.tvCount.setText(viewModel.getCommentCountString());
+        });
     }
 
     void fetchCommentsAsync() {
         Thread thread = new Thread(() -> {
             List<Comment> newComments = _commentDao.getComments(currentPage, perPage);
-            _comments.addAll(newComments);
-            myHandler.post(this::populateComments);
+            myHandler.post(() -> populateComments(newComments));
         });
         thread.start();
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(CommentModalViewModel.class);
+    }
 
     @Nullable
     @Override
@@ -118,16 +110,17 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+
         View view = getView();
-        if (view != null) {
-            BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) view.getParent());
-            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            CoordinatorLayout layout = view.findViewById(R.id.comment_layout_container);
-            ViewGroup.LayoutParams params = layout.getLayoutParams();
-            params.height = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.9);
-            layout.setLayoutParams(params);
-            layout.post(this::fetchCommentsAsync);
-        }
+        assert view != null;
+
+        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) view.getParent());
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        CoordinatorLayout layout = view.findViewById(R.id.comment_layout_container);
+        ViewGroup.LayoutParams params = layout.getLayoutParams();
+        params.height = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.9);
+        layout.setLayoutParams(params);
+        layout.post(this::fetchCommentsAsync);
     }
 
     @Override

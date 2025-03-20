@@ -3,9 +3,7 @@ package com.example.pinterest_clone_test2.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -14,35 +12,33 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.databinding.CommentViewHolderBinding;
 import com.example.pinterest_clone_test2.models.Comment;
-import com.google.android.material.imageview.ShapeableImageView;
 
 import java.util.List;
 
 public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     static class CommentViewHolder extends RecyclerView.ViewHolder {
-        ShapeableImageView ivAvatar;
-        TextView tvUsername;
-        TextView tvTimestamp;
-        ImageView ivAttachment;
-        TextView tvContent;
-        TextView tvClickableReply;
-        TextView tvClickableReact;
-        TextView tvClickableMore;
         ConstraintLayout layout;
+        CommentViewHolderBinding _binding;
 
-        CommentViewHolder(@NonNull View itemView) {
-            super(itemView);
+        CommentViewHolder(CommentViewHolderBinding binding) {
+            super(binding.getRoot());
+            _binding = binding;
+            layout = _binding.commentLayoutContainer;
+        }
 
-            ivAvatar = itemView.findViewById(R.id.iv_avatar);
-            tvUsername = itemView.findViewById(R.id.tv_username);
-            tvTimestamp = itemView.findViewById(R.id.tv_timestamp);
-            ivAttachment = itemView.findViewById(R.id.iv_attachment);
-            tvContent = itemView.findViewById(R.id.tv_content);
-            tvClickableReply = itemView.findViewById(R.id.tv_clickable_reply);
-            tvClickableReact = itemView.findViewById(R.id.tv_clickable_react);
-            tvClickableMore = itemView.findViewById(R.id.tv_clickable_more);
-            layout = itemView.findViewById(R.id.comment_layout_container);
+        void setComment(Comment comment) {
+            _binding.setComment(comment);
+            if (comment.getAttachmentUrl() != null) {
+                Glide.with(_binding.ivAttachment.getContext())
+                        .load(Integer.parseInt(comment.getAttachmentUrl()))
+                        .fitCenter()
+                        .placeholder(R.drawable.karyl)
+                        .into(_binding.ivAttachment);
+            } else {
+                _binding.ivAttachment.setImageResource(0);
+            }
         }
 
         public void adjustMarginStart() {
@@ -106,7 +102,10 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder vh;
         if (viewType == VIEW_ITEM) {
-            vh = new CommentViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_view_holder, parent, false));
+//            vh = new CommentViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_view_holder, parent, false));
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            CommentViewHolderBinding binding = CommentViewHolderBinding.inflate(inflater, parent, false);
+            vh = new CommentViewHolder(binding);
         } else {
             vh = new SpinnerViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.spinner, parent, false));
         }
@@ -118,21 +117,10 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         Comment comment = _comments.get(position);
         if (holder instanceof CommentViewHolder) {
             CommentViewHolder vh = (CommentViewHolder) holder;
-            if (comment.getAttachmentUrl() != null) {
-                Glide.with(vh.ivAttachment.getContext())
-                        .load(Integer.parseInt(comment.getAttachmentUrl()))
-                        .fitCenter()
-                        .placeholder(R.drawable.karyl)
-                        .into(vh.ivAttachment);
-            } else {
-                vh.ivAttachment.setImageResource(0);
-            }
-
-            vh.tvContent.setText(comment.getContent());
-            vh.tvUsername.setText(comment.getAuthorName());
             if (comment.getReplyCommentId() != null) {
                 vh.adjustMarginStart();
             }
+            vh.setComment(comment);
         } else {
             ((SpinnerViewHolder) holder).progressBar.setIndeterminate(true);
         }

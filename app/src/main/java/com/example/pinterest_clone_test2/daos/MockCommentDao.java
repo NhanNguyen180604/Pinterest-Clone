@@ -21,12 +21,14 @@ public class MockCommentDao implements ICommentDao {
                         .setAuthorId("user01")
                         .setAuthorName("Nguyen Thanh Nhan")
                         .setContent("lmao")
+                        .setLikeCount(1)
                         .setAttachmentUrl(Integer.toString(R.drawable.karyl)),
                 new Comment()
                         .setId("comment02")
                         .setAuthorId("user02")
                         .setAuthorName("Nguyen Nhan Thanh")
                         .setContent("")
+                        .setLikeCount(10)
                         .setReplyCommentId("comment01")
                         .setAttachmentUrl(Integer.toString(R.drawable.turtle_huh)),
                 new Comment()
@@ -34,11 +36,13 @@ public class MockCommentDao implements ICommentDao {
                         .setAuthorId("user03")
                         .setAuthorName("Nhan Nguyen Thanh")
                         .setContent("requiem")
+                        .setLikeCount(12)
                         .setAttachmentUrl(Integer.toString(R.drawable.araragi)),
                 new Comment()
                         .setId("comment04")
                         .setAuthorId("user04")
                         .setAuthorName("Nhan Thanh Nguyen")
+                        .setLikeCount(16)
                         .setContent("lorem is my favorite thing of all times, it is so convenient, but i am too lazy to search the google for a lorem so here i am typing this myself god damn it no wonder it takes me forever to code something"),
                 new Comment()
                         .setId("comment05")
@@ -46,11 +50,13 @@ public class MockCommentDao implements ICommentDao {
                         .setAuthorName("Thanh Nhan Nguyen")
                         .setContent("nani")
                         .setReplyCommentId("comment04")
+                        .setLikeCount(69)
                         .setAttachmentUrl(Integer.toString(R.drawable.turtle_huh)),
                 new Comment()
                         .setId("comment06")
                         .setAuthorId("user06")
                         .setAuthorName("Thanh Nguyen Nhan")
+                        .setLikeCount(1234)
                         .setContent("An endless journey.\n" +
                                 "Chasing the light, brought us all this way.\n" +
                                 "The myth at last concludes.\n" +
