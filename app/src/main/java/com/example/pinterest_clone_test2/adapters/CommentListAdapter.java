@@ -63,6 +63,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private int lastVisibleItem, totalItemCount;
     private boolean loading;
     private OnLoadMoreListener onLoadMoreListener;
+    private ReactionClickListener reactionClickListener;
 
     final static int VIEW_ITEM = 1;
     final static int VIEW_PROGRESS = 2;
@@ -121,6 +122,16 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 vh.adjustMarginStart();
             }
             vh.setComment(comment);
+
+            vh._binding.tvClickableReact.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (reactionClickListener != null){
+                        reactionClickListener.onClick(comment);
+                    }
+                }
+            });
+
         } else {
             ((SpinnerViewHolder) holder).progressBar.setIndeterminate(true);
         }
@@ -140,11 +151,19 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return _comments.size();
     }
 
+    public interface OnLoadMoreListener {
+        void onLoadMore();
+    }
+
     public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
         this.onLoadMoreListener = onLoadMoreListener;
     }
 
-    public interface OnLoadMoreListener {
-        void onLoadMore();
+    public interface ReactionClickListener {
+        void onClick(Comment comment);
+    }
+
+    public void setReactionClickListener(ReactionClickListener reactionClickListener) {
+        this.reactionClickListener = reactionClickListener;
     }
 }

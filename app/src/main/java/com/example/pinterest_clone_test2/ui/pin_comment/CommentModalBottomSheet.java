@@ -30,6 +30,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     ICommentDao _commentDao;
     CommentModalViewModel viewModel;
     Handler myHandler = new Handler();
+    // how to refactor this
     int currentPage = 1;
     final int perPage = 5;
     boolean isOnLastPage = false;
@@ -80,6 +81,15 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
             }
         });
 
+        commentListAdapter.setReactionClickListener(new CommentListAdapter.ReactionClickListener() {
+            @Override
+            public void onClick(Comment comment) {
+                comment.setIsLiked(!comment.getIsLiked());
+                comment.setLikeCount(comment.getLikeCount() + (comment.getIsLiked() ? 1 : -1));
+                // update database here
+            }
+        });
+
         viewModel.getComments().observe(this, comments -> {
             commentListAdapter.notifyDataSetChanged();
             binding.tvCount.setText(viewModel.getCommentCountString());
@@ -121,6 +131,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         params.height = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.9);
         layout.setLayoutParams(params);
         layout.post(this::fetchCommentsAsync);
+        binding.setUserCommentModel(viewModel.getUserCommentModel());
     }
 
     @Override
