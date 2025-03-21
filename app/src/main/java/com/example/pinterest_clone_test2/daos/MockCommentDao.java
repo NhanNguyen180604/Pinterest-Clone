@@ -1,14 +1,11 @@
 package com.example.pinterest_clone_test2.daos;
 
-import androidx.annotation.Discouraged;
 import androidx.annotation.NonNull;
 
-import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.models.Comment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,7 +22,7 @@ public class MockCommentDao implements ICommentDao {
                         .setAuthorName("Nguyen Thanh Nhan")
                         .setContent("lmao")
                         .setLikeCount(1)
-                        .setUserLikeId("user69")
+                        .setUserLikeId("default-user-id")
                         .setIsLiked(true)
                         .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1741956521/67684ec351fca61bd69f7716/2/ufmcj7or3tp6wheumsfs.jpg"),
                 new Comment()
@@ -35,7 +32,7 @@ public class MockCommentDao implements ICommentDao {
                         .setContent("")
                         .setLikeCount(10)
                         .setReplyCommentId("comment01")
-                        .setUserLikeId("user69")
+                        .setUserLikeId("default-user-id")
                         .setIsLiked(false)
                         .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1741956525/67684ec351fca61bd69f7716/2/s8oo7ktm2gf1wvawqg3n.png"),
                 new Comment()
@@ -44,7 +41,7 @@ public class MockCommentDao implements ICommentDao {
                         .setAuthorName("Nhan Nguyen Thanh")
                         .setContent("requiem")
                         .setLikeCount(12)
-                        .setUserLikeId("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1735375550/675e9bcb4231a81f56b82c11/6/toz3hcn86mqcsins2gsx.png")
+                        .setUserLikeId("default-user-id")
                         .setIsLiked(false)
                         .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1735305519/676ea8facd4b26dc7654c093/1/b0pqu9vtrriylx80qqol.png"),
                 new Comment()
@@ -52,7 +49,7 @@ public class MockCommentDao implements ICommentDao {
                         .setAuthorId("user04")
                         .setAuthorName("Nhan Thanh Nguyen")
                         .setLikeCount(16)
-                        .setUserLikeId("user69")
+                        .setUserLikeId("default-user-id")
                         .setIsLiked(true)
                         .setContent("lorem is my favorite thing of all times, it is so convenient, but i am too lazy to search the google for a lorem so here i am typing this myself god damn it no wonder it takes me forever to code something"),
                 new Comment()
@@ -68,7 +65,7 @@ public class MockCommentDao implements ICommentDao {
                         .setAuthorId("user06")
                         .setAuthorName("Thanh Nguyen Nhan")
                         .setLikeCount(1234)
-                        .setUserLikeId("user69")
+                        .setUserLikeId("default-user-id")
                         .setIsLiked(true)
                         .setContent("An endless journey.\n" +
                                 "Chasing the light, brought us all this way.\n" +
@@ -86,7 +83,7 @@ public class MockCommentDao implements ICommentDao {
     // Do not use this
     @Override
     public List<Comment> getComments(int page, int perPage) {
-        return new ArrayList<Comment>();
+        return new ArrayList<>();
     }
 
     @Override

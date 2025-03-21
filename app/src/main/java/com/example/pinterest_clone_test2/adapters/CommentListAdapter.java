@@ -1,5 +1,6 @@
 package com.example.pinterest_clone_test2.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -103,11 +104,12 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private ReactionClickListener reactionClickListener;
     private ReplyClickListener replyClickListener;
     private OptionsClickListener optionsClickListener;
+    private AttachmentClickListener attachmentClickListener;
 
     final static int VIEW_NORMAL = 1;
     final static int VIEW_REPLYING = 2;
 
-    public CommentListAdapter(List<Comment> comments) {
+    public CommentListAdapter(List<Comment> comments, Context context) {
         _comments = comments;
     }
 
@@ -147,7 +149,13 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             vh._binding.tvClickableOptions.setOnClickListener(v -> {
                 if (optionsClickListener != null) {
-                    optionsClickListener.onClick(comment);
+                    optionsClickListener.OnClick(comment);
+                }
+            });
+
+            vh._binding.ivAttachment.setOnClickListener(v -> {
+                if (comment.getAttachmentUrl() != null || comment.getAttachmentUri() != null) {
+                    attachmentClickListener.OnClick(comment);
                 }
             });
         } else {
@@ -168,7 +176,13 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             vh._binding.tvClickableOptions.setOnClickListener(v -> {
                 if (optionsClickListener != null) {
-                    optionsClickListener.onClick(comment);
+                    optionsClickListener.OnClick(comment);
+                }
+            });
+
+            vh._binding.ivAttachment.setOnClickListener(v -> {
+                if (comment.getAttachmentUrl() != null || comment.getAttachmentUri() != null) {
+                    attachmentClickListener.OnClick(comment);
                 }
             });
         }
@@ -203,10 +217,18 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public interface OptionsClickListener {
-        void onClick(Comment comment);
+        void OnClick(Comment comment);
     }
 
     public void setMoreClickListener(OptionsClickListener optionsClickListener) {
         this.optionsClickListener = optionsClickListener;
+    }
+
+    public interface AttachmentClickListener {
+        void OnClick(Comment comment);
+    }
+
+    public void setAttachmentClickListener(AttachmentClickListener attachmentClickListener) {
+        this.attachmentClickListener = attachmentClickListener;
     }
 }

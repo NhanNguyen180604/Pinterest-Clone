@@ -57,7 +57,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
 
 //        viewModel.setComments(newComments);
         _comments = newComments;
-        commentListAdapter = new CommentListAdapter(newComments);
+        commentListAdapter = new CommentListAdapter(newComments, requireContext());
         binding.rvComments.setAdapter(commentListAdapter);
         binding.tvCount.setText(getCommentCountString());
 
@@ -77,6 +77,11 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         commentListAdapter.setMoreClickListener(comment -> {
             CommentOptionsModalBottomSheet bottomSheet = new CommentOptionsModalBottomSheet(comment);
             bottomSheet.show(requireActivity().getSupportFragmentManager(), CommentOptionsModalBottomSheet.TAG);
+        });
+
+        commentListAdapter.setAttachmentClickListener(comment -> {
+            CommentAttachmentDetailModal bottomSheet = new CommentAttachmentDetailModal(comment);
+            bottomSheet.show(requireActivity().getSupportFragmentManager(), CommentAttachmentDetailModal.TAG);
         });
     }
 
