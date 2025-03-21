@@ -1,6 +1,7 @@
 package com.example.pinterest_clone_test2.models;
 
 import android.net.Uri;
+import android.view.View;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
@@ -9,6 +10,7 @@ import androidx.databinding.library.baseAdapters.BR;
 import com.example.pinterest_clone_test2.R;
 
 import java.util.Locale;
+import java.util.Objects;
 
 public class Comment extends BaseObservable {
     String _id;
@@ -87,6 +89,7 @@ public class Comment extends BaseObservable {
     public Comment setAuthorId(String authorId) {
         _authorId = authorId;
         notifyPropertyChanged(BR.authorId);
+        notifyPropertyChanged(BR.optionsVisibility);
         return this;
     }
 
@@ -148,6 +151,12 @@ public class Comment extends BaseObservable {
     @Bindable
     public int getReactionIcon() {
         return _isLiked ? R.drawable.ic_favorite_heart_filled : R.drawable.ic_favorite_heart;
+    }
+
+    @Bindable
+    public int getOptionsVisibility(){
+        // TODO: check if this is the user's comment, if it is then no options, we're running out of time
+        return Objects.equals(_authorId, "default-user-id") ? View.GONE : View.VISIBLE;
     }
 }
 

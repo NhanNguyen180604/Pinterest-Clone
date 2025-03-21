@@ -100,7 +100,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:clickable="true"
-            app:reactionIcon="@{comment.reactionIcon}"
             android:drawablePadding="4dp"
             android:text="@{comment.reactionString}"
             android:textColor="@color/black"
@@ -108,15 +107,17 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/tv_clickable_reply"
             app:layout_constraintStart_toEndOf="@id/tv_clickable_reply"
-            app:layout_constraintTop_toTopOf="@id/tv_clickable_reply" />
+            app:layout_constraintTop_toTopOf="@id/tv_clickable_reply"
+            app:reactionIcon="@{comment.reactionIcon}" />
 
         <TextView
-            android:id="@+id/tv_clickable_more"
+            android:id="@+id/tv_clickable_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:clickable="true"
             android:drawableStart="@drawable/ic_more_horiz"
+            android:visibility="@{comment.optionsVisibility}"
             app:layout_constraintBottom_toBottomOf="@id/tv_clickable_reply"
             app:layout_constraintStart_toEndOf="@id/tv_clickable_react"
             app:layout_constraintTop_toTopOf="@id/tv_clickable_reply" />

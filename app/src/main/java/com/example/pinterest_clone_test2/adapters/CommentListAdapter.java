@@ -102,6 +102,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     // The minimum amount of items to have below your current scroll position before loading more.
     private ReactionClickListener reactionClickListener;
     private ReplyClickListener replyClickListener;
+    private OptionsClickListener optionsClickListener;
 
     final static int VIEW_NORMAL = 1;
     final static int VIEW_REPLYING = 2;
@@ -143,6 +144,12 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     replyClickListener.onClick(comment);
                 }
             });
+
+            vh._binding.tvClickableOptions.setOnClickListener(v -> {
+                if (optionsClickListener != null) {
+                    optionsClickListener.onClick(comment);
+                }
+            });
         } else {
             CommentReplyingViewHolder vh = (CommentReplyingViewHolder) holder;
             vh.setComment(comment);
@@ -153,9 +160,15 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             });
 
-            vh._binding.tvClickableReply.setOnClickListener(v -> {
+            vh._binding.tvClickableOptions.setOnClickListener(v -> {
                 if (replyClickListener != null) {
                     replyClickListener.onClick(comment);
+                }
+            });
+
+            vh._binding.tvClickableOptions.setOnClickListener(v -> {
+                if (optionsClickListener != null) {
+                    optionsClickListener.onClick(comment);
                 }
             });
         }
@@ -187,5 +200,13 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public void setReplyClickListener(ReplyClickListener replyClickListener) {
         this.replyClickListener = replyClickListener;
+    }
+
+    public interface OptionsClickListener {
+        void onClick(Comment comment);
+    }
+
+    public void setMoreClickListener(OptionsClickListener optionsClickListener) {
+        this.optionsClickListener = optionsClickListener;
     }
 }

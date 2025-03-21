@@ -1,6 +1,7 @@
 package com.example.pinterest_clone_test2.daos;
 
 import androidx.annotation.Discouraged;
+import androidx.annotation.NonNull;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.models.Comment;
@@ -89,11 +90,7 @@ public class MockCommentDao implements ICommentDao {
     }
 
     @Override
-    public void addComment(Comment newComment) {
-        if (newComment == null) {
-            return;
-        }
-
+    public void addComment(@NonNull Comment newComment) {
         // check if duplicate
         if (_comments.stream().anyMatch(comment -> Objects.equals(comment.getId(), newComment.getId()))) {
             return;
@@ -103,7 +100,7 @@ public class MockCommentDao implements ICommentDao {
     }
 
     @Override
-    public void removeComment(Comment comment) {
+    public void removeComment(@NonNull Comment comment) {
         _comments.remove(comment);
     }
 }

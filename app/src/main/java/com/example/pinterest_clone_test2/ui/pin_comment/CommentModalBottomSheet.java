@@ -31,7 +31,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class CommentModalBottomSheet extends BottomSheetDialogFragment {
-    public static String TAG = "CommentBottomSheet";
+    public static String TAG = "CommentModalBottomSheet";
     String _pinId;
     ICommentDao _commentDao;
     UserCommentModel userCommentModel;
@@ -73,6 +73,11 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         commentListAdapter.setReplyClickListener(comment -> {
             userCommentModel.setReplyToId(comment.getId());
             userCommentModel.setReplyToName(comment.getAuthorName());
+        });
+
+        commentListAdapter.setMoreClickListener(comment -> {
+            CommentOptionsModalBottomSheet bottomSheet = new CommentOptionsModalBottomSheet(comment);
+            bottomSheet.show(requireActivity().getSupportFragmentManager(), CommentOptionsModalBottomSheet.TAG);
         });
     }
 
@@ -117,13 +122,13 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
 
         BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) view.getParent());
         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        behavior.setSkipCollapsed(true);
 
-        CoordinatorLayout layout = view.findViewById(R.id.comment_layout_container);
-        ViewGroup.LayoutParams params = layout.getLayoutParams();
+        ViewGroup.LayoutParams params = binding.commentLayoutContainer.getLayoutParams();
         params.height = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.9);
-        layout.setLayoutParams(params);
+        binding.commentLayoutContainer.setLayoutParams(params);
 
-        layout.post(this::fetchCommentsAsync);
+        binding.commentLayoutContainer.post(this::fetchCommentsAsync);
 
         binding.setUserCommentModel(userCommentModel);
         binding.etCommentInput.setOnFocusChangeListener((v, hasFocus) -> userCommentModel.setIsFocused(hasFocus));

@@ -14,4 +14,8 @@
     <string name="tv_relevant_images">More to explore</string>
     <string name="comment_hint">Add a comment</string>
     <string name="pin_comment_title">Showing 0 comment</string>
+    <string name="comment_options_modal_title">Options</string>
+    <string name="report_description_placeholder">Report description</string>
+    <string name="report_title_placeholder">Report title</string>
+    <string name="comment_report_modal_title">Create a report</string>
 </resources>

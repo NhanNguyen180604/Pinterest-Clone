@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -112,14 +113,16 @@
             app:reactionIcon="@{comment.reactionIcon}" />
 
         <TextView
-            android:id="@+id/tv_clickable_more"
+            android:id="@+id/tv_clickable_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:clickable="true"
             android:drawableStart="@drawable/ic_more_horiz"
+            android:visibility="@{comment.optionsVisibility}"
             app:layout_constraintBottom_toBottomOf="@id/tv_clickable_reply"
             app:layout_constraintStart_toEndOf="@id/tv_clickable_react"
-            app:layout_constraintTop_toTopOf="@id/tv_clickable_reply" />
+            app:layout_constraintTop_toTopOf="@id/tv_clickable_reply"
+            tools:ignore="UseCompatTextViewDrawableXml" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
