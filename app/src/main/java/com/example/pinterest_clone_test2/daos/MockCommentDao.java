@@ -1,5 +1,7 @@
 package com.example.pinterest_clone_test2.daos;
 
+import androidx.annotation.Discouraged;
+
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.models.Comment;
 
@@ -24,7 +26,7 @@ public class MockCommentDao implements ICommentDao {
                         .setLikeCount(1)
                         .setUserLikeId("user69")
                         .setIsLiked(true)
-                        .setAttachmentUrl(Integer.toString(R.drawable.karyl)),
+                        .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1741956521/67684ec351fca61bd69f7716/2/ufmcj7or3tp6wheumsfs.jpg"),
                 new Comment()
                         .setId("comment02")
                         .setAuthorId("user02")
@@ -34,16 +36,16 @@ public class MockCommentDao implements ICommentDao {
                         .setReplyCommentId("comment01")
                         .setUserLikeId("user69")
                         .setIsLiked(false)
-                        .setAttachmentUrl(Integer.toString(R.drawable.turtle_huh)),
+                        .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1741956525/67684ec351fca61bd69f7716/2/s8oo7ktm2gf1wvawqg3n.png"),
                 new Comment()
                         .setId("comment03")
                         .setAuthorId("user03")
                         .setAuthorName("Nhan Nguyen Thanh")
                         .setContent("requiem")
                         .setLikeCount(12)
-                        .setUserLikeId("user69")
+                        .setUserLikeId("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1735375550/675e9bcb4231a81f56b82c11/6/toz3hcn86mqcsins2gsx.png")
                         .setIsLiked(false)
-                        .setAttachmentUrl(Integer.toString(R.drawable.araragi)),
+                        .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1735305519/676ea8facd4b26dc7654c093/1/b0pqu9vtrriylx80qqol.png"),
                 new Comment()
                         .setId("comment04")
                         .setAuthorId("user04")
@@ -59,7 +61,7 @@ public class MockCommentDao implements ICommentDao {
                         .setContent("nani")
                         .setReplyCommentId("comment04")
                         .setLikeCount(69)
-                        .setAttachmentUrl(Integer.toString(R.drawable.turtle_huh)),
+                        .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1735307406/675e9bcb4231a81f56b82c11/4/pux9egxwo0upxczkti8b.png"),
                 new Comment()
                         .setId("comment06")
                         .setAuthorId("user06")
@@ -80,20 +82,10 @@ public class MockCommentDao implements ICommentDao {
         return _comments;
     }
 
+    // Do not use this
     @Override
     public List<Comment> getComments(int page, int perPage) {
-        if (perPage < 1 || page < 1) {
-            throw new IllegalArgumentException("What the **** is wrong with you? How come perPage or page < 1?");
-        }
-
-        int fromIndex = (page - 1) * perPage;
-        int toIndex = fromIndex + perPage;
-
-        if (_comments == null || _comments.size() < fromIndex) {
-            return Collections.emptyList();
-        }
-
-        return _comments.subList(fromIndex, Math.min(toIndex, _comments.size()));
+        return new ArrayList<Comment>();
     }
 
     @Override

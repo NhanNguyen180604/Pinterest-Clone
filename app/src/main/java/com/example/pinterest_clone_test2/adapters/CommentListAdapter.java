@@ -1,17 +1,16 @@
 package com.example.pinterest_clone_test2.adapters;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.databinding.CommentReplyingViewHolderBinding;
 import com.example.pinterest_clone_test2.databinding.CommentViewHolderBinding;
 import com.example.pinterest_clone_test2.models.Comment;
 
@@ -31,84 +30,97 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         void setComment(Comment comment) {
             _binding.setComment(comment);
             if (comment.getAttachmentUrl() != null) {
+                RequestOptions options = new RequestOptions()
+                        .placeholder(R.drawable.karyl)
+                        .error(R.drawable.turtle_huh);
+
                 Glide.with(_binding.ivAttachment.getContext())
-                        .load(Integer.parseInt(comment.getAttachmentUrl()))
+                        .load(comment.getAttachmentUrl())
                         .fitCenter()
+                        .apply(options)
+                        .placeholder(R.drawable.karyl)
+                        .into(_binding.ivAttachment);
+            } else if (comment.getAttachmentUri() != null) {
+                RequestOptions options = new RequestOptions()
+                        .placeholder(R.drawable.karyl)
+                        .error(R.drawable.turtle_huh);
+
+                Glide.with(_binding.ivAttachment.getContext())
+                        .load(comment.getAttachmentUri())
+                        .fitCenter()
+                        .apply(options)
                         .placeholder(R.drawable.karyl)
                         .into(_binding.ivAttachment);
             } else {
                 _binding.ivAttachment.setImageResource(0);
             }
         }
+    }
 
-        public void adjustMarginStart() {
-            int startMarginDp = (int) layout.getContext().getResources().getDimension(R.dimen.reply_comment_start_margin);
-            layout.setPadding(startMarginDp, 0, 0, 0);
+    static class CommentReplyingViewHolder extends RecyclerView.ViewHolder {
+        ConstraintLayout layout;
+        CommentReplyingViewHolderBinding _binding;
+
+        CommentReplyingViewHolder(CommentReplyingViewHolderBinding binding) {
+            super(binding.getRoot());
+            _binding = binding;
+            layout = _binding.commentLayoutContainer;
+        }
+
+        void setComment(Comment comment) {
+            _binding.setComment(comment);
+            if (comment.getAttachmentUrl() != null) {
+                RequestOptions options = new RequestOptions()
+                        .placeholder(R.drawable.karyl)
+                        .error(R.drawable.turtle_huh);
+
+                Glide.with(_binding.ivAttachment.getContext())
+                        .load(comment.getAttachmentUrl())
+                        .fitCenter()
+                        .apply(options)
+                        .placeholder(R.drawable.karyl)
+                        .into(_binding.ivAttachment);
+            } else if (comment.getAttachmentUri() != null) {
+                RequestOptions options = new RequestOptions()
+                        .placeholder(R.drawable.karyl)
+                        .error(R.drawable.turtle_huh);
+
+                Glide.with(_binding.ivAttachment.getContext())
+                        .load(comment.getAttachmentUri())
+                        .fitCenter()
+                        .apply(options)
+                        .placeholder(R.drawable.karyl)
+                        .into(_binding.ivAttachment);
+            } else {
+                _binding.ivAttachment.setImageResource(0);
+            }
         }
     }
 
-    static class SpinnerViewHolder extends RecyclerView.ViewHolder {
-        ProgressBar progressBar;
-
-        SpinnerViewHolder(@NonNull View itemView) {
-            super(itemView);
-            progressBar = itemView.findViewById(R.id.spinner);
-        }
-    }
-
-    final List<Comment> _comments;
+    List<Comment> _comments;
 
     // The minimum amount of items to have below your current scroll position before loading more.
-    private final int visibleThreshold = 2;
-    private int lastVisibleItem, totalItemCount;
-    private boolean loading;
-    private OnLoadMoreListener onLoadMoreListener;
     private ReactionClickListener reactionClickListener;
+    private ReplyClickListener replyClickListener;
 
-    final static int VIEW_ITEM = 1;
-    final static int VIEW_PROGRESS = 2;
+    final static int VIEW_NORMAL = 1;
+    final static int VIEW_REPLYING = 2;
 
-    public CommentListAdapter(List<Comment> comments, RecyclerView recyclerView) {
+    public CommentListAdapter(List<Comment> comments) {
         _comments = comments;
-
-        if (recyclerView.getLayoutManager() != null) {
-            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-
-                    totalItemCount = layoutManager.getItemCount();
-                    lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                    if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-                        // End has been reached
-                        // Do something
-                        if (onLoadMoreListener != null) {
-                            onLoadMoreListener.onLoadMore();
-                        }
-                        loading = true;
-                    }
-                }
-
-                @Override
-                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                }
-            });
-        }
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder vh;
-        if (viewType == VIEW_ITEM) {
-//            vh = new CommentViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_view_holder, parent, false));
-            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        if (viewType == VIEW_NORMAL) {
             CommentViewHolderBinding binding = CommentViewHolderBinding.inflate(inflater, parent, false);
             vh = new CommentViewHolder(binding);
         } else {
-            vh = new SpinnerViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.spinner, parent, false));
+            CommentReplyingViewHolderBinding binding = CommentReplyingViewHolderBinding.inflate(inflater, parent, false);
+            vh = new CommentReplyingViewHolder(binding);
         }
         return vh;
     }
@@ -118,45 +130,47 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         Comment comment = _comments.get(position);
         if (holder instanceof CommentViewHolder) {
             CommentViewHolder vh = (CommentViewHolder) holder;
-            if (comment.getReplyCommentId() != null) {
-                vh.adjustMarginStart();
-            }
             vh.setComment(comment);
 
-            vh._binding.tvClickableReact.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (reactionClickListener != null){
-                        reactionClickListener.onClick(comment);
-                    }
+            vh._binding.tvClickableReact.setOnClickListener(v -> {
+                if (reactionClickListener != null) {
+                    reactionClickListener.onClick(comment);
                 }
             });
 
+            vh._binding.tvClickableReply.setOnClickListener(v -> {
+                if (replyClickListener != null) {
+                    replyClickListener.onClick(comment);
+                }
+            });
         } else {
-            ((SpinnerViewHolder) holder).progressBar.setIndeterminate(true);
-        }
-    }
+            CommentReplyingViewHolder vh = (CommentReplyingViewHolder) holder;
+            vh.setComment(comment);
 
-    public void setLoaded() {
-        loading = false;
+            vh._binding.tvClickableReact.setOnClickListener(v -> {
+                if (reactionClickListener != null) {
+                    reactionClickListener.onClick(comment);
+                }
+            });
+
+            vh._binding.tvClickableReply.setOnClickListener(v -> {
+                if (replyClickListener != null) {
+                    replyClickListener.onClick(comment);
+                }
+            });
+        }
     }
 
     @Override
     public int getItemViewType(int position) {
-        return _comments.get(position) != null ? VIEW_ITEM : VIEW_PROGRESS;
+        return _comments.get(position).getReplyCommentId() != null ? VIEW_REPLYING : VIEW_NORMAL;
     }
 
     @Override
     public int getItemCount() {
-        return _comments.size();
-    }
-
-    public interface OnLoadMoreListener {
-        void onLoadMore();
-    }
-
-    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
-        this.onLoadMoreListener = onLoadMoreListener;
+        if (_comments != null)
+            return _comments.size();
+        return 0;
     }
 
     public interface ReactionClickListener {
@@ -165,5 +179,13 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public void setReactionClickListener(ReactionClickListener reactionClickListener) {
         this.reactionClickListener = reactionClickListener;
+    }
+
+    public interface ReplyClickListener {
+        void onClick(Comment comment);
+    }
+
+    public void setReplyClickListener(ReplyClickListener replyClickListener) {
+        this.replyClickListener = replyClickListener;
     }
 }

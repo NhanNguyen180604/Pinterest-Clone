@@ -13,4 +13,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="tv_relevant_images">More to explore</string>
     <string name="comment_hint">Add a comment</string>
+    <string name="pin_comment_title">Showing 0 comment</string>
 </resources>

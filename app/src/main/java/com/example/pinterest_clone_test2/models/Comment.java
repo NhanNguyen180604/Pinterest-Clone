@@ -1,5 +1,7 @@
 package com.example.pinterest_clone_test2.models;
 
+import android.net.Uri;
+
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.databinding.library.baseAdapters.BR;
@@ -23,6 +25,7 @@ public class Comment extends BaseObservable {
     // will replace with UserCommentLike model if necessary
     String _userLikeId;
     boolean _isLiked = false;
+    Uri _attachmentUri;  // for uploading comment
 
     @Bindable
     public String getId() {
@@ -67,6 +70,11 @@ public class Comment extends BaseObservable {
     @Bindable
     public String getUserLikeId() {
         return _userLikeId;
+    }
+
+    @Bindable
+    public Uri getAttachmentUri() {
+        return _attachmentUri;
     }
 
     // replicating builder pattern for better mock data initialization
@@ -123,6 +131,12 @@ public class Comment extends BaseObservable {
     public Comment setUserLikeId(String userLikeId) {
         _userLikeId = userLikeId;
         notifyPropertyChanged(BR.userLikeId);
+        return this;
+    }
+
+    public Comment setAttachmentUri(Uri attachmentUri){
+        _attachmentUri = attachmentUri;
+        notifyPropertyChanged(BR.attachmentUri);
         return this;
     }
 

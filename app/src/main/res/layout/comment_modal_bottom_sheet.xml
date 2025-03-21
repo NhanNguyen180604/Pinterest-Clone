@@ -6,10 +6,6 @@
     <data>
 
         <variable
-            name="viewModel"
-            type="com.example.pinterest_clone_test2.ui.pin_comment.CommentModalViewModel" />
-
-        <variable
             name="userCommentModel"
             type="com.example.pinterest_clone_test2.ui.pin_comment.UserCommentModel" />
     </data>
@@ -28,7 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:text="@{viewModel.getCommentCountString()}"
+                android:text="@string/pin_comment_title"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -55,6 +51,7 @@
                 android:layout_height="wrap_content"
                 android:clipChildren="false"
                 android:clipToPadding="false"
+                android:elevation="10dp"
                 android:padding="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -73,22 +70,41 @@
                     android:id="@+id/user_input_container"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:elevation="10dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/fab_add_attachment"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <androidx.appcompat.widget.AppCompatImageButton
-                        android:id="@+id/ibtn_remove_attachment"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:background="@null"
-                        android:elevation="4dp"
-                        android:src="@drawable/ic_close"
-                        android:translationX="-12dp"
-                        android:translationY="-12dp"
-                        android:visibility="@{userCommentModel.getAttachmentVisibility()}"
-                        app:layout_constraintStart_toEndOf="@id/cv_user_comment_attachment_container"
+                    <TextView
+                        android:id="@+id/tv_replying"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="@{userCommentModel.replyingText}"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:textStyle="normal"
+                        android:visibility="@{userCommentModel.replyingVisibility}"
+                        app:layout_constraintBottom_toTopOf="@id/cv_user_comment_attachment_container"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tv_cancel_replying"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:clickable="true"
+                        android:text="Cancel"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:textStyle="normal"
+                        android:visibility="@{userCommentModel.replyingVisibility}"
+                        app:layout_constraintBottom_toTopOf="@id/cv_user_comment_attachment_container"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <androidx.cardview.widget.CardView
@@ -97,10 +113,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="4dp"
                         android:elevation="0dp"
+                        android:visibility="@{userCommentModel.attachmentVisibility}"
                         app:cardCornerRadius="12dp"
                         app:layout_constraintBottom_toTopOf="@id/et_comment_input"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        app:layout_constraintStart_toStartOf="parent">
 
                         <ImageView
                             android:id="@+id/iv_user_comment_attachment"
@@ -110,21 +126,46 @@
                             android:maxHeight="100dp"
                             android:scaleType="fitCenter"
                             android:src="@{userCommentModel.attachmentUri}" />
-
                     </androidx.cardview.widget.CardView>
+
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/ibtn_remove_attachment"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:elevation="10dp"
+                        android:src="@drawable/ic_close"
+                        android:visibility="@{userCommentModel.attachmentVisibility}"
+                        app:layout_constraintBottom_toTopOf="@id/cv_user_comment_attachment_container"
+                        app:layout_constraintEnd_toEndOf="@id/cv_user_comment_attachment_container"
+                        app:layout_constraintStart_toEndOf="@id/cv_user_comment_attachment_container"
+                        app:layout_constraintTop_toTopOf="@id/cv_user_comment_attachment_container" />
 
                     <EditText
                         android:id="@+id/et_comment_input"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:autofillHints="@null"
                         android:hint="@string/comment_hint"
                         android:inputType="text"
-                        android:text="@{userCommentModel.content}"
+                        android:text="@={userCommentModel.content}"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/ibtn_post_comment"
                         app:layout_constraintStart_toStartOf="parent" />
+
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/ibtn_post_comment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:clickable="@{userCommentModel.clickable}"
+                        android:padding="8dp"
+                        android:src="@drawable/ic_arrow_upward"
+                        android:visibility="@{userCommentModel.postButtonVisibility}"
+                        app:layout_constraintBottom_toBottomOf="@id/et_comment_input"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/et_comment_input"
+                        app:layout_constraintTop_toTopOf="@id/et_comment_input" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
