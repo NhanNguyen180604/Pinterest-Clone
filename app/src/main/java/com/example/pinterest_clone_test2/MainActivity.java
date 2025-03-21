@@ -1,6 +1,6 @@
 package com.example.pinterest_clone_test2;
 
-import android.os.Bundle;
+import  android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
