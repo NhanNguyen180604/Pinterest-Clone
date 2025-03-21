@@ -108,6 +108,7 @@ public class Comment extends BaseObservable {
     public Comment setAttachmentUrl(String attachmentUrl) {
         _attachmentUrl = attachmentUrl;
         notifyPropertyChanged(BR.attachmentUrl);
+        notifyPropertyChanged(BR.attachmentVisibility);
         return this;
     }
 
@@ -137,12 +138,15 @@ public class Comment extends BaseObservable {
         return this;
     }
 
-    public Comment setAttachmentUri(Uri attachmentUri){
+    public Comment setAttachmentUri(Uri attachmentUri) {
         _attachmentUri = attachmentUri;
         notifyPropertyChanged(BR.attachmentUri);
+        notifyPropertyChanged(BR.attachmentVisibility);
         return this;
     }
 
+    // could have refactor this, but ran out of time
+    // too bad
     @Bindable
     public String getReactionString() {
         return String.format(Locale.US, "%d reaction%s", _likeCount, _likeCount > 1 ? "s" : "");
@@ -154,9 +158,14 @@ public class Comment extends BaseObservable {
     }
 
     @Bindable
-    public int getOptionsVisibility(){
+    public int getOptionsVisibility() {
         // TODO: check if this is the user's comment, if it is then no options, we're running out of time
         return Objects.equals(_authorId, "default-user-id") ? View.GONE : View.VISIBLE;
+    }
+
+    @Bindable
+    public int getAttachmentVisibility() {
+        return _attachmentUrl != null || _attachmentUri != null ? View.VISIBLE : View.GONE;
     }
 }
 

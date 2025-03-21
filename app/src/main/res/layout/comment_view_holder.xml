@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -43,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="1y"
+            android:text="@string/comment_timestamp_placeholder"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="@id/tv_username"
             app:layout_constraintStart_toEndOf="@id/tv_username"
@@ -54,17 +55,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:visibility="@{comment.attachmentVisibility}"
             app:cardCornerRadius="16dp"
             app:layout_constraintStart_toStartOf="@id/tv_username"
             app:layout_constraintTop_toBottomOf="@id/tv_username">
 
+            <!-- If someone post a wide ass landscape image then we are cooked -->
             <ImageView
                 android:id="@+id/iv_attachment"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="125dp"
                 android:adjustViewBounds="true"
-                android:maxWidth="175dp"
-                android:maxHeight="175dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/araragi" />
         </androidx.cardview.widget.CardView>
@@ -87,7 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:clickable="true"
-            android:text="Reply"
+            android:text="@string/reply_option"
             android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -99,6 +100,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:layout_marginTop="4dp"
             android:clickable="true"
             android:drawablePadding="4dp"
             android:text="@{comment.reactionString}"
@@ -120,6 +122,7 @@
             android:visibility="@{comment.optionsVisibility}"
             app:layout_constraintBottom_toBottomOf="@id/tv_clickable_reply"
             app:layout_constraintStart_toEndOf="@id/tv_clickable_react"
-            app:layout_constraintTop_toTopOf="@id/tv_clickable_reply" />
+            app:layout_constraintTop_toTopOf="@id/tv_clickable_reply"
+            tools:ignore="UseCompatTextViewDrawableXml" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

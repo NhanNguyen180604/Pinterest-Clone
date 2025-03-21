@@ -98,7 +98,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="20dp"
                         android:clickable="true"
-                        android:text="Cancel"
+                        android:text="@string/cancel_replying_text"
                         android:textColor="@color/black"
                         android:textSize="14sp"
                         android:textStyle="normal"

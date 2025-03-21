@@ -160,7 +160,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             });
 
-            vh._binding.tvClickableOptions.setOnClickListener(v -> {
+            vh._binding.tvClickableReply.setOnClickListener(v -> {
                 if (replyClickListener != null) {
                     replyClickListener.onClick(comment);
                 }

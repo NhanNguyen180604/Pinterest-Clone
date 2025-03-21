@@ -9,7 +9,6 @@
     <string name="tv_author_default">Author</string>
     <string name="tv_title_default">Title</string>
     <string name="tv_description_default">Description</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="tv_relevant_images">More to explore</string>
     <string name="comment_hint">Add a comment</string>
@@ -18,4 +17,12 @@
     <string name="report_description_placeholder">Report description</string>
     <string name="report_title_placeholder">Report title</string>
     <string name="comment_report_modal_title">Create a report</string>
+    <string name="cancel_replying_text">Cancel</string>
+    <string name="report_option">Report</string>
+    <string name="block_user_option">Block user</string>
+    <string name="close_string">Close</string>
+    <string name="reply_option">Reply</string>
+    <string name="comment_timestamp_placeholder">1y</string>
+    <string name="comment_count_template">Now showing %d comment%s</string>
+    <string name="reaction_count_template">%d reaction%s</string>
 </resources>

@@ -13,7 +13,6 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.pinterest_clone_test2.R;
@@ -173,6 +172,14 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                     if (newIndex >= _comments.size()) {
                         _comments.add(comment);
                         commentListAdapter.notifyDataSetChanged();
+
+                        // clear comment input
+                        userCommentModel.setContent("");
+                        userCommentModel.setAttachmentUri(null);
+                        userCommentModel.setReplyToId(null);
+                        userCommentModel.setReplyToName(null);
+                        binding.tvCount.setText(getCommentCountString());
+
                         return;
                     }
                 } while (_comments.get(newIndex).getReplyCommentId() != null);
@@ -180,20 +187,18 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
             }
             commentListAdapter.notifyDataSetChanged();
 
-            binding.tvCount.setText(getCommentCountString());
-
             // clear comment input
             userCommentModel.setContent("");
             userCommentModel.setAttachmentUri(null);
             userCommentModel.setReplyToId(null);
             userCommentModel.setReplyToName(null);
+            binding.tvCount.setText(getCommentCountString());
         });
     }
 
     private String getCommentCountString() {
         int count = _comments != null ? _comments.size() : 0;
-        String result = String.format(Locale.US, "Now showing %d comment", count);
-        return result + ((count > 1) ? "s" : "");
+        return String.format(Locale.US, getResources().getString(R.string.comment_count_template), count, ((count > 1) ? "s" : ""));
     }
 
     @Override
