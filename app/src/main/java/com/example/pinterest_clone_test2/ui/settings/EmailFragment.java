@@ -11,17 +11,16 @@ import androidx.navigation.Navigation;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.example.pinterest_clone_test2.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link email#newInstance} factory method to
+ * Use the {@link EmailFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class email extends Fragment {
+public class EmailFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -32,7 +31,7 @@ public class email extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public email() {
+    public EmailFragment() {
         // Required empty public constructor
     }
 
@@ -45,8 +44,8 @@ public class email extends Fragment {
      * @return A new instance of fragment email.
      */
     // TODO: Rename and change types and number of parameters
-    public static email newInstance(String param1, String param2) {
-        email fragment = new email();
+    public static EmailFragment newInstance(String param1, String param2) {
+        EmailFragment fragment = new EmailFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

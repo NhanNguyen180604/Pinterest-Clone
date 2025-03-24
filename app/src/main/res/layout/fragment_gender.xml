@@ -1,51 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.settings.gender">
+    tools:context=".ui.settings.GenderFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="8dp">
+
         <ImageButton
             android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@null"
             android:src="@drawable/ic_chevron_left"
-            app:layout_constraintTop_toTopOf="parent"
+            android:paddingVertical="8dp"
+            android:paddingRight="16dp"
             app:layout_constraintStart_toStartOf="parent"
-            android:background="@null"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
-            android:layout_width="match_parent"
             android:id="@+id/tv_am_title"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:textAlignment="center"
-            android:textSize="16sp"
             android:text="Gender"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingVertical="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <RadioGroup
+            android:id="@+id/rg_gender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/rg_gender"
             android:layout_marginTop="20dp"
-            app:layout_constraintTop_toBottomOf="@id/tv_am_title"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_am_title">
+
             <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:id="@+id/rb_gender_male"
-                android:text="Male"/>
-            <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Male" />
+
+            <RadioButton
                 android:id="@+id/rb_gender_female"
-                android:text="Female"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Female" />
         </RadioGroup>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

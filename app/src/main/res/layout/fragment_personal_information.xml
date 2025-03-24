@@ -1,197 +1,219 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.settings.personal_information">
+    tools:context=".ui.settings.PersonalInformationFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp"
-        >
+        android:padding="8dp">
+
         <ImageButton
             android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@null"
             android:src="@drawable/ic_chevron_left"
-            app:layout_constraintTop_toTopOf="parent"
+            android:paddingVertical="8dp"
+            android:paddingEnd="16dp"
             app:layout_constraintStart_toStartOf="parent"
-            android:background="@null"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
-            android:layout_width="match_parent"
             android:id="@+id/tv_am_title"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:textAlignment="center"
-            android:textSize="16sp"
+            android:contentDescription="Personal Information"
             android:text="Personal Information"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingVertical="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/tv_am_intro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/tv_am_title"
+            android:text="Change your personal information to improve our suggestion. These informations will not show in your public profile"
             app:layout_constraintEnd_toEndOf="parent"
-            android:text="Change your personal information to improve our suggestion. These informations will not show in your public profile"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_am_title" />
 
         <TextView
             android:id="@+id/tv_your_account"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:text="Your personal information"
             android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@id/tv_am_intro"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_am_intro" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_birthdate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/tv_your_account"
-            app:layout_constraintStart_toStartOf="parent"
-            android:clickable="true"
+            android:paddingVertical="8dp"
             android:layout_marginVertical="8dp"
-            android:id="@+id/btn_birthdate">
+            android:clickable="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_your_account">
+
             <TextView
+                android:id="@+id/tv_birthdate"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:id="@+id/tv_birthdate"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 android:gravity="center_vertical"
                 android:text="Birthdate"
-                android:textStyle="bold"
-                android:textSize="16sp"
                 android:textColor="@color/black"
-                />
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <ImageView
+                android:id="@+id/chevron_birthdate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/chevron_birthdate"
-                android:src="@drawable/ic_chevron_right"
                 android:background="@null"
+                android:src="@drawable/ic_chevron_right"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
+
             <TextView
+                android:id="@+id/your_birthdate"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                app:layout_constraintEnd_toStartOf="@id/chevron_birthdate"
-                app:layout_constraintTop_toTopOf="parent"
                 android:text="01/01/2007"
-                android:id="@+id/your_birthdate"/>
+                app:layout_constraintEnd_toStartOf="@id/chevron_birthdate"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_gender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/btn_birthdate"
-            app:layout_constraintStart_toStartOf="parent"
-            android:clickable="true"
             android:layout_marginVertical="8dp"
-            android:id="@+id/btn_gender">
+            android:clickable="true"
+            android:paddingVertical="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_birthdate">
+
             <TextView
+                android:id="@+id/tv_gender"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/tv_gender"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 android:gravity="center_vertical"
                 android:text="Gender"
-                android:textStyle="bold"
-                android:textSize="16sp"
                 android:textColor="@color/black"
-                />
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <ImageView
+                android:id="@+id/chevron_gender"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/chevron_gender"
-                android:src="@drawable/ic_chevron_right"
                 android:background="@null"
+                android:src="@drawable/ic_chevron_right"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
+
             <TextView
+                android:id="@+id/your_gender"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                app:layout_constraintEnd_toStartOf="@id/chevron_gender"
-                app:layout_constraintTop_toTopOf="parent"
                 android:text="Male"
-                android:id="@+id/your_gender"/>
+                app:layout_constraintEnd_toStartOf="@id/chevron_gender"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_region"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/btn_gender"
-            app:layout_constraintStart_toStartOf="parent"
-            android:clickable="true"
             android:layout_marginVertical="8dp"
-            android:id="@+id/btn_region">
+            android:clickable="true"
+            android:paddingVertical="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_gender">
+
             <TextView
+                android:id="@+id/tv_region"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/tv_region"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 android:gravity="center_vertical"
                 android:text="Region"
-                android:textStyle="bold"
-                android:textSize="16sp"
                 android:textColor="@color/black"
-                />
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <ImageView
+                android:id="@+id/chevron_region"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/chevron_region"
-                android:visibility="invisible"
-                android:src="@drawable/ic_chevron_right"
                 android:background="@null"
+                android:src="@drawable/ic_chevron_right"
+                android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
+
             <TextView
+                android:id="@+id/your_region"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                app:layout_constraintEnd_toStartOf="@id/chevron_region"
-                app:layout_constraintTop_toTopOf="parent"
                 android:text="Vietnam"
-                android:id="@+id/your_region"/>
+                app:layout_constraintEnd_toStartOf="@id/chevron_region"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_language"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/btn_region"
-            app:layout_constraintStart_toStartOf="parent"
-            android:clickable="true"
             android:layout_marginVertical="8dp"
-            android:id="@+id/btn_language">
+            android:clickable="true"
+            android:paddingVertical="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_region">
+
             <TextView
+                android:id="@+id/tv_language"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/tv_language"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 android:gravity="center_vertical"
                 android:text="Language"
-                android:textStyle="bold"
-                android:textSize="16sp"
                 android:textColor="@color/black"
-                />
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <ImageView
+                android:id="@+id/chevron_language"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/chevron_language"
-                android:visibility="invisible"
-                android:src="@drawable/ic_chevron_right"
                 android:background="@null"
+                android:src="@drawable/ic_chevron_right"
+                android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
+
             <TextView
+                android:id="@+id/your_email"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                app:layout_constraintEnd_toStartOf="@id/chevron_language"
-                app:layout_constraintTop_toTopOf="parent"
                 android:text="English (US)"
-                android:id="@+id/your_email"/>
+                app:layout_constraintEnd_toStartOf="@id/chevron_language"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

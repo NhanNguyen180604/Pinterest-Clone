@@ -12,17 +12,16 @@ import androidx.navigation.Navigation;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.example.pinterest_clone_test2.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link personal_information#newInstance} factory method to
+ * Use the {@link AccountManagementFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class personal_information extends Fragment {
+public class AccountManagementFragment extends Fragment {
 
 //    // TODO: Rename parameter arguments, choose names that match
 //    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -33,21 +32,21 @@ public class personal_information extends Fragment {
 //    private String mParam1;
 //    private String mParam2;
 
-    public personal_information() {
+    public AccountManagementFragment() {
         // Required empty public constructor
     }
 
-//    /**
-//     * Use this factory method to create a new instance of
-//     * this fragment using the provided parameters.
-//     *
-//     * @param param1 Parameter 1.
-//     * @param param2 Parameter 2.
-//     * @return A new instance of fragment personal_information.
-//     */
-//    // TODO: Rename and change types and number of parameters
-//    public static personal_information newInstance(String param1, String param2) {
-//        personal_information fragment = new personal_information();
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment account_management.
+     */
+    // TODO: Rename and change types and number of parameters
+//    public static account_management newInstance(String param1, String param2) {
+//        account_management fragment = new account_management();
 //        Bundle args = new Bundle();
 //        args.putString(ARG_PARAM1, param1);
 //        args.putString(ARG_PARAM2, param2);
@@ -68,14 +67,15 @@ public class personal_information extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_personal_information, container, false);
+        return inflater.inflate(R.layout.fragment_account_management, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ConstraintLayout btnBirthDate = view.findViewById(R.id.btn_birthdate);
-        ConstraintLayout btnGender = view.findViewById(R.id.btn_gender);
+        ConstraintLayout btnPersonalInformation = view.findViewById(R.id.btn_personal_information);
+        ConstraintLayout btnEmail = view.findViewById(R.id.btn_email);
+        ConstraintLayout btnPassword = view.findViewById(R.id.btn_password);
         ImageButton btnBack = view.findViewById(R.id.btn_back);
         btnBack.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -84,18 +84,25 @@ public class personal_information extends Fragment {
                 navController.navigateUp();
             }
         });
-        btnBirthDate.setOnClickListener(new View.OnClickListener(){
+        btnPersonalInformation.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 NavController navController = Navigation.findNavController(view);
-                navController.navigate(R.id.action_personal_information_to_birthdate);
+                navController.navigate(R.id.action_account_management_to_personal_information);
             }
         });
-        btnGender.setOnClickListener(new View.OnClickListener(){
+        btnEmail.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 NavController navController = Navigation.findNavController(view);
-                navController.navigate(R.id.action_personal_information_to_gender);
+                navController.navigate(R.id.action_account_management_to_email);
+            }
+        });
+        btnPassword.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                NavController navController = Navigation.findNavController(view);
+                navController.navigate(R.id.action_account_management_to_password);
             }
         });
     }

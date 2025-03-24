@@ -25,7 +25,7 @@
     </fragment>
     <fragment
         android:id="@+id/account_management"
-        android:name="com.example.pinterest_clone_test2.ui.settings.account_management"
+        android:name="com.example.pinterest_clone_test2.ui.settings.AccountManagementFragment"
         android:label="fragment_account_management"
         tools:layout="@layout/fragment_account_management" >
         <action
@@ -40,7 +40,7 @@
     </fragment>
     <fragment
         android:id="@+id/personal_information"
-        android:name="com.example.pinterest_clone_test2.ui.settings.personal_information"
+        android:name="com.example.pinterest_clone_test2.ui.settings.PersonalInformationFragment"
         android:label="fragment_personal_information"
         tools:layout="@layout/fragment_personal_information" >
         <action
@@ -52,22 +52,22 @@
     </fragment>
     <fragment
         android:id="@+id/email"
-        android:name="com.example.pinterest_clone_test2.ui.settings.email"
+        android:name="com.example.pinterest_clone_test2.ui.settings.EmailFragment"
         android:label="fragment_email"
         tools:layout="@layout/fragment_email" />
     <fragment
         android:id="@+id/password"
-        android:name="com.example.pinterest_clone_test2.ui.settings.password"
+        android:name="com.example.pinterest_clone_test2.ui.settings.PasswordFragment"
         android:label="fragment_password"
         tools:layout="@layout/fragment_password" />
     <fragment
         android:id="@+id/birthdate"
-        android:name="com.example.pinterest_clone_test2.ui.settings.birthdate"
+        android:name="com.example.pinterest_clone_test2.ui.settings.BirthdateFragment"
         android:label="fragment_birthdate"
         tools:layout="@layout/fragment_birthdate" />
     <fragment
         android:id="@+id/gender"
-        android:name="com.example.pinterest_clone_test2.ui.settings.gender"
+        android:name="com.example.pinterest_clone_test2.ui.settings.GenderFragment"
         android:label="fragment_gender"
         tools:layout="@layout/fragment_gender" />
 </navigation>
