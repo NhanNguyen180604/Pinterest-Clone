@@ -16,9 +16,9 @@ import com.example.pinterest_clone_test2.R;
 import java.util.ArrayList;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
-    private ArrayList<Uri> imageList;
-    private Context context;
-    private OnImageSelectedListener onImageSelectedListener;
+    private final ArrayList<Uri> imageList;
+    private final Context context;
+    private final OnImageSelectedListener onImageSelectedListener;
 
     // Constructor với interface callback
     public ImageAdapter(ArrayList<Uri> imageList, Context context, OnImageSelectedListener onImageSelectedListener) {
@@ -27,8 +27,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         this.onImageSelectedListener = onImageSelectedListener;  // Gán listener
     }
 
+    @NonNull
     @Override
-    public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.fragment_upload_item_image, parent, false);
         return new ImageViewHolder(view);
     }
@@ -38,7 +39,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         Uri currentImageUri = imageList.get(position);
 
         // Use Glide to load the image into ImageView in RecyclerView
-        Glide.with(context)
+        Glide.with(holder.imageItemView.getContext())
                 .load(currentImageUri)
                 .centerCrop()
                 .into(holder.imageItemView);
