@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,18 +21,17 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import com.bumptech.glide.Glide;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
+import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.pinterest_clone_test2.ui.pin_comment.CommentModalBottomSheet;
 
 import java.util.Objects;
 
 public class PinObjectFragment extends Fragment {
-    RecyclerView rv_relevant;
-    ImageView iv_image;
-    PinObjectViewModel view_model;
-    FloatingActionButton fab_back;
+    PinObjectViewModel viewModel;
     private Pin pin;
+    FragmentPinObjectBinding binding;
     String source;
 
     // need this to prevent crash idk why
@@ -48,19 +46,30 @@ public class PinObjectFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_pin_pager_item, container, false);
+        binding = FragmentPinObjectBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        view_model = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinObjectViewModel.class);
-        iv_image = view.findViewById(R.id.iv_image);
-        fab_back = view.findViewById(R.id.btn_back);
+        viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinObjectViewModel.class);
         initializeRelevantPins(view);
 
-        fab_back.setOnClickListener(new View.OnClickListener() {
+        binding.btnComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (pin != null) {
+                    CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId());
+                    modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
+                } else {
+                    Toast.makeText(getContext(), "Pin is null, we are fucked", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        binding.fabBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 NavController navController = Navigation.findNavController(view);
@@ -70,18 +79,18 @@ public class PinObjectFragment extends Fragment {
     }
 
     private void restoreStates() {
-        Parcelable scroll_state = view_model.getScrollState();
-        if (scroll_state != null && rv_relevant.getLayoutManager() != null) {
-            rv_relevant.getLayoutManager().onRestoreInstanceState(scroll_state);
+        Parcelable scroll_state = viewModel.getScrollState();
+        if (scroll_state != null && binding.rvRelevant.getLayoutManager() != null) {
+            binding.rvRelevant.getLayoutManager().onRestoreInstanceState(scroll_state);
         }
 
-        Pin pin_state = view_model.getPinState();
+        Pin pin_state = viewModel.getPinState();
         if (pin_state != null) {
             pin = pin_state;
         }
 
-        String source_state = view_model.getSource();
-        if (source_state != null){
+        String source_state = viewModel.getSource();
+        if (source_state != null) {
             source = source_state;
         }
     }
@@ -89,12 +98,12 @@ public class PinObjectFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (rv_relevant.getLayoutManager() != null) {
-            view_model.setScrollState(rv_relevant.getLayoutManager().onSaveInstanceState());
+        if (binding.rvRelevant.getLayoutManager() != null) {
+            viewModel.setScrollState(binding.rvRelevant.getLayoutManager().onSaveInstanceState());
         }
 //        appBarLayout.getTop();
-        view_model.setPinState(pin);
-        view_model.setSourceState(source);
+        viewModel.setPinState(pin);
+        viewModel.setSourceState(source);
     }
 
     @Override
@@ -106,22 +115,27 @@ public class PinObjectFragment extends Fragment {
             Toast.makeText(getContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();
             Log.d("error", "Pin is null, why is the view model dead??? How come the data are still intact, make no fucking sense");
         } else {
-            Glide.with(iv_image.getContext())
+            Glide.with(binding.ivImage.getContext())
                     .load(pin.getMediaURL())
                     .fitCenter()
-                    .into(iv_image);
+                    .into(binding.ivImage);
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private void initializeRelevantPins(@NonNull View view) {
-        rv_relevant = view.findViewById(R.id.rv_relevant);
         PinListAdapter adapter = new PinListAdapter(Pin.testData, relevantImageClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
-        rv_relevant.setAdapter(adapter);
+        binding.rvRelevant.setAdapter(adapter);
 
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-        rv_relevant.setLayoutManager(layoutManager);
+        binding.rvRelevant.setLayoutManager(layoutManager);
     }
 
     private final ImageClickListener relevantImageClickListener = new ImageClickListener() {

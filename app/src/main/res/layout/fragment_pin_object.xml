@@ -81,7 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:src="@drawable/ic_more"
+                    android:src="@drawable/ic_more_horiz"
                     app:layout_constraintStart_toEndOf="@id/btn_share"
                     app:layout_constraintTop_toBottomOf="@+id/cv_image" />
 
@@ -152,7 +152,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btn_back"
+        android:id="@+id/fab_back"
         style="@style/FABStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

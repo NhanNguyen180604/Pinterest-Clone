@@ -12,6 +12,7 @@ import androidx.navigation.Navigation;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.example.pinterest_clone_test2.R;
@@ -34,11 +35,21 @@ public class SettingsDrawerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ImageButton btnBack = view.findViewById(R.id.btn_back);
+        Button btnAccountManagement = view.findViewById(R.id.btn_account_management);
+
+
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 NavController navController = Navigation.findNavController(view);
                 navController.navigateUp();
+            }
+        });
+        btnAccountManagement.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                NavController navController = Navigation.findNavController(view);
+                navController.navigate(R.id.action_settingsDrawerFragment_to_account_management);
             }
         });
     }
