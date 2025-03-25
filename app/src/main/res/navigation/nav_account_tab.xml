@@ -18,5 +18,56 @@
         android:id="@+id/settingsDrawerFragment"
         android:name="com.example.pinterest_clone_test2.ui.settings.SettingsDrawerFragment"
         android:label="fragment_settings_drawer"
-        tools:layout="@layout/fragment_settings_drawer" />
+        tools:layout="@layout/fragment_settings_drawer" >
+        <action
+            android:id="@+id/action_settingsDrawerFragment_to_account_management"
+            app:destination="@id/account_management" />
+    </fragment>
+    <fragment
+        android:id="@+id/account_management"
+        android:name="com.example.pinterest_clone_test2.ui.settings.AccountManagementFragment"
+        android:label="fragment_account_management"
+        tools:layout="@layout/fragment_account_management" >
+        <action
+            android:id="@+id/action_account_management_to_personal_information"
+            app:destination="@id/personal_information" />
+        <action
+            android:id="@+id/action_account_management_to_email"
+            app:destination="@id/email" />
+        <action
+            android:id="@+id/action_account_management_to_password"
+            app:destination="@id/password" />
+    </fragment>
+    <fragment
+        android:id="@+id/personal_information"
+        android:name="com.example.pinterest_clone_test2.ui.settings.PersonalInformationFragment"
+        android:label="fragment_personal_information"
+        tools:layout="@layout/fragment_personal_information" >
+        <action
+            android:id="@+id/action_personal_information_to_birthdate"
+            app:destination="@id/birthdate" />
+        <action
+            android:id="@+id/action_personal_information_to_gender"
+            app:destination="@id/gender" />
+    </fragment>
+    <fragment
+        android:id="@+id/email"
+        android:name="com.example.pinterest_clone_test2.ui.settings.EmailFragment"
+        android:label="fragment_email"
+        tools:layout="@layout/fragment_email" />
+    <fragment
+        android:id="@+id/password"
+        android:name="com.example.pinterest_clone_test2.ui.settings.PasswordFragment"
+        android:label="fragment_password"
+        tools:layout="@layout/fragment_password" />
+    <fragment
+        android:id="@+id/birthdate"
+        android:name="com.example.pinterest_clone_test2.ui.settings.BirthdateFragment"
+        android:label="fragment_birthdate"
+        tools:layout="@layout/fragment_birthdate" />
+    <fragment
+        android:id="@+id/gender"
+        android:name="com.example.pinterest_clone_test2.ui.settings.GenderFragment"
+        android:label="fragment_gender"
+        tools:layout="@layout/fragment_gender" />
 </navigation>
