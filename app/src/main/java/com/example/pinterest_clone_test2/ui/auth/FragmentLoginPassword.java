@@ -10,14 +10,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import com.example.pinterest_clone_test2.LoginActivity;
 import com.example.pinterest_clone_test2.R;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+
+import java.util.Objects;
 
 
 public class FragmentLoginPassword extends Fragment {
     ImageButton btnBack;
-
+    MaterialButton btnLogin;
+    private String email;
+    TextInputEditText etEmail;
+    TextInputEditText etPassword;
     public FragmentLoginPassword() {
         // Required empty public constructor
+    }
+    public FragmentLoginPassword(String email) {
+        // Required empty public constructor
+        this.email = email;
     }
 
     @Override
@@ -27,9 +39,22 @@ public class FragmentLoginPassword extends Fragment {
         View view = inflater.inflate(R.layout.fragment_login_password, container, false);
 
         btnBack = view.findViewById(R.id.btn_back);
+        btnLogin = view.findViewById(R.id.btn_login);
+        etEmail = view.findViewById(R.id.et_email);
+        etPassword = view.findViewById(R.id.et_password);
+
+        etEmail.setText(this.email);
+
         btnBack.setOnClickListener(v -> {
-            // Quay về fragment trước đó trong back stack
             requireActivity().getSupportFragmentManager().popBackStack();
+        });
+
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String password = Objects.requireNonNull(etPassword.getText()).toString();
+                ((LoginActivity)requireActivity()).loginEmail(password);
+            }
         });
         return view;
     }

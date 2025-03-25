@@ -10,6 +10,7 @@
     <string name="tv_title_default">Title</string>
     <string name="tv_description_default">Description</string>
     <string name="back_text">Back</string>
+    <string name="back_description">Back to previous step</string>
     <string name="next_text">Tiếp theo</string>
     <string name="birthdate_text">Ngày sinh</string>
     <string name="birthdate_advice_text">Để giúp giữ cho Pinterest an toàn, chúng tôi đang cần ngày sinh của bạn. Ngày sinh cũng giúp chúng tôi cung cấp các đề xuất được cá nhân hóa nhiều hơn và quảng cáo có liên quan hơn. Chúng tôi sẽ không chia sẻ thông tin này mà không có sự cho phép của bạn và thông tin sẽ không hiển thị trên hồ sơ của bạn.</string>
@@ -24,6 +25,14 @@
     <string name="female_text">Nữ</string>
     <string name="male_text">Nam</string>
     <string name="other_gender_text">Lựa chọn khác</string>
+    <string name="login_text">Đăng nhập</string>
+    <string name="login_button_text">Đăng nhập</string>
+    <string name="login_facebook_text">Tiếp tục bằng Facebook</string>
+    <string name="login_google_text">Tiếp tục bằng Google</string>
+    <string name="Or_text">Hoặc</string>
+    <string name="email_hint">Địa chỉ email</string>
+    <string name="forgot_password_text">Quên mật khẩu?</string>
+    <string name="slogan_message">Tạo ra cuộc sống bạn yêu thích trên Pinterest</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="tv_relevant_images">More to explore</string>

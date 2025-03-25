@@ -1,7 +1,10 @@
 package com.example.pinterest_clone_test2;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,33 +19,44 @@ import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterPassword;
 
 public class LoginActivity extends AppCompatActivity {
     private User user;
+    User.UserInfo userInfo = null;
     FragmentManager fragmentManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        user = new User();
-        fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.login_fragment_container, new FragmentLoginEmail())
-                .addToBackStack(null)
-                .commit();
+        SharedPreferences sharedPreferences = getSharedPreferences("user_info", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("user_token", null);
+        String email = sharedPreferences.getString("user_email", null);
+        User.initializeToken(token, email);
+        if(token != null){
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra("user_token",token);
+            startActivity(intent);
+            finish();
+        }else{
+            setContentView(R.layout.activity_login);
+            user = new User();
+            fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.login_fragment_container, new FragmentLoginEmail())
+                    .addToBackStack(null)
+                    .commit();
+        }
+
     }
 
-    private boolean isExist(String email){
-        return false;
-    }
+
     public void updateEmail(String email){
         user.setEmail(email);
-        if(!isExist(email)){
+        if(User.isEmailExists(email)){
             fragmentManager.beginTransaction()
-                    .replace(R.id.login_fragment_container, new FragmentRegisterPassword())
+                    .replace(R.id.login_fragment_container, new FragmentLoginPassword(email))
                     .addToBackStack(null)
                     .commit();
         }
         else{
             fragmentManager.beginTransaction()
-                    .replace(R.id.login_fragment_container, new FragmentLoginPassword())
+                    .replace(R.id.login_fragment_container, new FragmentRegisterPassword())
                     .addToBackStack(null)
                     .commit();
         }
@@ -72,10 +86,34 @@ public class LoginActivity extends AppCompatActivity {
     }
     public void registerGender(String gender){
         user.setGender(gender);
+        String token = User.register(user);
+        transferToMain(token, user.getEmail());
+    }
+
+    public void loginEmail(String password) {
+        user.setPassword(password);
+        String token = User.login(user.getEmail(), user.getPassword());
+        if(token == null)
+        {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.login_fragment_container, new FragmentLoginEmail())
+                    .addToBackStack(null)
+                    .commit();
+            Toast toast = Toast.makeText(this, "failed to login", Toast.LENGTH_LONG);
+        }else
+            transferToMain(token, user.getEmail());
+    }
+
+    private void transferToMain(String token, String email){
+        SharedPreferences sharedPreferences = getSharedPreferences("user_info", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("user_token", token);
+        editor.putString("user_email", email);
+        editor.apply();
+
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        intent.putExtra("user", user);
+        intent.putExtra("user_token", token);
         startActivity(intent);
         finish();
-        
     }
 }

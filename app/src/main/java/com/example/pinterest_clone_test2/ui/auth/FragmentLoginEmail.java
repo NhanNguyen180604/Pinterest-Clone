@@ -31,18 +31,12 @@ public class FragmentLoginEmail extends Fragment {
 
         emailInput = view.findViewById(R.id.et_email);
         continueBtn = view.findViewById(R.id.btn_continue);
-        continueBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)
-            {
-                String email = emailInput.getText().toString().trim();
-                if(isValidEmail(email))
-                {
-                    ((LoginActivity) requireActivity()).updateEmail(email);
-                }
-                else{
-                    emailInput.setError("Email không hợp lệ");
-                }
+        continueBtn.setOnClickListener(v -> {
+            String email = emailInput.getText().toString().trim();
+            if (isValidEmail(email)) {
+                ((LoginActivity) requireActivity()).updateEmail(email);
+            } else {
+                emailInput.setError("Email không hợp lệ");
             }
         });
         return view;
