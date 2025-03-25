@@ -5,13 +5,13 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.appcompat.view.ContextThemeWrapper;
-import androidx.constraintlayout.motion.utils.StopLogic;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.pinterest_clone_test2.LoginActivity;
@@ -26,6 +26,7 @@ public class FragmentRegisterBirthdate extends Fragment {
     TextView dateDisplay;
     Button btnNext;
 
+    ImageButton btnBack;
     TextView tvTitle;
     private String name;
     public FragmentRegisterBirthdate() {
@@ -44,23 +45,18 @@ public class FragmentRegisterBirthdate extends Fragment {
         btnNext = view.findViewById(R.id.btn_next);
         tvTitle = view.findViewById(R.id.tv_title);
         calendar = Calendar.getInstance();
+        btnBack = view.findViewById(R.id.btn_back);
 
         String title = "Xin chào "+ name + "! Nhập ngày sinh của bạn";
         tvTitle.setText(title);
-        dateDisplay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCustomDatePicker();
-            }
+        dateDisplay.setOnClickListener(v -> showCustomDatePicker());
+
+        btnNext.setOnClickListener(v -> {
+            String birthdate = dateDisplay.getText().toString();
+            ((LoginActivity) requireActivity()).registerBirthdate(birthdate);
         });
 
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String birthdate = dateDisplay.getText().toString();
-                ((LoginActivity)requireActivity()).registerBirthdate(birthdate);
-            }
-        });
+        btnBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
 
         return view;
     }

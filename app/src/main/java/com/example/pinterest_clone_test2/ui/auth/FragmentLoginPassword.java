@@ -1,6 +1,6 @@
 package com.example.pinterest_clone_test2.ui.auth;
 
-import android.annotation.SuppressLint;
+
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -8,18 +8,13 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
 
-import com.example.pinterest_clone_test2.LoginActivity;
 import com.example.pinterest_clone_test2.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragmentLoginPassword#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class FragmentLoginPassword extends Fragment {
+    ImageButton btnBack;
 
     public FragmentLoginPassword() {
         // Required empty public constructor
@@ -31,6 +26,11 @@ public class FragmentLoginPassword extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_login_password, container, false);
 
+        btnBack = view.findViewById(R.id.btn_back);
+        btnBack.setOnClickListener(v -> {
+            // Quay về fragment trước đó trong back stack
+            requireActivity().getSupportFragmentManager().popBackStack();
+        });
         return view;
     }
 

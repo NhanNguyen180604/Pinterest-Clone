@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import com.example.pinterest_clone_test2.LoginActivity;
 import com.example.pinterest_clone_test2.R;
@@ -17,6 +18,8 @@ import com.example.pinterest_clone_test2.R;
 public class FragmentRegisterName extends Fragment {
     EditText etName;
     Button btnNext;
+
+    ImageButton btnBack;
 
     public FragmentRegisterName() {
         // Required empty public constructor
@@ -29,18 +32,18 @@ public class FragmentRegisterName extends Fragment {
 
         etName = view.findViewById(R.id.et_name);
         btnNext = view.findViewById(R.id.btn_next);
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name = etName.getText().toString().trim();
-                if(name.isEmpty())
-                {
-                    etName.setError("Không được để trống tên");
-                }
-                else
-                    ((LoginActivity)requireActivity()).registerName(name);
+        btnBack = view.findViewById(R.id.btn_back);
+
+        btnNext.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            if (name.isEmpty()) {
+                etName.setError("Không được để trống tên");
+            } else {
+                ((LoginActivity) requireActivity()).registerName(name);
             }
         });
+
+        btnBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
 
         return view;
     }

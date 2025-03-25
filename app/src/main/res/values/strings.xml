@@ -9,6 +9,21 @@
     <string name="tv_author_default">Author</string>
     <string name="tv_title_default">Title</string>
     <string name="tv_description_default">Description</string>
+    <string name="back_text">Back</string>
+    <string name="next_text">Tiếp theo</string>
+    <string name="birthdate_text">Ngày sinh</string>
+    <string name="birthdate_advice_text">Để giúp giữ cho Pinterest an toàn, chúng tôi đang cần ngày sinh của bạn. Ngày sinh cũng giúp chúng tôi cung cấp các đề xuất được cá nhân hóa nhiều hơn và quảng cáo có liên quan hơn. Chúng tôi sẽ không chia sẻ thông tin này mà không có sự cho phép của bạn và thông tin sẽ không hiển thị trên hồ sơ của bạn.</string>
+    <string name="birthdate_request_text">Sử dụng tuổi của chính bạn, ngay cả khi đây là tài khoản doanh nghiệp</string>
+    <string name="birthdate_sample">21 thg 3, 2025</string>
+    <string name="name_title">Tên của bạn là gì</string>
+    <string name="fullname">Họ tên</string>
+    <string name="create_password_title">Tạo mật khẩu</string>
+    <string name="password_text">Mật khẩu"</string>
+    <string name="gender_title">Giới tính của bạn là gì?</string>
+    <string name="gender_noti">Thông tin này giúp chúng tôi tìm được cho bạn nội dung phù hợp hơn. Chúng tôi sẽ không hiển thị thông tin này trên hồ sơ của bạn.</string>
+    <string name="female_text">Nữ</string>
+    <string name="male_text">Nam</string>
+    <string name="other_gender_text">Lựa chọn khác</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="tv_relevant_images">More to explore</string>

@@ -1,17 +1,11 @@
 package com.example.pinterest_clone_test2;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
-
-import com.example.pinterest_clone_test2.databinding.ActivityMainBinding;
 import com.example.pinterest_clone_test2.models.User;
 import com.example.pinterest_clone_test2.ui.auth.FragmentLoginEmail;
 import com.example.pinterest_clone_test2.ui.auth.FragmentLoginPassword;
@@ -22,14 +16,16 @@ import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterPassword;
 
 public class LoginActivity extends AppCompatActivity {
     private User user;
-    FragmentManager fragmentManager = getSupportFragmentManager();
+    FragmentManager fragmentManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         user = new User();
+        fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.login_fragment_container, new FragmentLoginEmail())
+                .addToBackStack(null)
                 .commit();
     }
 
@@ -41,11 +37,13 @@ public class LoginActivity extends AppCompatActivity {
         if(!isExist(email)){
             fragmentManager.beginTransaction()
                     .replace(R.id.login_fragment_container, new FragmentRegisterPassword())
+                    .addToBackStack(null)
                     .commit();
         }
         else{
             fragmentManager.beginTransaction()
                     .replace(R.id.login_fragment_container, new FragmentLoginPassword())
+                    .addToBackStack(null)
                     .commit();
         }
     }
@@ -53,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
         user.setPassword(password);
         fragmentManager.beginTransaction()
                 .replace(R.id.login_fragment_container, new FragmentRegisterName())
+                .addToBackStack(null)
                 .commit();
     }
 
@@ -60,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
         user.setFirstName(name);
         fragmentManager.beginTransaction()
                 .replace(R.id.login_fragment_container, new FragmentRegisterBirthdate(name))
+                .addToBackStack(null)
                 .commit();
     }
 
@@ -67,9 +67,15 @@ public class LoginActivity extends AppCompatActivity {
         user.setBirthDate(birthdate);
         fragmentManager.beginTransaction()
                 .replace(R.id.login_fragment_container, new FragmentRegisterGender())
+                .addToBackStack(null)
                 .commit();
     }
     public void registerGender(String gender){
         user.setGender(gender);
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.putExtra("user", user);
+        startActivity(intent);
+        finish();
+        
     }
 }

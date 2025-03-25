@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import com.example.pinterest_clone_test2.LoginActivity;
 import com.example.pinterest_clone_test2.R;
@@ -16,7 +17,9 @@ import com.example.pinterest_clone_test2.R;
 public class FragmentRegisterPassword extends Fragment {
 
     EditText etPassWord;
+    ImageButton btnBack;
     Button btnNext;
+
     public FragmentRegisterPassword() {
         // Required empty public constructor
     }
@@ -28,16 +31,18 @@ public class FragmentRegisterPassword extends Fragment {
         View view = inflater.inflate(R.layout.fragment_register_password, container, false);
         etPassWord = view.findViewById(R.id.et_password);
         btnNext = view.findViewById(R.id.btn_next);
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String password = etPassWord.getText().toString();
-                if(password.isEmpty()){
-                    etPassWord.setError("Không nên bỏ trống mật khẩu!");
-                }else
-                    ((LoginActivity)requireActivity()).registerPassword(password);
-            }
+        btnBack = view.findViewById(R.id.btn_back);
+
+        btnNext.setOnClickListener(v -> {
+            String password = etPassWord.getText().toString();
+            if (password.isEmpty()) {
+                etPassWord.setError("Không nên bỏ trống mật khẩu!");
+            } else
+                ((LoginActivity) requireActivity()).registerPassword(password);
+
         });
+
+        btnBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
         return view;
     }
 }

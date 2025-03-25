@@ -1,7 +1,10 @@
 package com.example.pinterest_clone_test2.models;
 
 import com.example.pinterest_clone_test2.models.Pin;
-public class User {
+
+import java.io.Serializable;
+
+public class User implements Serializable {
     public enum Role{
         ADMIN,
         USER,
@@ -10,7 +13,7 @@ public class User {
         Nam,
         Nữ,
 
-        Other,
+        Khác,
     }
     private String id;
     private String username;
@@ -30,14 +33,13 @@ public class User {
     }
 
     public User(String username, String password, String email, String firstName, String lastName, String birthDate, Gender gender, Role role) {
-        this.username = username;
         this.password = password;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
         this.gender = gender;
-        this.role = role;
+        this.role = Role.USER;
     }
 
     public String getId() {
@@ -47,15 +49,6 @@ public class User {
     public void setId(String id) {
         this.id = id;
     }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getPassword() {
         return password;
     }
