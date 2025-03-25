@@ -50,6 +50,6 @@ dependencies {
 
     implementation(libs.viewpager2)
     implementation(libs.material.v1130alpha10)
-
+    implementation ("com.google.android.material:material:1.5.0")
     implementation(libs.glide)
 }

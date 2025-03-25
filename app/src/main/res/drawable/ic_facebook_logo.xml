@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Vòng tròn bên ngoài -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M12,0C5.373,0 0,5.373 0,12c0,6.016 4.432,10.984 10.206,11.852V15.18H7.237v-3.154h2.969V9.927c0,-3.475 1.693,-5 4.581,-5 1.383,0 2.115,0.103 2.461,0.149v2.753h-1.97c-1.226,0 -1.654,1.163 -1.654,2.473v1.724h3.593L16.73,15.18h-3.106v8.697C19.481,23.083 24,18.075 24,12c0,-6.627 -5.373,-12 -12,-12z"/>
+    <!-- Chữ f ở giữa -->
+    <path
+        android:fillColor="@color/blue_facebook"
+        android:pathData="M16.73,15.18l0.487,-3.154h-3.593V9.927c0,-1.31 0.428,-2.473 1.654,-2.473h1.97V4.701c-0.346,-0.046 -1.078,-0.149 -2.461,-0.149c-2.888,0 -4.581,1.525 -4.581,5v2.325H7.237v3.154h2.969v8.672C10.789,23.901 11.389,24 12,24c0.551,0 1.091,-0.063 1.624,-0.157v-8.663H16.73z"/>
+</vector>
