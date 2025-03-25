@@ -59,14 +59,12 @@ public class CommentAttachmentDetailModal extends BottomSheetDialogFragment {
                     .load(_comment.getAttachmentUrl())
                     .fitCenter()
                     .apply(options)
-                    .placeholder(R.drawable.karyl)
                     .into(binding.ivImage);
         } else {
             Glide.with(binding.ivImage.getContext())
                     .load(_comment.getAttachmentUri())
                     .fitCenter()
                     .apply(options)
-                    .placeholder(R.drawable.karyl)
                     .into(binding.ivImage);
         }
     }

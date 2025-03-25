@@ -25,4 +25,8 @@
     <string name="comment_timestamp_placeholder">1y</string>
     <string name="comment_count_template">Now showing %d comment%s</string>
     <string name="reaction_count_template">%d reaction%s</string>
+    <string name="btn_save">Save</string>
+    <string name="hide_option">Hide</string>
+    <string name="download_media_option">Download media</string>
+    <string name="add_to_collage_option">Add to collage</string>
 </resources>

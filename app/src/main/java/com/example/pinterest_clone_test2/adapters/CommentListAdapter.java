@@ -30,27 +30,22 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         void setComment(Comment comment) {
             _binding.setComment(comment);
-            if (comment.getAttachmentUrl() != null) {
-                RequestOptions options = new RequestOptions()
-                        .placeholder(R.drawable.karyl)
-                        .error(R.drawable.turtle_huh);
 
+            RequestOptions options = new RequestOptions()
+                    .placeholder(R.drawable.karyl)
+                    .error(R.drawable.turtle_huh);
+
+            if (comment.getAttachmentUrl() != null) {
                 Glide.with(_binding.ivAttachment.getContext())
                         .load(comment.getAttachmentUrl())
                         .fitCenter()
                         .apply(options)
-                        .placeholder(R.drawable.karyl)
                         .into(_binding.ivAttachment);
             } else if (comment.getAttachmentUri() != null) {
-                RequestOptions options = new RequestOptions()
-                        .placeholder(R.drawable.karyl)
-                        .error(R.drawable.turtle_huh);
-
                 Glide.with(_binding.ivAttachment.getContext())
                         .load(comment.getAttachmentUri())
                         .fitCenter()
                         .apply(options)
-                        .placeholder(R.drawable.karyl)
                         .into(_binding.ivAttachment);
             } else {
                 _binding.ivAttachment.setImageResource(0);
@@ -70,27 +65,22 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         void setComment(Comment comment) {
             _binding.setComment(comment);
-            if (comment.getAttachmentUrl() != null) {
-                RequestOptions options = new RequestOptions()
-                        .placeholder(R.drawable.karyl)
-                        .error(R.drawable.turtle_huh);
 
+            RequestOptions options = new RequestOptions()
+                    .placeholder(R.drawable.karyl)
+                    .error(R.drawable.turtle_huh);
+
+            if (comment.getAttachmentUrl() != null) {
                 Glide.with(_binding.ivAttachment.getContext())
                         .load(comment.getAttachmentUrl())
                         .fitCenter()
                         .apply(options)
-                        .placeholder(R.drawable.karyl)
                         .into(_binding.ivAttachment);
             } else if (comment.getAttachmentUri() != null) {
-                RequestOptions options = new RequestOptions()
-                        .placeholder(R.drawable.karyl)
-                        .error(R.drawable.turtle_huh);
-
                 Glide.with(_binding.ivAttachment.getContext())
                         .load(comment.getAttachmentUri())
                         .fitCenter()
                         .apply(options)
-                        .placeholder(R.drawable.karyl)
                         .into(_binding.ivAttachment);
             } else {
                 _binding.ivAttachment.setImageResource(0);

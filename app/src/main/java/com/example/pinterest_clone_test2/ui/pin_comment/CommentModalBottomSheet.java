@@ -65,8 +65,6 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
             comment.setIsLiked(!comment.getIsLiked());
             comment.setLikeCount(comment.getLikeCount() + (comment.getIsLiked() ? 1 : -1));
             // TODO: update database here
-
-            // TODO: update database here
         });
 
         commentListAdapter.setReplyClickListener(comment -> {
@@ -156,8 +154,6 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
 
             // TODO: upload comment to database here
 
-            // TODO: upload comment to database here
-
             // fake new comment, for demonstration only
             Comment comment = userCommentModel.createComment();
 
@@ -176,7 +172,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                     newIndex++;
                     if (newIndex >= _comments.size()) {
                         _comments.add(comment);
-                        commentListAdapter.notifyDataSetChanged();
+                        commentListAdapter.notifyItemInserted(_comments.size() - 1);
 
                         // clear comment input
                         userCommentModel.setContent("");

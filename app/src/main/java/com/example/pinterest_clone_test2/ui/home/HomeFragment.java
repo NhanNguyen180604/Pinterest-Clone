@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.ViewPagerHomeAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentHomeBinding;
 import com.example.pinterest_clone_test2.models.Pin;
@@ -27,7 +26,7 @@ public class HomeFragment extends Fragment {
     ViewPager2 view_pager;
     TabLayout tab_layout;
 
-    public HomeFragment(){
+    public HomeFragment() {
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,

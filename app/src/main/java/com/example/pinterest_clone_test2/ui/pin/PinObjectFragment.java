@@ -1,15 +1,23 @@
 package com.example.pinterest_clone_test2.ui.pin;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
@@ -19,11 +27,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.ui.pin.btn_more.PinMoreActionModalBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin_comment.CommentModalBottomSheet;
 
 import java.util.Objects;
@@ -33,6 +43,7 @@ public class PinObjectFragment extends Fragment {
     private Pin pin;
     FragmentPinObjectBinding binding;
     String source;
+    Handler handler = new Handler();
 
     // need this to prevent crash idk why
     public PinObjectFragment() {
@@ -41,6 +52,23 @@ public class PinObjectFragment extends Fragment {
     public PinObjectFragment(Pin pin, String source) {
         this.pin = pin;
         this.source = source;
+    }
+
+    void fetchAuthorAsync() {
+        Thread thread = new Thread(() -> {
+            //TODO: fetch author here
+            Log.d("pin-object-fragment", "Fetching author info");
+            handler.post(this::updateAuthor);
+        });
+        thread.start();
+    }
+
+    void updateAuthor() {
+        //TODO: update author info
+        Toast.makeText(requireContext(), "Updating UI with author's info", Toast.LENGTH_SHORT).show();
+
+        //TODO: save author info into viewmodel to survive configuration changes and whatever shiet that makes the data die
+        Toast.makeText(requireContext(), "Saving author state into view model", Toast.LENGTH_SHORT).show();
     }
 
     @Nullable
@@ -55,26 +83,29 @@ public class PinObjectFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinObjectViewModel.class);
-        initializeRelevantPins(view);
+        initializeRelevantPins();
 
-        binding.btnComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (pin != null) {
-                    CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId());
-                    modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
-                } else {
-                    Toast.makeText(getContext(), "Pin is null, we are fucked", Toast.LENGTH_SHORT).show();
-                }
+        fetchAuthorAsync();
+
+        binding.btnComment.setOnClickListener(v -> {
+            if (pin != null) {
+                CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId());
+                modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
+            } else {
+                Toast.makeText(getContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();
             }
         });
 
-        binding.fabBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavController navController = Navigation.findNavController(view);
-                navController.navigateUp();
+        binding.btnMore.setOnClickListener(v -> {
+            if (pin != null) {
+                PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, downloadPinMediaCallback);
+                sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
             }
+        });
+
+        binding.fabBack.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(view);
+            navController.navigateUp();
         });
     }
 
@@ -93,6 +124,8 @@ public class PinObjectFragment extends Fragment {
         if (source_state != null) {
             source = source_state;
         }
+
+        //TODO: restore author state
     }
 
     @Override
@@ -101,9 +134,9 @@ public class PinObjectFragment extends Fragment {
         if (binding.rvRelevant.getLayoutManager() != null) {
             viewModel.setScrollState(binding.rvRelevant.getLayoutManager().onSaveInstanceState());
         }
-//        appBarLayout.getTop();
         viewModel.setPinState(pin);
         viewModel.setSourceState(source);
+        //TODO: save author into view model
     }
 
     @Override
@@ -115,10 +148,30 @@ public class PinObjectFragment extends Fragment {
             Toast.makeText(getContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();
             Log.d("error", "Pin is null, why is the view model dead??? How come the data are still intact, make no fucking sense");
         } else {
-            Glide.with(binding.ivImage.getContext())
-                    .load(pin.getMediaURL())
-                    .fitCenter()
-                    .into(binding.ivImage);
+            RequestOptions options = new RequestOptions()
+                    .placeholder(R.drawable.karyl)
+                    .error(R.drawable.turtle_huh);
+
+            if (pin.getType() == Pin.PinType.IMAGE) {
+                Glide.with(binding.ivImage.getContext())
+                        .load(pin.getMediaUrl())
+                        .fitCenter()
+                        .apply(options)
+                        .into(binding.ivImage);
+            }
+            // GIF
+            else if (pin.getType() == Pin.PinType.GIF) {
+                Glide.with(binding.ivImage.getContext())
+                        .asGif()
+                        .load(pin.getMediaUrl())
+                        .fitCenter()
+                        .apply(options)
+                        .into(binding.ivImage);
+            }
+            // VIDEO
+            else {
+                //TODO: load video
+            }
         }
     }
 
@@ -128,7 +181,7 @@ public class PinObjectFragment extends Fragment {
         binding = null;
     }
 
-    private void initializeRelevantPins(@NonNull View view) {
+    private void initializeRelevantPins() {
         PinListAdapter adapter = new PinListAdapter(Pin.testData, relevantImageClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.rvRelevant.setAdapter(adapter);
@@ -155,6 +208,63 @@ public class PinObjectFragment extends Fragment {
                     null,
                     null
             );
+        }
+    };
+
+    public interface DownloadPinMediaCallback {
+        void Download();
+    }
+
+    void downloadMediaAsync() {
+        Thread thread = new Thread(() -> {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(pin.getMediaUrl());
+            String mimeType = getMimeType(fileExtension);
+
+            PinMediaDownloader downloader = new PinMediaDownloader(requireContext());
+            downloader.DownloadFile(pin.getMediaUrl(), mimeType, String.valueOf(System.currentTimeMillis()));
+            handler.post(() -> Toast.makeText(requireContext(), "Download finished", Toast.LENGTH_SHORT).show());
+        });
+        thread.start();
+    }
+
+    @NonNull
+    private String getMimeType(String fileExtension) {
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        String mimeType = mimeTypeMap.getMimeTypeFromExtension(fileExtension);
+
+        // fuck this
+        if (mimeType == null) {
+            if (pin.getType() == Pin.PinType.IMAGE) {
+                mimeType = "image/jpg";
+            } else if (pin.getType() == Pin.PinType.GIF) {
+                mimeType = "image/gif";
+            } else {
+                mimeType = "video/mp4";
+            }
+        }
+        return mimeType;
+    }
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    downloadMediaAsync();
+                } else {
+                    Toast.makeText(requireContext(), "Permission denied, download failed", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+    private final DownloadPinMediaCallback downloadPinMediaCallback = () -> {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+            // no need to ask for these permissions on android 13 and onwards
+            else {
+                downloadMediaAsync();
+            }
+        } else {
+            downloadMediaAsync();
         }
     };
 }
