@@ -2,9 +2,9 @@
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/settings_drawer_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/settings_drawer_container"
     tools:context=".ui.settings.SettingsDrawerFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -91,6 +91,14 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <Button
+            android:id="@+id/btn_go_to_admin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Admin"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_profile_btn" />
+
         <TextView
             android:id="@+id/tv_settings_general_title"
             android:layout_width="wrap_content"
@@ -100,7 +108,7 @@
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/view_profile_btn" />
+            app:layout_constraintTop_toBottomOf="@id/btn_go_to_admin" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_account_management"

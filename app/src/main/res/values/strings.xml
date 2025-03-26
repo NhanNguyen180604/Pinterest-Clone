@@ -50,4 +50,10 @@
     <string name="comment_timestamp_placeholder">1y</string>
     <string name="comment_count_template">Now showing %d comment%s</string>
     <string name="reaction_count_template">%d reaction%s</string>
+    <string name="title_activity_admin">AdminActivity</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="tab_manage_user">User</string>
+    <string name="tab_manage_comment">Comment</string>
+    <string name="tab_manage_pin">Pin</string>
+    <string name="tab_manage_report">Report</string>
 </resources>

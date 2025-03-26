@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/admin_nav_user_tab"
+        android:icon="@drawable/ic_account_circle"
+        android:title="@string/tab_manage_user" />
+
+    <item
+        android:id="@+id/admin_nav_comment_tab"
+        android:icon="@drawable/ic_chat"
+        android:title="@string/tab_manage_comment" />
+
+    <item
+        android:id="@+id/admin_nav_pin_tab"
+        android:icon="@drawable/ic_pin"
+        android:title="@string/tab_manage_pin" />
+
+    <item
+        android:id="@+id/admin_nav_report_tab"
+        android:icon="@drawable/ic_board"
+        android:title="@string/tab_manage_report" />
+</menu>

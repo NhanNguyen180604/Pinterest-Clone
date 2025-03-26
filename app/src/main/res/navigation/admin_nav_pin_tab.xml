@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_nav_pin_tab"
+    app:startDestination="@id/managePinFragment">
+
+    <fragment
+        android:id="@+id/managePinFragment"
+        android:name="com.example.pinterest_clone_test2.ui.admin.manage_pin.ManagePinFragment"
+        android:label="fragment_manage_pin"
+        tools:layout="@layout/fragment_manage_pin" />
+</navigation>
