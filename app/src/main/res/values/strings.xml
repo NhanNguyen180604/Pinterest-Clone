@@ -19,5 +19,19 @@
     <string name="desc_open_library">Mở thư viện ảnh</string>
     <string name="bottomsheet_drag_handle_clicked">Your value here</string>
     <string name="desc_add_url">Thêm đường dẫn ảnh</string>
+    <string name="next">Tiếp theo</string>
+    <string name="selectedImage">Ảnh đã chọn</string>
+    <string name="deleteImage">Xoá ảnh</string>
+    <string name="create_ghim">Tạo Ghim</string>
+    <string name="TitleInput">Cho mọi người biết Ghim của bạn giới thiệu điều gì</string>
+    <string name="descriptionView">Mô tả</string>
+    <string name="titleView">Tiêu đề</string>
+    <string name="descriptionInput">Thêm mô tả, đề cập hoặc hashtag vào Ghim của bạn.</string>
+    <string name="linkView">Liên kết</string>
+    <string name="linkInput">Thêm liên kết của bạn ở đây</string>
+    <string name="chooseBoardView">Chọn một bảng</string>
+    <string name="addCategory">Gắn thẻ chủ đề</string>
+    <string name="plusSettings">Cài đặt nâng cao</string>
+    <string name="create">Tạo</string>
 
 </resources>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/bg_bottom_sheet"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- Header: Close button + Centered title -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:id="@+id/btnClose"
+            android:src="@drawable/ic_close"
+            android:contentDescription="Đóng"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            app:tint="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:text="Bắt đầu tạo ngay"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+    <!-- 3 buttons: Ghim / Ghép / Bảng -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- Ghim -->
+        <LinearLayout
+            android:id="@+id/btnPin"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <FrameLayout
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_icon_button"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_pin"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
+
+
+            <TextView
+                android:text="Ghim"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- Ghép -->
+        <LinearLayout
+            android:id="@+id/btnCollage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <FrameLayout
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_icon_button"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_merge"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
+
+            <TextView
+                android:text="Ghép"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- Bảng -->
+        <LinearLayout
+            android:id="@+id/btnBoard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <FrameLayout
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_icon_button"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_board"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp "
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
+
+            <TextView
+                android:text="Bảng"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

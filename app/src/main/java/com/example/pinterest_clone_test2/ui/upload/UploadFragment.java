@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +23,9 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.example.pinterest_clone_test2.UploadActivity;
 import com.example.pinterest_clone_test2.adapters.ImageAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentUploadBinding;
 
@@ -51,10 +51,9 @@ public class UploadFragment extends Fragment {
     private ImageAdapter imageAdapter;
     private ArrayList<Uri> imageList;
     Uri cameraUri;
+    Uri selectImageUri;
 
-    public UploadFragment() {
-        // Required empty public constructor
-    }
+    public UploadFragment() {}
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -72,46 +71,49 @@ public class UploadFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Set up RecyclerView
-        binding.recyclerViewImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+
         imageList = new ArrayList<>();
-        imageAdapter = new ImageAdapter(imageList, getContext(), imageSelectedListener);  // Pass the fragment as the listener
+        imageAdapter = new ImageAdapter(imageList, getContext(), imageSelectedListener);
+        binding.recyclerViewImages.setLayoutManager(new GridLayoutManager(getContext(), 4));
         binding.recyclerViewImages.setAdapter(imageAdapter);
 
-        // Set up buttons
-        binding.btnNext.setEnabled(false); // Disable until image is selected
+        binding.btnNext.setEnabled(false);
+        binding.selectedImageContainer.setVisibility(View.GONE);
 
-        binding.btnExit.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed()); // Back to home
-
-        binding.btnLibrary.setOnClickListener(v -> openGallery()); // Open gallery to pick images
-
-        binding.btnCamera.setOnClickListener(v -> openCamera()); // Open camera to capture images
-
-        binding.btnAddUrl.setOnClickListener(v -> openUrlInput()); // Open URL input dialog
-
+        binding.btnExit.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
+        binding.btnLibrary.setOnClickListener(v -> openGallery());
+        binding.btnCamera.setOnClickListener(v -> openCamera());
+        binding.btnAddUrl.setOnClickListener(v -> openUrlInput());
         binding.btnNext.setOnClickListener(v -> proceedToNextStep());
+        binding.btnRemoveSelectedImage.setOnClickListener(v -> resetSelectedImage());
 
-        // Check if permissions for storage are granted when entering the upload fragment
         if (checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE)) {
             loadAllImagesFromGallery();
+        }
+
+        if (savedInstanceState != null) {
+            selectImageUri = savedInstanceState.getParcelable("selectedImageUri");
+            if (selectImageUri != null) {
+                onImageSelected(selectImageUri);
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (selectImageUri != null) {
+            outState.putParcelable("selectedImageUri", selectImageUri);
         }
     }
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 switch (requestingCode) {
-                    case GALLERY_REQUEST_CODE:
-                        galleryRequestGranted = isGranted;
-                        break;
-                    case CAMERA_PERMISSION_CODE:
-                        cameraPermissionGranted = isGranted;
-                        break;
-                    case CAMERA_REQUEST_CODE:
-                        cameraRequestGranted = isGranted;
-                        break;
-                    case STORAGE_PERMISSION_CODE:
-                        storagePermissionGranted = isGranted;
-                        break;
+                    case GALLERY_REQUEST_CODE: galleryRequestGranted = isGranted; break;
+                    case CAMERA_PERMISSION_CODE: cameraPermissionGranted = isGranted; break;
+                    case CAMERA_REQUEST_CODE: cameraRequestGranted = isGranted; break;
+                    case STORAGE_PERMISSION_CODE: storagePermissionGranted = isGranted; break;
                 }
             });
 
@@ -120,127 +122,91 @@ public class UploadFragment extends Fragment {
 
         if (ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED) {
             switch (requestingCode) {
-                case GALLERY_REQUEST_CODE:
-                    galleryRequestGranted = true;
-                    break;
-                case CAMERA_PERMISSION_CODE:
-                    cameraPermissionGranted = true;
-                    break;
-                case CAMERA_REQUEST_CODE:
-                    cameraRequestGranted = true;
-                    break;
-                case STORAGE_PERMISSION_CODE:
-                    storagePermissionGranted = true;
-                    break;
+                case GALLERY_REQUEST_CODE: galleryRequestGranted = true; break;
+                case CAMERA_PERMISSION_CODE: cameraPermissionGranted = true; break;
+                case CAMERA_REQUEST_CODE: cameraRequestGranted = true; break;
+                case STORAGE_PERMISSION_CODE: storagePermissionGranted = true; break;
             }
             return true;
         }
 
         requestPermissionLauncher.launch(permission);
-
         switch (requestingCode) {
-            case GALLERY_REQUEST_CODE:
-                return galleryRequestGranted;
-            case CAMERA_PERMISSION_CODE:
-                return cameraPermissionGranted;
-            case CAMERA_REQUEST_CODE:
-                return cameraRequestGranted;
-            case STORAGE_PERMISSION_CODE:
-                return storagePermissionGranted;
-            default:
-                return false;
+            case GALLERY_REQUEST_CODE: return galleryRequestGranted;
+            case CAMERA_PERMISSION_CODE: return cameraPermissionGranted;
+            case CAMERA_REQUEST_CODE: return cameraRequestGranted;
+            case STORAGE_PERMISSION_CODE: return storagePermissionGranted;
+            default: return false;
         }
     }
 
     private void loadAllImagesFromGallery() {
         ContentResolver contentResolver = requireContext().getContentResolver();
         Uri imagesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-
         String[] projection = {MediaStore.Images.Media._ID};
+
         try (Cursor cursor = contentResolver.query(imagesUri, projection, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-
                 if (columnIndex != -1) {
                     do {
                         long imageId = cursor.getLong(columnIndex);
                         Uri imageUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(imageId));
-                        imageList.add(imageUri); // Add the image URI to the list
+                        imageList.add(imageUri);
                         imageAdapter.notifyItemInserted(imageList.size() - 1);
                     } while (cursor.moveToNext());
-                } else {
-                    Toast.makeText(getActivity(), "Error loading images from gallery", Toast.LENGTH_SHORT).show();
-                    Log.d("uploading-error", "Không tìm thấy cột dữ liệu ảnh");
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(getActivity(), "Error loading images from gallery", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void openGallery() {
         photoPickerLauncher.launch(new PickVisualMediaRequest.Builder()
-                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                 .build());
     }
 
-    private final ActivityResultLauncher<PickVisualMediaRequest> photoPickerLauncher = registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(), uris -> {
-        if (!uris.isEmpty()) {
-            int startPos = imageList.size();
-            imageList.addAll(uris); // Add image to list
-            imageAdapter.notifyItemRangeInserted(startPos, uris.size());
-
-            int flag = Intent.FLAG_GRANT_READ_URI_PERMISSION;
-            for (Uri uri :
-                    uris) {
-                requireContext().getContentResolver().takePersistableUriPermission(uri, flag);
-            }
-        }
-    });
+    private final ActivityResultLauncher<PickVisualMediaRequest> photoPickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(), uris -> {
+                if (!uris.isEmpty()) {
+                    int startPos = imageList.size();
+                    imageList.addAll(uris);
+                    imageAdapter.notifyItemRangeInserted(startPos, uris.size());
+                    for (Uri uri : uris) {
+                        requireContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
+                }
+            });
 
     private void openCamera() {
         if (checkPermission(Manifest.permission.CAMERA, CAMERA_REQUEST_CODE)) {
             File photoFile = createImageFile();
             if (photoFile != null) {
-                cameraUri = FileProvider.getUriForFile(
-                        requireContext(),
-                        "com.example.pinterest_clone_test2.fileprovider",
-                        photoFile
-                );
-
+                cameraUri = FileProvider.getUriForFile(requireContext(), "com.example.pinterest_clone_test2.fileprovider", photoFile);
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri); // Pass the URI here
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri);
                 cameraActivityLauncher.launch(cameraIntent);
-            } else {
-                Toast.makeText(getActivity(), "Failed to create image file", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Toast.makeText(getActivity(), "Camera permission not granted", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private final ActivityResultLauncher<Intent> cameraActivityLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    if (cameraUri != null) {  // Use the Uri we created earlier
-                        imageList.add(cameraUri);
-                        imageAdapter.notifyItemInserted(imageList.size() - 1);
-                        onImageSelected(cameraUri);
-                    } else {
-                        Toast.makeText(requireContext(), "Image capture failed", Toast.LENGTH_SHORT).show();
-                    }
+    private final ActivityResultLauncher<Intent> cameraActivityLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && cameraUri != null) {
+                    imageList.add(cameraUri);
+                    imageAdapter.notifyItemInserted(imageList.size() - 1);
+                    onImageSelected(cameraUri);
                 }
-            }
-    );
+            });
 
     private File createImageFile() {
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-            String imageFileName = "JPEG_" + timeStamp + "_";
+            String fileName = "IMG_" + timeStamp + "_";
             File storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            return File.createTempFile(imageFileName, ".jpg", storageDir);
+            return File.createTempFile(fileName, ".jpg", storageDir);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -248,21 +214,29 @@ public class UploadFragment extends Fragment {
     }
 
     private void openUrlInput() {
-        // Your existing method for handling URL input
         Toast.makeText(getActivity(), "Input URL logic here", Toast.LENGTH_SHORT).show();
     }
 
     private void proceedToNextStep() {
-        // Handle next step (upload or another action)
-        Toast.makeText(getActivity(), "Proceed to the next step", Toast.LENGTH_SHORT).show();
+        if (getActivity() instanceof UploadActivity) {
+            ((UploadActivity) getActivity()).showDetailFragment(selectImageUri);
+        }
     }
 
     public void onImageSelected(Uri imageUri) {
-        // Handle image selection
+        this.selectImageUri = imageUri;
         binding.selectedImageView.setImageURI(imageUri);
-        binding.selectedImageView.setVisibility(View.VISIBLE); // Show selected image
-        binding.btnNext.setEnabled(true); // Enable next button when an image is selected
+        binding.selectedImageContainer.setVisibility(View.VISIBLE);
+        binding.buttonContainer.setVisibility(View.GONE);
+        binding.btnNext.setEnabled(true);
     }
 
-    private final ImageAdapter.OnImageSelectedListener imageSelectedListener = UploadFragment.this::onImageSelected;
+    private void resetSelectedImage() {
+        selectImageUri = null;
+        binding.selectedImageContainer.setVisibility(View.GONE);
+        binding.buttonContainer.setVisibility(View.VISIBLE);
+        binding.btnNext.setEnabled(false);
+    }
+
+    private final ImageAdapter.OnImageSelectedListener imageSelectedListener = this::onImageSelected;
 }

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".ui.upload.UploadImageDetailsFragment">
+
+    <!-- Back + Title -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/desc_close"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_ghim"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnBack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/btnBack"
+        app:layout_constraintHorizontal_bias="0.5" />
+
+    <!-- Scrollable content -->
+    <ScrollView
+        android:id="@+id/scrollContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/btnBack"
+        app:layout_constraintBottom_toTopOf="@id/createButtonContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="16dp">
+
+            <ImageView
+                android:id="@+id/selectedImageView"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/selectedImage"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/titleView"
+                android:textStyle="bold" />
+            <EditText
+                android:id="@+id/titleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/TitleInput"
+                android:inputType="text"
+                android:lines="2"
+                android:maxLines="2"
+                android:minHeight="48dp"
+                android:importantForAutofill="no"
+                android:background="@android:color/transparent"
+                android:textColorHint="#757575"
+                android:layout_marginBottom="8dp" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#333" />
+
+            <!-- Description -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/descriptionView"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp" />
+            <EditText
+                android:id="@+id/descriptionEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/descriptionInput"
+                android:inputType="textMultiLine"
+                android:lines="2"
+                android:maxLines="3"
+                android:importantForAutofill="no"
+                android:background="@android:color/transparent"
+                android:textColorHint="#757575"
+                android:gravity="top"
+                android:layout_marginBottom="8dp" />
+            <View
+                android:layout_width="match_parent" android:layout_height="1dp" android:background="#333" />
+
+            <!-- Link -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/linkView"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp" />
+            <EditText
+                android:id="@+id/linkEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/linkInput"
+                android:inputType="text"
+                android:lines="1"
+                android:maxLines="2"
+                android:minHeight="48dp"
+                android:importantForAutofill="no"
+                android:background="@android:color/transparent" android:textColorHint="#757575"
+                android:layout_marginBottom="8dp" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333" />
+
+            <!-- Choose board -->
+            <LinearLayout
+                android:id="@+id/chooseBoardContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chooseBoardView"
+                    android:textStyle="bold"
+                    android:layout_weight="1" />
+                <ImageButton
+                    android:id="@+id/btnChooseBoard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_chevron_right"
+                    android:background="@null"
+                    android:contentDescription="@string/chooseBoardView" />
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#333" />
+
+            <!-- Add category -->
+            <LinearLayout
+                android:id="@+id/tagTopicContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/addCategory"
+                    android:textStyle="bold"
+                    android:layout_weight="1" />
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_chevron_right"
+                    android:background="@null"
+                    android:contentDescription="@string/addCategory" />
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#333" />
+
+            <!-- Advanced settings -->
+            <LinearLayout
+                android:id="@+id/advancedSettingContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/plusSettings"
+                    android:textStyle="bold"
+                    android:layout_weight="1" />
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_chevron_right"
+                    android:background="@null"
+                    android:contentDescription="@string/plusSettings" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Fixed Create Button -->
+    <LinearLayout
+        android:id="@+id/createButtonContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnCreate"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="@string/create"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/rounded_button"
+            android:layout_marginBottom="0dp"/>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

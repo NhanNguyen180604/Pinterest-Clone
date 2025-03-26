@@ -9,6 +9,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.pinterest_clone_test2.databinding.ActivityMainBinding;
+import com.example.pinterest_clone_test2.ui.upload.UploadDialogFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,7 +23,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupWithNavController(binding.navView, navController);
+        binding.navView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.nav_upload_tab) {
+                UploadDialogFragment dialog = new UploadDialogFragment();
+                dialog.show(getSupportFragmentManager(), "UploadDialog");
+                return false;
+            } else {
+                NavigationUI.onNavDestinationSelected(item, navController);
+                return true;
+            }
+        });
+
     }
 
     @Override
