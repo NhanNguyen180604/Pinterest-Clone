@@ -29,4 +29,20 @@
     <string name="hide_option">Hide</string>
     <string name="download_media_option">Download media</string>
     <string name="add_to_collage_option">Add to collage</string>
+    <string name="default_pin_like_count">0</string>
+    <string name="pin_saving_modal_title">Save to</string>
+    <string name="create_board">Create board</string>
+    <string name="board_name_placeholder">Board name</string>
+    <string name="save_to_your_board">Your boards</string>
+    <string name="select_to_create_a_new_board">Select to create a new board</string>
+    <string name="your_profile">Profile</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="create">Create</string>
+    <string name="collaborators">Collaborators</string>
+    <string name="board_name">Board name</string>
+    <string name="add_collaborators">Add collaborators</string>
+    <string name="privacy">Privacy</string>
+    <string name="make_this_board_secret">Make this board secret</string>
+    <string name="board_privacy_description">Only you and collaborators will see this board</string>
 </resources>

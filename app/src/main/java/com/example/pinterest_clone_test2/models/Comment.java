@@ -14,6 +14,7 @@ import java.util.Objects;
 
 public class Comment extends BaseObservable {
     String _id;
+    String _pinId;
 
     // will replace with User model if necessary
     String _authorId;
@@ -29,12 +30,10 @@ public class Comment extends BaseObservable {
     boolean _isLiked = false;
     Uri _attachmentUri;  // for uploading comment
 
-    @Bindable
     public String getId() {
         return _id;
     }
 
-    @Bindable
     public String getAuthorId() {
         return _authorId;
     }
@@ -79,16 +78,18 @@ public class Comment extends BaseObservable {
         return _attachmentUri;
     }
 
+    public String getPinId() {
+        return _pinId;
+    }
+
     // replicating builder pattern for better mock data initialization
     public Comment setId(String id) {
         _id = id;
-        notifyPropertyChanged(BR.id);
         return this;
     }
 
     public Comment setAuthorId(String authorId) {
         _authorId = authorId;
-        notifyPropertyChanged(BR.authorId);
         notifyPropertyChanged(BR.optionsVisibility);
         return this;
     }
@@ -142,6 +143,11 @@ public class Comment extends BaseObservable {
         _attachmentUri = attachmentUri;
         notifyPropertyChanged(BR.attachmentUri);
         notifyPropertyChanged(BR.attachmentVisibility);
+        return this;
+    }
+
+    public Comment setPinId(String _pinId) {
+        this._pinId = _pinId;
         return this;
     }
 

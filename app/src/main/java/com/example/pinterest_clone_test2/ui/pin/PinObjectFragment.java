@@ -1,6 +1,8 @@
 package com.example.pinterest_clone_test2.ui.pin;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,14 +30,16 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.pinterest_clone_test2.CreateBoardActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinMoreActionModalBottomSheet;
-import com.example.pinterest_clone_test2.ui.pin_comment.CommentModalBottomSheet;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class PinObjectFragment extends Fragment {
@@ -44,6 +48,7 @@ public class PinObjectFragment extends Fragment {
     FragmentPinObjectBinding binding;
     String source;
     Handler handler = new Handler();
+    ActivityResultLauncher<Intent> createBoardActivityLauncher;
 
     // need this to prevent crash idk why
     public PinObjectFragment() {
@@ -65,10 +70,46 @@ public class PinObjectFragment extends Fragment {
 
     void updateAuthor() {
         //TODO: update author info
-        Toast.makeText(requireContext(), "Updating UI with author's info", Toast.LENGTH_SHORT).show();
 
         //TODO: save author info into viewmodel to survive configuration changes and whatever shiet that makes the data die
-        Toast.makeText(requireContext(), "Saving author state into view model", Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        createBoardActivityLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null && data.getBooleanExtra("added", false)) {
+                            //TODO: send new board information and pin to database
+                            if (data.getBooleanExtra("profile", false)) {
+                                //TODO: save pin to profile
+                                Toast.makeText(requireContext(), "Saving pin to your profile", Toast.LENGTH_SHORT).show();
+                            } else {
+                                //TODO: save pin to board
+                                String boardName = data.getStringExtra("boardName");
+                                boolean isPrivate = data.getBooleanExtra("isPrivate", false);
+                                boolean isNew = data.getBooleanExtra("isNew", false);
+
+                                Toast.makeText(
+                                        requireContext(),
+                                        String.format(Locale.US, "Saving to board: %s, is private: %b, is new: %b", boardName, isPrivate, isNew),
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                                String boardId;
+                                if (!isNew) {
+                                    boardId = data.getStringExtra("boardId");
+                                    Toast.makeText(requireContext(), "Board id to insert: " + boardId, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    }
+                }
+        );
     }
 
     @Nullable
@@ -92,7 +133,7 @@ public class PinObjectFragment extends Fragment {
                 CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId());
                 modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
             } else {
-                Toast.makeText(getContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -100,12 +141,36 @@ public class PinObjectFragment extends Fragment {
             if (pin != null) {
                 PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, downloadPinMediaCallback);
                 sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
+            } else {
+                Toast.makeText(requireContext(), "Pin is null, end my suffering", Toast.LENGTH_SHORT).show();
             }
         });
 
         binding.fabBack.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(view);
             navController.navigateUp();
+        });
+
+        binding.btnLove.setOnClickListener(v -> {
+            if (pin != null) {
+                boolean isLiked = pin.getIsLiked();
+                binding.btnLove.setImageResource(isLiked ? R.drawable.ic_favorite_heart : R.drawable.ic_favorite_heart_filled);
+                pin.setLikeCount(pin.getLikeCount() + (isLiked ? -1 : 1));
+                pin.setIsLiked(!isLiked);
+                binding.tvLikeCount.setText(String.valueOf(pin.getLikeCount()));
+            } else {
+                Toast.makeText(requireContext(), "Pin is null, one must imagine CS students being happy", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        binding.btnSave.setOnClickListener(v -> {
+            if (pin != null) {
+                Intent intent = new Intent(requireActivity(), CreateBoardActivity.class);
+                intent.putExtra("pin", pin);
+                createBoardActivityLauncher.launch(intent);
+            } else {
+                Toast.makeText(requireContext(), "Pin is null, i regret studying this major", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -145,8 +210,8 @@ public class PinObjectFragment extends Fragment {
         restoreStates();
 
         if (pin == null) {
-            Toast.makeText(getContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();
-            Log.d("error", "Pin is null, why is the view model dead??? How come the data are still intact, make no fucking sense");
+            Toast.makeText(requireContext(), "COME, WATCH YOUR SCORE, DRIFT INTO A VIVID REALITY, BRING YOUR WHOLE WILL, READY YOURSELF, FOR ANDROID STUPIDITY", Toast.LENGTH_SHORT).show();
+            Log.d("pin-error", "pin at PinObjectFragment is null, whyyyyyyyyyyyyyyyyyyyyy?");
         } else {
             RequestOptions options = new RequestOptions()
                     .placeholder(R.drawable.karyl)
@@ -172,6 +237,9 @@ public class PinObjectFragment extends Fragment {
             else {
                 //TODO: load video
             }
+
+            binding.btnLove.setImageResource(pin.getIsLiked() ? R.drawable.ic_favorite_heart_filled : R.drawable.ic_favorite_heart);
+            binding.tvLikeCount.setText(String.valueOf(pin.getLikeCount()));
         }
     }
 

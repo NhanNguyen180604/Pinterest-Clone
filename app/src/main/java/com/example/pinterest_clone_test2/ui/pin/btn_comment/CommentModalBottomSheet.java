@@ -1,8 +1,9 @@
-package com.example.pinterest_clone_test2.ui.pin_comment;
+package com.example.pinterest_clone_test2.ui.pin.btn_comment;
 
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -126,8 +127,11 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         behavior.setSkipCollapsed(true);
 
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
         ViewGroup.LayoutParams params = binding.commentLayoutContainer.getLayoutParams();
-        params.height = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.9);
+        params.height = (int) (displayMetrics.heightPixels * 0.9);
         binding.commentLayoutContainer.setLayoutParams(params);
 
         binding.commentLayoutContainer.post(this::fetchCommentsAsync);
