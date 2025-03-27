@@ -26,11 +26,8 @@ public class User {
     private String email;
     private String firstName;
     private String lastName;
-
     private String birthDate;
-
     private Gender gender;
-
     private Role role;
 
     // Danh sách mock users
@@ -41,6 +38,7 @@ public class User {
     ));
     private static Map<String, String> tokenMap = new HashMap<>();
 
+    // Constructor
     public User() {
     }
 
@@ -73,10 +71,10 @@ public class User {
     }
 
 
+    // Getter, Setter
     public String getPassword() {
         return password;
     }
-
     public void setPassword(String password) {
         this.password = password;
     }
@@ -84,7 +82,6 @@ public class User {
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -92,7 +89,6 @@ public class User {
     public String getFirstName() {
         return firstName;
     }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -100,7 +96,6 @@ public class User {
     public String getLastName() {
         return lastName;
     }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -108,7 +103,6 @@ public class User {
     public Gender getGender() {
         return gender;
     }
-
     public void setGender(String gender) {
         this.gender = Gender.valueOf(gender);
     }
@@ -116,7 +110,6 @@ public class User {
     public String getBirthDate() {
         return birthDate;
     }
-
     public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
@@ -124,7 +117,6 @@ public class User {
     public Role getRole() {
         return role;
     }
-
     public void setRole(Role role) {
         this.role = role;
     }
@@ -133,6 +125,7 @@ public class User {
         return firstName + " " + lastName;
     }
 
+    // Phương thức kiểm tra
     public static boolean isValidEnum(String value) {
         try {
             Gender.valueOf(value);
