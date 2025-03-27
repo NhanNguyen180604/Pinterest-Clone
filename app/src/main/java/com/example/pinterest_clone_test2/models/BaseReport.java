@@ -3,6 +3,7 @@ package com.example.pinterest_clone_test2.models;
 import androidx.annotation.NonNull;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class BaseReport {
     protected final List<ReportReason> _reasons;
@@ -15,6 +16,26 @@ public abstract class BaseReport {
         _reasons = reasons;
         _reportOwnerId = reportOwnerId;
         _reportedId = reportedId;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+        if (_reasons.isEmpty()) {
+            return "";
+        }
+
+        return _reasons.stream()
+                .map(ReportReason::getDescription)
+                .collect(Collectors.joining(", "));
+    }
+
+    public String getReportOwnerId() {
+        return _reportOwnerId;
+    }
+
+    public String getReportedId() {
+        return _reportedId;
     }
 
     abstract void sendReportToDatabase();
