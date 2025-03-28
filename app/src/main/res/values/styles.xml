@@ -19,4 +19,28 @@
         <item name="android:background">@color/black_overlay</item>
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
+  
+    <!-- DatePicker Dialog Theme -->
+    <style name="CustomDatePickerDialog" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Text color for buttons -->
+        <item name="colorAccent">@color/colorAccent</item>
+        <!-- Spinner divider color -->
+        <item name="android:colorControlNormal">@color/colorRed</item>
+        <!-- Set date picker mode to spinner -->
+        <item name="android:datePickerStyle">@style/CustomSpinnerDatePicker</item>
+        <!-- Button text style -->
+        <item name="android:buttonBarButtonStyle">@style/CustomDatePickerButton</item>
+    </style>
+
+    <!-- DatePicker Style -->
+    <style name="CustomSpinnerDatePicker" parent="android:Widget.Material.DatePicker">
+        <item name="android:datePickerMode">spinner</item>
+        <item name="android:calendarViewShown">false</item>
+    </style>
+
+    <!-- Button Style -->
+    <style name="CustomDatePickerButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/colorRed</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
 </resources>
