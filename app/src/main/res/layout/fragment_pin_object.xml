@@ -58,13 +58,26 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/cv_image" />
 
+                <TextView
+                    android:id="@+id/tv_like_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/default_pin_like_count"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@id/btn_love"
+                    app:layout_constraintStart_toEndOf="@id/btn_love"
+                    app:layout_constraintTop_toTopOf="@id/btn_love" />
+
                 <ImageButton
                     android:id="@+id/btn_comment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:layout_marginTop="16dp"
                     android:src="@drawable/ic_chat"
-                    app:layout_constraintStart_toEndOf="@id/btn_love"
+                    app:layout_constraintStart_toEndOf="@id/tv_like_count"
                     app:layout_constraintTop_toBottomOf="@+id/cv_image" />
 
                 <ImageButton
@@ -86,10 +99,12 @@
                     app:layout_constraintTop_toBottomOf="@+id/cv_image" />
 
                 <Button
+                    android:id="@+id/btn_save"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/btn_share"
+                    android:text="@string/btn_save"
+                    android:textAllCaps="false"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/cv_image" />
 

@@ -1,7 +1,7 @@
-package com.example.pinterest_clone_test2.ui.pin_comment;
+package com.example.pinterest_clone_test2.ui.pin.btn_comment;
 
-import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,8 +44,11 @@ public class CommentAttachmentDetailModal extends BottomSheetDialogFragment {
         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         behavior.setSkipCollapsed(true);
 
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
         ViewGroup.LayoutParams params = binding.imageDetailLayoutContainer.getLayoutParams();
-        params.height = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.9);
+        params.height = (int) (displayMetrics.heightPixels * 0.9);
         binding.imageDetailLayoutContainer.setLayoutParams(params);
 
         binding.btnClose.setOnClickListener(v -> dismiss());
@@ -59,14 +62,12 @@ public class CommentAttachmentDetailModal extends BottomSheetDialogFragment {
                     .load(_comment.getAttachmentUrl())
                     .fitCenter()
                     .apply(options)
-                    .placeholder(R.drawable.karyl)
                     .into(binding.ivImage);
         } else {
             Glide.with(binding.ivImage.getContext())
                     .load(_comment.getAttachmentUri())
                     .fitCenter()
                     .apply(options)
-                    .placeholder(R.drawable.karyl)
                     .into(binding.ivImage);
         }
     }

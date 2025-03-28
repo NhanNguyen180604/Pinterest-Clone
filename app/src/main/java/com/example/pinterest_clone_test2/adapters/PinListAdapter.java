@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
@@ -41,17 +42,31 @@ public class PinListAdapter extends RecyclerView.Adapter<PinListAdapter.PinViewH
 
     @Override
     public void onBindViewHolder(@NonNull PinViewHolder holder, int position) {
-        Glide.with(holder.itemView.getContext())
-                .load(pins.get(position).getMediaURL())
+        Pin pin = pins.get(position);
+
+        RequestOptions options = new RequestOptions()
                 .placeholder(R.drawable.karyl)
                 .fitCenter()
-                .into(holder.iv);
-        holder.iv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.OnClick(holder.getBindingAdapterPosition(), v);
-            }
-        });
+                .error(R.drawable.turtle_huh);
+
+        if (pin.getType() == Pin.PinType.IMAGE) {
+            Glide.with(holder.itemView.getContext())
+                    .load(pins.get(position).getThumbnailUrl())
+                    .fitCenter()
+                    .apply(options)
+                    .into(holder.iv);
+        } else if (pin.getType() == Pin.PinType.GIF) {
+            Glide.with(holder.itemView.getContext())
+                    .asGif()
+                    .load(pins.get(position).getThumbnailUrl())
+                    .fitCenter()
+                    .apply(options)
+                    .into(holder.iv);
+        } else {
+            //TODO: load video
+        }
+
+        holder.iv.setOnClickListener(v -> listener.OnClick(holder.getBindingAdapterPosition(), v));
     }
 
     @Override

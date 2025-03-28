@@ -1,4 +1,4 @@
-package com.example.pinterest_clone_test2.ui.pin_comment;
+package com.example.pinterest_clone_test2.ui.pin.btn_comment;
 
 import android.net.Uri;
 import android.view.View;

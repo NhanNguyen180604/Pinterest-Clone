@@ -15,6 +15,11 @@
         <item name="cornerSize">12dp</item>
     </style>
 
+    <style name="Widget.Theme.Pinterest_clone_test2.ButtonBar.Fullscreen" parent="">
+        <item name="android:background">@color/black_overlay</item>
+        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
+    </style>
+  
     <!-- DatePicker Dialog Theme -->
     <style name="CustomDatePickerDialog" parent="Theme.AppCompat.Light.Dialog">
         <!-- Text color for buttons -->

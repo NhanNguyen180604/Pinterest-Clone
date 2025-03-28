@@ -3,6 +3,7 @@ package com.example.pinterest_clone_test2.ui.report;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -108,8 +109,11 @@ public class ReportModalBottomSheet extends BottomSheetDialogFragment {
         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         behavior.setSkipCollapsed(true);
 
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
         ViewGroup.LayoutParams params = binding.commentReportLayoutContainer.getLayoutParams();
-        params.height = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.9);
+        params.height = (int) (displayMetrics.heightPixels * 0.9);
         binding.commentReportLayoutContainer.setLayoutParams(params);
     }
 
