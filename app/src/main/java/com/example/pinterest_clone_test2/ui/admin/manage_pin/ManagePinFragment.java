@@ -50,11 +50,16 @@ public class ManagePinFragment extends Fragment {
         pinListAdminAdapter = new PinListAdminAdapter(filteredPinList, new PinListAdminAdapter.PinAdminActionListener() {
             @Override
             public void onEditClick(Pin pin) {
+                // Handle edit action (you can open an edit screen or dialog)
                 Toast.makeText(getContext(), "Edit Pin: " + pin.getId(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onDeleteClick(Pin pin) {
+                // Handle delete action (remove pin from the list)
+//                pinList.remove(pin);
+//                filteredPinList.remove(pin);  // Ensure to remove from the filtered list as well
+//                pinListAdminAdapter.notifyDataSetChanged();
                 Toast.makeText(getContext(), "Deleted Pin: " + pin.getId(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -65,14 +70,12 @@ public class ManagePinFragment extends Fragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // Search logic: filter pins by author name or other parameters
                 filterPins(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // Filter the list as the user types
                 filterPins(newText);
                 return false;
             }
@@ -86,13 +89,16 @@ public class ManagePinFragment extends Fragment {
         filteredPinList.clear();
 
         if (query.isEmpty()) {
+            // If query is empty, show all pins
             filteredPinList.addAll(pinList);
         } else {
+            // Otherwise, filter based on the author's ID (or other criteria)
             for (Pin pin : pinList) {
                 if (pin.getAuthorId().toLowerCase().contains(query.toLowerCase())) {
                     filteredPinList.add(pin);
                 }
             }
         }
+        pinListAdminAdapter.notifyDataSetChanged();
     }
 }
