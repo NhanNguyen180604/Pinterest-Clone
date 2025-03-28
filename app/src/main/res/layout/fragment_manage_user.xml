@@ -54,7 +54,10 @@
         app:layout_constraintTop_toBottomOf="@id/inner_user_management_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btnAddUser"/>
+        app:layout_constraintBottom_toTopOf="@id/btnAddUser"
+        android:clipToPadding="false"
+        android:paddingBottom="60dp"
+        tools:listitem="@layout/item_user"/> <!-- Chừa khoảng trống cho nút -->
 
     <!-- ProgressBar tải dữ liệu -->
     <ProgressBar
@@ -71,11 +74,13 @@
         android:id="@+id/btnAddUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="64dp"
         android:text="Thêm Người Dùng"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
