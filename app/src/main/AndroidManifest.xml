@@ -21,10 +21,13 @@
         <activity
             android:name=".CreateBoardActivity"
             android:exported="false" />
+
+        <activity
             android:name=".AdminActivity"
             android:exported="false"
-            android:label="@string/title_activity_admin" />
+            android:label="@string/title_activity_admin">
         </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
