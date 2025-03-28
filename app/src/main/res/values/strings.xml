@@ -56,4 +56,8 @@
     <string name="tab_manage_comment">Comment</string>
     <string name="tab_manage_pin">Pin</string>
     <string name="tab_manage_report">Report</string>
+    <string name="pin_id">Pin ID</string>
+    <string name="author_id">Author ID</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 </resources>
