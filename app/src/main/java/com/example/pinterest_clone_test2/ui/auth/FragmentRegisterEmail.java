@@ -1,18 +1,27 @@
 package com.example.pinterest_clone_test2.ui.auth;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.example.pinterest_clone_test2.LoginActivity;
 import com.example.pinterest_clone_test2.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
 
 
 public class FragmentRegisterEmail extends Fragment {
@@ -33,17 +42,48 @@ public class FragmentRegisterEmail extends Fragment {
         continueBtn = view.findViewById(R.id.btn_continue);
         continueBtn.setOnClickListener(v -> {
             String email = emailInput.getText().toString().trim();
-            if (isValidEmail(email)) {
-                ((LoginActivity) requireActivity()).updateEmail(email);
-            } else {
-                emailInput.setError("Email không hợp lệ");
-            }
+            validateEmail(email, validateCallback);
         });
         return view;
     }
 
-    private boolean isValidEmail(String email) {
+    private void validateEmail(String email, EmailValidateCallback callback) {
         // Kiểm tra định dạng email
-        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            callback.onEmailValidate(email, false, "Định dạng email không hợp lệ");
+            return;
+        }
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.getDocuments().isEmpty()){
+                        callback.onEmailValidate(email, false, "Email đã tồn tại");
+                    }
+                    else {
+                        callback.onEmailValidate(email, true, "");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("firebase-firestore", "Could not fetch documents to check if email exists", e);
+                    callback.onEmailValidate(email, false, "Đã có lỗi trong lúc kiểm tra emai, vui lòng thử lại");
+                });
+    }
+
+    private final EmailValidateCallback validateCallback = new EmailValidateCallback() {
+        @Override
+        public void onEmailValidate(String email, boolean isValid, String message) {
+            if (isValid) {
+                ((LoginActivity) requireActivity()).updateEmail(email);
+            } else {
+                emailInput.setError(message);
+            }
+        }
+    };
+
+    private interface EmailValidateCallback {
+        void onEmailValidate(String email, boolean isValid, String message);
     }
 }

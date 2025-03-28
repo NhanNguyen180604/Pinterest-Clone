@@ -67,17 +67,10 @@ public class LoginActivity extends AppCompatActivity {
 
     public void updateEmail(String email) {
         user.setEmail(email);
-        if (User.isEmailExists(email)) {
-            fragmentManager.beginTransaction()
-                    .replace(R.id.login_fragment_container, new FragmentLogin(email))
-                    .addToBackStack(null)
-                    .commit();
-        } else {
-            fragmentManager.beginTransaction()
-                    .replace(R.id.login_fragment_container, new FragmentRegisterPassword())
-                    .addToBackStack(null)
-                    .commit();
-        }
+        fragmentManager.beginTransaction()
+                .replace(R.id.login_fragment_container, new FragmentRegisterPassword())
+                .addToBackStack(null)
+                .commit();
     }
 
     public void registerPassword(String password) {
@@ -129,6 +122,7 @@ public class LoginActivity extends AppCompatActivity {
                     // initialize user info
                     Map<String, Object> userInfos = new HashMap<>();
                     userInfos.put("userId", firebaseUser.getUid());
+                    userInfos.put("email", firebaseUser.getEmail());
                     userInfos.put("role", "User");
                     userInfos.put("gender", user.getGender().name());
                     userInfos.put("birthDate", user.getBirthDate());
