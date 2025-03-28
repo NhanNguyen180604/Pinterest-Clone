@@ -15,11 +15,11 @@ import com.example.pinterest_clone_test2.LoginActivity;
 import com.example.pinterest_clone_test2.R;
 
 
-public class FragmentLoginEmail extends Fragment {
+public class FragmentRegisterEmail extends Fragment {
     EditText emailInput;
     Button continueBtn;
 
-    public FragmentLoginEmail() {
+    public FragmentRegisterEmail() {
     }
 
 
@@ -27,7 +27,7 @@ public class FragmentLoginEmail extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_login_email, container, false);
+        View view = inflater.inflate(R.layout.fragment_sign_up_email, container, false);
 
         emailInput = view.findViewById(R.id.et_email);
         continueBtn = view.findViewById(R.id.btn_continue);

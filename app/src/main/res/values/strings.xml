@@ -56,4 +56,6 @@
     <string name="tab_manage_comment">Comment</string>
     <string name="tab_manage_pin">Pin</string>
     <string name="tab_manage_report">Report</string>
+    <string name="sign_up">Đăng kí</string>
+    <string name="sign_in">Đăng nhập</string>
 </resources>

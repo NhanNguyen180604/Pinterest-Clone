@@ -2,64 +2,100 @@ package com.example.pinterest_clone_test2.ui.settings;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-
 import com.example.pinterest_clone_test2.AdminActivity;
+import com.example.pinterest_clone_test2.LoginActivity;
 import com.example.pinterest_clone_test2.MainActivity;
 import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.databinding.FragmentSettingsDrawerBinding;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
+import java.util.Objects;
 
 public class SettingsDrawerFragment extends Fragment {
+
+    FragmentSettingsDrawerBinding binding;
+    FirebaseAuth auth;
 
     public SettingsDrawerFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings_drawer, container, false);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        auth = FirebaseAuth.getInstance();
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        binding = FragmentSettingsDrawerBinding.inflate(inflater, container, false);
 
-        ImageButton btnBack = view.findViewById(R.id.btn_back);
-        Button btnAccountManagement = view.findViewById(R.id.btn_account_management);
-
-
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavController navController = Navigation.findNavController(view);
-                navController.navigateUp();
-            }
+        binding.btnBack.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(binding.getRoot());
+            navController.navigateUp();
         });
-        btnAccountManagement.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                NavController navController = Navigation.findNavController(view);
-                navController.navigate(R.id.action_settingsDrawerFragment_to_account_management);
-            }
+        binding.btnAccountManagement.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(binding.getRoot());
+            navController.navigate(R.id.action_settingsDrawerFragment_to_account_management);
         });
 
-        Button goToAdminBtn = view.findViewById(R.id.btn_go_to_admin);
-        goToAdminBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(requireActivity(), AdminActivity.class);
-            startActivity(intent);
-        });
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            binding.tvUsername.setText(user.getDisplayName());
+            FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .whereEqualTo("userId", user.getUid())
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        DocumentSnapshot userDocument = queryDocumentSnapshots.getDocuments().get(0);
+                        if (Objects.equals(userDocument.get("role"), "Admin")) {
+                            binding.btnGoToAdmin.setOnClickListener(v -> {
+                                Intent intent = new Intent(requireActivity(), AdminActivity.class);
+                                startActivity(intent);
+                                requireActivity().finish();
+                            });
+                            binding.btnGoToAdmin.setVisibility(View.VISIBLE);
+                        }
+
+                    })
+                    .addOnFailureListener(e -> Log.e("firebase-firestore", "Failed to fetch user info", e));
+
+            binding.btnLogout.setOnClickListener(v -> {
+                auth.signOut();
+                MainActivity activity = (MainActivity) requireActivity();
+                Intent intent = new Intent(activity, LoginActivity.class);
+                startActivity(intent);
+                activity.finish();
+            });
+        } else {
+            Log.e("firebase-auth", "What in the actual fuck, how is the user null here");
+        }
+
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }
