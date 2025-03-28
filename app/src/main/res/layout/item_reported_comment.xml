@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="8dp">
     <com.google.android.material.imageview.ShapeableImageView
@@ -28,20 +28,33 @@
         android:id="@+id/tv_reported_comment_content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="You dare to report me???:)))"
+        android:text="lorem is my favorite thing of all times, it is so convenient, but i am too lazy to search the google for a lorem so here i am typing this myself god damn it no wonder it takes me forever to code something"
         android:textColor="@color/black"
         app:layout_constraintStart_toEndOf="@id/iv_avatar"
         app:layout_constraintTop_toBottomOf="@id/tv_reported_email"
+        app:layout_constraintEnd_toStartOf="@id/btn_look_for_comment"
         android:paddingStart="8dp"/>
-    <TextView
-        android:id="@+id/tv_reported_reason"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:layout_marginTop="5dp"
-        android:paddingStart="8dp"
-        android:text="Reason: Hate speech"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_reported_comment_content"/>
+    <ImageButton
+        android:id="@+id/btn_delete_comment"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Delete Comment"
+        android:padding="5dp"
+        android:src="@drawable/ic_delete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <ImageButton
+        android:id="@+id/btn_look_for_comment"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Delete Comment"
+        android:padding="5dp"
+        android:src="@drawable/ic_view"
+        app:layout_constraintEnd_toStartOf="@id/btn_delete_comment"
+        app:layout_constraintTop_toTopOf="parent"
+ />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

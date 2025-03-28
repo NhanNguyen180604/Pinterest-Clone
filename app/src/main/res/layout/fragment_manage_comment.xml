@@ -45,7 +45,7 @@
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Danh sách người dùng -->
+<!--     Danh sách comment người dùng -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_comments_list"
         android:layout_width="0dp"
@@ -54,7 +54,7 @@
         app:layout_constraintTop_toBottomOf="@id/inner_comment_management_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btnAddUser"/>
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <!-- ProgressBar tải dữ liệu -->
     <ProgressBar
@@ -66,16 +66,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Nút Thêm Người Dùng -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnAddUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
-        android:text="Add User"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
