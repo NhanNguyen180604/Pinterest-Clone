@@ -130,7 +130,7 @@ public class PinObjectFragment extends Fragment {
 
         binding.btnComment.setOnClickListener(v -> {
             if (pin != null) {
-                CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId());
+                CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId(), requireContext());
                 modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
             } else {
                 Toast.makeText(requireContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();

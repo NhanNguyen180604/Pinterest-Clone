@@ -1,5 +1,6 @@
 package com.example.pinterest_clone_test2.models;
 
+import android.content.Context;
 import android.net.Uri;
 import android.view.View;
 
@@ -24,11 +25,16 @@ public class Comment extends BaseObservable {
     String _attachmentUrl = null;
     String _replyTo = null;
     int _likeCount;
+    private final Context _context;
 
     // will replace with UserCommentLike model if necessary
     String _userLikeId;
     boolean _isLiked = false;
     Uri _attachmentUri;  // for uploading comment
+
+    public Comment(Context context){
+        _context = context;
+    }
 
     public String getId() {
         return _id;
@@ -155,7 +161,7 @@ public class Comment extends BaseObservable {
     // too bad
     @Bindable
     public String getReactionString() {
-        return String.format(Locale.US, "%d reaction%s", _likeCount, _likeCount > 1 ? "s" : "");
+        return String.format(Locale.US, _context.getResources().getString(R.string.reaction_count_string), _likeCount);
     }
 
     @Bindable

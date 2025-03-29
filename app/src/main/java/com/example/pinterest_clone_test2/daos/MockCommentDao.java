@@ -1,5 +1,7 @@
 package com.example.pinterest_clone_test2.daos;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.example.pinterest_clone_test2.models.Comment;
@@ -11,12 +13,15 @@ import java.util.Objects;
 
 public class MockCommentDao implements ICommentDao {
     List<Comment> _comments;
+    final Context _context;
 
     // the backend should sort the comments such that reply always follow the original comment
     // or else im gonna kms
-    public MockCommentDao() {
+    public MockCommentDao(Context context) {
+        _context = context;
+
         _comments = new ArrayList<>(Arrays.asList(
-                new Comment()
+                new Comment(_context)
                         .setId("comment01")
                         .setAuthorId("user01")
                         .setAuthorName("Nguyen Thanh Nhan")
@@ -25,7 +30,7 @@ public class MockCommentDao implements ICommentDao {
                         .setUserLikeId("default-user-id")
                         .setIsLiked(true)
                         .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1741956521/67684ec351fca61bd69f7716/2/ufmcj7or3tp6wheumsfs.jpg"),
-                new Comment()
+                new Comment(_context)
                         .setId("comment02")
                         .setAuthorId("user02")
                         .setAuthorName("Nguyen Nhan Thanh")
@@ -35,7 +40,7 @@ public class MockCommentDao implements ICommentDao {
                         .setUserLikeId("default-user-id")
                         .setIsLiked(false)
                         .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1741956525/67684ec351fca61bd69f7716/2/s8oo7ktm2gf1wvawqg3n.png"),
-                new Comment()
+                new Comment(_context)
                         .setId("comment03")
                         .setAuthorId("user03")
                         .setAuthorName("Nhan Nguyen Thanh")
@@ -44,7 +49,7 @@ public class MockCommentDao implements ICommentDao {
                         .setUserLikeId("default-user-id")
                         .setIsLiked(false)
                         .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1735305519/676ea8facd4b26dc7654c093/1/b0pqu9vtrriylx80qqol.png"),
-                new Comment()
+                new Comment(_context)
                         .setId("comment04")
                         .setAuthorId("user04")
                         .setAuthorName("Nhan Thanh Nguyen")
@@ -52,7 +57,7 @@ public class MockCommentDao implements ICommentDao {
                         .setUserLikeId("default-user-id")
                         .setIsLiked(true)
                         .setContent("lorem is my favorite thing of all times, it is so convenient, but i am too lazy to search the google for a lorem so here i am typing this myself god damn it no wonder it takes me forever to code something"),
-                new Comment()
+                new Comment(_context)
                         .setId("comment05")
                         .setAuthorId("user05")
                         .setAuthorName("Thanh Nhan Nguyen")
@@ -60,7 +65,7 @@ public class MockCommentDao implements ICommentDao {
                         .setReplyCommentId("comment04")
                         .setLikeCount(69)
                         .setAttachmentUrl("https://res.cloudinary.com/dstlbw3xa/image/upload/c_thumb,w_200,g_face/v1735307406/675e9bcb4231a81f56b82c11/4/pux9egxwo0upxczkti8b.png"),
-                new Comment()
+                new Comment(_context)
                         .setId("comment06")
                         .setAuthorId("user06")
                         .setAuthorName("Thanh Nguyen Nhan")

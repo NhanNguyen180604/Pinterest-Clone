@@ -1,5 +1,6 @@
 package com.example.pinterest_clone_test2.ui.pin.btn_comment;
 
+import android.content.Context;
 import android.net.Uri;
 import android.view.View;
 
@@ -7,6 +8,7 @@ import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.databinding.library.baseAdapters.BR;
 
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.models.Comment;
 
 import java.util.Locale;
@@ -17,6 +19,11 @@ public class UserCommentModel extends BaseObservable {
     private boolean _isFocused;
     private String _replyToId;
     private String _replyToName;
+    private final Context _context;
+
+    public UserCommentModel(Context context) {
+        _context = context;
+    }
 
     @Bindable
     public String getContent() {
@@ -96,7 +103,7 @@ public class UserCommentModel extends BaseObservable {
     @Bindable
     public String getReplyingText() {
         if (_replyToId != null) {
-            return String.format(Locale.US, "Replying to %s", _replyToName);
+            return String.format(Locale.US, _context.getResources().getString(R.string.replying_to), _replyToName);
         }
         return "";
     }
@@ -108,7 +115,7 @@ public class UserCommentModel extends BaseObservable {
 
     public Comment createComment() {
         // TODO: put user info here
-        return (new Comment())
+        return (new Comment(_context))
                 .setId("default-id")
                 .setAuthorId("default-user-id")
                 .setAuthorName("NhanNguyen")
