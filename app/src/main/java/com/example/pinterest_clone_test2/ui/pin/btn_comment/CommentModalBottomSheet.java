@@ -152,7 +152,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                     .build());
         });
         binding.ibtnRemoveAttachment.setOnClickListener(v -> userCommentModel.setAttachmentUri(null));
-        binding.ibtnPostComment.setOnClickListener(v -> {
+        binding.btnPostComment.setOnClickListener(v -> {
             Log.d("listener", "ibtnPostComment clicked");
             binding.etCommentInput.clearFocus();
 

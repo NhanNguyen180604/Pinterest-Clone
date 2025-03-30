@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
-import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
+import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
 
 import java.util.List;
@@ -27,9 +27,9 @@ public class PinListAdapter extends RecyclerView.Adapter<PinListAdapter.PinViewH
     }
 
     List<Pin> pins;
-    ImageClickListener listener;
+    PinClickListener listener;
 
-    public PinListAdapter(List<Pin> pins, ImageClickListener listener) {
+    public PinListAdapter(List<Pin> pins, PinClickListener listener) {
         this.pins = pins;
         this.listener = listener;
     }

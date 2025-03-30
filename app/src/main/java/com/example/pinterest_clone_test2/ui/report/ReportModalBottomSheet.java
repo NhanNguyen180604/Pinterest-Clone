@@ -1,7 +1,6 @@
 package com.example.pinterest_clone_test2.ui.report;
 
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -15,8 +14,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.pinterest_clone_test2.adapters.ReportReasonAdapter;
-import com.example.pinterest_clone_test2.daos.IReportReasonDao;
-import com.example.pinterest_clone_test2.daos.MockReportReasonDao;
 import com.example.pinterest_clone_test2.databinding.ReportModalBottomSheetBinding;
 import com.example.pinterest_clone_test2.interfaces.ReportModalCallbacks;
 import com.example.pinterest_clone_test2.models.ReportReason;
@@ -31,16 +28,13 @@ public class ReportModalBottomSheet extends BottomSheetDialogFragment {
     ReportModalBottomSheetBinding binding;
     public static String TAG = "CommentReportModalBottomSheet";
 
-    private final List<ReportReason> _reportReasons;
+    private final List<ReportReason> _reportReasons = ReportReason.Reasons;
     private final List<Boolean> _checkedList;
 
     ReportReasonAdapter reportReasonAdapter;
     ReportModalCallbacks _callback;
 
     public ReportModalBottomSheet(@NonNull ReportModalCallbacks callback) {
-        IReportReasonDao _reportReasonDao = new MockReportReasonDao();
-        _reportReasons = _reportReasonDao.getReasons();  // get deep copy list
-        assert !_reportReasons.isEmpty();
         _checkedList = new ArrayList<>(_reportReasons.size());
         for (int i = 0; i < _reportReasons.size(); i++) {
             _checkedList.add(false);

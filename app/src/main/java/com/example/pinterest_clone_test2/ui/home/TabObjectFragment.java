@@ -12,14 +12,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
-import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
+import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
 
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class TabObjectFragment extends Fragment {
         view_model = new ViewModelProvider(this).get(TabObjectViewModel.class);
 
         recycler_view = view.findViewById(R.id.home_pager_recycler_view);
-        PinListAdapter adapter = new PinListAdapter(pins, imageClickListener);
+        PinListAdapter adapter = new PinListAdapter(pins, pinClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         recycler_view.setAdapter(adapter);
 
@@ -94,7 +93,7 @@ public class TabObjectFragment extends Fragment {
         }
     }
 
-    private final ImageClickListener imageClickListener = new ImageClickListener() {
+    private final PinClickListener pinClickListener = new PinClickListener() {
         @Override
         public void OnClick(int position, View v) {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);

@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentSearchResultBinding;
-import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
+import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
 
 import java.util.ArrayList;
@@ -112,7 +112,7 @@ public class SearchResultFragment extends Fragment {
             }
         });
 
-        PinListAdapter adapter = new PinListAdapter(pins, imageClickListener);
+        PinListAdapter adapter = new PinListAdapter(pins, pinClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.rvSearchResult.setAdapter(adapter);
 
@@ -140,7 +140,7 @@ public class SearchResultFragment extends Fragment {
         }
     }
 
-    private final ImageClickListener imageClickListener = new ImageClickListener() {
+    private final PinClickListener pinClickListener = new PinClickListener() {
         @Override
         public void OnClick(int position, View v) {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);

@@ -34,7 +34,9 @@ public class UserCommentModel extends BaseObservable {
         _content = content;
         notifyPropertyChanged(BR.content);
         notifyPropertyChanged(BR.postButtonVisibility);
-        notifyPropertyChanged(BR.clickable);
+        notifyPropertyChanged(BR.enabled);
+        notifyPropertyChanged(BR.backgroundTint);
+        notifyPropertyChanged(BR.tint);
     }
 
     @Bindable
@@ -70,7 +72,9 @@ public class UserCommentModel extends BaseObservable {
         _attachmentUri = attachmentUri;
         notifyPropertyChanged(BR.attachmentUri);
         notifyPropertyChanged(BR.attachmentVisibility);
-        notifyPropertyChanged(BR.clickable);
+        notifyPropertyChanged(BR.enabled);
+        notifyPropertyChanged(BR.backgroundTint);
+        notifyPropertyChanged(BR.tint);
         notifyPropertyChanged(BR.postButtonVisibility);
     }
 
@@ -109,8 +113,18 @@ public class UserCommentModel extends BaseObservable {
     }
 
     @Bindable
-    public boolean getClickable() {
+    public boolean getEnabled() {
         return !_content.isEmpty() || _attachmentUri != null;
+    }
+
+    @Bindable
+    public int getBackgroundTint() {
+        return getEnabled() ? _context.getColor(R.color.red_pinterest) : _context.getColor(R.color.grey_hint);
+    }
+
+    @Bindable
+    public int getTint() {
+        return getEnabled() ? _context.getColor(R.color.white) : _context.getColor(R.color.dark_grey);
     }
 
     public Comment createComment() {

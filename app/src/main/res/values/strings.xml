@@ -41,7 +41,7 @@
     <string name="report_description_placeholder">Mô tả báo cáo</string>
     <string name="report_title_placeholder">Tiêu đề báo cáo</string>
     <string name="comment_report_modal_title">Tạo một bảng báo cáo</string>
-    <string name="cancel_replying_text">Hủy</string>
+    <string name="cancel">Hủy</string>
     <string name="report_option">Báo cáo</string>
     <string name="block_user_option">Chặn người dùng</string>
     <string name="close_string">Đóng</string>
@@ -50,6 +50,7 @@
     <string name="comment_count_template">Đang hiện %d bình luận</string>
     <string name="reaction_count_template">%d lượt thích</string>
     <string name="btn_save">Lưu</string>
+    <string name="saved">Đã lưu</string>
     <string name="hide_option">Ẩn</string>
     <string name="download_media_option">Tải về máy</string>
     <string name="add_to_collage_option">Thêm vào collage</string>
@@ -77,4 +78,7 @@
     <string name="sign_in">Đăng nhập</string>
     <string name="replying_to">Đang phản hồi %s"</string>
     <string name="reaction_count_string">"%d lượt thích"</string>
+    <string name="back_button">Nút quay về</string>
+    <string name="submit_report">Gửi báo cáo</string>
+    <string name="search_query_hint">Tìm kiếm trên Pinterest</string>
 </resources>

@@ -21,10 +21,6 @@
         <activity
             android:name=".CreateBoardActivity"
             android:exported="false" />
-
-        <activity
-            android:name=".SplashActivity"
-            android:exported="false" />
         <activity
             android:name=".AdminActivity"
             android:exported="false"
@@ -47,7 +43,7 @@
             android:name=".LoginActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan"/>
     </application>
 
 </manifest>

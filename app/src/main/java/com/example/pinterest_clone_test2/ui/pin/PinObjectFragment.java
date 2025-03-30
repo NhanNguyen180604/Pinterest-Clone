@@ -34,7 +34,7 @@ import com.example.pinterest_clone_test2.CreateBoardActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
-import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
+import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinMoreActionModalBottomSheet;
@@ -250,7 +250,7 @@ public class PinObjectFragment extends Fragment {
     }
 
     private void initializeRelevantPins() {
-        PinListAdapter adapter = new PinListAdapter(Pin.testData, relevantImageClickListener);
+        PinListAdapter adapter = new PinListAdapter(Pin.testData, relevantPinClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.rvRelevant.setAdapter(adapter);
 
@@ -259,7 +259,7 @@ public class PinObjectFragment extends Fragment {
         binding.rvRelevant.setLayoutManager(layoutManager);
     }
 
-    private final ImageClickListener relevantImageClickListener = new ImageClickListener() {
+    private final PinClickListener relevantPinClickListener = new PinClickListener() {
         @Override
         public void OnClick(int position, View v) {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
