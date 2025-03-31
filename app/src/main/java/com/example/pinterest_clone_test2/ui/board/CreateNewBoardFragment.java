@@ -49,7 +49,7 @@ public class CreateNewBoardFragment extends BottomSheetDialogFragment {
         binding.setViewModel(viewModel);
 
         RequestOptions options = new RequestOptions()
-                .placeholder(R.drawable.karyl)
+                .placeholder(R.drawable.ic_loading)
                 .error(R.drawable.turtle_huh)
                 .centerCrop();
 

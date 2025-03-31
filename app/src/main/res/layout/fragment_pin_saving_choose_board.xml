@@ -53,6 +53,8 @@
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_create_new_board"
                 android:layout_width="wrap_content"
+                android:backgroundTint="@color/red_pinterest"
+                android:tint="@color/white"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_add_new_pin"
                 app:layout_constraintBottom_toBottomOf="parent"

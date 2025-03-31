@@ -124,6 +124,7 @@ public class PinObjectFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinObjectViewModel.class);
+        // TODO: make this async
         initializeRelevantPins();
 
         fetchAuthorAsync();
@@ -214,7 +215,7 @@ public class PinObjectFragment extends Fragment {
             Log.d("pin-error", "pin at PinObjectFragment is null, whyyyyyyyyyyyyyyyyyyyyy?");
         } else {
             RequestOptions options = new RequestOptions()
-                    .placeholder(R.drawable.karyl)
+                    .placeholder(R.drawable.ic_loading)
                     .error(R.drawable.turtle_huh);
 
             if (pin.getType() == Pin.PinType.IMAGE) {
@@ -268,7 +269,17 @@ public class PinObjectFragment extends Fragment {
             bundle.putString("source", source);
 //            bundle.putParcelableArrayList("pins", relevant_pins);  // use this when we have real relevant images
 
-            int action = Objects.equals(source, "home") ? R.id.action_pinFragment_self : R.id.action_pinFragment2_self;
+            int action = 0;
+            if (Objects.equals(source, "home")){
+                action = R.id.action_pinFragment_self;
+            }
+            else if (Objects.equals(source, "search")){
+                action = R.id.action_pinFragment2_self;
+            }
+            else {
+                // TODO: change this to R.id.action_pinFragment3_self or whatever it generates
+                action = R.id.action_pinFragment2_self;
+            }
 
             navController.navigate(
                     action,

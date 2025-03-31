@@ -45,7 +45,7 @@ public class PinListAdapter extends RecyclerView.Adapter<PinListAdapter.PinViewH
         Pin pin = pins.get(position);
 
         RequestOptions options = new RequestOptions()
-                .placeholder(R.drawable.karyl)
+                .placeholder(R.drawable.ic_loading)
                 .fitCenter()
                 .error(R.drawable.turtle_huh);
 
