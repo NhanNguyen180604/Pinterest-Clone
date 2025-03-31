@@ -34,7 +34,7 @@ import com.example.pinterest_clone_test2.CreateBoardActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
-import com.example.pinterest_clone_test2.interfaces.ImageClickListener;
+import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinMoreActionModalBottomSheet;
@@ -124,13 +124,14 @@ public class PinObjectFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinObjectViewModel.class);
+        // TODO: make this async
         initializeRelevantPins();
 
         fetchAuthorAsync();
 
         binding.btnComment.setOnClickListener(v -> {
             if (pin != null) {
-                CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId());
+                CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId(), requireContext());
                 modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
             } else {
                 Toast.makeText(requireContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();
@@ -214,7 +215,7 @@ public class PinObjectFragment extends Fragment {
             Log.d("pin-error", "pin at PinObjectFragment is null, whyyyyyyyyyyyyyyyyyyyyy?");
         } else {
             RequestOptions options = new RequestOptions()
-                    .placeholder(R.drawable.karyl)
+                    .placeholder(R.drawable.ic_loading)
                     .error(R.drawable.turtle_huh);
 
             if (pin.getType() == Pin.PinType.IMAGE) {
@@ -250,7 +251,7 @@ public class PinObjectFragment extends Fragment {
     }
 
     private void initializeRelevantPins() {
-        PinListAdapter adapter = new PinListAdapter(Pin.testData, relevantImageClickListener);
+        PinListAdapter adapter = new PinListAdapter(Pin.testData, relevantPinClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.rvRelevant.setAdapter(adapter);
 
@@ -259,7 +260,7 @@ public class PinObjectFragment extends Fragment {
         binding.rvRelevant.setLayoutManager(layoutManager);
     }
 
-    private final ImageClickListener relevantImageClickListener = new ImageClickListener() {
+    private final PinClickListener relevantPinClickListener = new PinClickListener() {
         @Override
         public void OnClick(int position, View v) {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
@@ -268,7 +269,17 @@ public class PinObjectFragment extends Fragment {
             bundle.putString("source", source);
 //            bundle.putParcelableArrayList("pins", relevant_pins);  // use this when we have real relevant images
 
-            int action = Objects.equals(source, "home") ? R.id.action_pinFragment_self : R.id.action_pinFragment2_self;
+            int action = 0;
+            if (Objects.equals(source, "home")){
+                action = R.id.action_pinFragment_self;
+            }
+            else if (Objects.equals(source, "search")){
+                action = R.id.action_pinFragment2_self;
+            }
+            else {
+                // TODO: change this to R.id.action_pinFragment3_self or whatever it generates
+                action = R.id.action_pinFragment2_self;
+            }
 
             navController.navigate(
                     action,

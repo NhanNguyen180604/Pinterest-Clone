@@ -11,10 +11,10 @@
         android:icon="@drawable/ic_search"
         android:title="@string/title_search" />
 
-    <item
-        android:id="@+id/nav_notifications_tab"
-        android:icon="@drawable/ic_notifications"
-        android:title="@string/title_notifications" />
+<!--    <item-->
+<!--        android:id="@+id/nav_notifications_tab"-->
+<!--        android:icon="@drawable/ic_notifications"-->
+<!--        android:title="@string/title_notifications" />-->
 
     <item android:id="@+id/nav_account_tab"
         android:icon="@drawable/ic_account_circle"

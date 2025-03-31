@@ -80,25 +80,25 @@ public class SearchIdeaAdapter extends RecyclerView.Adapter<SearchIdeaAdapter.Se
 
         Glide.with(holder.iv_image_1.getContext())
                 .load(image_groups.get(position).get(0))
-                .placeholder(R.drawable.karyl)
+                .placeholder(R.drawable.ic_loading)
                 .fitCenter()
                 .into(holder.iv_image_1);
 
         Glide.with(holder.iv_image_2.getContext())
                 .load(image_groups.get(position).get(1))
-                .placeholder(R.drawable.karyl)
+                .placeholder(R.drawable.ic_loading)
                 .fitCenter()
                 .into(holder.iv_image_2);
 
         Glide.with(holder.iv_image_3.getContext())
                 .load(image_groups.get(position).get(2))
-                .placeholder(R.drawable.karyl)
+                .placeholder(R.drawable.ic_loading)
                 .fitCenter()
                 .into(holder.iv_image_3);
 
         Glide.with(holder.iv_image_4.getContext())
                 .load(image_groups.get(position).get(3))
-                .placeholder(R.drawable.karyl)
+                .placeholder(R.drawable.ic_loading)
                 .fitCenter()
                 .into(holder.iv_image_4);
 

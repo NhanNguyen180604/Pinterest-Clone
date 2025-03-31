@@ -14,10 +14,9 @@
 
         <ImageButton
             android:id="@+id/btn_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:background="@null"
-            android:padding="8dp"
             android:src="@drawable/ic_chevron_left"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -54,6 +53,7 @@
                 app:shapeAppearanceOverlay="@style/roundedImageView" />
 
             <TextView
+                android:id="@+id/tv_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -96,6 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Admin"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/view_profile_btn" />
 

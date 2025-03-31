@@ -32,7 +32,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             _binding.setComment(comment);
 
             RequestOptions options = new RequestOptions()
-                    .placeholder(R.drawable.karyl)
+                    .placeholder(R.drawable.ic_loading)
                     .error(R.drawable.turtle_huh);
 
             if (comment.getAttachmentUrl() != null) {
@@ -67,7 +67,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             _binding.setComment(comment);
 
             RequestOptions options = new RequestOptions()
-                    .placeholder(R.drawable.karyl)
+                    .placeholder(R.drawable.ic_loading)
                     .error(R.drawable.turtle_huh);
 
             if (comment.getAttachmentUrl() != null) {

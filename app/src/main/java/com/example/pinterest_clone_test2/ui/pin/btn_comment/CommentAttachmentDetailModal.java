@@ -54,7 +54,7 @@ public class CommentAttachmentDetailModal extends BottomSheetDialogFragment {
         binding.btnClose.setOnClickListener(v -> dismiss());
 
         RequestOptions options = new RequestOptions()
-                .placeholder(R.drawable.karyl)
+                .placeholder(R.drawable.ic_loading)
                 .error(R.drawable.turtle_huh);
 
         if (_comment.getAttachmentUrl() != null) {

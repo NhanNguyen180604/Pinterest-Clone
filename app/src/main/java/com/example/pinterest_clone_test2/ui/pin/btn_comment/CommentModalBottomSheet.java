@@ -1,6 +1,6 @@
 package com.example.pinterest_clone_test2.ui.pin.btn_comment;
 
-import android.content.res.Resources;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -44,11 +44,11 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
 
     ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
 
-    public CommentModalBottomSheet(String pinId) {
+    public CommentModalBottomSheet(String pinId, Context context) {
         _pinId = pinId;
-        _commentDao = new MockCommentDao();
+        _commentDao = new MockCommentDao(context);
         _comments = new ArrayList<>();
-        userCommentModel = new UserCommentModel();
+        userCommentModel = new UserCommentModel(context);
     }
 
     // update the UI with the comments
@@ -152,7 +152,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                     .build());
         });
         binding.ibtnRemoveAttachment.setOnClickListener(v -> userCommentModel.setAttachmentUri(null));
-        binding.ibtnPostComment.setOnClickListener(v -> {
+        binding.btnPostComment.setOnClickListener(v -> {
             Log.d("listener", "ibtnPostComment clicked");
             binding.etCommentInput.clearFocus();
 
@@ -203,7 +203,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
 
     private String getCommentCountString() {
         int count = _comments != null ? _comments.size() : 0;
-        return String.format(Locale.US, getResources().getString(R.string.comment_count_template), count, ((count > 1) ? "s" : ""));
+        return String.format(Locale.US, getResources().getString(R.string.comment_count_template), count);
     }
 
     @Override
