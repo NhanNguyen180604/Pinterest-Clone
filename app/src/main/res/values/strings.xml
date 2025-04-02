@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">pinterest_clone_test2</string>
+    <string name="app_name" translatable="false">pinterest_clone_test2</string>
     <string name="title_home">Trang chủ</string>
-    <string name="title_search">Tìm kếm</string>
+    <string name="title_search">Tìm kiếm</string>
     <string name="title_notifications">Thông báo</string>
     <string name="title_pin">Ghim</string>
     <string name="title_account">Tài khoản</string>
@@ -15,7 +15,7 @@
     <string name="birthdate_text">Ngày sinh</string>
     <string name="birthdate_advice_text">Để giúp giữ cho Pinterest an toàn, chúng tôi đang cần ngày sinh của bạn. Ngày sinh cũng giúp chúng tôi cung cấp các đề xuất được cá nhân hóa nhiều hơn và quảng cáo có liên quan hơn. Chúng tôi sẽ không chia sẻ thông tin này mà không có sự cho phép của bạn và thông tin sẽ không hiển thị trên hồ sơ của bạn.</string>
     <string name="birthdate_request_text">Sử dụng tuổi của chính bạn, ngay cả khi đây là tài khoản doanh nghiệp</string>
-    <string name="birthdate_sample">21 thg 3, 2025</string>
+    <string name="birthdate_sample">21 tháng 3, 2025</string>
     <string name="name_title">Tên của bạn là gì</string>
     <string name="fullname">Họ tên</string>
     <string name="create_password_title">Tạo mật khẩu</string>
