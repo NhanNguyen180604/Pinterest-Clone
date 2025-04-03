@@ -51,4 +51,5 @@ dependencies {
     implementation(libs.material.v1130alpha10)
 
     implementation(libs.glide)
+    implementation(libs.cloudinary)
 }

@@ -11,15 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.UploadActivity;
 import com.example.pinterest_clone_test2.databinding.FragmentUploadImageDetailsBinding;
-import com.example.pinterest_clone_test2.ui.home.HomeFragment;
 
 public class UploadImageDetailsFragment extends Fragment {
 
     private FragmentUploadImageDetailsBinding binding;
     private Uri imageUri;
+
+    public UploadImageDetailsFragment() {}
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,35 +31,27 @@ public class UploadImageDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Nhận dữ liệu từ bundle
+        // Receive imageUri from arguments
         if (getArguments() != null) {
             imageUri = getArguments().getParcelable("imageUri");
             if (imageUri != null) {
-                binding.selectedImageView.setImageURI(imageUri);
+                binding.selectedImageView.setImageURI(imageUri);  // Display selected image
             } else {
-                Toast.makeText(getContext(), "Không có ảnh nào được chọn", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
             }
         }
 
-        // Back button
-        binding.btnBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
-
-        // Chọn bảng
-        binding.chooseBoardContainer.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Chức năng chọn bảng", Toast.LENGTH_SHORT).show()
-        );
-
-        // Gắn thẻ chủ đề
-        binding.tagTopicContainer.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Chức năng gắn thẻ chủ đề", Toast.LENGTH_SHORT).show()
-        );
-
-        // Cài đặt nâng cao
-        binding.advancedSettingContainer.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Chức năng cài đặt nâng cao", Toast.LENGTH_SHORT).show()
-        );
-
-        binding.btnCreate.setOnClickListener(v -> onCreatePin());
+        // Handle "Create" button click
+        binding.btnCreate.setOnClickListener(v -> {
+            if (imageUri != null) {
+                // Call uploadImage method in UploadActivity to upload image
+                if (getActivity() instanceof UploadActivity) {
+                    ((UploadActivity) getActivity()).uploadImage(imageUri); // Upload image from Activity
+                }
+            } else {
+                Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -67,17 +59,4 @@ public class UploadImageDetailsFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
-    private void onCreatePin() {
-        String title = binding.titleEditText.getText().toString().trim();
-        String description = binding.descriptionEditText.getText().toString().trim();
-        String link = binding.linkEditText.getText().toString().trim();
-
-        // Gọi phương thức createPin trong Activity để xử lý logic tạo ghim
-        if (getActivity() instanceof UploadActivity) {
-            ((UploadActivity) getActivity()).createPin(title, description, link);
-        }
-
-    }
-
 }
