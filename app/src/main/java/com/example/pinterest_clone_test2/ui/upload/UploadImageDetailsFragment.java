@@ -44,9 +44,10 @@ public class UploadImageDetailsFragment extends Fragment {
         // Handle "Create" button click
         binding.btnCreate.setOnClickListener(v -> {
             if (imageUri != null) {
-                // Call uploadImage method in UploadActivity to upload image
                 if (getActivity() instanceof UploadActivity) {
-                    ((UploadActivity) getActivity()).uploadImage(imageUri); // Upload image from Activity
+                    String title = binding.titleEditText.getText().toString();
+                    String description = binding.descriptionEditText.getText().toString();
+                    ((UploadActivity) getActivity()).uploadImage(imageUri, title, description);; // Upload image from Activity
                 }
             } else {
                 Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();

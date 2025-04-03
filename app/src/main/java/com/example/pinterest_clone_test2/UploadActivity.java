@@ -1,5 +1,6 @@
 package com.example.pinterest_clone_test2;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,13 +8,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
+import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadImageDetailsFragment;
 import com.example.pinterest_clone_test2.databinding.ActivityUploadBinding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +27,7 @@ public class UploadActivity extends AppCompatActivity {
     private String uploadPreset = "upload-test"; // Unsigned upload preset
     private String apiKey = "624956292586851";  // Your Cloudinary API key
     private String apiSecret = "P48f-BnE4fLYgbx6DfCkOLGpr08";  // Your Cloudinary API secret
-
+    private FirebaseFirestore firestore; // Firestore instance to save Pin data
     private ActivityUploadBinding binding; // Activity binding
 
     @Override
@@ -32,7 +35,8 @@ public class UploadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityUploadBinding.inflate(getLayoutInflater()); // Inflate view binding
         setContentView(binding.getRoot());
-
+        // Initialize Firestore
+        firestore = FirebaseFirestore.getInstance();
         // Initialize Cloudinary
         initCloudinary();
 
@@ -77,12 +81,11 @@ public class UploadActivity extends AppCompatActivity {
                 .commit();
     }
 
-    // Method for uploading image to Cloudinary (uploadPreset is already declared in the class)
-    public void uploadImage(Uri imageUri) {
-        Log.d("Cloudinary", "Attempting to upload image"); // Log to confirm upload is starting
+    public void uploadImage(Uri imageUri, String title, String description) {
+        Log.d("Cloudinary", "Attempting to upload image");
 
         if (imageUri != null) {
-            Log.d("Cloudinary", "Image URI to upload: " + imageUri.toString()); // Log imageUri before upload
+            Log.d("Cloudinary", "Image URI to upload: " + imageUri.toString());
 
             MediaManager.get().upload(imageUri).unsigned(uploadPreset).callback(new UploadCallback() {
                 @Override
@@ -99,7 +102,19 @@ public class UploadActivity extends AppCompatActivity {
                 public void onSuccess(String requestId, Map resultData) {
                     Log.d("Cloudinary Quickstart", "Upload success");
                     String url = (String) resultData.get("secure_url");
-                    Log.d("Cloudinary", "Uploaded image URL: " + url); // Log the URL of the uploaded image
+                    Log.d("Cloudinary", "Uploaded image URL: " + url);
+
+                    // Save Pin information to Firestore
+                    savePinToFirestore(url, title, description);
+
+                    // Display success message to the user
+                    Toast.makeText(UploadActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
+
+                    // Navigate back to MainActivity after successful upload
+                    Intent intent = new Intent(UploadActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
                 }
 
                 @Override
@@ -118,4 +133,32 @@ public class UploadActivity extends AppCompatActivity {
             Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void savePinToFirestore(String imageUrl, String title, String description) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // Create a Pin object
+        Pin pin = new Pin()
+                .setAuthorId(userId)
+                .setType(Pin.PinType.IMAGE)  // Assuming it's an image for now
+                .setMediaUrl(imageUrl)
+                .setName(title)
+                .setDescription(description)
+                .setIsLiked(false)
+                .setAllowComment(true)
+                .setLikeCount(0)
+                .setCreatedAt(System.currentTimeMillis());
+
+        // Firestore will auto-generate the ID for the pin
+        firestore.collection("pins")
+                .add(pin)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("Firestore", "Pin added with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.d("Firestore", "Error adding Pin: " + e.getMessage());
+                    Toast.makeText(UploadActivity.this, "Failed to save Pin.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
 }
