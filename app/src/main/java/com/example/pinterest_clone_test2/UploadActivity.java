@@ -20,13 +20,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class UploadActivity extends AppCompatActivity {
 
-    private String cloudName = "dyk7cgbch";  // Cloudinary cloud name
-    private String uploadPreset = "upload-test"; // Unsigned upload preset
-    private String apiKey = "624956292586851";  // Your Cloudinary API key
-    private String apiSecret = "P48f-BnE4fLYgbx6DfCkOLGpr08";  // Your Cloudinary API secret
+    final String cloudName = "dyk7cgbch";
+    final String uploadPreset = "upload-test";
+    final String apiKey = "624956292586851";
+    final String apiSecret = "P48f-BnE4fLYgbx6DfCkOLGpr08";
     private FirebaseFirestore firestore; // Firestore instance to save Pin data
     private ActivityUploadBinding binding; // Activity binding
 
@@ -85,7 +86,7 @@ public class UploadActivity extends AppCompatActivity {
         Log.d("Cloudinary", "Attempting to upload image");
 
         if (imageUri != null) {
-            Log.d("Cloudinary", "Image URI to upload: " + imageUri.toString());
+            Log.d("Cloudinary", "Image URI to upload: " + imageUri);
 
             MediaManager.get().upload(imageUri).unsigned(uploadPreset).callback(new UploadCallback() {
                 @Override
@@ -135,7 +136,7 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void savePinToFirestore(String imageUrl, String title, String description) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
         // Create a Pin object
         Pin pin = new Pin()
@@ -152,9 +153,9 @@ public class UploadActivity extends AppCompatActivity {
         // Firestore will auto-generate the ID for the pin
         firestore.collection("pins")
                 .add(pin)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d("Firestore", "Pin added with ID: " + documentReference.getId());
-                })
+                .addOnSuccessListener(documentReference ->
+                        Log.d("Firestore", "Pin added with ID: " + documentReference.getId())
+                )
                 .addOnFailureListener(e -> {
                     Log.d("Firestore", "Error adding Pin: " + e.getMessage());
                     Toast.makeText(UploadActivity.this, "Failed to save Pin.", Toast.LENGTH_SHORT).show();
