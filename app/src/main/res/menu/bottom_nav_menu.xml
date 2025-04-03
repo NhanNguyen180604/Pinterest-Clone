@@ -14,13 +14,12 @@
         android:id="@+id/nav_upload_tab"
         android:icon="@drawable/ic_add"
         android:title="@string/title_upload" />
-    <item
-        android:id="@+id/nav_notifications_tab"
-        android:icon="@drawable/ic_notifications"
-        android:title="@string/title_notifications" />
+<!--    <item-->
+<!--        android:id="@+id/nav_notifications_tab"-->
+<!--        android:icon="@drawable/ic_notifications"-->
+<!--        android:title="@string/title_notifications" />-->
 
     <item android:id="@+id/nav_account_tab"
         android:icon="@drawable/ic_account_circle"
         android:title="@string/title_account"/>
-
 </menu>

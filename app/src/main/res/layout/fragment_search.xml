@@ -62,7 +62,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:queryBackground="@null"
-                app:queryHint="find your god damn pin"
+                app:queryHint="@string/search_query_hint"
                 app:searchIcon="@drawable/ic_search" />
 
             <ImageButton
@@ -80,12 +80,13 @@
                 app:layout_constraintTop_toTopOf="@id/sv_search_bar" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_search_cancel"
+            android:background="@drawable/gray_button_pinterest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:textAllCaps="false"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

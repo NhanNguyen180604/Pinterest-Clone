@@ -9,7 +9,7 @@
         android:id="@+id/navigation_search"
         android:name="com.example.pinterest_clone_test2.ui.search.SearchFragment"
         android:label="@string/title_search"
-        tools:layout="@layout/fragment_search" >
+        tools:layout="@layout/fragment_search">
         <action
             android:id="@+id/action_navigation_search_to_searchResultFragment"
             app:destination="@id/navigation_search_result"
@@ -22,7 +22,7 @@
         android:id="@+id/navigation_search_result"
         android:name="com.example.pinterest_clone_test2.ui.search.SearchResultFragment"
         android:label="fragment_search_result"
-        tools:layout="@layout/fragment_search_result" >
+        tools:layout="@layout/fragment_search_result">
         <action
             android:id="@+id/action_searchResultFragment_self"
             app:destination="@id/navigation_search_result"
@@ -42,7 +42,7 @@
         android:id="@+id/pinFragment2"
         android:name="com.example.pinterest_clone_test2.ui.pin.PinFragment"
         android:label="fragment_pin"
-        tools:layout="@layout/fragment_pin" >
+        tools:layout="@layout/fragment_pin">
         <action
             android:id="@+id/action_pinFragment2_self"
             app:destination="@id/pinFragment2"

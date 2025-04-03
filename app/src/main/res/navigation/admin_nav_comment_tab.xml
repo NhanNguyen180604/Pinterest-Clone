@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_nav_comment_tab"
+    app:startDestination="@id/manageCommentFragment">
+
+    <fragment
+        android:id="@+id/manageCommentFragment"
+        android:name="com.example.pinterest_clone_test2.ui.admin.manage_comment.ManageCommentFragment"
+        android:label="fragment_manage_comment"
+        tools:layout="@layout/fragment_manage_comment" />
+</navigation>
