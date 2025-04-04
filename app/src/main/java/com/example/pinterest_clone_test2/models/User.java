@@ -1,15 +1,22 @@
 package com.example.pinterest_clone_test2.models;
 
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
+
+import com.example.pinterest_clone_test2.BR;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-public class User {
+public class User extends BaseObservable implements Parcelable {
     @SuppressWarnings("unused")
     public enum Role {
         ADMIN,
@@ -73,10 +80,6 @@ public class User {
     }
 
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = password;
     }
@@ -89,12 +92,14 @@ public class User {
         this.email = email;
     }
 
+    @Bindable
     public String getFirstName() {
         return firstName;
     }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+        notifyPropertyChanged(BR.firstName);
     }
 
     public String getLastName() {
@@ -140,5 +145,41 @@ public class User {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public User(Parcel in) {
+        email = in.readString();
+        firstName = in.readString();
+        lastName = in.readString();
+        birthDate = in.readString();
+        gender = (Gender) in.readSerializable();
+        role = (Role) in.readSerializable();
+    }
+
+    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<>() {
+        @Override
+        public User createFromParcel(Parcel source) {
+            return new User(source);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeString(email);
+        parcel.writeString(firstName);
+        parcel.writeString(lastName);
+        parcel.writeString(birthDate);
+        parcel.writeSerializable(gender);
+        parcel.writeSerializable(role);
     }
 }

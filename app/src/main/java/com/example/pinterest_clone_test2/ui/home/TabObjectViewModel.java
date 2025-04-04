@@ -6,14 +6,15 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
 import com.example.pinterest_clone_test2.models.Pin;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.List;
 
 public class TabObjectViewModel extends ViewModel {
     private final SavedStateHandle _savedStateHandle;
     public static String SCROLL_STATE = "ScrollState";
-    public static String PIN_STATE = "PIN_STATE";
-    public static String LAST_PAGE_STATE = "ON_LAST_PAGE";
+    public static String PIN_STATE = "PinState";
+    public static String LAST_PAGE_STATE = "OnLastPageState";
 
     public TabObjectViewModel(SavedStateHandle savedStateHandle) {
         _savedStateHandle = savedStateHandle;

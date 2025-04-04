@@ -36,8 +36,11 @@ import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.models.User;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinMoreActionModalBottomSheet;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -45,6 +48,7 @@ import java.util.Objects;
 public class PinObjectFragment extends Fragment {
     PinObjectViewModel viewModel;
     private Pin pin;
+    User author = new User();
     FragmentPinObjectBinding binding;
     String source;
     Handler handler = new Handler();
@@ -61,19 +65,23 @@ public class PinObjectFragment extends Fragment {
 
     void fetchAuthorAsync() {
         Thread thread = new Thread(() -> {
-            //TODO: fetch author here
+            FirebaseUserService.getUserInfos(pin.getAuthorId(), getAuthorInfoCallback);
             Log.d("pin-object-fragment", "Fetching author info");
-            handler.post(this::updateAuthor);
         });
         thread.start();
     }
 
-    void updateAuthor() {
-        //TODO: update author info
+    FirebaseUserService.GetUserInfoCallback getAuthorInfoCallback = new FirebaseUserService.GetUserInfoCallback() {
+        @Override
+        public void OnSuccess(DocumentSnapshot documentSnapshot) {
+            author.setFirstName(documentSnapshot.getString("name"));
+        }
 
-        //TODO: save author info into viewmodel to survive configuration changes and whatever shiet that makes the data die
-
-    }
+        @Override
+        public void OnFailure(Exception e) {
+            e.printStackTrace();
+        }
+    };
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -116,6 +124,8 @@ public class PinObjectFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentPinObjectBinding.inflate(inflater, container, false);
+        binding.setPinViewModel(pin);
+        binding.setAuthorViewModel(author);
         return binding.getRoot();
     }
 
@@ -126,8 +136,6 @@ public class PinObjectFragment extends Fragment {
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinObjectViewModel.class);
         // TODO: make this async
         initializeRelevantPins();
-
-        fetchAuthorAsync();
 
         binding.btnComment.setOnClickListener(v -> {
             if (pin != null) {
@@ -156,9 +164,9 @@ public class PinObjectFragment extends Fragment {
             if (pin != null) {
                 boolean isLiked = pin.getIsLiked();
                 binding.btnLove.setImageResource(isLiked ? R.drawable.ic_favorite_heart : R.drawable.ic_favorite_heart_filled);
+                //TODO: update like count on database
                 pin.setLikeCount(pin.getLikeCount() + (isLiked ? -1 : 1));
                 pin.setIsLiked(!isLiked);
-                binding.tvLikeCount.setText(String.valueOf(pin.getLikeCount()));
             } else {
                 Toast.makeText(requireContext(), "Pin is null, one must imagine CS students being happy", Toast.LENGTH_SHORT).show();
             }
@@ -191,7 +199,10 @@ public class PinObjectFragment extends Fragment {
             source = source_state;
         }
 
-        //TODO: restore author state
+        User authorState = viewModel.getAuthorState();
+        if (authorState != null) {
+            author = authorState;
+        }
     }
 
     @Override
@@ -202,13 +213,19 @@ public class PinObjectFragment extends Fragment {
         }
         viewModel.setPinState(pin);
         viewModel.setSourceState(source);
-        //TODO: save author into view model
+        viewModel.setAuthorState(author);
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         restoreStates();
+
+        if (author.getFirstName() == null && pin != null) {
+            fetchAuthorAsync();
+        } else {
+            binding.setAuthorViewModel(author);
+        }
 
         if (pin == null) {
             Toast.makeText(requireContext(), "COME, WATCH YOUR SCORE, DRIFT INTO A VIVID REALITY, BRING YOUR WHOLE WILL, READY YOURSELF, FOR ANDROID STUPIDITY", Toast.LENGTH_SHORT).show();
@@ -240,7 +257,8 @@ public class PinObjectFragment extends Fragment {
             }
 
             binding.btnLove.setImageResource(pin.getIsLiked() ? R.drawable.ic_favorite_heart_filled : R.drawable.ic_favorite_heart);
-            binding.tvLikeCount.setText(String.valueOf(pin.getLikeCount()));
+
+            binding.setPinViewModel(pin);
         }
     }
 
@@ -260,6 +278,7 @@ public class PinObjectFragment extends Fragment {
         binding.rvRelevant.setLayoutManager(layoutManager);
     }
 
+    // TODO: add real relevant pins, else this will crash when navigating
     private final PinClickListener relevantPinClickListener = new PinClickListener() {
         @Override
         public void OnClick(int position, View v) {
@@ -270,13 +289,11 @@ public class PinObjectFragment extends Fragment {
 //            bundle.putParcelableArrayList("pins", relevant_pins);  // use this when we have real relevant images
 
             int action = 0;
-            if (Objects.equals(source, "home")){
+            if (Objects.equals(source, "home")) {
                 action = R.id.action_pinFragment_self;
-            }
-            else if (Objects.equals(source, "search")){
+            } else if (Objects.equals(source, "search")) {
                 action = R.id.action_pinFragment2_self;
-            }
-            else {
+            } else {
                 // TODO: change this to R.id.action_pinFragment3_self or whatever it generates
                 action = R.id.action_pinFragment2_self;
             }

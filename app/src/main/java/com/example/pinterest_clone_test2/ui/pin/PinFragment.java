@@ -22,7 +22,7 @@ public class PinFragment extends Fragment {
     int initial_position;
     String source;
 
-    public PinFragment(){
+    public PinFragment() {
     }
 
     @Override

@@ -108,6 +108,7 @@ public class TabObjectFragment extends Fragment {
 
             // pretend to have an algorithm that fetch pins based on this board's content
             // no way we can do this
+            // TODO: exclude blocked pins, authors...
             try {
                 FirebasePinService.getPins(lastVisible, perPage, null, callback);
             } catch (Exception e) {
