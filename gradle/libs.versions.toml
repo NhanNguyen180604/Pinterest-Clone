@@ -16,6 +16,7 @@ materialVersion = "1.13.0-alpha12"
 navigationFragment = "2.8.9"
 navigationUi = "2.8.9"
 viewpager2 = "1.1.0"
+cloudinary = "3.0.2"
 legacySupportV4 = "1.0.0"
 recyclerview = "1.4.0"
 activity = "1.10.1"
@@ -40,6 +41,7 @@ material-v150 = { module = "com.google.android.material:material", version.ref =
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
+cloudinary = { module = "com.cloudinary:cloudinary-android", version.ref = "cloudinary" }
 legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "legacySupportV4" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }

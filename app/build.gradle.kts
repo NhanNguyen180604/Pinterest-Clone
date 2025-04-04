@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.material.v1130alpha10)
     implementation (libs.material.v150)
     implementation(libs.glide)
-
+    implementation(libs.cloudinary)
     // Import the Firebase BoM
     implementation(platform(libs.firebase.bom))
 

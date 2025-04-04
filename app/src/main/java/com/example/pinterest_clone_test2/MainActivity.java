@@ -11,6 +11,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.pinterest_clone_test2.databinding.ActivityMainBinding;
+import com.example.pinterest_clone_test2.ui.upload.UploadDialogFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -37,8 +38,16 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Xin chào " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-
+        binding.navView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.nav_upload_tab) {
+                UploadDialogFragment dialog = new UploadDialogFragment();
+                dialog.show(getSupportFragmentManager(), "UploadDialog");
+                return false;
+            } else {
+                NavigationUI.onNavDestinationSelected(item, navController);
+                return true;
+            }
+        });
     }
 
     @Override

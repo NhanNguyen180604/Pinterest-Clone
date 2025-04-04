@@ -23,6 +23,10 @@ public class Pin implements Parcelable {
     PinType type;
     boolean isLiked;
     int likeCount;
+    private String name;
+    private String description;
+    private boolean allowComment;
+    private long createdAt;
 
     public Pin() {
 
@@ -91,6 +95,41 @@ public class Pin implements Parcelable {
         return this;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public Pin setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Pin setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public boolean getAllowComment() {
+        return allowComment;
+    }
+
+    public Pin setAllowComment(boolean allowComment) {
+        this.allowComment = allowComment;
+        return this;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public Pin setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
     public static List<Pin> testData = new ArrayList<>(Arrays.asList(
             new Pin()
                     .setId("pin01")
@@ -216,8 +255,11 @@ public class Pin implements Parcelable {
         type = (PinType) in.readSerializable();
         isLiked = in.readBoolean();
         likeCount = in.readInt();
+        name = in.readString();
+        description = in.readString();
+        allowComment = in.readBoolean();
+        createdAt = in.readLong();
     }
-
     @Override
     public int describeContents() {
         return 0;
@@ -232,5 +274,9 @@ public class Pin implements Parcelable {
         dest.writeSerializable(type);
         dest.writeBoolean(isLiked);
         dest.writeInt(likeCount);
+        dest.writeString(name);
+        dest.writeString(description);
+        dest.writeBoolean(allowComment);
+        dest.writeLong(createdAt);
     }
 }
