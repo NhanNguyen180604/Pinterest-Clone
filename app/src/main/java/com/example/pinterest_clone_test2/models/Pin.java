@@ -257,7 +257,7 @@ public class Pin implements Parcelable {
         likeCount = in.readInt();
         name = in.readString();
         description = in.readString();
-        allowComment = in.readByte() != 0;
+        allowComment = in.readBoolean();
         createdAt = in.readLong();
     }
     @Override
@@ -276,7 +276,7 @@ public class Pin implements Parcelable {
         dest.writeInt(likeCount);
         dest.writeString(name);
         dest.writeString(description);
-        dest.writeByte((byte) (allowComment ? 1 : 0));
+        dest.writeBoolean(allowComment);
         dest.writeLong(createdAt);
     }
 }

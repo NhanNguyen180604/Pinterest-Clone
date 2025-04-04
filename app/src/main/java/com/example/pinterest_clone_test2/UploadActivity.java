@@ -11,10 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
+import com.example.pinterest_clone_test2.databinding.ActivityUploadBinding;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadImageDetailsFragment;
-import com.example.pinterest_clone_test2.databinding.ActivityUploadBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -24,6 +24,7 @@ import java.util.Objects;
 
 public class UploadActivity extends AppCompatActivity {
 
+    // TODO: hide these information
     final String cloudName = "dyk7cgbch";
     final String uploadPreset = "upload-test";
     final String apiKey = "624956292586851";
@@ -50,6 +51,15 @@ public class UploadActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isMediaManagerInitialized() {
+        try {
+            MediaManager.get();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     // Initialize Cloudinary MediaManager
     private void initCloudinary() {
         Log.d("Cloudinary", "Initializing Cloudinary...");
@@ -59,8 +69,10 @@ public class UploadActivity extends AppCompatActivity {
         config.put("api_secret", apiSecret); // API secret
 
         // Initialize MediaManager only once in the application
-        MediaManager.init(this, config);
-        Log.d("Cloudinary", "Cloudinary initialized.");
+        if (!isMediaManagerInitialized()) {
+            MediaManager.init(this, config);
+            Log.d("Cloudinary", "Cloudinary initialized.");
+        }
     }
 
     // Method to navigate to UploadImageDetailsFragment and pass the imageUri
@@ -138,11 +150,14 @@ public class UploadActivity extends AppCompatActivity {
     private void savePinToFirestore(String imageUrl, String title, String description) {
         String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
+        String thumbnailUrl = imageUrl.replace("/upload/", "/upload/c_thumb,w_200/");
+
         // Create a Pin object
         Pin pin = new Pin()
                 .setAuthorId(userId)
                 .setType(Pin.PinType.IMAGE)  // Assuming it's an image for now
                 .setMediaUrl(imageUrl)
+                .setThumbnailUrl(thumbnailUrl)
                 .setName(title)
                 .setDescription(description)
                 .setIsLiked(false)
@@ -161,5 +176,4 @@ public class UploadActivity extends AppCompatActivity {
                     Toast.makeText(UploadActivity.this, "Failed to save Pin.", Toast.LENGTH_SHORT).show();
                 });
     }
-
 }

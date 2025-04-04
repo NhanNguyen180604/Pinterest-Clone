@@ -39,21 +39,39 @@ import java.util.Locale;
 public class UploadFragment extends Fragment {
     private int requestingCode;
     private static final int GALLERY_REQUEST_CODE = 100;
-    private boolean galleryRequestGranted = false;
     private static final int CAMERA_REQUEST_CODE = 101;
-    private boolean cameraRequestGranted = false;
     private static final int STORAGE_PERMISSION_CODE = 102;
-    private boolean storagePermissionGranted = false;
-    private static final int CAMERA_PERMISSION_CODE = 103;
-    private boolean cameraPermissionGranted = false;
 
     FragmentUploadBinding binding;
     private ImageAdapter imageAdapter;
     private ArrayList<Uri> imageList;
     Uri cameraUri;
     Uri selectImageUri;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
-    public UploadFragment() {}
+    public UploadFragment() {
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            switch (requestingCode) {
+                case GALLERY_REQUEST_CODE:
+                    break;
+                case CAMERA_REQUEST_CODE:
+                    if (isGranted) {
+                        openCamera();
+                    }
+                    break;
+                case STORAGE_PERMISSION_CODE:
+                    if (isGranted) {
+                        loadAllImagesFromGallery();
+                    }
+                    break;
+            }
+        });
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -82,14 +100,12 @@ public class UploadFragment extends Fragment {
 
         binding.btnExit.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
         binding.btnLibrary.setOnClickListener(v -> openGallery());
-        binding.btnCamera.setOnClickListener(v -> openCamera());
+        binding.btnCamera.setOnClickListener(v -> requestPermissionIfNeeded(Manifest.permission.CAMERA, CAMERA_REQUEST_CODE));
         binding.btnAddUrl.setOnClickListener(v -> openUrlInput());
         binding.btnNext.setOnClickListener(v -> proceedToNextStep());
         binding.btnRemoveSelectedImage.setOnClickListener(v -> resetSelectedImage());
 
-        if (checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE)) {
-            loadAllImagesFromGallery();
-        }
+        requestPermissionIfNeeded(Manifest.permission.READ_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE);
 
         if (savedInstanceState != null) {
             selectImageUri = savedInstanceState.getParcelable("selectedImageUri");
@@ -107,36 +123,21 @@ public class UploadFragment extends Fragment {
         }
     }
 
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                switch (requestingCode) {
-                    case GALLERY_REQUEST_CODE: galleryRequestGranted = isGranted; break;
-                    case CAMERA_PERMISSION_CODE: cameraPermissionGranted = isGranted; break;
-                    case CAMERA_REQUEST_CODE: cameraRequestGranted = isGranted; break;
-                    case STORAGE_PERMISSION_CODE: storagePermissionGranted = isGranted; break;
-                }
-            });
-
-    private boolean checkPermission(@NonNull String permission, int requestCode) {
+    private void requestPermissionIfNeeded(@NonNull String permission, int requestCode) {
         requestingCode = requestCode;
-
         if (ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED) {
             switch (requestingCode) {
-                case GALLERY_REQUEST_CODE: galleryRequestGranted = true; break;
-                case CAMERA_PERMISSION_CODE: cameraPermissionGranted = true; break;
-                case CAMERA_REQUEST_CODE: cameraRequestGranted = true; break;
-                case STORAGE_PERMISSION_CODE: storagePermissionGranted = true; break;
+                case GALLERY_REQUEST_CODE:
+                    break;
+                case STORAGE_PERMISSION_CODE:
+                    loadAllImagesFromGallery();
+                    break;
+                case CAMERA_REQUEST_CODE:
+                    openCamera();
+                    break;
             }
-            return true;
-        }
-
-        requestPermissionLauncher.launch(permission);
-        switch (requestingCode) {
-            case GALLERY_REQUEST_CODE: return galleryRequestGranted;
-            case CAMERA_PERMISSION_CODE: return cameraPermissionGranted;
-            case CAMERA_REQUEST_CODE: return cameraRequestGranted;
-            case STORAGE_PERMISSION_CODE: return storagePermissionGranted;
-            default: return false;
+        } else {
+            requestPermissionLauncher.launch(permission);
         }
     }
 
@@ -181,14 +182,12 @@ public class UploadFragment extends Fragment {
             });
 
     private void openCamera() {
-        if (checkPermission(Manifest.permission.CAMERA, CAMERA_REQUEST_CODE)) {
-            File photoFile = createImageFile();
-            if (photoFile != null) {
-                cameraUri = FileProvider.getUriForFile(requireContext(), "com.example.pinterest_clone_test2.fileprovider", photoFile);
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri);
-                cameraActivityLauncher.launch(cameraIntent);
-            }
+        File photoFile = createImageFile();
+        if (photoFile != null) {
+            cameraUri = FileProvider.getUriForFile(requireContext(), "com.example.pinterest_clone_test2.fileprovider", photoFile);
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri);
+            cameraActivityLauncher.launch(cameraIntent);
         }
     }
 
