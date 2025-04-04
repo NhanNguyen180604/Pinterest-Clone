@@ -101,4 +101,5 @@
     <string name="back_button">Nút quay về</string>
     <string name="submit_report">Gửi báo cáo</string>
     <string name="search_query_hint">Tìm kiếm trên Pinterest</string>
+    <string name="all">Tất cả</string>
 </resources>

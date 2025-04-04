@@ -2,21 +2,44 @@ package com.example.pinterest_clone_test2.ui.home;
 
 import android.os.Parcelable;
 
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
-public class TabObjectViewModel extends ViewModel {
-    private final MutableLiveData<Parcelable> _scrollState;
+import com.example.pinterest_clone_test2.models.Pin;
 
-    public TabObjectViewModel() {
-        _scrollState = new MutableLiveData<>();
+import java.util.List;
+
+public class TabObjectViewModel extends ViewModel {
+    private final SavedStateHandle _savedStateHandle;
+    public static String SCROLL_STATE = "ScrollState";
+    public static String PIN_STATE = "PIN_STATE";
+    public static String LAST_PAGE_STATE = "ON_LAST_PAGE";
+
+    public TabObjectViewModel(SavedStateHandle savedStateHandle) {
+        _savedStateHandle = savedStateHandle;
     }
 
     public Parcelable getScrollState() {
-        return _scrollState.getValue();
+        return _savedStateHandle.get(SCROLL_STATE);
     }
 
-    public void setScrollState(Parcelable new_state) {
-        this._scrollState.setValue(new_state);
+    public void setScrollState(Parcelable scrollState) {
+        _savedStateHandle.set(SCROLL_STATE, scrollState);
+    }
+
+    public List<Pin> getPinState() {
+        return _savedStateHandle.get(PIN_STATE);
+    }
+
+    public void setPinState(List<Pin> pinState) {
+        _savedStateHandle.set(PIN_STATE, pinState);
+    }
+
+    public boolean isOnLastPage() {
+        return Boolean.TRUE.equals(_savedStateHandle.get(LAST_PAGE_STATE));
+    }
+
+    public void setOnLastPage(boolean isOnLastPage) {
+        _savedStateHandle.set(LAST_PAGE_STATE, isOnLastPage);
     }
 }

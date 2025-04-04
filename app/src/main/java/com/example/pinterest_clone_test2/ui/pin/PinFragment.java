@@ -29,8 +29,7 @@ public class PinFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-//            pins = getArguments().getParcelableArrayList("pins");  // will use this when we have a backend server
-            pins = Pin.testData;
+            pins = getArguments().getParcelableArrayList("pins");
             initial_position = getArguments().getInt("position");
             source = getArguments().getString("source");
         }
