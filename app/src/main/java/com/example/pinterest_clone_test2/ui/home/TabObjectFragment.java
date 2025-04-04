@@ -120,9 +120,9 @@ public class TabObjectFragment extends Fragment {
 
     final FirebasePinService.GetPinServiceCallback callback = new FirebasePinService.GetPinServiceCallback() {
         @Override
-        public void OnSuccess(QuerySnapshot queryDocumentSnapshots) {
+        public void OnSuccess(QuerySnapshot querySnapshot) {
             List<Pin> newPins = new ArrayList<>();
-            List<DocumentSnapshot> documents = queryDocumentSnapshots.getDocuments();
+            List<DocumentSnapshot> documents = querySnapshot.getDocuments();
 
             if (documents.isEmpty()) {
                 isOnLastPage = true;

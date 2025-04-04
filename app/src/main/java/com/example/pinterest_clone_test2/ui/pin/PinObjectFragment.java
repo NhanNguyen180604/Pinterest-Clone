@@ -37,11 +37,16 @@ import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
+import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinMoreActionModalBottomSheet;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -71,10 +76,37 @@ public class PinObjectFragment extends Fragment {
         thread.start();
     }
 
-    FirebaseUserService.GetUserInfoCallback getAuthorInfoCallback = new FirebaseUserService.GetUserInfoCallback() {
+    final FirebaseUserService.GetUserInfoCallback getAuthorInfoCallback = new FirebaseUserService.GetUserInfoCallback() {
         @Override
         public void OnSuccess(DocumentSnapshot documentSnapshot) {
             author.setFirstName(documentSnapshot.getString("name"));
+        }
+
+        @Override
+        public void OnFailure(Exception e) {
+            e.printStackTrace();
+        }
+    };
+
+    void fetchPinLikesAsync() {
+        Thread thread = new Thread(() -> {
+            FirebasePinService.getPinLikeCount(pin.getId(), getPinLikeCountCallback);
+        });
+        thread.start();
+    }
+
+    final FirebasePinService.GetPinLikeCountCallback getPinLikeCountCallback = new FirebasePinService.GetPinLikeCountCallback() {
+        @Override
+        public void OnSuccess(QuerySnapshot querySnapshot) {
+            List<DocumentSnapshot> documents = querySnapshot.getDocuments();
+            pin.setLikeCount(documents.size());
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            assert currentUser != null;
+            if (documents.stream().anyMatch(documentSnapshot -> Objects.equals(documentSnapshot.getString("userId"), currentUser.getUid()))) {
+                pin.setIsLiked(true);
+            }
+
+            binding.btnLove.setImageResource(pin.getIsLiked() ? R.drawable.ic_favorite_heart_filled : R.drawable.ic_favorite_heart);
         }
 
         @Override
@@ -162,11 +194,11 @@ public class PinObjectFragment extends Fragment {
 
         binding.btnLove.setOnClickListener(v -> {
             if (pin != null) {
-                boolean isLiked = pin.getIsLiked();
-                binding.btnLove.setImageResource(isLiked ? R.drawable.ic_favorite_heart : R.drawable.ic_favorite_heart_filled);
-                //TODO: update like count on database
-                pin.setLikeCount(pin.getLikeCount() + (isLiked ? -1 : 1));
-                pin.setIsLiked(!isLiked);
+                pin.setIsLiked(!pin.getIsLiked());
+                pin.setLikeCount(pin.getLikeCount() + (pin.getIsLiked() ? 1 : -1));
+                binding.btnLove.setImageResource(pin.getIsLiked() ? R.drawable.ic_favorite_heart_filled : R.drawable.ic_favorite_heart);
+                // update like on database
+                FirebasePinService.updateLike(pin.getId(), pin.getIsLiked(), updateLikeCallback);
             } else {
                 Toast.makeText(requireContext(), "Pin is null, one must imagine CS students being happy", Toast.LENGTH_SHORT).show();
             }
@@ -182,6 +214,17 @@ public class PinObjectFragment extends Fragment {
             }
         });
     }
+
+    final FirebasePinService.UpdateLikeCallback updateLikeCallback = new FirebasePinService.UpdateLikeCallback() {
+        @Override
+        public void OnFailure(Exception e) {
+            // revert the like/unlike action
+            pin.setIsLiked(!pin.getIsLiked());
+            pin.setLikeCount(pin.getLikeCount() + (pin.getIsLiked() ? 1 : -1));
+            binding.btnLove.setImageResource(pin.getIsLiked() ? R.drawable.ic_favorite_heart_filled : R.drawable.ic_favorite_heart);
+            Toast.makeText(requireContext(), getResources().getString(R.string.pin_reaction_bug), Toast.LENGTH_SHORT).show();
+        }
+    };
 
     private void restoreStates() {
         Parcelable scroll_state = viewModel.getScrollState();
@@ -256,8 +299,7 @@ public class PinObjectFragment extends Fragment {
                 //TODO: load video
             }
 
-            binding.btnLove.setImageResource(pin.getIsLiked() ? R.drawable.ic_favorite_heart_filled : R.drawable.ic_favorite_heart);
-
+            fetchPinLikesAsync();
             binding.setPinViewModel(pin);
         }
     }

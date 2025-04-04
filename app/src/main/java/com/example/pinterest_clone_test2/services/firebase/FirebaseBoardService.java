@@ -36,7 +36,7 @@ public abstract class FirebaseBoardService {
     }
 
     public interface GetBoardServiceCallback {
-        void OnSuccess(QuerySnapshot queryDocumentSnapshots);
+        void OnSuccess(QuerySnapshot querySnapshot);
 
         void OnFailure(Exception e);
     }

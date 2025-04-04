@@ -95,9 +95,9 @@ public class HomeFragment extends Fragment {
 
     private final FirebaseBoardService.GetBoardServiceCallback callback = new FirebaseBoardService.GetBoardServiceCallback() {
         @Override
-        public void OnSuccess(QuerySnapshot queryDocumentSnapshots) {
+        public void OnSuccess(QuerySnapshot querySnapshot) {
             boards.add(new Board().setName(getResources().getString(R.string.all)));
-            List<DocumentSnapshot> documentSnapshots = queryDocumentSnapshots.getDocuments();
+            List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
             for (DocumentSnapshot document :
                     documentSnapshots) {
                 boards.add(new Board()
