@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -18,12 +19,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.CommentListAdapter;
-import com.example.pinterest_clone_test2.daos.ICommentDao;
-import com.example.pinterest_clone_test2.daos.MockCommentDao;
 import com.example.pinterest_clone_test2.databinding.CommentModalBottomSheetBinding;
 import com.example.pinterest_clone_test2.models.Comment;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseCommentService;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +35,10 @@ import java.util.Objects;
 public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     public static String TAG = "CommentModalBottomSheet";
     String _pinId;
-    ICommentDao _commentDao;
     UserCommentModel userCommentModel;
-    Handler myHandler = new Handler();
+    Handler handler = new Handler();
 
-    List<Comment> _comments;
+    List<Comment> comments = new ArrayList<>();
 
     CommentModalBottomSheetBinding binding;
     CommentListAdapter commentListAdapter;
@@ -46,30 +47,40 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
 
     public CommentModalBottomSheet(String pinId, Context context) {
         _pinId = pinId;
-        _commentDao = new MockCommentDao(context);
-        _comments = new ArrayList<>();
-        userCommentModel = new UserCommentModel(context);
+        userCommentModel = new UserCommentModel(context, _pinId);
     }
 
     // update the UI with the comments
-    void populateComments(List<Comment> newComments) {
+    void initializeCommentRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         binding.rvComments.setLayoutManager(layoutManager);
 
-//        viewModel.setComments(newComments);
-        _comments = newComments;
-        commentListAdapter = new CommentListAdapter(newComments, requireContext());
+        commentListAdapter = new CommentListAdapter(comments, requireContext());
         binding.rvComments.setAdapter(commentListAdapter);
-        binding.tvCount.setText(getCommentCountString());
 
         commentListAdapter.setReactionClickListener(comment -> {
+            FirebaseCommentService.UpdateLikeCallback updateLikeCallback = new FirebaseCommentService.UpdateLikeCallback() {
+                @Override
+                public void OnFailure(Exception e) {
+                    // revert the like/unlike action
+                    comment.setIsLiked(!comment.getIsLiked());
+                    comment.setLikeCount(comment.getLikeCount() + (comment.getIsLiked() ? 1 : -1));
+                    Toast.makeText(requireContext(), getResources().getString(R.string.pin_comment_reaction_bug), Toast.LENGTH_SHORT).show();
+                }
+            };
+
             comment.setIsLiked(!comment.getIsLiked());
             comment.setLikeCount(comment.getLikeCount() + (comment.getIsLiked() ? 1 : -1));
-            // TODO: update database here
+            // update like on database
+            FirebaseCommentService.updateLike(comment.getId(), comment.getIsLiked(), updateLikeCallback);
         });
 
         commentListAdapter.setReplyClickListener(comment -> {
-            userCommentModel.setReplyToId(comment.getId());
+            if (comment.getReplyCommentId() != null) {
+                userCommentModel.setReplyToId(comment.getReplyCommentId());
+            } else {
+                userCommentModel.setReplyToId(comment.getId());
+            }
             userCommentModel.setReplyToName(comment.getAuthorName());
         });
 
@@ -86,11 +97,28 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
 
     void fetchCommentsAsync() {
         Thread thread = new Thread(() -> {
-            List<Comment> newComments = _commentDao.getComments();
-            myHandler.post(() -> populateComments(newComments));
+            //TODO: exclude comments from blocked user, fuck me
+            FirebaseCommentService.getPinComments(_pinId, null, getCommentServiceCallback, requireContext());
         });
         thread.start();
     }
+
+    private final FirebaseCommentService.GetCommentServiceCallback getCommentServiceCallback = new FirebaseCommentService.GetCommentServiceCallback() {
+        @Override
+        public void OnSuccess(List<Comment> commentList) {
+            handler.post(() -> {
+                int startPos = comments.size();
+                comments.addAll(commentList);
+                commentListAdapter.notifyItemRangeInserted(startPos, commentList.size());
+                binding.tvCount.setText(getCommentCountString());
+            });
+        }
+
+        @Override
+        public void OnFailure(Exception e) {
+            e.printStackTrace();
+        }
+    };
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -117,12 +145,122 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     }
 
     @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        fetchCommentsAsync();
+        initializeCommentRecyclerView();
+
+        binding.setUserCommentModel(userCommentModel);
+        binding.etCommentInput.setOnFocusChangeListener((v, hasFocus) -> userCommentModel.setIsFocused(hasFocus));
+        binding.tvCancelReplying.setOnClickListener(v -> {
+            userCommentModel.setReplyToName("");
+            userCommentModel.setReplyToId(null);
+        });
+        binding.fabAddAttachment.setOnClickListener(v -> {
+            // Launch the photo picker and let the user choose only images.
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        });
+        binding.ibtnRemoveAttachment.setOnClickListener(v -> userCommentModel.setAttachmentUri(null));
+        binding.btnPostComment.setOnClickListener(v -> {
+            Log.d("listener", "ibtnPostComment clicked");
+            binding.etCommentInput.clearFocus();
+            createCommentAsync();
+        });
+    }
+
+    // create new comment from user's input
+    // behold, callback hell
+    private void createCommentAsync() {
+        Thread thread = new Thread(() -> {
+            Comment comment = userCommentModel.createComment();
+            FirebaseCommentService.UploadCommentServiceCallback uploadCommentServiceCallback = e -> {
+                e.printStackTrace();
+                // remove the added comment
+                handler.post(() -> {
+                    int index = comments.indexOf(comment);
+                    if (index > -1) {
+                        comments.remove(index);
+                        commentListAdapter.notifyItemRemoved(index);
+                    }
+                    Toast.makeText(requireContext(), getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
+                });
+            };
+            FirebaseUserService.GetUserInfoCallback getUserInfoCallback = new FirebaseUserService.GetUserInfoCallback() {
+                @Override
+                public void OnSuccess(DocumentSnapshot documentSnapshot) {
+                    comment.setAuthorId(documentSnapshot.getString("userId"));
+                    comment.setAuthorName(documentSnapshot.getString("name"));
+                    comment.setAuthorAvatarUrl(documentSnapshot.getString("avatarUrl"));
+                    // upload to database
+                    FirebaseCommentService.uploadPinComment(comment, uploadCommentServiceCallback);
+                    handler.post(() -> addNewlyPostedComment(comment));
+                }
+
+                @Override
+                public void OnFailure(Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(requireContext(), getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
+                }
+            };
+            FirebaseUserService.getCurrentUserInfo(getUserInfoCallback);
+        });
+        thread.start();
+    }
+
+    // add newly created comment to the UI
+    private void addNewlyPostedComment(Comment comment) {
+        int newIndex = 0;
+
+        String replyingId = comment.getReplyCommentId();
+        if (replyingId == null) {
+            comments.add(newIndex, comment);
+        }
+        // look for the final position of the replying comments and insert it there
+        else {
+            while (!Objects.equals(comments.get(newIndex).getId(), replyingId)) {
+                newIndex++;
+            }
+            do {
+                newIndex++;
+                if (newIndex >= comments.size()) {
+                    comments.add(comment);
+                    commentListAdapter.notifyItemInserted(comments.size() - 1);
+
+                    // clear comment input
+                    userCommentModel.setContent("");
+                    userCommentModel.setAttachmentUri(null);
+                    userCommentModel.setReplyToId(null);
+                    userCommentModel.setReplyToName(null);
+                    binding.tvCount.setText(getCommentCountString());
+
+                    return;
+                }
+            } while (comments.get(newIndex).getReplyCommentId() != null);
+            comments.add(newIndex, comment);
+        }
+        commentListAdapter.notifyDataSetChanged();
+
+        // clear comment input
+        userCommentModel.setContent("");
+        userCommentModel.setAttachmentUri(null);
+        userCommentModel.setReplyToId(null);
+        userCommentModel.setReplyToName(null);
+        binding.tvCount.setText(getCommentCountString());
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
 
         View view = getView();
         assert view != null;
 
+        setupModalHeight(view);
+    }
+
+    private void setupModalHeight(View view) {
         BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) view.getParent());
         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         behavior.setSkipCollapsed(true);
@@ -133,76 +271,10 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         ViewGroup.LayoutParams params = binding.commentLayoutContainer.getLayoutParams();
         params.height = (int) (displayMetrics.heightPixels * 0.9);
         binding.commentLayoutContainer.setLayoutParams(params);
-
-        binding.commentLayoutContainer.post(this::fetchCommentsAsync);
-
-        binding.setUserCommentModel(userCommentModel);
-        binding.etCommentInput.setOnFocusChangeListener((v, hasFocus) -> userCommentModel.setIsFocused(hasFocus));
-        binding.tvCancelReplying.setOnClickListener(v -> {
-            userCommentModel.setReplyToName("");
-            userCommentModel.setReplyToId(null);
-        });
-        binding.fabAddAttachment.setOnClickListener(v -> {
-            // Include only one of the following calls to launch(), depending on the types
-            // of media that you want to let the user choose from.
-
-            // Launch the photo picker and let the user choose only images.
-            pickMedia.launch(new PickVisualMediaRequest.Builder()
-                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                    .build());
-        });
-        binding.ibtnRemoveAttachment.setOnClickListener(v -> userCommentModel.setAttachmentUri(null));
-        binding.btnPostComment.setOnClickListener(v -> {
-            Log.d("listener", "ibtnPostComment clicked");
-            binding.etCommentInput.clearFocus();
-
-            // TODO: upload comment to database here
-
-            // fake new comment, for demonstration only
-            Comment comment = userCommentModel.createComment();
-
-            int newIndex = 0;
-
-            String replyingId = comment.getReplyCommentId();
-            if (replyingId == null) {
-                _comments.add(newIndex, comment);
-            }
-            // look for the final position of the replying comments and insert it there
-            else {
-                while (!Objects.equals(_comments.get(newIndex).getId(), replyingId)) {
-                    newIndex++;
-                }
-                do {
-                    newIndex++;
-                    if (newIndex >= _comments.size()) {
-                        _comments.add(comment);
-                        commentListAdapter.notifyItemInserted(_comments.size() - 1);
-
-                        // clear comment input
-                        userCommentModel.setContent("");
-                        userCommentModel.setAttachmentUri(null);
-                        userCommentModel.setReplyToId(null);
-                        userCommentModel.setReplyToName(null);
-                        binding.tvCount.setText(getCommentCountString());
-
-                        return;
-                    }
-                } while (_comments.get(newIndex).getReplyCommentId() != null);
-                _comments.add(newIndex, comment);
-            }
-            commentListAdapter.notifyDataSetChanged();
-
-            // clear comment input
-            userCommentModel.setContent("");
-            userCommentModel.setAttachmentUri(null);
-            userCommentModel.setReplyToId(null);
-            userCommentModel.setReplyToName(null);
-            binding.tvCount.setText(getCommentCountString());
-        });
     }
 
     private String getCommentCountString() {
-        int count = _comments != null ? _comments.size() : 0;
+        int count = comments != null ? comments.size() : 0;
         return String.format(Locale.US, getResources().getString(R.string.comment_count_template), count);
     }
 

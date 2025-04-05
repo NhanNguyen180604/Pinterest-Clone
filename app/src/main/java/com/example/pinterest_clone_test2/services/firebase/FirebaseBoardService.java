@@ -21,18 +21,8 @@ public abstract class FirebaseBoardService {
         firestore.collection("boards")
                 .whereEqualTo("authorId", currentUser.getUid())
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        callback.OnSuccess(queryDocumentSnapshots);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.OnFailure(e);
-                    }
-                });
+                .addOnSuccessListener(callback::OnSuccess)
+                .addOnFailureListener(callback::OnFailure);
     }
 
     public interface GetBoardServiceCallback {

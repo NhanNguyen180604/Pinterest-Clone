@@ -80,6 +80,13 @@ public class PinObjectFragment extends Fragment {
         @Override
         public void OnSuccess(DocumentSnapshot documentSnapshot) {
             author.setFirstName(documentSnapshot.getString("name"));
+            author.setAvatarUrl(documentSnapshot.getString("avatarUrl"));
+            if (author.getAvatarUrl() != null) {
+                Glide.with(binding.ivAuthorAvatar.getContext())
+                        .load(author.getAvatarUrl())
+                        .fitCenter()
+                        .into(binding.ivAuthorAvatar);
+            }
         }
 
         @Override
@@ -264,10 +271,14 @@ public class PinObjectFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         restoreStates();
 
-        if (author.getFirstName() == null && pin != null) {
+        if ((author.getFirstName() == null || author.getAvatarUrl() == null) && pin != null) {
             fetchAuthorAsync();
         } else {
             binding.setAuthorViewModel(author);
+            Glide.with(binding.ivAuthorAvatar.getContext())
+                    .load(author.getAvatarUrl())
+                    .fitCenter()
+                    .into(binding.ivAuthorAvatar);
         }
 
         if (pin == null) {

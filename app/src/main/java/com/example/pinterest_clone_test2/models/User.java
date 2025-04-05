@@ -33,12 +33,10 @@ public class User extends BaseObservable implements Parcelable {
     private String email;
     private String firstName;
     private String lastName;
-
     private String birthDate;
-
     private Gender gender;
-
     private Role role;
+    private String avatarUrl;
 
     // Danh sách mock users
     private static List<User> mockUsers = new ArrayList<>(Arrays.asList(
@@ -138,6 +136,16 @@ public class User extends BaseObservable implements Parcelable {
         return firstName + " " + lastName;
     }
 
+    @Bindable
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+        notifyPropertyChanged(BR.avatarUrl);
+    }
+
     public static boolean isValidEnum(String value) {
         try {
             Gender.valueOf(value);
@@ -154,6 +162,7 @@ public class User extends BaseObservable implements Parcelable {
         birthDate = in.readString();
         gender = (Gender) in.readSerializable();
         role = (Role) in.readSerializable();
+        avatarUrl = in.readString();
     }
 
     public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<>() {
@@ -181,5 +190,6 @@ public class User extends BaseObservable implements Parcelable {
         parcel.writeString(birthDate);
         parcel.writeSerializable(gender);
         parcel.writeSerializable(role);
+        parcel.writeString(avatarUrl);
     }
 }

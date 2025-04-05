@@ -3,6 +3,7 @@ package com.example.pinterest_clone_test2.services.firebase;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -22,7 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public abstract class FirebasePinService {
-    public static void getPins(DocumentSnapshot lastVisible, int perPage, Filter filter, GetPinServiceCallback callback) {
+    public static void getPins(@Nullable DocumentSnapshot lastVisible, int perPage, Filter filter, GetPinServiceCallback callback) {
         if (perPage < 1) {
             throw new IllegalArgumentException("Per page number must be greater than 0");
         }
@@ -92,18 +93,8 @@ public abstract class FirebasePinService {
             likeData.put("createdAt", System.currentTimeMillis());
             firestore.collection("likes")
                     .add(likeData)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            Log.d("FirebasePinService-UpdateLike", "add like successfully");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            callback.OnFailure(e);
-                        }
-                    });
+                    .addOnSuccessListener(documentReference -> Log.d("FirebasePinService-UpdateLike", "add like successfully"))
+                    .addOnFailureListener(callback::OnFailure);
         } else {
             // fetch existing like
             firestore.collection("likes")
@@ -134,7 +125,6 @@ public abstract class FirebasePinService {
                         Log.e("FirebasePinService-UpdateLike", "like failed to remove: ", e);
                         callback.OnFailure(e);
                     });
-
         }
     }
 
