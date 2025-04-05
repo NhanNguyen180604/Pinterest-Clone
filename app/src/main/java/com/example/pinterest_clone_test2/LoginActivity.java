@@ -137,8 +137,12 @@ public class LoginActivity extends AppCompatActivity {
                     userInfos.put("blockedCollages", new ArrayList<String>());
                     userInfos.put("website", "");
 
-                    Task<DocumentReference> updateUserInfoTask = db.collection("users")
-                            .add(userInfos);
+//                    Task<DocumentReference> updateUserInfoTask = db.collection("users")
+//                            .add(userInfos);
+
+                    Task<Void> updateUserInfoTask = db.collection("users")
+                            .document(firebaseUser.getUid())
+                            .set(userInfos);
 
                     Tasks.whenAllSuccess(updateProfileTask, updateUserInfoTask)
                             .addOnSuccessListener(objects -> {
