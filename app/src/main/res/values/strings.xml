@@ -101,4 +101,8 @@
     <string name="back_button">Nút quay về</string>
     <string name="submit_report">Gửi báo cáo</string>
     <string name="search_query_hint">Tìm kiếm trên Pinterest</string>
+    <string name="all">Tất cả</string>
+    <string name="pin_reaction_bug">Đã có lỗi xảy ra khi thả tim/hủy tim với ghim này</string>
+    <string name="pin_comment_reaction_bug">Đã có lỗi xảy ra khi thả tim/hủy tim với bình luận này</string>
+    <string name="create_pin_comment_failed">Đã có lỗi trong lúc đăng bình luận</string>
 </resources>

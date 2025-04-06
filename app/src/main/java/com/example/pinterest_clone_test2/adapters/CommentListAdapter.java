@@ -35,9 +35,17 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     .placeholder(R.drawable.ic_loading)
                     .error(R.drawable.turtle_huh);
 
-            if (comment.getAttachmentUrl() != null) {
+            if (comment.getAuthorAvatarUrl() != null) {
+                Glide.with(_binding.ivAvatar.getContext())
+                        .load(comment.getAuthorAvatarUrl())
+                        .fitCenter()
+                        .apply(options)
+                        .into(_binding.ivAvatar);
+            }
+
+            if (comment.getAttachmentThumbnailUrl() != null) {
                 Glide.with(_binding.ivAttachment.getContext())
-                        .load(comment.getAttachmentUrl())
+                        .load(comment.getAttachmentThumbnailUrl())
                         .fitCenter()
                         .apply(options)
                         .into(_binding.ivAttachment);
@@ -70,9 +78,17 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     .placeholder(R.drawable.ic_loading)
                     .error(R.drawable.turtle_huh);
 
-            if (comment.getAttachmentUrl() != null) {
+            if (comment.getAuthorAvatarUrl() != null) {
+                Glide.with(_binding.ivAvatar.getContext())
+                        .load(comment.getAuthorAvatarUrl())
+                        .fitCenter()
+                        .apply(options)
+                        .into(_binding.ivAvatar);
+            }
+
+            if (comment.getAttachmentThumbnailUrl() != null) {
                 Glide.with(_binding.ivAttachment.getContext())
-                        .load(comment.getAttachmentUrl())
+                        .load(comment.getAttachmentThumbnailUrl())
                         .fitCenter()
                         .apply(options)
                         .into(_binding.ivAttachment);

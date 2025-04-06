@@ -4,12 +4,16 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
+
+import com.example.pinterest_clone_test2.BR;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Pin implements Parcelable {
+public class Pin extends BaseObservable implements Parcelable {
     public enum PinType {
         IMAGE,
         GIF,
@@ -41,21 +45,25 @@ public class Pin implements Parcelable {
         return this;
     }
 
+    @Bindable
     public String getMediaUrl() {
         return mediaUrl;
     }
 
     public Pin setMediaUrl(String mediaUrl) {
         this.mediaUrl = mediaUrl;
+        notifyPropertyChanged(BR.mediaUrl);
         return this;
     }
 
+    @Bindable
     public String getThumbnailUrl() {
         return thumbnailUrl;
     }
 
     public Pin setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+        notifyPropertyChanged(BR.thumbnailUrl);
         return this;
     }
 
@@ -77,59 +85,78 @@ public class Pin implements Parcelable {
         return this;
     }
 
+    @Bindable
     public boolean getIsLiked() {
         return isLiked;
     }
 
     public Pin setIsLiked(boolean liked) {
         isLiked = liked;
+        notifyPropertyChanged(BR.isLiked);
         return this;
     }
 
+    @Bindable
     public int getLikeCount() {
         return likeCount;
     }
 
     public Pin setLikeCount(int likeCount) {
         this.likeCount = likeCount;
+        notifyPropertyChanged(BR.likeCount);
+        notifyPropertyChanged(BR.likeCountString);
         return this;
     }
 
+    @Bindable
+    public String getLikeCountString() {
+        return Integer.toString(likeCount);
+    }
+
+    @Bindable
     public String getName() {
         return name;
     }
 
     public Pin setName(String name) {
         this.name = name;
+        notifyPropertyChanged(BR.name);
         return this;
     }
 
+    @Bindable
     public String getDescription() {
         return description;
     }
 
     public Pin setDescription(String description) {
         this.description = description;
+        notifyPropertyChanged(BR.description);
         return this;
     }
 
+    @Bindable
     public boolean getAllowComment() {
         return allowComment;
     }
 
     public Pin setAllowComment(boolean allowComment) {
         this.allowComment = allowComment;
+        notifyPropertyChanged(BR.allowComment);
         return this;
     }
 
+    @Bindable
     public long getCreatedAt() {
         return createdAt;
     }
 
     public Pin setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
+        notifyPropertyChanged(BR.createdAt);
         return this;
     }
+
     public static List<Pin> testData = new ArrayList<>(Arrays.asList(
             new Pin()
                     .setId("pin01")
@@ -260,6 +287,7 @@ public class Pin implements Parcelable {
         allowComment = in.readBoolean();
         createdAt = in.readLong();
     }
+
     @Override
     public int describeContents() {
         return 0;

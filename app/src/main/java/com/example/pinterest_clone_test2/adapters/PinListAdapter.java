@@ -71,6 +71,8 @@ public class PinListAdapter extends RecyclerView.Adapter<PinListAdapter.PinViewH
 
     @Override
     public int getItemCount() {
-        return pins.size();
+        if (pins != null)
+            return pins.size();
+        return 0;
     }
 }

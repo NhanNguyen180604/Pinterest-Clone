@@ -4,27 +4,27 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.ui.home.TabObjectFragment;
 
 import java.util.List;
 
 public class ViewPagerHomeAdapter extends FragmentStateAdapter {
-    List<List<Pin>> pinTabs;
+    List<Board> boards;
 
-    public ViewPagerHomeAdapter(@NonNull Fragment fragment, List<List<Pin>> pinTabs) {
+    public ViewPagerHomeAdapter(@NonNull Fragment fragment, List<Board> boards) {
         super(fragment);
-        this.pinTabs = pinTabs;
+        this.boards = boards;
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return new TabObjectFragment(pinTabs.get(position));
+        return new TabObjectFragment(boards.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return pinTabs.size();
+        return boards.size();
     }
 }

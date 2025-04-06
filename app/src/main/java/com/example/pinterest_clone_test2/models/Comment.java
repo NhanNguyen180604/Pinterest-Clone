@@ -9,6 +9,8 @@ import androidx.databinding.Bindable;
 import androidx.databinding.library.baseAdapters.BR;
 
 import com.example.pinterest_clone_test2.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -20,11 +22,14 @@ public class Comment extends BaseObservable {
     // will replace with User model if necessary
     String _authorId;
     String _authorName;
+    String _authorAvatarUrl;
 
     String _content;
     String _attachmentUrl = null;
+    String _attachmentThumbnailUrl = null;
     String _replyTo = null;
     int _likeCount;
+    long _createdAt;
     private final Context _context;
 
     // will replace with UserCommentLike model if necessary
@@ -32,7 +37,7 @@ public class Comment extends BaseObservable {
     boolean _isLiked = false;
     Uri _attachmentUri;  // for uploading comment
 
-    public Comment(Context context){
+    public Comment(Context context) {
         _context = context;
     }
 
@@ -84,8 +89,23 @@ public class Comment extends BaseObservable {
         return _attachmentUri;
     }
 
+    @Bindable
+    public String getAttachmentThumbnailUrl() {
+        return _attachmentThumbnailUrl;
+    }
+
+    @Bindable
+    public String getAuthorAvatarUrl() {
+        return _authorAvatarUrl;
+    }
+
     public String getPinId() {
         return _pinId;
+    }
+
+    @Bindable
+    public long getCreatedAt() {
+        return _createdAt;
     }
 
     // replicating builder pattern for better mock data initialization
@@ -103,6 +123,12 @@ public class Comment extends BaseObservable {
     public Comment setAuthorName(String authorName) {
         _authorName = authorName;
         notifyPropertyChanged(BR.authorName);
+        return this;
+    }
+
+    public Comment setAuthorAvatarUrl(String authorAvatarUrl) {
+        _authorAvatarUrl = authorAvatarUrl;
+        notifyPropertyChanged(BR.authorAvatarUrl);
         return this;
     }
 
@@ -152,8 +178,20 @@ public class Comment extends BaseObservable {
         return this;
     }
 
-    public Comment setPinId(String _pinId) {
-        this._pinId = _pinId;
+    public Comment setAttachmentThumbnailUrl(String attachmentThumbnailUrl) {
+        _attachmentThumbnailUrl = attachmentThumbnailUrl;
+        notifyPropertyChanged(BR.attachmentThumbnailUrl);
+        return this;
+    }
+
+    public Comment setPinId(String pinId) {
+        _pinId = pinId;
+        return this;
+    }
+
+    public Comment setCreatedAt(long createdAt) {
+        _createdAt = createdAt;
+        notifyPropertyChanged(BR.createdAt);
         return this;
     }
 
@@ -171,13 +209,18 @@ public class Comment extends BaseObservable {
 
     @Bindable
     public int getOptionsVisibility() {
-        // TODO: check if this is the user's comment, if it is then no options, we're running out of time
-        return Objects.equals(_authorId, "default-user-id") ? View.GONE : View.VISIBLE;
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+        return Objects.equals(_authorId, currentUser.getUid()) ? View.GONE : View.VISIBLE;
     }
 
     @Bindable
     public int getAttachmentVisibility() {
         return _attachmentUrl != null || _attachmentUri != null ? View.VISIBLE : View.GONE;
+    }
+
+    public boolean isValidComment() {
+        return _content != null && _authorId != null && _pinId != null;
     }
 }
 

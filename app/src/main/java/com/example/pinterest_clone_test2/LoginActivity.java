@@ -122,6 +122,7 @@ public class LoginActivity extends AppCompatActivity {
                     // initialize user info
                     Map<String, Object> userInfos = new HashMap<>();
                     userInfos.put("userId", firebaseUser.getUid());
+                    userInfos.put("name", user.getFirstName());
                     userInfos.put("email", firebaseUser.getEmail());
                     userInfos.put("role", "User");
                     userInfos.put("gender", user.getGender().name());
