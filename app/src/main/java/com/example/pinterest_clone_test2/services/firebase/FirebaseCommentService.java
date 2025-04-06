@@ -194,9 +194,7 @@ public abstract class FirebaseCommentService {
                             return Tasks.forException(Objects.requireNonNull(task.getException()));
                         }
                     })
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d("FirebaseCommentService-UpdateLike", "like removed successfully");
-                    })
+                    .addOnSuccessListener(aVoid -> Log.d("FirebaseCommentService-UpdateLike", "like removed successfully"))
                     .addOnFailureListener(e -> {
                         Log.e("FirebaseCommentService-UpdateLike", "like failed to remove: ", e);
                         callback.OnFailure(e);

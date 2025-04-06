@@ -25,6 +25,8 @@ import com.example.pinterest_clone_test2.services.firebase.FirebaseCommentServic
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
@@ -204,7 +206,9 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                     Toast.makeText(requireContext(), getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
                 }
             };
-            FirebaseUserService.getCurrentUserInfo(getUserInfoCallback);
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            assert currentUser != null;
+            FirebaseUserService.getUserInfos(currentUser.getUid(), getUserInfoCallback);
         });
         thread.start();
     }

@@ -1,16 +1,9 @@
 package com.example.pinterest_clone_test2.services.firebase;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.List;
 
 public abstract class FirebaseBoardService {
     public static void getUserBoards(GetBoardServiceCallback callback) {
