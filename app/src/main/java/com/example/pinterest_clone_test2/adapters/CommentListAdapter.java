@@ -1,6 +1,5 @@
 package com.example.pinterest_clone_test2.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -115,7 +114,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     final static int VIEW_NORMAL = 1;
     final static int VIEW_REPLYING = 2;
 
-    public CommentListAdapter(List<Comment> comments, Context context) {
+    public CommentListAdapter(List<Comment> comments) {
         _comments = comments;
     }
 

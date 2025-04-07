@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class CommentModalBottomSheet extends BottomSheetDialogFragment {
+    private final Context _context;
     public static String TAG = "CommentModalBottomSheet";
     String _pinId;
     UserCommentModel userCommentModel;
@@ -50,30 +51,27 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     public CommentModalBottomSheet(String pinId, Context context) {
         _pinId = pinId;
         userCommentModel = new UserCommentModel(context, _pinId);
+        _context = context;
     }
 
     // update the UI with the comments
     void initializeCommentRecyclerView() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(_context, LinearLayoutManager.VERTICAL, false);
         binding.rvComments.setLayoutManager(layoutManager);
 
-        commentListAdapter = new CommentListAdapter(comments, requireContext());
+        commentListAdapter = new CommentListAdapter(comments);
         binding.rvComments.setAdapter(commentListAdapter);
 
         commentListAdapter.setReactionClickListener(comment -> {
-            FirebaseCommentService.UpdateLikeCallback updateLikeCallback = new FirebaseCommentService.UpdateLikeCallback() {
-                @Override
-                public void OnFailure(Exception e) {
-                    // revert the like/unlike action
-                    comment.setIsLiked(!comment.getIsLiked());
-                    comment.setLikeCount(comment.getLikeCount() + (comment.getIsLiked() ? 1 : -1));
-                    Toast.makeText(requireContext(), getResources().getString(R.string.pin_comment_reaction_bug), Toast.LENGTH_SHORT).show();
-                }
+            FirebaseCommentService.UpdateLikeCallback updateLikeCallback = e -> {
+                // revert the like/unlike action
+                comment.setIsLiked(!comment.getIsLiked());
+                comment.setLikeCount(comment.getLikeCount() + (comment.getIsLiked() ? 1 : -1));
+                Toast.makeText(_context, getResources().getString(R.string.pin_comment_reaction_bug), Toast.LENGTH_SHORT).show();
             };
 
             comment.setIsLiked(!comment.getIsLiked());
             comment.setLikeCount(comment.getLikeCount() + (comment.getIsLiked() ? 1 : -1));
-            // update like on database
             FirebaseCommentService.updateLike(comment.getId(), comment.getIsLiked(), updateLikeCallback);
         });
 
@@ -87,7 +85,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         });
 
         commentListAdapter.setMoreClickListener(comment -> {
-            CommentOptionsModalBottomSheet bottomSheet = new CommentOptionsModalBottomSheet(comment);
+            CommentOptionsModalBottomSheet bottomSheet = new CommentOptionsModalBottomSheet(comment, _context);
             bottomSheet.show(requireActivity().getSupportFragmentManager(), CommentOptionsModalBottomSheet.TAG);
         });
 
@@ -99,8 +97,8 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
 
     void fetchCommentsAsync() {
         Thread thread = new Thread(() -> {
-            //TODO: exclude comments from blocked user, fuck me
-            FirebaseCommentService.getPinComments(_pinId, null, getCommentServiceCallback, requireContext());
+            //TODO: exclude comments from blocked user
+            FirebaseCommentService.getPinComments(_pinId, null, getCommentServiceCallback, _context);
         });
         thread.start();
     }
@@ -186,7 +184,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                         comments.remove(index);
                         commentListAdapter.notifyItemRemoved(index);
                     }
-                    Toast.makeText(requireContext(), getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(_context, getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
                 });
             };
             FirebaseUserService.GetUserInfoCallback getUserInfoCallback = new FirebaseUserService.GetUserInfoCallback() {
@@ -203,7 +201,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                 @Override
                 public void OnFailure(Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(requireContext(), getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(_context, getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
                 }
             };
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
