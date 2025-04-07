@@ -1,4 +1,4 @@
-package com.example.pinterest_clone_test2.ui.pin.btn_save;
+package com.example.pinterest_clone_test2.ui.board.board_choosing;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;

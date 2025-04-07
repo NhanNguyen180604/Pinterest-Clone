@@ -8,14 +8,15 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.pinterest_clone_test2.databinding.ActivityCreateBoardBinding;
 import com.example.pinterest_clone_test2.models.Pin;
-import com.example.pinterest_clone_test2.ui.pin.btn_save.PinSavingFragment;
+import com.example.pinterest_clone_test2.ui.board.board_choosing.BoardChoosingFragment;
 
-public class CreateBoardActivity extends AppCompatActivity {
+public class ChooseBoardActivity extends AppCompatActivity {
 
     ActivityCreateBoardBinding binding;
     FragmentManager fragmentManager;
 
     Pin pin;
+    boolean suggestNewBoard = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,11 +28,12 @@ public class CreateBoardActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent.getParcelableExtra("pin") != null) {
             pin = intent.getParcelableExtra("pin");
+            suggestNewBoard = intent.getBooleanExtra("suggestNewBoard", false);
         }
 
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .add(R.id.create_board_fragment_container, new PinSavingFragment(pin))
+                .add(R.id.create_board_fragment_container, new BoardChoosingFragment(pin, suggestNewBoard))
                 .commit();
     }
 }

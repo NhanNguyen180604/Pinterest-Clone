@@ -15,9 +15,8 @@ public class Board implements Parcelable {
     String description;
     String authorId;
     boolean isPublic;
-    //    List<User> collaborators;
+    List<User> collaborators;
     List<Pin> pins;
-//    List<Collage> collages;
 
     public Board() {
     }
@@ -73,6 +72,15 @@ public class Board implements Parcelable {
 
     public Board setPins(List<Pin> pins) {
         this.pins = pins;
+        return this;
+    }
+
+    public List<User> getCollaborators() {
+        return collaborators;
+    }
+
+    public Board setCollaborators(List<User> collaborators) {
+        this.collaborators = collaborators;
         return this;
     }
 

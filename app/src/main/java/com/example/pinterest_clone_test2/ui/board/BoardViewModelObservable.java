@@ -2,7 +2,7 @@ package com.example.pinterest_clone_test2.ui.board;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
@@ -18,7 +18,7 @@ public class BoardViewModelObservable extends BaseObservable {
 
     }
 
-    public BoardViewModelObservable(@NonNull Pin pin) {
+    public BoardViewModelObservable(@Nullable Pin pin) {
         setPin(pin);
     }
 
@@ -27,7 +27,7 @@ public class BoardViewModelObservable extends BaseObservable {
         return pin;
     }
 
-    public void setPin(@NonNull Pin pin) {
+    public void setPin(@Nullable Pin pin) {
         this.pin = pin;
         notifyPropertyChanged(BR.pin);
         notifyPropertyChanged(BR.previewVisibility);
@@ -50,7 +50,7 @@ public class BoardViewModelObservable extends BaseObservable {
     }
 
     @Bindable
-    public boolean getCanCreate(){
+    public boolean getCanCreate() {
         return !boardName.isBlank();
     }
 
