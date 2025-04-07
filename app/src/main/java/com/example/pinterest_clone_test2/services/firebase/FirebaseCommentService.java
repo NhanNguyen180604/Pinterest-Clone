@@ -6,7 +6,10 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.models.Comment;
+import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
@@ -145,15 +148,60 @@ public abstract class FirebaseCommentService {
         commentData.put("replyTo", comment.getReplyCommentId());
         commentData.put("content", comment.getContent());
         commentData.put("createdAt", System.currentTimeMillis());
-        //TODO: upload attachment to Cloudinary
 
-        firestore.collection("comments")
-                .add(commentData)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d("FirebaseCommentService", "added comment successfully, " + documentReference.getId());
-                    comment.setId(documentReference.getId());
-                })
-                .addOnFailureListener(callback::OnFailure);
+        //TODO: upload attachment to Cloudinary
+        if (comment.getAttachmentUri() != null) {
+            CloudinaryManager.uploadImage(comment.getAttachmentUri(), new UploadCallback() {
+                @Override
+                public void onStart(String requestId) {
+
+                }
+
+                @Override
+                public void onProgress(String requestId, long bytes, long totalBytes) {
+
+                }
+
+                @Override
+                public void onSuccess(String requestId, Map resultData) {
+                    String url = (String) resultData.get("secure_url");
+                    if (url == null) {
+                        callback.OnFailure(new Exception("Failed to upload attachment url"));
+                        return;
+                    }
+
+                    commentData.put("attachmentUrl", url);
+                    String thumbnailUrl = url.replace("/upload/", "/upload/c_thumb,w_200/");
+                    commentData.put("attachmentThumbnailUrl", thumbnailUrl);
+
+                    firestore.collection("comments")
+                            .add(commentData)
+                            .addOnSuccessListener(documentReference -> {
+                                Log.d("FirebaseCommentService", "added comment successfully, " + documentReference.getId());
+                                comment.setId(documentReference.getId());
+                            })
+                            .addOnFailureListener(callback::OnFailure);
+                }
+
+                @Override
+                public void onError(String requestId, ErrorInfo error) {
+                    callback.OnFailure(new Exception(error.getDescription()));
+                }
+
+                @Override
+                public void onReschedule(String requestId, ErrorInfo error) {
+
+                }
+            });
+        } else {
+            firestore.collection("comments")
+                    .add(commentData)
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d("FirebaseCommentService", "added comment successfully, " + documentReference.getId());
+                        comment.setId(documentReference.getId());
+                    })
+                    .addOnFailureListener(callback::OnFailure);
+        }
     }
 
     public static void updateLike(@NonNull String commentId, boolean isLiked, UpdateLikeCallback callback) {

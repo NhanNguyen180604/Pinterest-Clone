@@ -12,6 +12,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.pinterest_clone_test2.databinding.ActivityMainBinding;
 import com.example.pinterest_clone_test2.ui.upload.UploadDialogFragment;
+import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -34,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        // Initialize Cloudinary
+        CloudinaryManager.initCloudinary(this);
 
         Toast.makeText(this, "Xin chào " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
 

@@ -35,9 +35,6 @@ public class UploadActivity extends AppCompatActivity {
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
 
-        // Initialize Cloudinary
-        CloudinaryManager.initCloudinary(this);
-
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -71,7 +68,7 @@ public class UploadActivity extends AppCompatActivity {
         if (imageUri != null) {
             Log.d("Cloudinary", "Image URI to upload: " + imageUri);
 
-            CloudinaryManager.uploadImage(this, imageUri, title, description, new UploadCallback() {
+            CloudinaryManager.uploadImage(imageUri, new UploadCallback() {
                 @Override
                 public void onStart(String requestId) {
                     Log.d("Cloudinary Quickstart", "Upload start");

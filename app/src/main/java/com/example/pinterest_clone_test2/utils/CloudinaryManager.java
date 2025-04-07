@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.BuildConfig;
@@ -44,17 +46,12 @@ public class CloudinaryManager {
     }
 
     // Upload image to Cloudinary
-    public static void uploadImage(Context context, Uri imageUri, String title, String description, UploadCallback callback) {
-        if (imageUri != null) {
-            Log.d("Cloudinary", "Image URI to upload: " + imageUri);
+    public static void uploadImage(@NonNull Uri imageUri, UploadCallback callback) {
+        Log.d("Cloudinary", "Image URI to upload: " + imageUri);
 
-            MediaManager.get().upload(imageUri)
-                    .unsigned(UPLOAD_PRESET)
-                    .callback(callback)
-                    .dispatch();
-        } else {
-            Log.d("Cloudinary", "No image selected");
-            Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
-        }
+        MediaManager.get().upload(imageUri)
+                .unsigned(UPLOAD_PRESET)
+                .callback(callback)
+                .dispatch();
     }
 }
