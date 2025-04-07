@@ -1,3 +1,7 @@
+import java.io.FileInputStream
+import java.util.Properties
+
+
 plugins {
     alias(libs.plugins.android.application)
     // Add the Google services Gradle plugin
@@ -8,6 +12,10 @@ android {
     namespace = "com.example.pinterest_clone_test2"
     compileSdk = 35
 
+    var file = rootProject.file("local.properties")
+    var properties = Properties()
+    properties.load(FileInputStream(file))
+
     defaultConfig {
         applicationId = "com.example.pinterest_clone_test2"
         minSdk = 29
@@ -15,7 +23,11 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" // Đảm bảo cú pháp đúng khi sử dụng buildConfigField
+        buildConfigField("String", "CLOUD_NAME", properties.getProperty("CLOUD_NAME"))
+        buildConfigField("String", "API_KEY", properties.getProperty("API_KEY"))
+        buildConfigField("String", "API_SECRET", properties.getProperty("API_SECRET"))
+        buildConfigField("String", "UPLOAD_PRESET", properties.getProperty("UPLOAD_PRESET"))
     }
 
     buildTypes {
@@ -34,6 +46,7 @@ android {
     buildFeatures {
         viewBinding = true
         dataBinding = true
+        buildConfig = true
     }
 }
 
