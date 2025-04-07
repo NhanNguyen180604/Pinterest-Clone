@@ -193,8 +193,8 @@ public class PinObjectFragment extends Fragment {
         }
     };
 
-    void addRelevantPins(List<Pin> newPins, boolean append){
-        if (!append){
+    void addRelevantPins(List<Pin> newPins, boolean append) {
+        if (!append) {
             relevantPins.clear();
         }
         int startPos = relevantPins.size();
@@ -268,7 +268,7 @@ public class PinObjectFragment extends Fragment {
 
         binding.btnMore.setOnClickListener(v -> {
             if (pin != null) {
-                PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, downloadPinMediaCallback);
+                PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, requireContext(), downloadPinMediaCallback);
                 sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
             } else {
                 Toast.makeText(requireContext(), "Pin is null, end my suffering", Toast.LENGTH_SHORT).show();
@@ -331,10 +331,9 @@ public class PinObjectFragment extends Fragment {
         }
 
         List<Pin> relevantPinState = viewModel.getRelevantPinState();
-        if (relevantPinState == null || relevantPinState.isEmpty()){
+        if (relevantPinState == null || relevantPinState.isEmpty()) {
             fetchRelevantPinsAsync();
-        }
-        else if (relevantPins.isEmpty()) {
+        } else if (relevantPins.isEmpty()) {
             addRelevantPins(relevantPinState, false);
         }
 
