@@ -46,6 +46,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -59,6 +60,13 @@ public class PinObjectFragment extends Fragment {
     Handler handler = new Handler();
     ActivityResultLauncher<Intent> createBoardActivityLauncher;
 
+    final int perPage = 20;
+    boolean isOnLastPage = false;
+    boolean isLoading = false;
+    DocumentSnapshot lastVisible;  // for pagination
+    List<Pin> relevantPins = new ArrayList<>();
+    PinListAdapter relevantPinAdapter;
+
     // need this to prevent crash idk why
     public PinObjectFragment() {
     }
@@ -71,7 +79,7 @@ public class PinObjectFragment extends Fragment {
     void fetchAuthorAsync() {
         Thread thread = new Thread(() -> {
             FirebaseUserService.getUserInfos(pin.getAuthorId(), getAuthorInfoCallback);
-            Log.d("pin-object-fragment", "Fetching author info");
+            Log.d("PinObjectFragment", "Fetching author info");
         });
         thread.start();
     }
@@ -96,9 +104,7 @@ public class PinObjectFragment extends Fragment {
     };
 
     void fetchPinLikesAsync() {
-        Thread thread = new Thread(() -> {
-            FirebasePinService.getPinLikeCount(pin.getId(), getPinLikeCountCallback);
-        });
+        Thread thread = new Thread(() -> FirebasePinService.getPinLikeCount(pin.getId(), getPinLikeCountCallback));
         thread.start();
     }
 
@@ -121,6 +127,82 @@ public class PinObjectFragment extends Fragment {
             e.printStackTrace();
         }
     };
+
+    void fetchRelevantPinsAsync() {
+        Thread thread = new Thread(() -> {
+            if (isOnLastPage || isLoading)
+                return;
+
+            Log.d("PinObjectFragment", "Fetching relevant pins");
+            isLoading = true;
+
+            // pretend to have an algorithm that fetch pins based on this board's content
+            // no way we can do this
+            // TODO: exclude blocked pins, authors...
+            try {
+                FirebasePinService.getPins(lastVisible, perPage, null, getRelevantPinsCallback);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
+    }
+
+    final FirebasePinService.GetPinServiceCallback getRelevantPinsCallback = new FirebasePinService.GetPinServiceCallback() {
+        @Override
+        public void OnSuccess(QuerySnapshot querySnapshot) {
+            List<Pin> newPins = new ArrayList<>();
+            List<DocumentSnapshot> documents = querySnapshot.getDocuments();
+
+            if (documents.isEmpty()) {
+                isOnLastPage = true;
+                isLoading = false;
+                return;
+            }
+
+            lastVisible = documents.get(documents.size() - 1);
+            Log.d("PinObjectFragmentLastVisible", lastVisible.getId());
+
+            for (DocumentSnapshot document :
+                    documents) {
+                Pin pin = new Pin()
+                        .setId(document.getId())
+                        .setAllowComment(Boolean.TRUE.equals(document.getBoolean("allowComment")))
+                        .setAuthorId(document.getString("authorId"))
+                        .setDescription(document.getString("description"))
+                        .setName(document.getString("name"))
+                        .setMediaUrl(document.getString("mediaUrl"))
+                        .setThumbnailUrl(document.getString("thumbnailUrl"))
+                        .setType(document.get("type", Pin.PinType.class));
+
+                Long createdAt = document.getLong("createdAt");
+                Integer likeCount = document.get("likeCount", Integer.class);
+                pin.setCreatedAt(createdAt != null ? createdAt : 0);
+                pin.setLikeCount(likeCount != null ? likeCount : 0);
+
+                newPins.add(pin);
+            }
+
+            handler.post(() -> addRelevantPins(newPins, true));
+        }
+
+        @Override
+        public void OnFailure(Exception e) {
+            e.printStackTrace();
+            isLoading = false;
+        }
+    };
+
+    void addRelevantPins(List<Pin> newPins, boolean append){
+        if (!append){
+            relevantPins.clear();
+        }
+        int startPos = relevantPins.size();
+        relevantPins.addAll(newPins);
+        relevantPinAdapter.notifyItemRangeInserted(startPos, newPins.size());
+
+        isLoading = false;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -173,8 +255,7 @@ public class PinObjectFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinObjectViewModel.class);
-        // TODO: make this async
-        initializeRelevantPins();
+        initRecyclerViewRelevantPins();
 
         binding.btnComment.setOnClickListener(v -> {
             if (pin != null) {
@@ -234,11 +315,6 @@ public class PinObjectFragment extends Fragment {
     };
 
     private void restoreStates() {
-        Parcelable scroll_state = viewModel.getScrollState();
-        if (scroll_state != null && binding.rvRelevant.getLayoutManager() != null) {
-            binding.rvRelevant.getLayoutManager().onRestoreInstanceState(scroll_state);
-        }
-
         Pin pin_state = viewModel.getPinState();
         if (pin_state != null) {
             pin = pin_state;
@@ -253,6 +329,19 @@ public class PinObjectFragment extends Fragment {
         if (authorState != null) {
             author = authorState;
         }
+
+        List<Pin> relevantPinState = viewModel.getRelevantPinState();
+        if (relevantPinState == null || relevantPinState.isEmpty()){
+            fetchRelevantPinsAsync();
+        }
+        else if (relevantPins.isEmpty()) {
+            addRelevantPins(relevantPinState, false);
+        }
+
+        Parcelable scroll_state = viewModel.getScrollState();
+        if (scroll_state != null && binding.rvRelevant.getLayoutManager() != null) {
+            binding.rvRelevant.getLayoutManager().onRestoreInstanceState(scroll_state);
+        }
     }
 
     @Override
@@ -264,10 +353,12 @@ public class PinObjectFragment extends Fragment {
         viewModel.setPinState(pin);
         viewModel.setSourceState(source);
         viewModel.setAuthorState(author);
+        viewModel.setRelevantPinState(relevantPins);
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        Log.d("PinObjectFragment", "On view state restored");
         super.onViewStateRestored(savedInstanceState);
         restoreStates();
 
@@ -282,8 +373,7 @@ public class PinObjectFragment extends Fragment {
         }
 
         if (pin == null) {
-            Toast.makeText(requireContext(), "COME, WATCH YOUR SCORE, DRIFT INTO A VIVID REALITY, BRING YOUR WHOLE WILL, READY YOURSELF, FOR ANDROID STUPIDITY", Toast.LENGTH_SHORT).show();
-            Log.d("pin-error", "pin at PinObjectFragment is null, whyyyyyyyyyyyyyyyyyyyyy?");
+            Log.d("PinObjectFragment", "pin is null, whyyyyyyyyyyyyyyyyyyyyy?");
         } else {
             RequestOptions options = new RequestOptions()
                     .placeholder(R.drawable.ic_loading)
@@ -321,17 +411,37 @@ public class PinObjectFragment extends Fragment {
         binding = null;
     }
 
-    private void initializeRelevantPins() {
-        PinListAdapter adapter = new PinListAdapter(Pin.testData, relevantPinClickListener);
-        adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
-        binding.rvRelevant.setAdapter(adapter);
+    private void initRecyclerViewRelevantPins() {
+        relevantPinAdapter = new PinListAdapter(relevantPins, relevantPinClickListener);
+        relevantPinAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
+        binding.rvRelevant.setAdapter(relevantPinAdapter);
 
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        binding.rvRelevant.setHasFixedSize(true);
         binding.rvRelevant.setLayoutManager(layoutManager);
+
+        binding.rvRelevant.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy <= 0 || isOnLastPage || isLoading)
+                    return;
+
+                int totalItemCount = layoutManager.getItemCount();
+                int[] firstVisibleItems = layoutManager.findFirstVisibleItemPositions(null);
+                int firstVisibleItem = firstVisibleItems.length > 0 ? firstVisibleItems[0] : 0;
+                int visibleItemCount = layoutManager.getChildCount();
+                final int threshold = 4;
+
+                if ((visibleItemCount + firstVisibleItem) >= totalItemCount - threshold) {
+                    Log.d("PinObjectFragment", "end of recyclerview reached, fetching more relevant pins");
+                    fetchRelevantPinsAsync();
+                }
+            }
+        });
     }
 
-    // TODO: add real relevant pins, else this will crash when navigating
     private final PinClickListener relevantPinClickListener = new PinClickListener() {
         @Override
         public void OnClick(int position, View v) {
@@ -339,9 +449,9 @@ public class PinObjectFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putInt("position", position);
             bundle.putString("source", source);
-//            bundle.putParcelableArrayList("pins", relevant_pins);  // use this when we have real relevant images
+            bundle.putParcelableArrayList("pins", new ArrayList<>(relevantPins));
 
-            int action = 0;
+            int action;
             if (Objects.equals(source, "home")) {
                 action = R.id.action_pinFragment_self;
             } else if (Objects.equals(source, "search")) {

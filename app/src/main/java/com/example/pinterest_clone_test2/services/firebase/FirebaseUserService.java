@@ -28,27 +28,6 @@ public abstract class FirebaseUserService {
                 });
     }
 
-    public static void getCurrentUserInfo(GetUserInfoCallback callback) {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        assert currentUser != null;
-
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection("users")
-                .whereEqualTo("userId", currentUser.getUid())
-                .limit(1)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
-                    callback.OnSuccess(documentSnapshot);
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.OnFailure(e);
-                    }
-                });
-    }
-
     public interface GetUserInfoCallback {
         void OnSuccess(DocumentSnapshot documentSnapshot);
 
