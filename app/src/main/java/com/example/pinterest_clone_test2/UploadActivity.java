@@ -8,41 +8,36 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.databinding.ActivityUploadBinding;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadImageDetailsFragment;
+import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class UploadActivity extends AppCompatActivity {
 
-    // TODO: hide these information
-    final String cloudName = "dyk7cgbch";
-    final String uploadPreset = "upload-test";
-    final String apiKey = "624956292586851";
-    final String apiSecret = "P48f-BnE4fLYgbx6DfCkOLGpr08";
-    private FirebaseFirestore firestore; // Firestore instance to save Pin data
-    private ActivityUploadBinding binding; // Activity binding
+    private FirebaseFirestore firestore;
+    private ActivityUploadBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityUploadBinding.inflate(getLayoutInflater()); // Inflate view binding
+        binding = ActivityUploadBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
-        // Initialize Cloudinary
-        initCloudinary();
 
-        // Open the UploadFragment when the activity is created
+        // Initialize Cloudinary
+        CloudinaryManager.initCloudinary(this);
+
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -51,31 +46,6 @@ public class UploadActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isMediaManagerInitialized() {
-        try {
-            MediaManager.get();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    // Initialize Cloudinary MediaManager
-    private void initCloudinary() {
-        Log.d("Cloudinary", "Initializing Cloudinary...");
-        Map<String, Object> config = new HashMap<>();
-        config.put("cloud_name", cloudName);
-        config.put("api_key", apiKey); // API key
-        config.put("api_secret", apiSecret); // API secret
-
-        // Initialize MediaManager only once in the application
-        if (!isMediaManagerInitialized()) {
-            MediaManager.init(this, config);
-            Log.d("Cloudinary", "Cloudinary initialized.");
-        }
-    }
-
-    // Method to navigate to UploadImageDetailsFragment and pass the imageUri
     public void showDetailFragment(Uri imageUri) {
         Log.d("Cloudinary", "Navigating to UploadImageDetailsFragment with imageUri: " + imageUri);
 
@@ -94,13 +64,14 @@ public class UploadActivity extends AppCompatActivity {
                 .commit();
     }
 
+    // Use CloudinaryManager to upload the image
     public void uploadImage(Uri imageUri, String title, String description) {
         Log.d("Cloudinary", "Attempting to upload image");
 
         if (imageUri != null) {
             Log.d("Cloudinary", "Image URI to upload: " + imageUri);
 
-            MediaManager.get().upload(imageUri).unsigned(uploadPreset).callback(new UploadCallback() {
+            CloudinaryManager.uploadImage(this, imageUri, title, description, new UploadCallback() {
                 @Override
                 public void onStart(String requestId) {
                     Log.d("Cloudinary Quickstart", "Upload start");
@@ -140,7 +111,7 @@ public class UploadActivity extends AppCompatActivity {
                 public void onReschedule(String requestId, ErrorInfo error) {
                     Log.d("Cloudinary Quickstart", "Upload rescheduled");
                 }
-            }).dispatch();
+            });
         } else {
             Log.d("Cloudinary", "No image selected");
             Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
@@ -155,7 +126,7 @@ public class UploadActivity extends AppCompatActivity {
         // Create a Pin object
         Pin pin = new Pin()
                 .setAuthorId(userId)
-                .setType(Pin.PinType.IMAGE)  // Assuming it's an image for now
+                .setType(Pin.PinType.IMAGE)
                 .setMediaUrl(imageUrl)
                 .setThumbnailUrl(thumbnailUrl)
                 .setName(title)
@@ -165,7 +136,6 @@ public class UploadActivity extends AppCompatActivity {
                 .setLikeCount(0)
                 .setCreatedAt(System.currentTimeMillis());
 
-        // Firestore will auto-generate the ID for the pin
         firestore.collection("pins")
                 .add(pin)
                 .addOnSuccessListener(documentReference ->
@@ -177,3 +147,4 @@ public class UploadActivity extends AppCompatActivity {
                 });
     }
 }
+
