@@ -138,12 +138,7 @@ public class PinObjectFragment extends Fragment {
 
             // pretend to have an algorithm that fetch pins based on this board's content
             // no way we can do this
-            // TODO: exclude blocked pins, authors...
-            try {
-                FirebasePinService.getPins(lastVisible, perPage, null, getRelevantPinsCallback);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            FirebasePinService.getPins(lastVisible, perPage, null, getRelevantPinsCallback);
         });
         thread.start();
     }
@@ -154,6 +149,31 @@ public class PinObjectFragment extends Fragment {
             List<Pin> newPins = new ArrayList<>();
             List<DocumentSnapshot> documents = querySnapshot.getDocuments();
 
+            // exclude blocked pins, authors...
+            DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+            if (currentUserDocument != null) {
+                List<String> blockedPins = null;
+                List<String> blockedUsers = null;
+
+                try {
+                    blockedPins = (List<String>) currentUserDocument.get("blockedPins");
+                    blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                } catch (Exception e) {
+                    // eat exception
+                }
+
+                if (blockedPins != null) {
+                    List<String> finalBlockedPins = blockedPins;
+                    documents.removeIf(doc -> finalBlockedPins.contains(doc.getId()));
+                }
+                if (blockedUsers != null) {
+                    List<String> finalBlockedUsers = blockedUsers;
+                    documents.removeIf(doc -> finalBlockedUsers.contains(doc.getString("authorId")));
+                }
+            } else {
+                Toast.makeText(requireContext(), getResources().getString(R.string.pin_filter_failure), Toast.LENGTH_SHORT).show();
+            }
+
             if (documents.isEmpty()) {
                 isOnLastPage = true;
                 isLoading = false;
@@ -163,17 +183,21 @@ public class PinObjectFragment extends Fragment {
             lastVisible = documents.get(documents.size() - 1);
             Log.d("PinObjectFragmentLastVisible", lastVisible.getId());
 
+            // create pins from documents
             for (DocumentSnapshot document :
                     documents) {
                 Pin pin = new Pin()
                         .setId(document.getId())
                         .setAllowComment(Boolean.TRUE.equals(document.getBoolean("allowComment")))
                         .setAuthorId(document.getString("authorId"))
-                        .setDescription(document.getString("description"))
-                        .setName(document.getString("name"))
                         .setMediaUrl(document.getString("mediaUrl"))
                         .setThumbnailUrl(document.getString("thumbnailUrl"))
                         .setType(document.get("type", Pin.PinType.class));
+
+                String description = document.getString("description");
+                String name = document.getString("name");
+                pin.setDescription(description != null ? description : "")
+                        .setName(name != null ? name : "");
 
                 Long createdAt = document.getLong("createdAt");
                 Integer likeCount = document.get("likeCount", Integer.class);

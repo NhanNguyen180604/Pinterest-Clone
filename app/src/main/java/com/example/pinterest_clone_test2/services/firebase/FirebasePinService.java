@@ -85,13 +85,10 @@ public abstract class FirebasePinService {
         // Thực hiện các truy vấn
         finalNameQuery.get().addOnSuccessListener(nameResults -> {
             finalDescriptionQuery.get().addOnSuccessListener(descriptionResults -> {
+                List<DocumentSnapshot> resultDocuments = tryFilterDocuments(nameResults, descriptionResults);
                 Map<String, DocumentSnapshot> uniqueResults = new HashMap<>();
 
-                for (DocumentSnapshot doc : nameResults.getDocuments()) {
-                    uniqueResults.put(doc.getId(), doc);
-                }
-
-                for (DocumentSnapshot doc : descriptionResults.getDocuments()) {
+                for (DocumentSnapshot doc : resultDocuments) {
                     uniqueResults.put(doc.getId(), doc);
                 }
 
@@ -131,6 +128,43 @@ public abstract class FirebasePinService {
                 callback.onSearchSuccess(pinResults, lastDoc);
             }).addOnFailureListener(callback::onSearchFailure);
         }).addOnFailureListener(callback::onSearchFailure);
+    }
+
+    @NonNull
+    private static List<DocumentSnapshot> tryFilterDocuments(QuerySnapshot nameResults, QuerySnapshot descriptionResults) {
+        List<DocumentSnapshot> nameDocuments = nameResults.getDocuments();
+        List<DocumentSnapshot> descriptionDocuments = descriptionResults.getDocuments();
+
+        List<DocumentSnapshot> resultDocuments = new ArrayList<>();
+        if (!nameDocuments.isEmpty()) {
+            resultDocuments.addAll(nameDocuments);
+        }
+        if (!descriptionDocuments.isEmpty()) {
+            resultDocuments.addAll(descriptionDocuments);
+        }
+
+        DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+        if (currentUserDocument != null) {
+            List<String> blockedPins = null;
+            List<String> blockedUsers = null;
+
+            try {
+                blockedPins = (List<String>) currentUserDocument.get("blockedPins");
+                blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+            } catch (Exception e) {
+                // eat exception
+            }
+
+            if (blockedPins != null) {
+                List<String> finalBlockedPins = blockedPins;
+                resultDocuments.removeIf(doc -> finalBlockedPins.contains(doc.getId()));
+            }
+            if (blockedUsers != null) {
+                List<String> finalBlockedUsers = blockedUsers;
+                resultDocuments.removeIf(doc -> finalBlockedUsers.contains(doc.getString("authorId")));
+            }
+        }
+        return resultDocuments;
     }
 
     public static void getPinLikeCount(@NonNull String pinId, GetPinLikeCountCallback callback) {

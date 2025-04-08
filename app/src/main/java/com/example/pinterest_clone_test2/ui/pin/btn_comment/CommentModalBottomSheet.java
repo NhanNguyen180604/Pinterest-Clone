@@ -25,8 +25,6 @@ import com.example.pinterest_clone_test2.services.firebase.FirebaseCommentServic
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
@@ -187,26 +185,18 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                     Toast.makeText(_context, getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
                 });
             };
-            FirebaseUserService.GetUserInfoCallback getUserInfoCallback = new FirebaseUserService.GetUserInfoCallback() {
-                @Override
-                public void OnSuccess(DocumentSnapshot documentSnapshot) {
-                    comment.setAuthorId(documentSnapshot.getString("userId"));
-                    comment.setAuthorName(documentSnapshot.getString("name"));
-                    comment.setAuthorAvatarUrl(documentSnapshot.getString("avatarUrl"));
-                    // upload to database
-                    FirebaseCommentService.uploadPinComment(comment, uploadCommentServiceCallback);
-                    handler.post(() -> addNewlyPostedComment(comment));
-                }
 
-                @Override
-                public void OnFailure(Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(_context, getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
-                }
-            };
-            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-            assert currentUser != null;
-            FirebaseUserService.getUserInfos(currentUser.getUid(), getUserInfoCallback);
+            DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+            if (currentUserDocument != null) {
+                comment.setAuthorId(currentUserDocument.getString("userId"));
+                comment.setAuthorName(currentUserDocument.getString("name"));
+                comment.setAuthorAvatarUrl(currentUserDocument.getString("avatarUrl"));
+                // upload to database
+                FirebaseCommentService.uploadPinComment(comment, uploadCommentServiceCallback);
+                handler.post(() -> addNewlyPostedComment(comment));
+            } else {
+                Toast.makeText(_context, getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
+            }
         });
         thread.start();
     }

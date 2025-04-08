@@ -114,4 +114,5 @@
     <string name="create_board_failure">Đã có lỗi khi tạo bảng</string>
     <string name="pin_save_to_board_template">Đã lưu ghim vào bảng %s</string>
     <string name="pin_save_to_board_failure_template">Đã có lỗi khi lưu ghim vào bảng %s</string>
+    <string name="pin_filter_failure">Đã có lỗi trong lúc lọc ghim</string>
 </resources>
