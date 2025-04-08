@@ -6,8 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.pinterest_clone_test2.models.Pin;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -60,7 +58,7 @@ public abstract class FirebasePinService {
 
         // Xây dựng truy vấn theo tên
         Query nameQuery = db.collection("pins")
-                .orderBy("name")
+                .orderBy("nameNormalized")
                 .startAt(searchQueryLower)
                 .endAt(searchQueryLower + "\\uf8ff");
 
@@ -73,7 +71,7 @@ public abstract class FirebasePinService {
 
         // Xây dựng truy vấn theo mô tả
         Query descriptionQuery = db.collection("pins")
-                .orderBy("description")
+                .orderBy("descriptionNormalized")
                 .startAt(searchQueryLower)
                 .endAt(searchQueryLower + "\\uf8ff");
 
@@ -106,11 +104,14 @@ public abstract class FirebasePinService {
                             .setId(doc.getId())
                             .setAllowComment(Boolean.TRUE.equals(doc.getBoolean("allowComment")))
                             .setAuthorId(doc.getString("authorId"))
-                            .setDescription(doc.getString("description"))
-                            .setName(doc.getString("name"))
                             .setMediaUrl(doc.getString("mediaUrl"))
                             .setThumbnailUrl(doc.getString("thumbnailUrl"))
                             .setType(doc.get("type", Pin.PinType.class));
+
+                    String description = doc.getString("description");
+                    String name = doc.getString("name");
+                    pin.setName(name != null ? name : "");
+                    pin.setDescription(description != null ? description : "");
 
                     Long createdAt = doc.getLong("createdAt");
                     Integer likeCount = doc.get("likeCount", Integer.class);
@@ -139,18 +140,8 @@ public abstract class FirebasePinService {
                 .whereEqualTo("type", "PIN")
                 .whereEqualTo("typeId", pinId)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        callback.OnSuccess(queryDocumentSnapshots);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.OnFailure(e);
-                    }
-                });
+                .addOnSuccessListener(callback::OnSuccess)
+                .addOnFailureListener(callback::OnFailure);
     }
 
     public static void updateLike(@NonNull String pinId, boolean isLiked, UpdateLikeCallback callback) {

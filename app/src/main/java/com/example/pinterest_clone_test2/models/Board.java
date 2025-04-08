@@ -84,37 +84,6 @@ public class Board implements Parcelable {
         return this;
     }
 
-    public static List<Board> seedData = new ArrayList<>(Arrays.asList(
-            new Board()
-                    .setId("board01")
-                    .setAuthorId("user01")
-                    .setName("Tuyu")
-                    .setDescription("Tuyu")
-                    .setPublic(true)
-                    .setPins(Pin.testData.subList(0, 4)),
-            new Board()
-                    .setId("board02")
-                    .setAuthorId("user02")
-                    .setName("Troll")
-                    .setDescription("tron tron")
-                    .setPublic(true)
-                    .setPins(Pin.testData.subList(2, 5)),
-            new Board()
-                    .setId("board03")
-                    .setAuthorId("user03")
-                    .setName("Who is Amanai")
-                    .setDescription("Why is Gojo apologizing")
-                    .setPublic(true)
-                    .setPins(Pin.testData.subList(3, 7)),
-            new Board()
-                    .setId("board04")
-                    .setAuthorId("user04")
-                    .setName("Lucilius")
-                    .setDescription("Father of all Primal Beasts")
-                    .setPublic(true)
-                    .setPins(Pin.testData.subList(0, 11))
-    ));
-
     public static List<Board> ideaBoardSeedData = new ArrayList<>(Arrays.asList(
             new Board()
                     .setId("seed-id")
