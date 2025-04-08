@@ -202,6 +202,9 @@ public class TabObjectFragment extends Fragment {
     }
 
     private void restoreScrollState() {
+        if (binding == null)
+            return;
+
         Parcelable scroll_state = viewModel.getScrollState();
         if (scroll_state != null && binding.homePagerRecyclerView.getLayoutManager() != null) {
             binding.homePagerRecyclerView.getLayoutManager().onRestoreInstanceState(scroll_state);
