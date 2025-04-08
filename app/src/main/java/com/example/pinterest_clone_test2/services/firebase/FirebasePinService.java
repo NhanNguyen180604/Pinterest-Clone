@@ -49,18 +49,8 @@ public abstract class FirebasePinService {
 
         query.limit(perPage)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        callback.OnSuccess(queryDocumentSnapshots);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.OnFailure(e);
-                    }
-                });
+                .addOnSuccessListener(callback::OnSuccess)
+                .addOnFailureListener(callback::OnFailure);
     }
 
     public static void searchPins(@NonNull String searchQuery, @Nullable DocumentSnapshot lastVisible, int perPage, @NonNull SearchPinServiceCallback callback) {

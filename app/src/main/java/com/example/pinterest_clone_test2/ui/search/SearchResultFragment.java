@@ -293,6 +293,7 @@ public class SearchResultFragment extends Fragment {
 
         thread.start();
     }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -332,6 +333,4 @@ public class SearchResultFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
-    
 }
