@@ -45,13 +45,13 @@ public class AccountFragment extends Fragment {
         new TabLayoutMediator(binding.tabLayout, binding.accountPager, (tab, position) -> {
             switch (position) {
                 case 0:
-                    tab.setText("Pins");
+                    tab.setText(getResources().getString(R.string.pins));
                     break;
                 case 1:
-                    tab.setText("Boards");
+                    tab.setText(getResources().getString(R.string.boards));
                     break;
                 case 2:
-                    tab.setText("Collages");
+                    tab.setText(getResources().getString(R.string.collages));
                     break;
             }
         }).attach();
