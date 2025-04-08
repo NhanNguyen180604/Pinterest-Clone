@@ -49,6 +49,7 @@ public class SearchResultFragment extends Fragment {
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private DocumentSnapshot lastVisible = null;
+    long lastSubmitTime = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -109,64 +110,6 @@ public class SearchResultFragment extends Fragment {
             resetSearchState();
             performSearch();
         }
-//        binding.svSearchBar.post(() -> {
-//            binding.svSearchBar.setQuery("", false);
-//            binding.svSearchBar.setQuery(query, false);
-//        });
-//
-//        binding.svSearchBar.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                binding.btnSearchCancel.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
-//            }
-//        });
-//
-//        binding.btnSearchCancel.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                binding.svSearchBar.setQuery("", false);
-//                binding.svSearchBar.clearFocus();
-//            }
-//        });
-//
-//        binding.svSearchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
-//                Bundle args = new Bundle();
-//                args.putString("query", query);
-//                navController.navigate(
-//                        R.id.action_searchResultFragment_self,
-//                        args,
-//                        null,
-//                        null
-//                );
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                Log.d("test", newText);
-//                return false;
-//            }
-//        });
-//
-//        binding.backBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
-//                navController.navigateUp();
-//            }
-//        });
-//
-//        PinListAdapter adapter = new PinListAdapter(pins, pinClickListener);
-//        adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
-//        binding.rvSearchResult.setAdapter(adapter);
-//
-//        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-//        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-//        binding.rvSearchResult.setHasFixedSize(true);
-//        binding.rvSearchResult.setLayoutManager(layoutManager);
     }
 
     private void setupSearchUI() {
@@ -214,10 +157,15 @@ public class SearchResultFragment extends Fragment {
     }
 
     private void performSearch() {
+        long now = System.currentTimeMillis();
+        if (now - lastSubmitTime < 1000)
+            return;
+
         if (query == null || query.isEmpty() || isLoading || isLastPage) {
             return;
         }
 
+        lastSubmitTime = now;
         isLoading = true;
 
         // Hiển thị progress bar

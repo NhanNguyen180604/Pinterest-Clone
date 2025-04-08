@@ -18,8 +18,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.checkerframework.checker.units.qual.N;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,9 +94,7 @@ public abstract class FirebasePinService {
                 }
 
                 for (DocumentSnapshot doc : descriptionResults.getDocuments()) {
-                    if (!uniqueResults.containsKey(doc.getId())) {
-                        uniqueResults.put(doc.getId(), doc);
-                    }
+                    uniqueResults.put(doc.getId(), doc);
                 }
 
                 // Chuyển đổi DocumentSnapshot thành đối tượng Pin
@@ -204,6 +200,7 @@ public abstract class FirebasePinService {
                     });
         }
     }
+
     public interface GetPinServiceCallback {
         void OnSuccess(QuerySnapshot querySnapshot);
 
@@ -223,6 +220,7 @@ public abstract class FirebasePinService {
 
     public interface SearchPinServiceCallback {
         void onSearchSuccess(List<Pin> results, DocumentSnapshot lastVisible);
+
         void onSearchFailure(Exception e);
     }
 }
