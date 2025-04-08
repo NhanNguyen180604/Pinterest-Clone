@@ -82,6 +82,18 @@ public abstract class FirebaseUserService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
+    public static void blockUser(@NonNull String userId, HidePinCallback callback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("users")
+                .document(currentUser.getUid())
+                .update("blockedUsers", FieldValue.arrayUnion(userId))
+                .addOnSuccessListener(unused -> callback.OnSuccess())
+                .addOnFailureListener(callback::OnFailure);
+    }
+
     public interface GetUserInfoCallback {
         void OnSuccess(DocumentSnapshot documentSnapshot);
 

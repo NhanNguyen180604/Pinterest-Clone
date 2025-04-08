@@ -149,7 +149,7 @@ public abstract class FirebaseCommentService {
             List<String> blockedUsers = null;
 
             try {
-                blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
             } catch (Exception e) {
                 // eat exception
             }

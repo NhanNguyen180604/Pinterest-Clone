@@ -77,7 +77,6 @@ public class PinListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Log.d("PinListAdapter", "Creating view holder");
         if (viewType != VIEW_TYPE_VIDEO) {
             return new PinImageViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.pin_image_view_holder, parent, false));
         }
@@ -97,8 +96,6 @@ public class PinListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Log.d("PinListAdapter", "Binding view holder");
-
         Pin pin = pins.get(position);
 
         RequestOptions options = new RequestOptions()
