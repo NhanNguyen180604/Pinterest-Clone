@@ -108,4 +108,10 @@
     <string name="search_not_found">Không tìm thấy kết quả nào</string>
     <string name="report_success">Đã gửi báo cáo thành công</string>
     <string name="report_failure">Đã có lỗi khi gửi báo cáo</string>
+    <string name="save_pin_to_profile_sucess">Đã lưu ghim về trang cá nhân thành công</string>
+    <string name="save_pin_to_profile_failure">Đã có lỗi khi lưu ghim về trang cá nhân</string>
+    <string name="create_board_success">Đã tạo bảng thành công</string>
+    <string name="create_board_failure">Đã có lỗi khi tạo bảng</string>
+    <string name="pin_save_to_board_template">Đã lưu ghim vào bảng %s</string>
+    <string name="pin_save_to_board_failure_template">Đã có lỗi khi lưu ghim vào bảng %s</string>
 </resources>

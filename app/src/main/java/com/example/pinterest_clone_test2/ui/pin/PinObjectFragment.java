@@ -30,13 +30,14 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.pinterest_clone_test2.CreateBoardActivity;
+import com.example.pinterest_clone_test2.ChooseBoardActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
@@ -48,7 +49,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class PinObjectFragment extends Fragment {
@@ -58,7 +58,7 @@ public class PinObjectFragment extends Fragment {
     FragmentPinObjectBinding binding;
     String source;
     Handler handler = new Handler();
-    ActivityResultLauncher<Intent> createBoardActivityLauncher;
+    ActivityResultLauncher<Intent> chooseBoardActivityLauncher;
 
     final int perPage = 20;
     boolean isOnLastPage = false;
@@ -207,34 +207,60 @@ public class PinObjectFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        createBoardActivityLauncher = registerForActivityResult(
+        chooseBoardActivityLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent data = result.getData();
-                        if (data != null && data.getBooleanExtra("added", false)) {
-                            //TODO: send new board information and pin to database
-                            if (data.getBooleanExtra("profile", false)) {
-                                //TODO: save pin to profile
-                                Toast.makeText(requireContext(), "Saving pin to your profile", Toast.LENGTH_SHORT).show();
-                            } else {
-                                //TODO: save pin to board
-                                String boardName = data.getStringExtra("boardName");
-                                boolean isPrivate = data.getBooleanExtra("isPrivate", false);
-                                boolean isNew = data.getBooleanExtra("isNew", false);
+                        if (data == null) {
+                            return;
+                        }
 
-                                Toast.makeText(
-                                        requireContext(),
-                                        String.format(Locale.US, "Saving to board: %s, is private: %b, is new: %b", boardName, isPrivate, isNew),
-                                        Toast.LENGTH_SHORT
-                                ).show();
-
-                                String boardId;
-                                if (!isNew) {
-                                    boardId = data.getStringExtra("boardId");
-                                    Toast.makeText(requireContext(), "Board id to insert: " + boardId, Toast.LENGTH_SHORT).show();
+                        if (data.getBooleanExtra("profile", false)) {
+                            FirebaseUserService.savePinToProfile(pin.getId(), new FirebaseUserService.SavePinToProfileCallback() {
+                                @Override
+                                public void OnSuccess() {
+                                    Toast.makeText(requireContext(), getResources().getString(R.string.save_pin_to_profile_sucess), Toast.LENGTH_SHORT).show();
                                 }
-                            }
+
+                                @Override
+                                public void OnFailure(Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(requireContext(), getResources().getString(R.string.save_pin_to_profile_failure), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            return;
+                        }
+
+                        // idk if this gonna happen or not, just to make sure
+                        if (pin == null) {
+                            Toast.makeText(requireContext(), "Give praise, for android has no equal", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        String boardName = data.getStringExtra("boardName");
+                        String boardId = data.getStringExtra("boardId");
+                        if (boardId != null && boardName != null) {
+                            FirebaseBoardService.savePinToBoard(pin.getId(), boardId, new FirebaseBoardService.SavePinToBoardServiceCallback() {
+                                @Override
+                                public void OnSuccess() {
+                                    Toast.makeText(
+                                            requireContext(),
+                                            String.format(getResources().getString(R.string.pin_save_to_board_template), boardName),
+                                            Toast.LENGTH_SHORT
+                                    ).show();
+                                }
+
+                                @Override
+                                public void OnFailure(Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(
+                                            requireContext(),
+                                            String.format(getResources().getString(R.string.pin_save_to_board_failure_template), boardName),
+                                            Toast.LENGTH_SHORT
+                                    ).show();
+                                }
+                            });
                         }
                     }
                 }
@@ -294,9 +320,10 @@ public class PinObjectFragment extends Fragment {
 
         binding.btnSave.setOnClickListener(v -> {
             if (pin != null) {
-                Intent intent = new Intent(requireActivity(), CreateBoardActivity.class);
+                Intent intent = new Intent(requireActivity(), ChooseBoardActivity.class);
                 intent.putExtra("pin", pin);
-                createBoardActivityLauncher.launch(intent);
+                intent.putExtra("suggestNewBoard", true);
+                chooseBoardActivityLauncher.launch(intent);
             } else {
                 Toast.makeText(requireContext(), "Pin is null, i regret studying this major", Toast.LENGTH_SHORT).show();
             }
