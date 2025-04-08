@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">pinterest_clone_test2</string>
     <string name="title_home">Home</string>
     <string name="title_search">Search</string>
+    <string name="title_upload">Upload</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_pin">Pin</string>
     <string name="title_account">Account</string>
@@ -10,6 +10,7 @@
     <string name="tv_author_default">Author</string>
     <string name="tv_title_default">Title</string>
     <string name="tv_description_default">Description</string>
+    <string name="plusSettings">Advanced settings</string>
     <string name="back_text">Previous</string>
     <string name="back_description">Return to previous step</string>
     <string name="next_text">Next</string>
@@ -82,4 +83,40 @@
     <string name="back_button">Back</string>
     <string name="submit_report">Send report</string>
     <string name="search_query_hint">Search Pinterest</string>
+    <string name="desc_image_view">Choose image to display</string>
+    <string name="desc_close">Close window</string>
+    <string name="desc_open_camera">Take a photo</string>
+    <string name="desc_open_library">Open your gallery</string>
+    <string name="fetch_user_failure">Failed to get your account information</string>
+    <string name="bottomsheet_drag_handle_clicked">Your value here</string>
+    <string name="desc_add_url">Add image path</string>
+    <string name="next">Next</string>
+    <string name="selectedImage">Chosen image</string>
+    <string name="deleteImage">Delete image</string>
+    <string name="create_ghim">Create pin</string>
+    <string name="TitleInput">What does your pin convey?</string>
+    <string name="descriptionView">Description</string>
+    <string name="titleView">Title</string>
+    <string name="descriptionInput">Add description, mentions or hashtag to your Pin</string>
+    <string name="linkView">Link</string>
+    <string name="linkInput">Add your link here</string>
+    <string name="chooseBoardView">Choose a board</string>
+    <string name="addCategory">Add tag</string>
+    <string name="all">All</string>
+    <string name="pin_reaction_bug">Failed to react to this Pin</string>
+    <string name="pin_comment_reaction_bug">Failed to react to this Comment</string>
+    <string name="create_pin_comment_failed">Failed to post the Comment</string>
+    <string name="search_not_found">Found no result</string>
+    <string name="report_success">Report sent successfully</string>
+    <string name="report_failure">Failed to send the Report</string>
+    <string name="save_pin_to_profile_sucess">Pin saved to your Profile</string>
+    <string name="save_pin_to_profile_failure">Failed to save pin to your Profile</string>
+    <string name="create_board_success">Board created successfully</string>
+    <string name="create_board_failure">Failed to create Board</string>
+    <string name="pin_save_to_board_template">Pin saved to board %s</string>
+    <string name="pin_save_to_board_failure_template">Failed to save Pin to board %s</string>
+    <string name="pin_filter_failure">Failed to filter Pin</string>
+    <string name="pin_hide_failure">Failed to hide Pin</string>
+    <string name="user_blocked_success">User blocked successfully</string>
+    <string name="user_blocked_failure">Failed to block the User</string>
 </resources>

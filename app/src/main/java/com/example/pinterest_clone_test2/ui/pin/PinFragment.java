@@ -22,15 +22,14 @@ public class PinFragment extends Fragment {
     int initial_position;
     String source;
 
-    public PinFragment(){
+    public PinFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-//            pins = getArguments().getParcelableArrayList("pins");  // will use this when we have a backend server
-            pins = Pin.testData;
+            pins = getArguments().getParcelableArrayList("pins");
             initial_position = getArguments().getInt("position");
             source = getArguments().getString("source");
         }
@@ -43,7 +42,6 @@ public class PinFragment extends Fragment {
         binding = FragmentPinBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

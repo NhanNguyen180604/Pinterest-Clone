@@ -10,7 +10,10 @@
         android:id="@+id/nav_search_tab"
         android:icon="@drawable/ic_search"
         android:title="@string/title_search" />
-
+    <item
+        android:id="@+id/nav_upload_tab"
+        android:icon="@drawable/ic_add"
+        android:title="@string/title_upload" />
 <!--    <item-->
 <!--        android:id="@+id/nav_notifications_tab"-->
 <!--        android:icon="@drawable/ic_notifications"-->

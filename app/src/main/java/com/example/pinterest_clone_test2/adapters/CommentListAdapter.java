@@ -1,6 +1,5 @@
 package com.example.pinterest_clone_test2.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -35,9 +34,17 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     .placeholder(R.drawable.ic_loading)
                     .error(R.drawable.turtle_huh);
 
-            if (comment.getAttachmentUrl() != null) {
+            if (comment.getAuthorAvatarUrl() != null) {
+                Glide.with(_binding.ivAvatar.getContext())
+                        .load(comment.getAuthorAvatarUrl())
+                        .fitCenter()
+                        .apply(options)
+                        .into(_binding.ivAvatar);
+            }
+
+            if (comment.getAttachmentThumbnailUrl() != null) {
                 Glide.with(_binding.ivAttachment.getContext())
-                        .load(comment.getAttachmentUrl())
+                        .load(comment.getAttachmentThumbnailUrl())
                         .fitCenter()
                         .apply(options)
                         .into(_binding.ivAttachment);
@@ -70,9 +77,17 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     .placeholder(R.drawable.ic_loading)
                     .error(R.drawable.turtle_huh);
 
-            if (comment.getAttachmentUrl() != null) {
+            if (comment.getAuthorAvatarUrl() != null) {
+                Glide.with(_binding.ivAvatar.getContext())
+                        .load(comment.getAuthorAvatarUrl())
+                        .fitCenter()
+                        .apply(options)
+                        .into(_binding.ivAvatar);
+            }
+
+            if (comment.getAttachmentThumbnailUrl() != null) {
                 Glide.with(_binding.ivAttachment.getContext())
-                        .load(comment.getAttachmentUrl())
+                        .load(comment.getAttachmentThumbnailUrl())
                         .fitCenter()
                         .apply(options)
                         .into(_binding.ivAttachment);
@@ -99,7 +114,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     final static int VIEW_NORMAL = 1;
     final static int VIEW_REPLYING = 2;
 
-    public CommentListAdapter(List<Comment> comments, Context context) {
+    public CommentListAdapter(List<Comment> comments) {
         _comments = comments;
     }
 

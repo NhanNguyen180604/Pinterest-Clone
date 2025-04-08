@@ -22,6 +22,7 @@ import com.example.pinterest_clone_test2.interfaces.SearchIdeaClickListener;
 
 public class SearchFragment extends Fragment {
     private FragmentSearchBinding binding;
+    long lastSubmitTime = 0;
 
     public SearchFragment(){
     }
@@ -45,26 +46,24 @@ public class SearchFragment extends Fragment {
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 1);
         binding.rvIdeas.setLayoutManager(layoutManager);
 
-        binding.btnSearchCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                binding.svSearchBar.setQuery("", false);
-                binding.svSearchBar.clearFocus();
-            }
+        binding.btnSearchCancel.setOnClickListener(v -> {
+            binding.svSearchBar.setQuery("", false);
+            binding.svSearchBar.clearFocus();
         });
 
-        binding.svSearchBar.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                binding.btnSearchCancel.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
-            }
-        });
+        binding.svSearchBar.setOnQueryTextFocusChangeListener((v, hasFocus) -> binding.btnSearchCancel.setVisibility(hasFocus ? View.VISIBLE : View.GONE));
 
         binding.svSearchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                long now = System.currentTimeMillis();
+                if (now - lastSubmitTime < 1000){
+                    return false;
+                }
+
                 navigateToSearchResult(query);
-                return false;
+                lastSubmitTime = now;
+                return true;
             }
 
             @Override
@@ -75,12 +74,7 @@ public class SearchFragment extends Fragment {
         });
     }
 
-    private final SearchIdeaClickListener searchIdeaClickListener = new SearchIdeaClickListener() {
-        @Override
-        public void OnClick(String query) {
-            navigateToSearchResult(query);
-        }
-    };
+    private final SearchIdeaClickListener searchIdeaClickListener = this::navigateToSearchResult;
 
     private void navigateToSearchResult(String query) {
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);

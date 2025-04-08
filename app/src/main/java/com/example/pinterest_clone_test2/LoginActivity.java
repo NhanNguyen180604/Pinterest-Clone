@@ -2,6 +2,7 @@ package com.example.pinterest_clone_test2;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -122,6 +123,7 @@ public class LoginActivity extends AppCompatActivity {
                     // initialize user info
                     Map<String, Object> userInfos = new HashMap<>();
                     userInfos.put("userId", firebaseUser.getUid());
+                    userInfos.put("name", user.getFirstName());
                     userInfos.put("email", firebaseUser.getEmail());
                     userInfos.put("role", "User");
                     userInfos.put("gender", user.getGender().name());
@@ -137,10 +139,29 @@ public class LoginActivity extends AppCompatActivity {
                     userInfos.put("blockedCollages", new ArrayList<String>());
                     userInfos.put("website", "");
 
-                    Task<DocumentReference> updateUserInfoTask = db.collection("users")
-                            .add(userInfos);
+//                    Task<DocumentReference> updateUserInfoTask = db.collection("users")
+//                            .add(userInfos);
 
-                    Tasks.whenAllSuccess(updateProfileTask, updateUserInfoTask)
+
+//                    Task<Void> updateUserInfoTask = db.collection("users")
+//                            .document(firebaseUser.getUid())
+//                            .set(userInfos);
+//
+//                    Tasks.whenAllSuccess(updateProfileTask, updateUserInfoTask)
+//                            .addOnSuccessListener(objects -> {
+//                                Log.d("firebase-cloud-firestore", "User profile updated & Firestore data added successfully");
+//
+//                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                                startActivity(intent);
+//                                finish();
+//                            })
+//                            .addOnFailureListener(e -> {
+//                                Log.e("firebase-cloud-firestore", "Error initializing user data", e);
+//                                Toast.makeText(LoginActivity.this, "Lỗi khi khởi tạo thông tin người dùng", Toast.LENGTH_SHORT).show();
+//                            });
+                    new Handler().postDelayed(() -> db.collection("users")
+                            .document(firebaseUser.getUid())
+                            .set(userInfos)
                             .addOnSuccessListener(objects -> {
                                 Log.d("firebase-cloud-firestore", "User profile updated & Firestore data added successfully");
 
@@ -151,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
                             .addOnFailureListener(e -> {
                                 Log.e("firebase-cloud-firestore", "Error initializing user data", e);
                                 Toast.makeText(LoginActivity.this, "Lỗi khi khởi tạo thông tin người dùng", Toast.LENGTH_SHORT).show();
-                            });
+                            }), 1000);
                 })
                 .addOnFailureListener(this, e -> {
                     Toast.makeText(LoginActivity.this, "Đã có lỗi trong lúc đăng kí", Toast.LENGTH_SHORT).show();

@@ -1,0 +1,24 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="100dp"
+    android:layout_height="100dp"
+    android:layout_gravity="center"
+    android:elevation="4dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:padding="1dp"
+        android:background="@android:color/black">
+
+        <ImageView
+            android:id="@+id/imageItemView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:maxWidth="100dp"
+            android:maxHeight="100dp"
+            android:minWidth="100dp"
+            android:minHeight="100dp" />
+    </FrameLayout>
+</androidx.cardview.widget.CardView>

@@ -2,6 +2,7 @@
     <string name="app_name" translatable="false">pinterest_clone_test2</string>
     <string name="title_home">Trang chủ</string>
     <string name="title_search">Tìm kiếm</string>
+    <string name="title_upload">Đăng</string>
     <string name="title_notifications">Thông báo</string>
     <string name="title_pin">Ghim</string>
     <string name="title_account">Tài khoản</string>
@@ -9,6 +10,26 @@
     <string name="tv_author_default">Tác giả</string>
     <string name="tv_title_default">Tiêu đề</string>
     <string name="tv_description_default">Mô tả</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="tv_relevant_images">Những ghim tương tự</string>
+    <string name="desc_image_view">Chọn ảnh để hiển thị </string>
+    <string name="desc_close">Đóng cửa sổ</string>
+    <string name="desc_open_camera">Chụp ảnh</string>
+    <string name="desc_open_library">Mở thư viện ảnh</string>
+    <string name="desc_add_url">Thêm đường dẫn ảnh</string>
+    <string name="next">Tiếp theo</string>
+    <string name="selectedImage">Ảnh đã chọn</string>
+    <string name="deleteImage">Xoá ảnh</string>
+    <string name="create_ghim">Tạo Ghim</string>
+    <string name="TitleInput">Cho mọi người biết Ghim của bạn giới thiệu điều gì</string>
+    <string name="descriptionView">Mô tả</string>
+    <string name="titleView">Tiêu đề</string>
+    <string name="descriptionInput">Thêm mô tả, đề cập hoặc hashtag vào Ghim của bạn.</string>
+    <string name="linkView">Liên kết</string>
+    <string name="linkInput">Thêm liên kết của bạn ở đây</string>
+    <string name="chooseBoardView">Chọn một bảng</string>
+    <string name="addCategory">Gắn thẻ chủ đề</string>
+    <string name="plusSettings">Cài đặt nâng cao</string>
     <string name="back_text">Quay về</string>
     <string name="back_description">Quay về bước trước đó</string>
     <string name="next_text">Tiếp theo</string>
@@ -33,8 +54,6 @@
     <string name="email_hint">Địa chỉ email</string>
     <string name="forgot_password_text">Quên mật khẩu?</string>
     <string name="slogan_message">Tạo ra cuộc sống bạn yêu thích trên Pinterest</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="tv_relevant_images">Khám phá các ghim tương tự</string>
     <string name="comment_hint">Đăng bình luận mới</string>
     <string name="pin_comment_title">Hiển thị 0 bình luận</string>
     <string name="comment_options_modal_title">Lựa chọn</string>
@@ -46,7 +65,7 @@
     <string name="block_user_option">Chặn người dùng</string>
     <string name="close_string">Đóng</string>
     <string name="reply_option">Phản hồi</string>
-    <string name="comment_timestamp_placeholder">1y</string>
+    <string name="comment_timestamp_placeholder">1 năm</string>
     <string name="comment_count_template">Đang hiện %d bình luận</string>
     <string name="reaction_count_template">%d lượt thích</string>
     <string name="btn_save">Lưu</string>
@@ -69,7 +88,7 @@
     <string name="make_this_board_secret">Bật chế độ riêng tư cho bảng này</string>
     <string name="board_privacy_description">Chỉ có bạn và những người cộng tác mới có thể xem được bảng này</string>
     <string name="title_activity_admin">Trang admin</string>
-    <string name="title_dashboard">Dashboard</string>
+    <string name="title_dashboard">Tổng quan</string>
     <string name="tab_manage_user">Người dùng</string>
     <string name="tab_manage_comment">Bình luận</string>
     <string name="tab_manage_pin">Ghim</string>
@@ -81,4 +100,23 @@
     <string name="back_button">Nút quay về</string>
     <string name="submit_report">Gửi báo cáo</string>
     <string name="search_query_hint">Tìm kiếm trên Pinterest</string>
+    <string name="all">Tất cả</string>
+    <string name="pin_reaction_bug">Đã có lỗi xảy ra khi thả tim/hủy tim với ghim này</string>
+    <string name="pin_comment_reaction_bug">Đã có lỗi xảy ra khi thả tim/hủy tim với bình luận này</string>
+    <string name="create_pin_comment_failed">Đã có lỗi trong lúc đăng bình luận</string>
+    <string name="search_not_found">Không tìm thấy kết quả nào</string>
+    <string name="report_success">Đã gửi báo cáo thành công</string>
+    <string name="report_failure">Đã có lỗi khi gửi báo cáo</string>
+    <string name="save_pin_to_profile_sucess">Đã lưu ghim về trang cá nhân thành công</string>
+    <string name="save_pin_to_profile_failure">Đã có lỗi khi lưu ghim về trang cá nhân</string>
+    <string name="create_board_success">Đã tạo bảng thành công</string>
+    <string name="create_board_failure">Đã có lỗi khi tạo bảng</string>
+    <string name="pin_save_to_board_template">Đã lưu ghim vào bảng %s</string>
+    <string name="pin_save_to_board_failure_template">Đã có lỗi khi lưu ghim vào bảng %s</string>
+    <string name="pin_filter_failure">Đã có lỗi trong lúc lọc ghim</string>
+    <string name="pin_hide_failure">Đã có lỗi khi ẩn ghim</string>
+    <string name="user_blocked_success">Chặn người dùng thành công</string>
+    <string name="user_blocked_failure">Đã có lỗi khi chặn người dùng</string>
+    <string name="fetch_user_failure">Đã có lỗi khi lấy thông tin cá nhân</string>
+    <string name="bottomsheet_drag_handle_clicked">Giá trị bạn nhập</string>
 </resources>

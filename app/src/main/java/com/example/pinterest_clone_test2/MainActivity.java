@@ -2,6 +2,7 @@ package com.example.pinterest_clone_test2;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +11,9 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.pinterest_clone_test2.databinding.ActivityMainBinding;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
+import com.example.pinterest_clone_test2.ui.upload.UploadDialogFragment;
+import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -24,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
-//        auth.signOut();
         FirebaseUser user = auth.getCurrentUser();
         if (user == null) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -33,11 +36,27 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        FirebaseUserService.initUserDocument();
+
+        // Initialize Cloudinary
+        CloudinaryManager.initCloudinary(this);
+
         Toast.makeText(this, "Xin chào " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
 
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-
+        // delay to fetch current user and init cloudinary, pray that this works
+        new Handler().postDelayed(() -> {
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+            binding.navView.setOnItemSelectedListener(item -> {
+                if (item.getItemId() == R.id.nav_upload_tab) {
+                    UploadDialogFragment dialog = new UploadDialogFragment();
+                    dialog.show(getSupportFragmentManager(), "UploadDialog");
+                    return false;
+                } else {
+                    NavigationUI.onNavDestinationSelected(item, navController);
+                    return true;
+                }
+            });
+        }, 1000);
     }
 
     @Override

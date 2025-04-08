@@ -20,9 +20,11 @@ public class UserCommentModel extends BaseObservable {
     private String _replyToId;
     private String _replyToName;
     private final Context _context;
+    final String _pinId;
 
-    public UserCommentModel(Context context) {
+    public UserCommentModel(Context context, String pinId) {
         _context = context;
+        _pinId = pinId;
     }
 
     @Bindable
@@ -128,11 +130,8 @@ public class UserCommentModel extends BaseObservable {
     }
 
     public Comment createComment() {
-        // TODO: put user info here
         return (new Comment(_context))
-                .setId("default-id")
-                .setAuthorId("default-user-id")
-                .setAuthorName("NhanNguyen")
+                .setPinId(_pinId)
                 .setContent(_content)
                 .setReplyCommentId(_replyToId)
                 .setLikeCount(0)
