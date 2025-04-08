@@ -8,10 +8,13 @@ import androidx.lifecycle.ViewModel;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
 
+import java.util.List;
+
 public class PinObjectViewModel extends ViewModel {
     private final SavedStateHandle _savedStateHandle;
     public static String SCROLL_STATE_KEY = "scroll_state";
     public static String PIN_STATE_KEY = "pin_state";
+    public static String RELEVANT_PIN_STATE_KEY = "relevant_pin_state";
     public static String AUTHOR_STATE_KEY = "author_state";
     public static String SOURCE_STATE_KEY = "source_state";
 
@@ -49,5 +52,13 @@ public class PinObjectViewModel extends ViewModel {
 
     public void setAuthorState(User authorState) {
         _savedStateHandle.set(AUTHOR_STATE_KEY, authorState);
+    }
+
+    public List<Pin> getRelevantPinState() {
+        return _savedStateHandle.get(RELEVANT_PIN_STATE_KEY);
+    }
+
+    public void setRelevantPinState(List<Pin> relevantPinState) {
+        _savedStateHandle.set(RELEVANT_PIN_STATE_KEY, relevantPinState);
     }
 }

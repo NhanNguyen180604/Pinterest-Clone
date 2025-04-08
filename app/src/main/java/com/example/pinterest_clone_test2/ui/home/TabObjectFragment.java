@@ -100,10 +100,10 @@ public class TabObjectFragment extends Fragment {
 
     void fetchPinsAsync() {
         Thread thread = new Thread(() -> {
-            Log.d("HomeTab", "Fetching pins");
             if (isOnLastPage || isLoading)
                 return;
 
+            Log.d("HomeTab", "Fetching pins");
             isLoading = true;
 
             // pretend to have an algorithm that fetch pins based on this board's content
@@ -163,17 +163,14 @@ public class TabObjectFragment extends Fragment {
     };
 
     void updateUI(List<Pin> newPins, boolean append) {
-        if (append) {
-            int startPos = pins.size();
-            pins.addAll(newPins);
-            adapter.notifyItemRangeInserted(startPos, newPins.size());
-        } else {
-            pins = newPins;
-            adapter.notifyDataSetChanged();
+        if (!append){
+            pins.clear();
         }
+        int startPos = pins.size();
+        pins.addAll(newPins);
+        adapter.notifyItemRangeInserted(startPos, newPins.size());
 
         isLoading = false;
-
         restoreScrollState();
     }
 
