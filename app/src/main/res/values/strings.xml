@@ -118,4 +118,5 @@
     <string name="pin_hide_failure">Đã có lỗi khi ẩn ghim</string>
     <string name="user_blocked_success">Chặn người dùng thành công</string>
     <string name="user_blocked_failure">Đã có lỗi khi chặn người dùng</string>
+    <string name="fetch_user_failure">Đã có lỗi khi lấy thông tin cá nhân</string>
 </resources>
