@@ -318,7 +318,7 @@ public class PinObjectFragment extends Fragment {
 
         binding.btnMore.setOnClickListener(v -> {
             if (pin != null) {
-                PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, requireContext(), downloadPinMediaCallback);
+                PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, requireContext(), downloadPinMediaCallback, hidePinCallback);
                 sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
             } else {
                 Toast.makeText(requireContext(), "Pin is null, end my suffering", Toast.LENGTH_SHORT).show();
@@ -429,6 +429,33 @@ public class PinObjectFragment extends Fragment {
                     .placeholder(R.drawable.ic_loading)
                     .error(R.drawable.turtle_huh);
 
+            if (pin.getType() == Pin.PinType.VIDEO) {
+                binding.ivImage.setVisibility(View.GONE);
+                binding.videoView.setVisibility(View.VISIBLE);
+            } else {
+                binding.ivImage.setVisibility(View.VISIBLE);
+                binding.videoView.setVisibility(View.GONE);
+            }
+
+            // handle blocked pin case when user navigate up
+            DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+            if (currentUserDocument != null) {
+                List<String> blockedPins = null;
+                List<String> blockedUsers = null;
+
+                try {
+                    blockedPins = (List<String>) currentUserDocument.get("blockedPins");
+                    blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                } catch (Exception e) {
+                    // eat exception
+                }
+
+                if (blockedPins != null && blockedPins.contains(pin.getId()) || blockedUsers != null && blockedUsers.contains(pin.getAuthorId())) {
+                    hidePinContentAndDisableInteractions(options);
+                    return;
+                }
+            }
+
             if (pin.getType() == Pin.PinType.IMAGE) {
                 Glide.with(binding.ivImage.getContext())
                         .load(pin.getMediaUrl())
@@ -453,6 +480,25 @@ public class PinObjectFragment extends Fragment {
             fetchPinLikesAsync();
             binding.setPinViewModel(pin);
         }
+    }
+
+    private void hidePinContentAndDisableInteractions(RequestOptions options) {
+        binding.ivImage.setVisibility(View.VISIBLE);
+        Glide.with(binding.ivImage.getContext())
+                .load(R.drawable.hidden_image)
+                .fitCenter()
+                .apply(options)
+                .into(binding.ivImage);
+
+        binding.btnSave.setEnabled(false);
+        binding.btnLove.setEnabled(false);
+        binding.btnComment.setEnabled(false);
+        binding.btnShare.setEnabled(false);
+        binding.btnMore.setEnabled(false);
+        binding.fabBgRemoval.setEnabled(false);
+        binding.tvLikeCount.setText("");
+        binding.tvPinDescription.setText("");
+        binding.tvPinTitle.setText("");
     }
 
     @Override
@@ -575,5 +621,32 @@ public class PinObjectFragment extends Fragment {
         } else {
             downloadMediaAsync();
         }
+    };
+
+    public interface HidePinCallback {
+        void Hide();
+    }
+
+    private final HidePinCallback hidePinCallback = () -> {
+        if (pin == null) {
+            Toast.makeText(requireContext(), getResources().getString(R.string.pin_hide_failure), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // send hide request to the database
+
+        FirebaseUserService.hidePin(pin.getId(), new FirebaseUserService.HidePinCallback() {
+            @Override
+            public void OnSuccess() {
+                NavController navController = Navigation.findNavController(requireView());
+                navController.navigateUp();
+            }
+
+            @Override
+            public void OnFailure(Exception e) {
+                Toast.makeText(requireContext(), getResources().getString(R.string.pin_hide_failure), Toast.LENGTH_SHORT).show();
+                Log.e("PinObjectFragment", "hide pin failed:\n" + e.getMessage());
+            }
+        });
     };
 }

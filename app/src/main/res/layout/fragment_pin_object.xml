@@ -82,6 +82,20 @@
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />
 
+<!--                            TODO: fix this if needed-->
+                            <VideoView
+                                android:id="@+id/video_view"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:adjustViewBounds="true"
+                                android:elevation="2dp"
+                                android:scaleType="centerCrop"
+                                android:visibility="gone"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
                             <com.google.android.material.floatingactionbutton.FloatingActionButton
                                 android:id="@+id/fab_bg_removal"
                                 android:layout_width="wrap_content"

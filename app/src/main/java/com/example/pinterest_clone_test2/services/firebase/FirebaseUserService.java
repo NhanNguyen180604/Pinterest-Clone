@@ -70,6 +70,18 @@ public abstract class FirebaseUserService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
+    public static void hidePin(@NonNull String pinId, HidePinCallback callback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("users")
+                .document(currentUser.getUid())
+                .update("blockedPins", FieldValue.arrayUnion(pinId))
+                .addOnSuccessListener(unused -> callback.OnSuccess())
+                .addOnFailureListener(callback::OnFailure);
+    }
+
     public interface GetUserInfoCallback {
         void OnSuccess(DocumentSnapshot documentSnapshot);
 
@@ -77,6 +89,12 @@ public abstract class FirebaseUserService {
     }
 
     public interface SavePinToProfileCallback {
+        void OnSuccess();
+
+        void OnFailure(Exception e);
+    }
+
+    public interface HidePinCallback {
         void OnSuccess();
 
         void OnFailure(Exception e);

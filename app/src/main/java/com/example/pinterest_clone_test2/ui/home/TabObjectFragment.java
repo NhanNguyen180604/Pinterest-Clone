@@ -70,34 +70,6 @@ public class TabObjectFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(TabObjectViewModel.class);
-
-        adapter = new PinListAdapter(pins, pinClickListener);
-        adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
-        binding.homePagerRecyclerView.setAdapter(adapter);
-
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-        binding.homePagerRecyclerView.setHasFixedSize(true);
-        binding.homePagerRecyclerView.setLayoutManager(layoutManager);
-
-        binding.homePagerRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy <= 0 || isOnLastPage || isLoading)
-                    return;
-
-                int totalItemCount = layoutManager.getItemCount();
-                int[] firstVisibleItems = layoutManager.findFirstVisibleItemPositions(null);
-                int firstVisibleItem = firstVisibleItems.length > 0 ? firstVisibleItems[0] : 0;
-                int visibleItemCount = layoutManager.getChildCount();
-                final int threshold = 4;
-
-                if ((visibleItemCount + firstVisibleItem) >= totalItemCount - threshold) {
-                    fetchPinsAsync();
-                }
-            }
-        });
     }
 
     void fetchPinsAsync() {
@@ -218,6 +190,8 @@ public class TabObjectFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
 
+        initRecyclerView();
+
         // restore states
         List<Pin> oldPinState = viewModel.getPinState();
         if (oldPinState == null || oldPinState.isEmpty()) {
@@ -229,6 +203,37 @@ public class TabObjectFragment extends Fragment {
         }
 
         isOnLastPage = viewModel.isOnLastPage();
+    }
+
+    private void initRecyclerView() {
+        Log.d("HomeTab", "Init recyclerview");
+        adapter = new PinListAdapter(pins, pinClickListener);
+        adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
+        binding.homePagerRecyclerView.setAdapter(adapter);
+
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        binding.homePagerRecyclerView.setHasFixedSize(true);
+        binding.homePagerRecyclerView.setLayoutManager(layoutManager);
+
+        binding.homePagerRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy <= 0 || isOnLastPage || isLoading)
+                    return;
+
+                int totalItemCount = layoutManager.getItemCount();
+                int[] firstVisibleItems = layoutManager.findFirstVisibleItemPositions(null);
+                int firstVisibleItem = firstVisibleItems.length > 0 ? firstVisibleItems[0] : 0;
+                int visibleItemCount = layoutManager.getChildCount();
+                final int threshold = 4;
+
+                if ((visibleItemCount + firstVisibleItem) >= totalItemCount - threshold) {
+                    fetchPinsAsync();
+                }
+            }
+        });
     }
 
     private void restoreScrollState() {
