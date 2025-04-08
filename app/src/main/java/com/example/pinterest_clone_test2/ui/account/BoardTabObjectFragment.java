@@ -1,6 +1,11 @@
 package com.example.pinterest_clone_test2.ui.account;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,19 +13,11 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.BoardAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentBoardTabObjectBinding;
-import com.example.pinterest_clone_test2.databinding.FragmentManageCommentBinding;
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
@@ -56,6 +53,9 @@ public class BoardTabObjectFragment extends Fragment {
                 boardList = new ArrayList<>();
                 for (var doc : querySnapshot.getDocuments()) {
                     Board board = doc.toObject(Board.class);
+                    if (board == null)
+                        continue;
+
                     if (board.getPins() != null && !board.getPins().isEmpty()) {
                         FirebaseBoardService.fetchPinsFromIds(board.getPins(), new FirebaseBoardService.OnPinsFetchedCallback() {
                             @Override

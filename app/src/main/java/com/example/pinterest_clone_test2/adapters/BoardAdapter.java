@@ -19,9 +19,9 @@ import com.example.pinterest_clone_test2.models.Board;
 import java.util.List;
 
 public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHolder> {
-    private Context context;
-    private List<Board> boardList;
-    private OnBoardClickListener onBoardClickListener;
+    private final Context context;
+    private final List<Board> boardList;
+    private final OnBoardClickListener onBoardClickListener;
 
     public BoardAdapter(Context context, List<Board> boardList, OnBoardClickListener listener) {
         this.context = context;
@@ -58,12 +58,13 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHol
         holder.tvTitle.setText(board.getName());
         holder.tvPins.setText(board.getPins().size() + " ghim");
         int pinSize = board.getPins().size();
-        Glide.with(context).load(board.getPinsObj().get(0).getThumbnailUrl()).into(holder.ivFirst);
-        if(pinSize > 1)
+        if (pinSize > 0)
+            Glide.with(context).load(board.getPinsObj().get(0).getThumbnailUrl()).into(holder.ivFirst);
+        if (pinSize > 1)
             Glide.with(context).load(board.getPinsObj().get(1).getThumbnailUrl()).into(holder.ivSecond);
-        if(pinSize > 2)
+        if (pinSize > 2)
             Glide.with(context).load(board.getPinsObj().get(2).getThumbnailUrl()).into(holder.ivThird);
-        holder.itemView.setOnClickListener(v->onBoardClickListener.onBoardClick(board));
+        holder.itemView.setOnClickListener(v -> onBoardClickListener.onBoardClick(board));
     }
 
     @Override

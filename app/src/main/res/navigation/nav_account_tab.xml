@@ -15,7 +15,11 @@
             app:destination="@id/settingsDrawerFragment" />
         <action
             android:id="@+id/action_navigation_account_to_boardDetailFragment"
-            app:destination="@id/boardDetailFragment" />
+            app:destination="@id/boardDetailFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/settingsDrawerFragment"
@@ -80,11 +84,23 @@
         tools:layout="@layout/fragment_board_detail" >
         <action
             android:id="@+id/action_boardDetailFragment_to_pinFragment3"
-            app:destination="@id/pinFragment3" />
+            app:destination="@id/pinFragment3"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/pinFragment3"
         android:name="com.example.pinterest_clone_test2.ui.pin.PinFragment"
         android:label="fragment_pin"
-        tools:layout="@layout/fragment_pin" />
+        tools:layout="@layout/fragment_pin" >
+        <action
+            android:id="@+id/action_pinFragment3_self"
+            app:destination="@id/pinFragment3"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+    </fragment>
 </navigation>

@@ -547,14 +547,14 @@ public class PinObjectFragment extends Fragment {
             bundle.putString("source", source);
             bundle.putParcelableArrayList("pins", new ArrayList<>(relevantPins));
 
-            int action;
+            int action = 0;
             if (Objects.equals(source, "home")) {
                 action = R.id.action_pinFragment_self;
             } else if (Objects.equals(source, "search")) {
                 action = R.id.action_pinFragment2_self;
-            } else {
+            } else if (Objects.equals(source, "account")){
                 // TODO: change this to R.id.action_pinFragment3_self or whatever it generates
-                action = R.id.action_pinFragment2_self;
+                action = R.id.action_pinFragment3_self;
             }
 
             navController.navigate(

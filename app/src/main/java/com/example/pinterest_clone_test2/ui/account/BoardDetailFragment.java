@@ -6,21 +6,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentBoardDetailBinding;
-import com.example.pinterest_clone_test2.databinding.FragmentHomePagerItemBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
@@ -63,6 +59,17 @@ public class BoardDetailFragment extends Fragment {
         });
         pins = board.getPinsObj();
 
+        PinListAdapter adapter = getPinListAdapter();
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        binding.rvBoardPins.setHasFixedSize(true);
+        binding.rvBoardPins.setLayoutManager(layoutManager);
+        binding.rvBoardPins.setAdapter(adapter);
+        binding.progressLoading.setVisibility(View.GONE);
+    }
+
+    @NonNull
+    private PinListAdapter getPinListAdapter() {
         PinClickListener pinClickListener = (position, clickedView) -> {
             try {
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
@@ -78,12 +85,6 @@ public class BoardDetailFragment extends Fragment {
             }
         };
 
-        PinListAdapter adapter = new PinListAdapter(pins, pinClickListener);
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-        binding.rvBoardPins.setHasFixedSize(true);
-        binding.rvBoardPins.setLayoutManager(layoutManager);
-        binding.rvBoardPins.setAdapter(adapter);
-        binding.progressLoading.setVisibility(View.GONE);
+        return new PinListAdapter(pins, pinClickListener);
     }
 }
