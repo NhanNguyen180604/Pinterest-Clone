@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +26,7 @@ import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -68,7 +70,143 @@ public class TabObjectFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(TabObjectViewModel.class);
+    }
 
+    void fetchPinsAsync() {
+        Thread thread = new Thread(() -> {
+            if (isOnLastPage || isLoading)
+                return;
+
+            Log.d("HomeTab", "Fetching pins");
+            isLoading = true;
+
+            // pretend to have an algorithm that fetch pins based on this board's content
+            // no way we can do this
+            try {
+                FirebasePinService.getPins(lastVisible, perPage, null, callback);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
+    }
+
+    final FirebasePinService.GetPinServiceCallback callback = new FirebasePinService.GetPinServiceCallback() {
+        @Override
+        public void OnSuccess(QuerySnapshot querySnapshot) {
+            List<Pin> newPins = new ArrayList<>();
+            List<DocumentSnapshot> documents = querySnapshot.getDocuments();
+
+            // exclude blocked pins, authors...
+            DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+            if (currentUserDocument != null) {
+                List<String> blockedPins = null;
+                List<String> blockedUsers = null;
+
+                try {
+                    blockedPins = (List<String>) currentUserDocument.get("blockedPins");
+                    blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                } catch (Exception e) {
+                    // eat exception
+                }
+
+                if (blockedPins != null) {
+                    List<String> finalBlockedPins = blockedPins;
+                    documents.removeIf(doc -> finalBlockedPins.contains(doc.getId()));
+                }
+                if (blockedUsers != null) {
+                    List<String> finalBlockedUsers = blockedUsers;
+                    documents.removeIf(doc -> finalBlockedUsers.contains(doc.getString("authorId")));
+                }
+            } else {
+                Toast.makeText(requireContext(), getResources().getString(R.string.pin_filter_failure), Toast.LENGTH_SHORT).show();
+            }
+
+            if (documents.isEmpty()) {
+                isOnLastPage = true;
+                isLoading = false;
+                return;
+            }
+
+            lastVisible = documents.get(documents.size() - 1);
+            Log.d("HomeTabLastVisible", lastVisible.getId());
+
+            // create pins from documents
+            for (DocumentSnapshot document :
+                    documents) {
+                Pin pin = new Pin()
+                        .setId(document.getId())
+                        .setAllowComment(Boolean.TRUE.equals(document.getBoolean("allowComment")))
+                        .setAuthorId(document.getString("authorId"))
+                        .setMediaUrl(document.getString("mediaUrl"))
+                        .setThumbnailUrl(document.getString("thumbnailUrl"))
+                        .setType(document.get("type", Pin.PinType.class));
+
+                String description = document.getString("description");
+                String name = document.getString("name");
+                pin.setDescription(description != null ? description : "")
+                        .setName(name != null ? name : "");
+
+                Long createdAt = document.getLong("createdAt");
+                Integer likeCount = document.get("likeCount", Integer.class);
+                pin.setCreatedAt(createdAt != null ? createdAt : 0);
+                pin.setLikeCount(likeCount != null ? likeCount : 0);
+
+                newPins.add(pin);
+            }
+            handler.post(() -> updateUI(newPins, true));
+        }
+
+        @Override
+        public void OnFailure(Exception e) {
+            e.printStackTrace();
+            isLoading = false;
+        }
+    };
+
+    void updateUI(List<Pin> newPins, boolean append) {
+        if (!append) {
+            pins.clear();
+        }
+        int startPos = pins.size();
+        pins.addAll(newPins);
+        adapter.notifyItemRangeInserted(startPos, newPins.size());
+
+        isLoading = false;
+        restoreScrollState();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (binding.homePagerRecyclerView.getLayoutManager() != null) {
+            viewModel.setScrollState(binding.homePagerRecyclerView.getLayoutManager().onSaveInstanceState());
+        }
+        viewModel.setPinState(pins);
+        viewModel.setOnLastPage(isOnLastPage);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        initRecyclerView();
+
+        // restore states
+        List<Pin> oldPinState = viewModel.getPinState();
+        if (oldPinState == null || oldPinState.isEmpty()) {
+            fetchPinsAsync();
+        } else if (pins.isEmpty()) {
+            updateUI(oldPinState, false);
+        } else {
+            restoreScrollState();
+        }
+
+        isOnLastPage = viewModel.isOnLastPage();
+    }
+
+    private void initRecyclerView() {
+        Log.d("HomeTab", "Init recyclerview");
         adapter = new PinListAdapter(pins, pinClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.homePagerRecyclerView.setAdapter(adapter);
@@ -96,109 +234,6 @@ public class TabObjectFragment extends Fragment {
                 }
             }
         });
-    }
-
-    void fetchPinsAsync() {
-        Thread thread = new Thread(() -> {
-            if (isOnLastPage || isLoading)
-                return;
-
-            Log.d("HomeTab", "Fetching pins");
-            isLoading = true;
-
-            // pretend to have an algorithm that fetch pins based on this board's content
-            // no way we can do this
-            // TODO: exclude blocked pins, authors...
-            try {
-                FirebasePinService.getPins(lastVisible, perPage, null, callback);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        thread.start();
-    }
-
-    final FirebasePinService.GetPinServiceCallback callback = new FirebasePinService.GetPinServiceCallback() {
-        @Override
-        public void OnSuccess(QuerySnapshot querySnapshot) {
-            List<Pin> newPins = new ArrayList<>();
-            List<DocumentSnapshot> documents = querySnapshot.getDocuments();
-
-            if (documents.isEmpty()) {
-                isOnLastPage = true;
-                isLoading = false;
-                return;
-            }
-
-            lastVisible = documents.get(documents.size() - 1);
-            Log.d("HomeTabLastVisible", lastVisible.getId());
-
-            for (DocumentSnapshot document :
-                    documents) {
-                Pin pin = new Pin()
-                        .setId(document.getId())
-                        .setAllowComment(Boolean.TRUE.equals(document.getBoolean("allowComment")))
-                        .setAuthorId(document.getString("authorId"))
-                        .setDescription(document.getString("description"))
-                        .setName(document.getString("name"))
-                        .setMediaUrl(document.getString("mediaUrl"))
-                        .setThumbnailUrl(document.getString("thumbnailUrl"))
-                        .setType(document.get("type", Pin.PinType.class));
-
-                Long createdAt = document.getLong("createdAt");
-                Integer likeCount = document.get("likeCount", Integer.class);
-                pin.setCreatedAt(createdAt != null ? createdAt : 0);
-                pin.setLikeCount(likeCount != null ? likeCount : 0);
-
-                newPins.add(pin);
-            }
-            handler.post(() -> updateUI(newPins, true));
-        }
-
-        @Override
-        public void OnFailure(Exception e) {
-            e.printStackTrace();
-            isLoading = false;
-        }
-    };
-
-    void updateUI(List<Pin> newPins, boolean append) {
-        if (!append){
-            pins.clear();
-        }
-        int startPos = pins.size();
-        pins.addAll(newPins);
-        adapter.notifyItemRangeInserted(startPos, newPins.size());
-
-        isLoading = false;
-        restoreScrollState();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (binding.homePagerRecyclerView.getLayoutManager() != null) {
-            viewModel.setScrollState(binding.homePagerRecyclerView.getLayoutManager().onSaveInstanceState());
-        }
-        viewModel.setPinState(pins);
-        viewModel.setOnLastPage(isOnLastPage);
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-
-        // restore states
-        List<Pin> oldPinState = viewModel.getPinState();
-        if (oldPinState == null || oldPinState.isEmpty()) {
-            fetchPinsAsync();
-        } else if (pins.isEmpty()) {
-            updateUI(oldPinState, false);
-        } else {
-            restoreScrollState();
-        }
-
-        isOnLastPage = viewModel.isOnLastPage();
     }
 
     private void restoreScrollState() {

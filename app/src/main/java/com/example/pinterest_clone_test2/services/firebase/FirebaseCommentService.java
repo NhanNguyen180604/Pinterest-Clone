@@ -23,12 +23,14 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public abstract class FirebaseCommentService {
+    // use this function for a pin comment only, admin should have a separate function that doesn't filter out anyone
     public static void getPinComments(@NonNull String pinId, @Nullable Filter filter, GetCommentServiceCallback callback, Context context) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -44,7 +46,8 @@ public abstract class FirebaseCommentService {
 
         query.get()
                 .addOnSuccessListener(commentDocumentSnapshots -> {
-                    List<DocumentSnapshot> commentDocuments = commentDocumentSnapshots.getDocuments();
+                    List<DocumentSnapshot> commentDocuments = tryFilterBlockedUsers(commentDocumentSnapshots);
+
                     if (commentDocuments.isEmpty()) {
                         callback.OnSuccess(Collections.emptyList());
                         return;
@@ -125,6 +128,7 @@ public abstract class FirebaseCommentService {
                                     result.add(comment);
                                     List<Comment> commentChain = commentMap.get(comment.getId());
                                     if (commentChain != null) {
+                                        commentChain.sort(Comparator.comparingLong(Comment::getCreatedAt));
                                         result.addAll(commentChain);
                                     }
                                 }
@@ -134,6 +138,28 @@ public abstract class FirebaseCommentService {
                             .addOnFailureListener(callback::OnFailure);
                 })
                 .addOnFailureListener(callback::OnFailure);
+    }
+
+    @NonNull
+    private static List<DocumentSnapshot> tryFilterBlockedUsers(QuerySnapshot commentDocumentSnapshots) {
+        List<DocumentSnapshot> commentDocuments = commentDocumentSnapshots.getDocuments();
+
+        DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+        if (currentUserDocument != null) {
+            List<String> blockedUsers = null;
+
+            try {
+                blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
+            } catch (Exception e) {
+                // eat exception
+            }
+
+            if (blockedUsers != null) {
+                List<String> finalBlockedUsers = blockedUsers;
+                commentDocuments.removeIf(doc -> finalBlockedUsers.contains(doc.getString("userId")));
+            }
+        }
+        return commentDocuments;
     }
 
     public static void uploadPinComment(@NonNull Comment comment, UploadCommentServiceCallback callback) {

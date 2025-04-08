@@ -25,6 +25,6 @@ public class ViewPagerHomeAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return boards.size();
+        return boards != null ? boards.size() : 0;
     }
 }
