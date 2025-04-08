@@ -72,6 +72,7 @@ public class HomeFragment extends Fragment {
 
     void fetchBoardsAsync() {
         Thread thread = new Thread(() -> {
+            binding.progressBar.setVisibility(View.VISIBLE);
             FirebaseBoardService.getUserBoards(callback);
         });
         thread.start();
@@ -82,6 +83,7 @@ public class HomeFragment extends Fragment {
         if (binding == null)
             return;
 
+        binding.progressBar.setVisibility(View.GONE);
         view_pager = binding.homePager;
         ViewPagerHomeAdapter adapter = new ViewPagerHomeAdapter(this, boards);
         view_pager.setAdapter(adapter);

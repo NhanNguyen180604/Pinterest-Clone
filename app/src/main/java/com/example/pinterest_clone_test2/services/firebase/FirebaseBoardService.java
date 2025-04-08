@@ -96,7 +96,7 @@ public abstract class FirebaseBoardService {
                     if (board.getPins() != null && !board.getPins().isEmpty()) {
                         boardData.put("pins", board.getPins());
                     } else {
-                        boardData.put("pins", new ArrayList<>());
+                        boardData.put("pins", new ArrayList<String>());
                     }
                     if (board.getCollaborators() != null && !board.getCollaborators().isEmpty()) {
                         boardData.put("collaborators", board.getCollaborators()
@@ -105,7 +105,7 @@ public abstract class FirebaseBoardService {
                                 .collect(Collectors.toList())
                         );
                     } else {
-                        boardData.put("collaborators", new ArrayList<>());
+                        boardData.put("collaborators", new ArrayList<String>());
                     }
                     boardData.put("createdAt", System.currentTimeMillis());
 

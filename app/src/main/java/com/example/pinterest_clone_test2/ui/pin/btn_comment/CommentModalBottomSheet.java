@@ -135,6 +135,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         @Override
         public void OnSuccess(List<Comment> commentList) {
             handler.post(() -> {
+                binding.progressBar.setVisibility(View.GONE);
                 int startPos = comments.size();
                 comments.addAll(commentList);
                 commentListAdapter.notifyItemRangeInserted(startPos, commentList.size());

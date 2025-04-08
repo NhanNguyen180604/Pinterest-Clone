@@ -69,15 +69,15 @@
                     tools:ignore="ContentDescription" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_marginStart="4dp"
-                    android:paddingTop="4dp"
                     android:id="@+id/user_input_container"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
                     android:background="@drawable/comment_input_container"
                     android:clipChildren="false"
                     android:clipToPadding="false"
                     android:elevation="10dp"
+                    android:paddingTop="4dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/fab_add_attachment"
@@ -87,9 +87,9 @@
                         android:id="@+id/tv_replying"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
+                        android:layout_marginBottom="20dp"
                         android:text="@{userCommentModel.replyingText}"
                         android:textColor="@color/black"
                         android:textSize="14sp"
@@ -118,11 +118,11 @@
                         android:id="@+id/cv_user_comment_attachment_container"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:layout_marginBottom="8dp"
                         android:elevation="0dp"
                         android:visibility="@{userCommentModel.attachmentVisibility}"
                         app:cardCornerRadius="12dp"
-                        android:layout_marginStart="8dp"
                         app:layout_constraintBottom_toTopOf="@id/et_comment_input"
                         app:layout_constraintStart_toStartOf="parent">
 
@@ -151,10 +151,10 @@
                         app:tint="@color/white" />
 
                     <EditText
-                        android:layout_marginStart="8dp"
                         android:id="@+id/et_comment_input"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:autofillHints="@null"
                         android:background="@null"
                         android:hint="@string/comment_hint"
@@ -183,6 +183,15 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

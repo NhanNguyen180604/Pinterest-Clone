@@ -165,6 +165,8 @@ public class TabObjectFragment extends Fragment {
     };
 
     void updateUI(List<Pin> newPins, boolean append) {
+        binding.progressBar.setVisibility(View.GONE);
+
         if (!append) {
             pins.clear();
         }
@@ -191,6 +193,7 @@ public class TabObjectFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
 
         initRecyclerView();
+        binding.progressBar.setVisibility(View.VISIBLE);
 
         // restore states
         List<Pin> oldPinState = viewModel.getPinState();
@@ -200,6 +203,7 @@ public class TabObjectFragment extends Fragment {
             updateUI(oldPinState, false);
         } else {
             restoreScrollState();
+            binding.progressBar.setVisibility(View.GONE);
         }
 
         isOnLastPage = viewModel.isOnLastPage();
