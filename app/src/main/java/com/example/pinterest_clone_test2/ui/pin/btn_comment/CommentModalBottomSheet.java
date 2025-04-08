@@ -95,7 +95,6 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
 
     void fetchCommentsAsync() {
         Thread thread = new Thread(() -> {
-            //TODO: exclude comments from blocked user
             FirebaseCommentService.getPinComments(_pinId, null, getCommentServiceCallback, _context);
         });
         thread.start();
