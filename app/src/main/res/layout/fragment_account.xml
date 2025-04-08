@@ -47,7 +47,7 @@
             app:layout_constraintEnd_toStartOf="@+id/btn_add_new_pin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_account"
-            app:queryHint="Search your Pins" />
+            app:queryHint="@string/search_your_pin" />
 
         <ImageButton
             android:id="@+id/btn_add_new_pin"

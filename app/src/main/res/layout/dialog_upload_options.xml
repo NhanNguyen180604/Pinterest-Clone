@@ -19,9 +19,9 @@
             android:layout_height="24dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:contentDescription="Đóng"
+            android:contentDescription="@string/close"
             android:src="@drawable/ic_close"
-            app:tint="#FFFFFF" />
+            app:tint="@color/black" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -29,8 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Bắt đầu tạo ngay"
-            android:textColor="#FFFFFF"
+            android:text="@string/start_creating_now"
+            android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
     </RelativeLayout>
@@ -62,7 +62,7 @@
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_pin"
-                    app:tint="#FFFFFF" />
+                    app:tint="@color/black" />
             </FrameLayout>
 
 
@@ -70,8 +70,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Ghim"
-                android:textColor="#FFFFFF" />
+                android:text="@string/pins"
+                android:textColor="@color/black" />
         </LinearLayout>
 
         <!-- Ghép -->
@@ -94,15 +94,15 @@
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_merge"
-                    app:tint="#FFFFFF" />
+                    app:tint="@color/black" />
             </FrameLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Ghép"
-                android:textColor="#FFFFFF" />
+                android:text="@string/collage"
+                android:textColor="@color/black" />
         </LinearLayout>
 
         <!-- Bảng -->
@@ -125,15 +125,15 @@
                     android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_board"
-                    app:tint="#FFFFFF" />
+                    app:tint="@color/black" />
             </FrameLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Bảng"
-                android:textColor="#FFFFFF" />
+                android:text="@string/board"
+                android:textColor="@color/black" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
