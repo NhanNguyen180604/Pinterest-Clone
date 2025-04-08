@@ -30,6 +30,8 @@ public class CloudinaryManager {
         if (!isMediaManagerInitialized()) {
             MediaManager.init(context, config);
             Log.d("Cloudinary", "Cloudinary initialized.");
+        } else {
+            Log.e("Cloudinary", "Error initializing Cloudinary: MediaManager already initialized.");
         }
     }
 
@@ -43,18 +45,42 @@ public class CloudinaryManager {
         }
     }
 
-    // Upload image to Cloudinary
-    public static void uploadImage(Context context, Uri imageUri, String title, String description, UploadCallback callback) {
-        if (imageUri != null) {
-            Log.d("Cloudinary", "Image URI to upload: " + imageUri);
+    public static void uploadMedia(Context context, Uri mediaUri, String title, String description, String mediaType, UploadCallback callback) {
+        if (mediaUri != null) {
+            Log.d("Cloudinary", "Media URI to upload: " + mediaUri);
 
-            MediaManager.get().upload(imageUri)
-                    .unsigned(UPLOAD_PRESET)
-                    .callback(callback)
-                    .dispatch();
+            String mimeType = context.getContentResolver().getType(mediaUri);
+            if (mimeType != null) {
+                Log.d("Cloudinary", "MIME type: " + mimeType);
+
+                // Handle image or gif upload
+                if (mimeType.equals("image/gif")) {
+                    MediaManager.get().upload(mediaUri)
+                            .unsigned(UPLOAD_PRESET)
+                            .callback(callback)
+                            .dispatch();
+                }
+                // Handle video upload
+                else if (mimeType.startsWith("video")) {
+                    MediaManager.get().upload(mediaUri)
+                            .unsigned(UPLOAD_PRESET)
+                            .option("resource_type", "video")  // Set resource type to "video"
+                            .callback(callback)
+                            .dispatch();
+                }
+                // Handle image upload
+                else if (mimeType.startsWith("image")) {
+                    MediaManager.get().upload(mediaUri)
+                            .unsigned(UPLOAD_PRESET)
+                            .callback(callback)
+                            .dispatch();
+                }
+            } else {
+                Log.d("Cloudinary", "No MIME type detected for URI: " + mediaUri);
+            }
         } else {
-            Log.d("Cloudinary", "No image selected");
-            Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show();
+            Log.d("Cloudinary", "No media selected");
+            Toast.makeText(context, "No media selected", Toast.LENGTH_SHORT).show();
         }
     }
 }

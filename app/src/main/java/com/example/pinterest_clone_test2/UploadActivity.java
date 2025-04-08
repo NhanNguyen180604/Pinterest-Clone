@@ -46,14 +46,14 @@ public class UploadActivity extends AppCompatActivity {
         }
     }
 
-    public void showDetailFragment(Uri imageUri) {
-        Log.d("Cloudinary", "Navigating to UploadImageDetailsFragment with imageUri: " + imageUri);
+    public void showDetailFragment(Uri mediaUri) {
+        Log.d("Cloudinary", "Navigating to UploadImageDetailsFragment with mediaUri: " + mediaUri);
 
         UploadImageDetailsFragment detailsFragment = new UploadImageDetailsFragment();
 
-        // Pass only imageUri to UploadImageDetailsFragment (uploadPreset is already in UploadActivity)
+        // Pass only mediaUri to UploadImageDetailsFragment
         Bundle bundle = new Bundle();
-        bundle.putParcelable("imageUri", imageUri);
+        bundle.putParcelable("mediaUri", mediaUri);
         detailsFragment.setArguments(bundle);
 
         // Perform fragment transaction
@@ -64,70 +64,81 @@ public class UploadActivity extends AppCompatActivity {
                 .commit();
     }
 
-    // Use CloudinaryManager to upload the image
-    public void uploadImage(Uri imageUri, String title, String description) {
-        Log.d("Cloudinary", "Attempting to upload image");
+    public void uploadMedia(Uri mediaUri, String title, String description) {
+        Log.d("Cloudinary", "Attempting to upload media");
 
-        if (imageUri != null) {
-            Log.d("Cloudinary", "Image URI to upload: " + imageUri);
+        if (mediaUri != null) {
+            Log.d("Cloudinary", "Media URI to upload: " + mediaUri);
 
-            CloudinaryManager.uploadImage(this, imageUri, title, description, new UploadCallback() {
-                @Override
-                public void onStart(String requestId) {
-                    Log.d("Cloudinary Quickstart", "Upload start");
+            // Kiểm tra MIME type và gọi hàm upload từ CloudinaryManager
+            String mimeType = getContentResolver().getType(mediaUri);
+            String mediaType;
+
+            // Xác định loại media: "image", "video", "gif"
+            if (mimeType != null) {
+                if (mimeType.startsWith("image") && mimeType.contains("gif")) {
+                    mediaType = "gif";  // Xử lý GIF
+                } else if (mimeType.startsWith("video")) {
+                    mediaType = "video";  // Xử lý video
+                } else {
+                    mediaType = "image";  // Xử lý ảnh
                 }
 
-                @Override
-                public void onProgress(String requestId, long bytes, long totalBytes) {
-                    Log.d("Cloudinary Quickstart", "Upload progress: " + bytes + "/" + totalBytes);
-                }
+                // Call CloudinaryManager to upload the media
+                CloudinaryManager.uploadMedia(this, mediaUri, title, description, mediaType, new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {
+                        Log.d("Cloudinary", "Upload start");
+                    }
 
-                @Override
-                public void onSuccess(String requestId, Map resultData) {
-                    Log.d("Cloudinary Quickstart", "Upload success");
-                    String url = (String) resultData.get("secure_url");
-                    Log.d("Cloudinary", "Uploaded image URL: " + url);
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {
+                        Log.d("Cloudinary", "Upload progress: " + bytes + "/" + totalBytes);
+                    }
 
-                    // Save Pin information to Firestore
-                    savePinToFirestore(url, title, description);
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        String url = (String) resultData.get("secure_url");
+                        savePinToFirestore(url, title, description, mediaType);  // Lưu vào Firestore
+                        navigateBackToHome();  // Điều hướng về trang chủ sau khi upload thành công
+                    }
 
-                    // Display success message to the user
-                    Toast.makeText(UploadActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        Log.d("Cloudinary", "Error: " + error.getDescription());
+                    }
 
-                    // Navigate back to MainActivity after successful upload
-                    Intent intent = new Intent(UploadActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                    finish();
-                }
-
-                @Override
-                public void onError(String requestId, ErrorInfo error) {
-                    Log.d("Cloudinary Quickstart", "Upload failed: " + error.getDescription());
-                    Toast.makeText(UploadActivity.this, "Upload failed: " + error.getDescription(), Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onReschedule(String requestId, ErrorInfo error) {
-                    Log.d("Cloudinary Quickstart", "Upload rescheduled");
-                }
-            });
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {
+                        Log.d("Cloudinary", "Rescheduled");
+                    }
+                });
+            }
         } else {
-            Log.d("Cloudinary", "No image selected");
-            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
+            Log.d("Cloudinary", "No media selected");
+            Toast.makeText(this, "No media selected", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void savePinToFirestore(String imageUrl, String title, String description) {
+    private void savePinToFirestore(String mediaUrl, String title, String description, String mediaType) {
         String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
-        String thumbnailUrl = imageUrl.replace("/upload/", "/upload/c_thumb,w_200/");
+        String thumbnailUrl = mediaUrl.replace("/upload/", "/upload/c_thumb,w_200/");
 
-        // Create a Pin object
+        Pin.PinType pinType;
+        if ("video".equals(mediaType)) {
+            pinType = Pin.PinType.VIDEO;
+        } else if ("gif".equals(mediaType)) {
+            pinType = Pin.PinType.GIF;
+        } else {
+            pinType = Pin.PinType.IMAGE;
+        }
+
+        // Tạo đối tượng Pin
         Pin pin = new Pin()
                 .setAuthorId(userId)
-                .setType(Pin.PinType.IMAGE)
-                .setMediaUrl(imageUrl)
+                .setType(pinType)
+                .setMediaUrl(mediaUrl)
                 .setThumbnailUrl(thumbnailUrl)
                 .setName(title)
                 .setDescription(description)
@@ -138,13 +149,18 @@ public class UploadActivity extends AppCompatActivity {
 
         firestore.collection("pins")
                 .add(pin)
-                .addOnSuccessListener(documentReference ->
-                        Log.d("Firestore", "Pin added with ID: " + documentReference.getId())
-                )
+                .addOnSuccessListener(documentReference -> Log.d("Firestore", "Pin added with ID: " + documentReference.getId()))
                 .addOnFailureListener(e -> {
                     Log.d("Firestore", "Error adding Pin: " + e.getMessage());
                     Toast.makeText(UploadActivity.this, "Failed to save Pin.", Toast.LENGTH_SHORT).show();
                 });
     }
-}
 
+    // Navigate back to the home screen after successful upload
+    private void navigateBackToHome() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish(); // Optional: Finish the current activity to prevent user from going back to upload screen
+    }
+}
