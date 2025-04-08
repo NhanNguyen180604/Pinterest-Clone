@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_navigation_account_to_settingsDrawerFragment"
             app:destination="@id/settingsDrawerFragment" />
+        <action
+            android:id="@+id/action_navigation_account_to_boardDetailFragment"
+            app:destination="@id/boardDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsDrawerFragment"
@@ -70,4 +73,18 @@
         android:name="com.example.pinterest_clone_test2.ui.settings.GenderFragment"
         android:label="fragment_gender"
         tools:layout="@layout/fragment_gender" />
+    <fragment
+        android:id="@+id/boardDetailFragment"
+        android:name="com.example.pinterest_clone_test2.ui.account.BoardDetailFragment"
+        android:label="fragment_board_detail"
+        tools:layout="@layout/fragment_board_detail" >
+        <action
+            android:id="@+id/action_boardDetailFragment_to_pinFragment3"
+            app:destination="@id/pinFragment3" />
+    </fragment>
+    <fragment
+        android:id="@+id/pinFragment3"
+        android:name="com.example.pinterest_clone_test2.ui.pin.PinFragment"
+        android:label="fragment_pin"
+        tools:layout="@layout/fragment_pin" />
 </navigation>

@@ -83,8 +83,8 @@ public class CreateNewBoardFragment extends BottomSheetDialogFragment {
                     .setPublic(!viewModel.getIsPrivate());
 
             if (viewModel.getPin() != null) {
-                List<Pin> pins = new ArrayList<>();
-                pins.add(viewModel.getPin());
+                List<String> pins = new ArrayList<>();
+                pins.add(viewModel.getPin().getId());
                 board.setPins(pins);
             }
 
