@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.firestore.Exclude;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +18,9 @@ public class Board implements Parcelable {
     String authorId;
     boolean isPublic;
     List<User> collaborators;
-    List<Pin> pins;
+    List<String> pins;
+    @Exclude
+    List<Pin> pinsObj;
 
     public Board() {
     }
@@ -66,12 +70,21 @@ public class Board implements Parcelable {
         return this;
     }
 
-    public List<Pin> getPins() {
+    public List<String> getPins() {
         return pins;
     }
 
-    public Board setPins(List<Pin> pins) {
+    public Board setPins(List<String> pins) {
         this.pins = pins;
+        return this;
+    }
+
+    public List<Pin> getPinsObj() {
+        return pinsObj;
+    }
+
+    public Board setPinsObj(List<Pin> pinsObj) {
+        this.pinsObj = pinsObj;
         return this;
     }
 
@@ -140,7 +153,7 @@ public class Board implements Parcelable {
         description = in.readString();
         authorId = in.readString();
         isPublic = in.readBoolean();
-        pins = in.createTypedArrayList(Pin.CREATOR);
+        pinsObj = in.createTypedArrayList(Pin.CREATOR);
     }
 
     @Override
@@ -155,6 +168,6 @@ public class Board implements Parcelable {
         parcel.writeString(description);
         parcel.writeString(authorId);
         parcel.writeBoolean(isPublic);
-        parcel.writeParcelableList(pins, i);
+        parcel.writeParcelableList(pinsObj, i);
     }
 }

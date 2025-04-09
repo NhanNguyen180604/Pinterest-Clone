@@ -7,6 +7,8 @@ import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -34,6 +36,44 @@ public abstract class FirebaseBoardService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
+    public static void fetchPinsFromIds(List<String> pinIds, OnPinsFetchedCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        if (pinIds == null || pinIds.isEmpty()) {
+            callback.onSuccess(new ArrayList<>());
+            return;
+        }
+
+        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+        for (String pinId : pinIds) {
+            tasks.add(firestore.collection("pins").document(pinId).get());
+        }
+
+        Tasks.whenAllSuccess(tasks)
+                .addOnSuccessListener(results -> {
+                    List<Pin> pins = new ArrayList<>();
+                    for (Object result : results) {
+                        if (result instanceof DocumentSnapshot) {
+                            DocumentSnapshot doc = (DocumentSnapshot) result;
+                            Pin pin = doc.toObject(Pin.class);
+                            if (pin != null) {
+                                pin.setId(doc.getId());
+                                pins.add(pin);
+                            }
+                        }
+                    }
+                    callback.onSuccess(pins);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+
+    public interface OnPinsFetchedCallback {
+        void onSuccess(List<Pin> pins);
+
+        void onFailure(Exception e);
+    }
+
     public static void createNewBoard(@NonNull Board board, CreateBoardServiceCallback callback) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -54,13 +94,9 @@ public abstract class FirebaseBoardService {
                     boardData.put("userId", currentUser.getUid());
                     boardData.put("isPublic", board.isPublic());
                     if (board.getPins() != null && !board.getPins().isEmpty()) {
-                        boardData.put("pins", board.getPins()
-                                .stream()
-                                .map(Pin::getId)
-                                .collect(Collectors.toList())
-                        );
+                        boardData.put("pins", board.getPins());
                     } else {
-                        boardData.put("pins", new ArrayList<>());
+                        boardData.put("pins", new ArrayList<String>());
                     }
                     if (board.getCollaborators() != null && !board.getCollaborators().isEmpty()) {
                         boardData.put("collaborators", board.getCollaborators()
@@ -69,7 +105,7 @@ public abstract class FirebaseBoardService {
                                 .collect(Collectors.toList())
                         );
                     } else {
-                        boardData.put("collaborators", new ArrayList<>());
+                        boardData.put("collaborators", new ArrayList<String>());
                     }
                     boardData.put("createdAt", System.currentTimeMillis());
 
