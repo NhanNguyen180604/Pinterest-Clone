@@ -35,9 +35,6 @@ public class UploadActivity extends AppCompatActivity {
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
 
-        // Initialize Cloudinary
-        CloudinaryManager.initCloudinary(this);
-
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -85,7 +82,7 @@ public class UploadActivity extends AppCompatActivity {
                 }
 
                 // Call CloudinaryManager to upload the media
-                CloudinaryManager.uploadMedia(this, mediaUri, title, description, mediaType, new UploadCallback() {
+                CloudinaryManager.uploadMedia(mediaUri, mimeType, new UploadCallback() {
                     @Override
                     public void onStart(String requestId) {
                         Log.d("Cloudinary", "Upload start");
@@ -99,12 +96,17 @@ public class UploadActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
                         String url = (String) resultData.get("secure_url");
-                        savePinToFirestore(url, title, description, mediaType);  // Lưu vào Firestore
-                        navigateBackToHome();  // Điều hướng về trang chủ sau khi upload thành công
+                        if (url == null) {
+                            Toast.makeText(UploadActivity.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            savePinToFirestore(url, title, description, mediaType);  // Lưu vào Firestore
+                            navigateBackToHome();  // Điều hướng về trang chủ sau khi upload thành công
+                        }
                     }
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
+                        Toast.makeText(UploadActivity.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
                         Log.d("Cloudinary", "Error: " + error.getDescription());
                     }
 
@@ -113,17 +115,17 @@ public class UploadActivity extends AppCompatActivity {
                         Log.d("Cloudinary", "Rescheduled");
                     }
                 });
+            } else {
+                Log.d("Cloudinary", "No media selected");
+                Toast.makeText(this, "No media selected", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Log.d("Cloudinary", "No media selected");
-            Toast.makeText(this, "No media selected", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void savePinToFirestore(String mediaUrl, String title, String description, String mediaType) {
         String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
-        String thumbnailUrl = mediaUrl.replace("/upload/", "/upload/c_thumb,w_200/");
+        String thumbnailUrl = mediaUrl.replace("/upload/", "/upload/w_200/");
 
         Pin.PinType pinType;
         if ("video".equals(mediaType)) {

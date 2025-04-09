@@ -28,12 +28,14 @@ public class PinMoreActionModalBottomSheet extends BottomSheetDialogFragment {
     public static String TAG = "PinMoreActionModalBottomSheet";
     Pin pin;
     PinObjectFragment.DownloadPinMediaCallback downloadCallback;
+    PinObjectFragment.HidePinCallback hidePinCallback;
     Context context;
 
-    public PinMoreActionModalBottomSheet(Pin pin, Context context, PinObjectFragment.DownloadPinMediaCallback downloadCallback) {
+    public PinMoreActionModalBottomSheet(Pin pin, Context context, PinObjectFragment.DownloadPinMediaCallback downloadCallback, PinObjectFragment.HidePinCallback hidePinCallback) {
         this.pin = pin;
         this.context = context;
         this.downloadCallback = downloadCallback;
+        this.hidePinCallback = hidePinCallback;
     }
 
     @Nullable
@@ -48,8 +50,7 @@ public class PinMoreActionModalBottomSheet extends BottomSheetDialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         binding.tvClickableHide.setOnClickListener(v -> {
-            //TODO: send hide request to database
-            Toast.makeText(requireContext(), "Send hide request to database", Toast.LENGTH_SHORT).show();
+            hidePinCallback.Hide();
             dismiss();
         });
 

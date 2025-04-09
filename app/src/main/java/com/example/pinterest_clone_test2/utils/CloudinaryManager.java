@@ -3,7 +3,6 @@ package com.example.pinterest_clone_test2.utils;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.UploadCallback;
@@ -30,8 +29,6 @@ public class CloudinaryManager {
         if (!isMediaManagerInitialized()) {
             MediaManager.init(context, config);
             Log.d("Cloudinary", "Cloudinary initialized.");
-        } else {
-            Log.e("Cloudinary", "Error initializing Cloudinary: MediaManager already initialized.");
         }
     }
 
@@ -45,11 +42,11 @@ public class CloudinaryManager {
         }
     }
 
-    public static void uploadMedia(Context context, Uri mediaUri, String title, String description, String mediaType, UploadCallback callback) {
+    // Upload image to Cloudinary
+    public static void uploadMedia(Uri mediaUri, String mimeType, UploadCallback callback) {
         if (mediaUri != null) {
             Log.d("Cloudinary", "Media URI to upload: " + mediaUri);
 
-            String mimeType = context.getContentResolver().getType(mediaUri);
             if (mimeType != null) {
                 Log.d("Cloudinary", "MIME type: " + mimeType);
 
@@ -80,7 +77,7 @@ public class CloudinaryManager {
             }
         } else {
             Log.d("Cloudinary", "No media selected");
-            Toast.makeText(context, "No media selected", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "No media selected", Toast.LENGTH_SHORT).show();
         }
     }
 }

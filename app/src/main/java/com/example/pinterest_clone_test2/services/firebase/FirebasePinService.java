@@ -5,8 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.example.pinterest_clone_test2.models.Pin;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -17,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,18 +45,126 @@ public abstract class FirebasePinService {
 
         query.limit(perPage)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        callback.OnSuccess(queryDocumentSnapshots);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.OnFailure(e);
-                    }
-                });
+                .addOnSuccessListener(callback::OnSuccess)
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void searchPins(@NonNull String searchQuery, @Nullable DocumentSnapshot lastVisible, int perPage, @NonNull SearchPinServiceCallback callback) {
+        if (perPage < 1) {
+            throw new IllegalArgumentException("Per page number must be greater than 0");
+        }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String searchQueryLower = searchQuery.toLowerCase();
+
+        // Xây dựng truy vấn theo tên
+        Query nameQuery = db.collection("pins")
+                .orderBy("nameNormalized")
+                .startAt(searchQueryLower)
+                .endAt(searchQueryLower + "\\uf8ff");
+
+        if (lastVisible != null) {
+            nameQuery = nameQuery.startAfter(lastVisible);
+        }
+
+        // Lưu truy vấn cuối cùng vào biến final để sử dụng trong lambda
+        final Query finalNameQuery = nameQuery.limit(perPage);
+
+        // Xây dựng truy vấn theo mô tả
+        Query descriptionQuery = db.collection("pins")
+                .orderBy("descriptionNormalized")
+                .startAt(searchQueryLower)
+                .endAt(searchQueryLower + "\\uf8ff");
+
+        if (lastVisible != null) {
+            descriptionQuery = descriptionQuery.startAfter(lastVisible);
+        }
+
+        // Lưu truy vấn cuối cùng vào biến final để sử dụng trong lambda
+        final Query finalDescriptionQuery = descriptionQuery.limit(perPage);
+
+        // Thực hiện các truy vấn
+        finalNameQuery.get().addOnSuccessListener(nameResults -> {
+            finalDescriptionQuery.get().addOnSuccessListener(descriptionResults -> {
+                List<DocumentSnapshot> resultDocuments = tryFilterDocuments(nameResults, descriptionResults);
+                Map<String, DocumentSnapshot> uniqueResults = new HashMap<>();
+
+                for (DocumentSnapshot doc : resultDocuments) {
+                    uniqueResults.put(doc.getId(), doc);
+                }
+
+                // Chuyển đổi DocumentSnapshot thành đối tượng Pin
+                List<Pin> pinResults = new ArrayList<>();
+                DocumentSnapshot lastDoc = null;
+
+                for (DocumentSnapshot doc : uniqueResults.values()) {
+                    Pin pin = new Pin()
+                            .setId(doc.getId())
+                            .setAllowComment(Boolean.TRUE.equals(doc.getBoolean("allowComment")))
+                            .setAuthorId(doc.getString("authorId"))
+                            .setMediaUrl(doc.getString("mediaUrl"))
+                            .setThumbnailUrl(doc.getString("thumbnailUrl"))
+                            .setType(doc.get("type", Pin.PinType.class));
+
+                    String description = doc.getString("description");
+                    String name = doc.getString("name");
+                    pin.setName(name != null ? name : "");
+                    pin.setDescription(description != null ? description : "");
+
+                    Long createdAt = doc.getLong("createdAt");
+                    Integer likeCount = doc.get("likeCount", Integer.class);
+                    pin.setCreatedAt(createdAt != null ? createdAt : 0);
+                    pin.setLikeCount(likeCount != null ? likeCount : 0);
+
+                    pinResults.add(pin);
+
+                    // Cập nhật lastDoc cho phân trang
+                    lastDoc = doc;
+                }
+
+                if (pinResults.size() > perPage) {
+                    pinResults = pinResults.subList(0, perPage);
+                }
+
+                callback.onSearchSuccess(pinResults, lastDoc);
+            }).addOnFailureListener(callback::onSearchFailure);
+        }).addOnFailureListener(callback::onSearchFailure);
+    }
+
+    @NonNull
+    private static List<DocumentSnapshot> tryFilterDocuments(QuerySnapshot nameResults, QuerySnapshot descriptionResults) {
+        List<DocumentSnapshot> nameDocuments = nameResults.getDocuments();
+        List<DocumentSnapshot> descriptionDocuments = descriptionResults.getDocuments();
+
+        List<DocumentSnapshot> resultDocuments = new ArrayList<>();
+        if (!nameDocuments.isEmpty()) {
+            resultDocuments.addAll(nameDocuments);
+        }
+        if (!descriptionDocuments.isEmpty()) {
+            resultDocuments.addAll(descriptionDocuments);
+        }
+
+        DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+        if (currentUserDocument != null) {
+            List<String> blockedPins = null;
+            List<String> blockedUsers = null;
+
+            try {
+                blockedPins = (List<String>) currentUserDocument.get("blockedPins");
+                blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+            } catch (Exception e) {
+                // eat exception
+            }
+
+            if (blockedPins != null) {
+                List<String> finalBlockedPins = blockedPins;
+                resultDocuments.removeIf(doc -> finalBlockedPins.contains(doc.getId()));
+            }
+            if (blockedUsers != null) {
+                List<String> finalBlockedUsers = blockedUsers;
+                resultDocuments.removeIf(doc -> finalBlockedUsers.contains(doc.getString("authorId")));
+            }
+        }
+        return resultDocuments;
     }
 
     public static void getPinLikeCount(@NonNull String pinId, GetPinLikeCountCallback callback) {
@@ -66,18 +174,8 @@ public abstract class FirebasePinService {
                 .whereEqualTo("type", "PIN")
                 .whereEqualTo("typeId", pinId)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        callback.OnSuccess(queryDocumentSnapshots);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.OnFailure(e);
-                    }
-                });
+                .addOnSuccessListener(callback::OnSuccess)
+                .addOnFailureListener(callback::OnFailure);
     }
 
     public static void updateLike(@NonNull String pinId, boolean isLiked, UpdateLikeCallback callback) {
@@ -142,5 +240,12 @@ public abstract class FirebasePinService {
 
     public interface UpdateLikeCallback {
         void OnFailure(Exception e);
+    }
+
+
+    public interface SearchPinServiceCallback {
+        void onSearchSuccess(List<Pin> results, DocumentSnapshot lastVisible);
+
+        void onSearchFailure(Exception e);
     }
 }
