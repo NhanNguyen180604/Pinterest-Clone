@@ -12,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.Toast;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.databinding.FragmentGenderBinding;
@@ -46,5 +48,32 @@ public class GenderFragment extends Fragment {
         } else {
             binding.rbGenderFemale.setChecked(true);
         }
+        binding.btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int selectedId = binding.rgGender.getCheckedRadioButtonId();
+
+                if (selectedId != -1) {
+                    RadioButton selectedRadioButton = binding.getRoot().findViewById(selectedId);
+                    String selectedGender = selectedRadioButton.getText().toString();
+                    binding.btnSave.setEnabled(false);
+                    binding.btnSave.setText("Đang cập nhật...");
+                    FirebaseUserService.updateGender(selectedGender, new FirebaseUserService.UpdateGenderCallback() {
+                        @Override
+                        public void OnSuccess() {
+                            Toast.makeText(requireContext(), "Giới tính đã được cập nhật", Toast.LENGTH_LONG).show();
+                            binding.btnBack.performClick();
+                        }
+
+                        @Override
+                        public void OnFailure(Exception e) {
+                            Toast.makeText(requireContext(), "Lỗi cập nhật: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    binding.btnSave.setEnabled(true);
+                    binding.btnSave.setText("Cập nhật");
+                }
+            }
+        });
     }
 }
