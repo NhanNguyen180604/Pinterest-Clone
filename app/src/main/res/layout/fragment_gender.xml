@@ -26,7 +26,7 @@
             android:id="@+id/tv_am_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Gender"
+            android:text="Giới tính"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="16sp"
@@ -47,13 +47,13 @@
                 android:id="@+id/rb_gender_male"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Male" />
+                android:text="Nam" />
 
             <RadioButton
                 android:id="@+id/rb_gender_female"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Female" />
+                android:text="Nữ" />
         </RadioGroup>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
