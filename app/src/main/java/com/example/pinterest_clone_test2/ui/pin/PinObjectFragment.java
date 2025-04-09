@@ -158,7 +158,7 @@ public class PinObjectFragment extends Fragment {
 
                 try {
                     blockedPins = (List<String>) currentUserDocument.get("blockedPins");
-                    blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                    blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
                 } catch (Exception e) {
                     // eat exception
                 }
@@ -446,7 +446,7 @@ public class PinObjectFragment extends Fragment {
 
                 try {
                     blockedPins = (List<String>) currentUserDocument.get("blockedPins");
-                    blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                    blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
                 } catch (Exception e) {
                     // eat exception
                 }

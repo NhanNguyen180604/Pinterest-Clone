@@ -19,9 +19,14 @@ import java.util.Objects;
 
 public abstract class FirebaseUserService {
     private static DocumentSnapshot currentUserDocument;
+    private static long lastUpdateTime = 0;
 
     public static DocumentSnapshot getCurrentUserDocument() {
         return currentUserDocument;
+    }
+
+    public static long getLastUpdateTime() {
+        return lastUpdateTime;
     }
 
     public static void initUserDocument() {
@@ -39,6 +44,7 @@ public abstract class FirebaseUserService {
 
                     if (documentSnapshot != null && documentSnapshot.exists()) {
                         currentUserDocument = documentSnapshot;
+                        lastUpdateTime = System.currentTimeMillis();
                         Log.d("FirebaseUserService", "User info updated");
                     }
                 });
@@ -230,21 +236,25 @@ public abstract class FirebaseUserService {
 
     public interface UpdateGenderCallback {
         void OnSuccess();
+
         void OnFailure(Exception e);
     }
 
     public interface UpdateEmailCallback {
         void OnSuccess();
+
         void OnFailure(Exception e);
     }
 
     public interface UpdatePasswordCallback {
         void OnSuccess();
+
         void OnFailure(Exception e);
     }
 
     public interface UpdateBirthdateCallback {
         void OnSuccess();
+
         void OnFailure(Exception e);
     }
 }
