@@ -75,6 +75,7 @@ public class BoardTabObjectFragment extends Fragment {
                         boardList.add(board);
                         boardAdapter.notifyDataSetChanged();
                     }
+                    binding.progressLoading.setVisibility(View.GONE);
                 }
 
                 boardAdapter = new BoardAdapter(requireContext(), boardList, board -> {
@@ -91,9 +92,9 @@ public class BoardTabObjectFragment extends Fragment {
             public void OnFailure(Exception e) {
                 Log.e("Firebase", "Error fetching boards", e);
                 Toast.makeText(requireContext(), "Failed to load boards", Toast.LENGTH_SHORT).show();
+                binding.progressLoading.setVisibility(View.GONE);
             }
         });
-        binding.progressLoading.setVisibility(View.GONE);
 
     }
 }
