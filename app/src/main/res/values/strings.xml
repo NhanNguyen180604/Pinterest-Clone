@@ -168,4 +168,6 @@
     <string name="Vietnamese">Tiếng Việt</string>
     <string name="birthdate_placeholder_2" translatable="false">02/02/2022</string>
     <string name="advice_to_use_real_birthdate">Sử dụng ngày sinh của chính bạn, ngay cả khi đây là tài khoản doanh nghiệp</string>
+    <string name="birthdate_not_valid">Ngày sinh không hợp lệ</string>
+    <string name="birthdate_warning">Người dùng từ 6 tuổi trở lên mới được sử dụng ứng dụng</string>
 </resources>

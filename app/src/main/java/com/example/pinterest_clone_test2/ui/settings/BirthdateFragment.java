@@ -68,25 +68,46 @@ public class BirthdateFragment extends Fragment {
         });
         binding.btnBirthdateUpdate.setOnClickListener(v -> {
             String newBirthdate = binding.etBirthdate.getText().toString();
-            binding.btnBirthdateUpdate.setEnabled(false);
-            binding.btnBirthdateUpdate.setText(getString(R.string.updating));
-            FirebaseUserService.updateBirthdate(newBirthdate, new FirebaseUserService.UpdateBirthdateCallback() {
-                @Override
-                public void OnSuccess() {
-                    Toast.makeText(requireContext(), getString(R.string.birthdate_update_success), Toast.LENGTH_SHORT).show();
-                    binding.btnBack.performClick();
-                    binding.btnBirthdateUpdate.setEnabled(true);
-                    binding.btnBirthdateUpdate.setText(R.string.update);
-                }
 
-                @Override
-                public void OnFailure(Exception e) {
-                    Toast.makeText(requireContext(), getString(R.string.birthdate_update_failure), Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                    binding.btnBirthdateUpdate.setEnabled(true);
-                    binding.btnBirthdateUpdate.setText(R.string.update);
+            // Parse selected date
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd 'thg' M, yyyy", new Locale("vi", "VN"));
+            try {
+                Calendar birthCal = Calendar.getInstance();
+                birthCal.setTime(dateFormat.parse(newBirthdate));
+
+                Calendar today = Calendar.getInstance();
+                today.add(Calendar.YEAR, -6); // subtract 18 years from today
+
+                if (birthCal.after(today)) {
+                    binding.tvBirthdateWarning.setVisibility(View.VISIBLE);
+                    binding.tvBirthdateWarning.setText(getString(R.string.birthdate_warning));
+                    return;
                 }
-            });
+                binding.tvBirthdateWarning.setVisibility(View.GONE);
+                binding.btnBirthdateUpdate.setEnabled(false);
+                binding.btnBirthdateUpdate.setText(getString(R.string.updating));
+
+                FirebaseUserService.updateBirthdate(newBirthdate, new FirebaseUserService.UpdateBirthdateCallback() {
+                    @Override
+                    public void OnSuccess() {
+                        Toast.makeText(requireContext(), getString(R.string.birthdate_update_success), Toast.LENGTH_SHORT).show();
+                        binding.btnBack.performClick();
+                        binding.btnBirthdateUpdate.setEnabled(true);
+                        binding.btnBirthdateUpdate.setText(getText(R.string.update));
+                    }
+
+                    @Override
+                    public void OnFailure(Exception e) {
+                        Toast.makeText(requireContext(), getString(R.string.birthdate_update_failure), Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                        binding.btnBirthdateUpdate.setEnabled(true);
+                        binding.btnBirthdateUpdate.setText(getText(R.string.update));
+                    }
+                });
+
+            } catch (Exception e) {
+                Toast.makeText(requireContext(), R.string.birthdate_not_valid, Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }
