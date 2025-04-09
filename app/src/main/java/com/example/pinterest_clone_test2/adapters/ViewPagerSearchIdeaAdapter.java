@@ -68,7 +68,7 @@ public class ViewPagerSearchIdeaAdapter extends RecyclerView.Adapter<ViewPagerSe
     public void onBindViewHolder(@NonNull SearchIdeaPagerViewHolder holder, int position) {
         Glide.with(holder.iv_idea_image.getContext())
                 .load(image_resources.get(position))
-                .placeholder(R.drawable.karyl)
+                .placeholder(R.drawable.ic_loading)
                 .fitCenter()
                 .into(holder.iv_idea_image);
         holder.tv_idea_text.setText(idea_texts.get(position));

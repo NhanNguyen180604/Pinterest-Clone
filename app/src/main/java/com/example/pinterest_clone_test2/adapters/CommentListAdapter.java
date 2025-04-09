@@ -1,6 +1,5 @@
 package com.example.pinterest_clone_test2.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -30,27 +29,30 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         void setComment(Comment comment) {
             _binding.setComment(comment);
-            if (comment.getAttachmentUrl() != null) {
-                RequestOptions options = new RequestOptions()
-                        .placeholder(R.drawable.karyl)
-                        .error(R.drawable.turtle_huh);
 
-                Glide.with(_binding.ivAttachment.getContext())
-                        .load(comment.getAttachmentUrl())
+            RequestOptions options = new RequestOptions()
+                    .placeholder(R.drawable.ic_loading)
+                    .error(R.drawable.turtle_huh);
+
+            if (comment.getAuthorAvatarUrl() != null) {
+                Glide.with(_binding.ivAvatar.getContext())
+                        .load(comment.getAuthorAvatarUrl())
                         .fitCenter()
                         .apply(options)
-                        .placeholder(R.drawable.karyl)
+                        .into(_binding.ivAvatar);
+            }
+
+            if (comment.getAttachmentThumbnailUrl() != null) {
+                Glide.with(_binding.ivAttachment.getContext())
+                        .load(comment.getAttachmentThumbnailUrl())
+                        .fitCenter()
+                        .apply(options)
                         .into(_binding.ivAttachment);
             } else if (comment.getAttachmentUri() != null) {
-                RequestOptions options = new RequestOptions()
-                        .placeholder(R.drawable.karyl)
-                        .error(R.drawable.turtle_huh);
-
                 Glide.with(_binding.ivAttachment.getContext())
                         .load(comment.getAttachmentUri())
                         .fitCenter()
                         .apply(options)
-                        .placeholder(R.drawable.karyl)
                         .into(_binding.ivAttachment);
             } else {
                 _binding.ivAttachment.setImageResource(0);
@@ -70,27 +72,30 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         void setComment(Comment comment) {
             _binding.setComment(comment);
-            if (comment.getAttachmentUrl() != null) {
-                RequestOptions options = new RequestOptions()
-                        .placeholder(R.drawable.karyl)
-                        .error(R.drawable.turtle_huh);
 
-                Glide.with(_binding.ivAttachment.getContext())
-                        .load(comment.getAttachmentUrl())
+            RequestOptions options = new RequestOptions()
+                    .placeholder(R.drawable.ic_loading)
+                    .error(R.drawable.turtle_huh);
+
+            if (comment.getAuthorAvatarUrl() != null) {
+                Glide.with(_binding.ivAvatar.getContext())
+                        .load(comment.getAuthorAvatarUrl())
                         .fitCenter()
                         .apply(options)
-                        .placeholder(R.drawable.karyl)
+                        .into(_binding.ivAvatar);
+            }
+
+            if (comment.getAttachmentThumbnailUrl() != null) {
+                Glide.with(_binding.ivAttachment.getContext())
+                        .load(comment.getAttachmentThumbnailUrl())
+                        .fitCenter()
+                        .apply(options)
                         .into(_binding.ivAttachment);
             } else if (comment.getAttachmentUri() != null) {
-                RequestOptions options = new RequestOptions()
-                        .placeholder(R.drawable.karyl)
-                        .error(R.drawable.turtle_huh);
-
                 Glide.with(_binding.ivAttachment.getContext())
                         .load(comment.getAttachmentUri())
                         .fitCenter()
                         .apply(options)
-                        .placeholder(R.drawable.karyl)
                         .into(_binding.ivAttachment);
             } else {
                 _binding.ivAttachment.setImageResource(0);
@@ -109,7 +114,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     final static int VIEW_NORMAL = 1;
     final static int VIEW_REPLYING = 2;
 
-    public CommentListAdapter(List<Comment> comments, Context context) {
+    public CommentListAdapter(List<Comment> comments) {
         _comments = comments;
     }
 

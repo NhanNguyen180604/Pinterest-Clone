@@ -7,7 +7,7 @@
 
    <androidx.fragment.app.FragmentContainerView
        android:id="@+id/login_fragment_container"
-       android:name="com.example.pinterest_clone_test2.ui.auth.FragmentLoginEmail"
+       android:name="com.example.pinterest_clone_test2.ui.auth.FragmentRegisterEmail"
        android:layout_width="match_parent"
        android:layout_height="match_parent"
        />

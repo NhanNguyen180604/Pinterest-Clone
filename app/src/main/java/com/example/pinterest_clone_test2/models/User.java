@@ -1,15 +1,16 @@
 package com.example.pinterest_clone_test2.models;
 
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class User {
+import androidx.annotation.NonNull;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
+
+import com.example.pinterest_clone_test2.BR;
+
+public class User extends BaseObservable implements Parcelable {
     @SuppressWarnings("unused")
     public enum Role {
         ADMIN,
@@ -22,80 +23,48 @@ public class User {
         Khác,
     }
 
-    private String password;
+    private String id;
     private String email;
     private String firstName;
     private String lastName;
     private String birthDate;
     private Gender gender;
     private Role role;
+    private String avatarUrl;
 
-    // Danh sách mock users
-    public static List<User> mockUsers = new ArrayList<>(Arrays.asList(
-            new User("password1", "user1@example.com", "Tân", "01/01/1990", Gender.Nam),
-            new User("password2", "user2@example.com", "Tandy", "02/02/1992", Gender.Nữ),
-            new User("password3", "user3@example.com", "Võ", "03/03/1995", Gender.Khác)
-    ));
-    public static Map<String, String> tokenMap = new HashMap<>();
-
-    // Constructor
     public User() {
     }
 
-    public User(String password, String email, String firstName, String lastName, String birthDate, Gender gender, Role role) {
-        this.password = password;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.role = role;
+    public String getId() {
+        return id;
     }
 
-    public User(String password, String email, String firstName, String birthDate, Gender gender, Role role) {
-        this.password = password;
-        this.email = email;
-        this.firstName = firstName;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.role = role;
-    }
-
-    public User(String password, String email, String firstName, String birthDate, Gender gender) {
-        this.password = password;
-        this.email = email;
-        this.firstName = firstName;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.role = Role.USER;
-    }
-
-
-    // Getter, Setter
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getEmail() {
         return email;
     }
+
     public void setEmail(String email) {
         this.email = email;
     }
 
+    @Bindable
     public String getFirstName() {
         return firstName;
     }
+
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+        notifyPropertyChanged(BR.firstName);
     }
 
     public String getLastName() {
         return lastName;
     }
+
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -103,6 +72,7 @@ public class User {
     public Gender getGender() {
         return gender;
     }
+
     public void setGender(String gender) {
         this.gender = Gender.valueOf(gender);
     }
@@ -110,6 +80,7 @@ public class User {
     public String getBirthDate() {
         return birthDate;
     }
+
     public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
@@ -117,6 +88,7 @@ public class User {
     public Role getRole() {
         return role;
     }
+
     public void setRole(Role role) {
         this.role = role;
     }
@@ -125,7 +97,16 @@ public class User {
         return firstName + " " + lastName;
     }
 
-    // Phương thức kiểm tra
+    @Bindable
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+        notifyPropertyChanged(BR.avatarUrl);
+    }
+
     public static boolean isValidEnum(String value) {
         try {
             Gender.valueOf(value);
@@ -135,76 +116,43 @@ public class User {
         }
     }
 
-    // Phương thức kiểm tra email có tồn tại hay không
-    public static boolean isEmailExists(String email) {
-        for (User user : mockUsers) {
-            if (user.getEmail().equalsIgnoreCase(email)) {
-                return true;
-            }
-        }
-        return false;
+    public User(Parcel in) {
+        id = in.readString();
+        email = in.readString();
+        firstName = in.readString();
+        lastName = in.readString();
+        birthDate = in.readString();
+        gender = (Gender) in.readSerializable();
+        role = (Role) in.readSerializable();
+        avatarUrl = in.readString();
     }
 
-    public static String login(String email, String password) {
-        for (User user : mockUsers) {
-            if (user.getEmail().equalsIgnoreCase(email) && user.getPassword().equals(password)) {
-                String token = UUID.randomUUID().toString();
-                tokenMap.put(token, email); // Lưu token và email vào Map
-                return token;
-            }
-        }
-        return null;
-    }
-
-    public static void initializeToken(String token, String email) {
-        tokenMap.put(token, email);
-    }
-    public static String register(User user) {
-        mockUsers.add(user);
-        String token = UUID.randomUUID().toString();
-        tokenMap.put(token, user.getEmail());
-        return token;
-    }
-
-    // Lấy thông tin người dùng từ token
-    public static UserInfo getUserByToken(String token) {
-        String email = tokenMap.get(token); // Lấy email từ token
-        if (email != null) {
-            for (User user : mockUsers) {
-                if (user.getEmail().equalsIgnoreCase(email)) {
-                    // Trả về UserInfo thay vì User, không chứa password
-                    return new UserInfo(user.getEmail(), user.getFirstName(), user.getLastName(),
-                            user.getBirthDate(), user.getGender(), user.getRole());
-                }
-            }
-        }
-        return null;
-    }
-
-    public static class UserInfo implements Serializable {
-        private final String email;
-        private final String firstName;
-        private final String lastName;
-        private final String birthDate;
-        private final Gender gender;
-        private final Role role;
-
-        public UserInfo(String email, String firstName, String lastName, String birthDate, Gender gender, Role role) {
-            this.email = email;
-            this.firstName = firstName;
-            this.lastName = lastName;
-            this.birthDate = birthDate;
-            this.gender = gender;
-            this.role = role;
+    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<>() {
+        @Override
+        public User createFromParcel(Parcel source) {
+            return new User(source);
         }
 
-        // Getter cho các thuộc tính
-        public String getEmail() { return email; }
-        public String getFirstName() { return firstName; }
-        public String getLastName() { return lastName; }
-        public String getBirthDate() { return birthDate; }
-        public Gender getGender() { return gender; }
-        public Role getRole() { return role; }
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(email);
+        parcel.writeString(firstName);
+        parcel.writeString(lastName);
+        parcel.writeString(birthDate);
+        parcel.writeSerializable(gender);
+        parcel.writeSerializable(role);
+        parcel.writeString(avatarUrl);
+    }
 }

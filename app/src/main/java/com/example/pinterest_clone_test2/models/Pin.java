@@ -4,56 +4,177 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
 
-import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.BR;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Pin implements Parcelable {
-    private String id;
-    private int media_url;  // for testing
-    private String author_id;
+public class Pin extends BaseObservable implements Parcelable {
+    public enum PinType {
+        IMAGE,
+        GIF,
+        VIDEO
+    }
 
-    public Pin(String id, int media_url, String author_id) {
-        this.id = id;
-        this.media_url = media_url;
-        this.author_id = author_id;
+    private String id;
+    private String mediaUrl;
+    private String thumbnailUrl;  // for image
+    private String authorId;
+    PinType type;
+    boolean isLiked;
+    int likeCount;
+    private String name;
+    private String nameNormalized;
+    private String description;
+    private String descriptionNormalized;
+    private boolean allowComment;
+    private long createdAt;
+
+    public Pin() {
+
     }
 
     public String getId() {
         return id;
     }
 
+    public Pin setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    @Bindable
+    public String getMediaUrl() {
+        return mediaUrl;
+    }
+
+    public Pin setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
+        notifyPropertyChanged(BR.mediaUrl);
+        return this;
+    }
+
+    @Bindable
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public Pin setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+        notifyPropertyChanged(BR.thumbnailUrl);
+        return this;
+    }
+
     public String getAuthorId() {
-        return author_id;
+        return authorId;
     }
 
-    public int getMediaURL() {
-        return media_url;
+    public Pin setAuthorId(String authorId) {
+        this.authorId = authorId;
+        return this;
     }
 
-    public static List<Pin> testData = Arrays.asList(
-            new Pin("image_01", R.drawable.araragi, "author_01"),
-            new Pin("image_02", R.drawable.cow, "author_02"),
-            new Pin("image_03", R.drawable.conversation, "author_03"),
-            new Pin("image_04", R.drawable.kaeya, "author_04"),
-            new Pin("image_05", R.drawable.araragi, "author_05"),
-            new Pin("image_06", R.drawable.cow, "author_06"),
-            new Pin("image_07", R.drawable.conversation, "author_07"),
-            new Pin("image_08", R.drawable.kaeya, "author_08"),
-            new Pin("image_09", R.drawable.araragi, "author_09"),
-            new Pin("image_10", R.drawable.cow, "author_10"),
-            new Pin("image_11", R.drawable.conversation, "author_11"),
-            new Pin("image_12", R.drawable.kaeya, "author_12")
-    );
+    public PinType getType() {
+        return type;
+    }
+
+    public Pin setType(PinType type) {
+        this.type = type;
+        return this;
+    }
+
+    @Bindable
+    public boolean getIsLiked() {
+        return isLiked;
+    }
+
+    public Pin setIsLiked(boolean liked) {
+        isLiked = liked;
+        notifyPropertyChanged(BR.isLiked);
+        return this;
+    }
+
+    @Bindable
+    public int getLikeCount() {
+        return likeCount;
+    }
+
+    public Pin setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
+        notifyPropertyChanged(BR.likeCount);
+        notifyPropertyChanged(BR.likeCountString);
+        return this;
+    }
+
+    @Bindable
+    public String getLikeCountString() {
+        return Integer.toString(likeCount);
+    }
+
+    @Bindable
+    public String getName() {
+        return name;
+    }
+
+    public Pin setName(String name) {
+        this.name = name;
+        this.nameNormalized = name.toLowerCase();
+        notifyPropertyChanged(BR.name);
+        return this;
+    }
+
+    public String getNameNormalized() {
+        return nameNormalized;
+    }
+
+    @Bindable
+    public String getDescription() {
+        return description;
+    }
+
+    public Pin setDescription(String description) {
+        this.description = description;
+        this.descriptionNormalized = description.toLowerCase();
+        notifyPropertyChanged(BR.description);
+        return this;
+    }
+
+    public String getDescriptionNormalized() {
+        return descriptionNormalized;
+    }
+
+    @Bindable
+    public boolean getAllowComment() {
+        return allowComment;
+    }
+
+    public Pin setAllowComment(boolean allowComment) {
+        this.allowComment = allowComment;
+        notifyPropertyChanged(BR.allowComment);
+        return this;
+    }
+
+    @Bindable
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public Pin setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
+        notifyPropertyChanged(BR.createdAt);
+        return this;
+    }
 
     public Pin(Parcel in) {
         super();
         readFromParcel(in);
     }
 
-    public static final Parcelable.Creator<Pin> CREATOR = new Parcelable.Creator<Pin>() {
+    public static final Parcelable.Creator<Pin> CREATOR = new Parcelable.Creator<>() {
 
         @Override
         public Pin createFromParcel(Parcel source) {
@@ -67,9 +188,17 @@ public class Pin implements Parcelable {
     };
 
     public void readFromParcel(Parcel in) {
-        this.id = in.readString();
-        this.media_url = in.readInt();
-        this.author_id = in.readString();
+        id = in.readString();
+        mediaUrl = in.readString();
+        authorId = in.readString();
+        thumbnailUrl = in.readString();
+        type = (PinType) in.readSerializable();
+        isLiked = in.readBoolean();
+        likeCount = in.readInt();
+        name = in.readString();
+        description = in.readString();
+        allowComment = in.readBoolean();
+        createdAt = in.readLong();
     }
 
     @Override
@@ -79,8 +208,16 @@ public class Pin implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeString(this.id);
-        dest.writeInt(this.media_url);
-        dest.writeString(this.author_id);
+        dest.writeString(id);
+        dest.writeString(mediaUrl);
+        dest.writeString(authorId);
+        dest.writeString(thumbnailUrl);
+        dest.writeSerializable(type);
+        dest.writeBoolean(isLiked);
+        dest.writeInt(likeCount);
+        dest.writeString(name);
+        dest.writeString(description);
+        dest.writeBoolean(allowComment);
+        dest.writeLong(createdAt);
     }
 }
