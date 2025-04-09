@@ -4,6 +4,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -94,6 +96,59 @@ public abstract class FirebaseUserService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
+    public static void updateGender(@NonNull String gender, UpdateGenderCallback callback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.getUid())
+                .update("gender", gender)
+                .addOnSuccessListener(unused -> callback.OnSuccess())
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void updateEmail(@NonNull String email, UpdateEmailCallback callback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.getUid())
+                .update("email", email)
+                .addOnSuccessListener(unused -> callback.OnSuccess())
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void updateBirthdate(@NonNull String birthdate, UpdateBirthdateCallback callback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.getUid())
+                .update("birthdate", birthdate)
+                .addOnSuccessListener(unused -> callback.OnSuccess())
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void updatePassword(@NonNull String oldPassword, @NonNull String newPassword, UpdatePasswordCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null || user.getEmail() == null) {
+            callback.OnFailure(new Exception("Người dùng không hợp lệ"));
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), oldPassword);
+        user.reauthenticate(credential)
+                .addOnSuccessListener(authResult -> {
+                    user.updatePassword(newPassword)
+                            .addOnSuccessListener(unused -> callback.OnSuccess())
+                            .addOnFailureListener(callback::OnFailure);
+                })
+                .addOnFailureListener(callback::OnFailure);
+    }
+
     public interface GetUserInfoCallback {
         void OnSuccess(DocumentSnapshot documentSnapshot);
 
@@ -109,6 +164,26 @@ public abstract class FirebaseUserService {
     public interface HidePinCallback {
         void OnSuccess();
 
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdateGenderCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdateEmailCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdatePasswordCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdateBirthdateCallback {
+        void OnSuccess();
         void OnFailure(Exception e);
     }
 }

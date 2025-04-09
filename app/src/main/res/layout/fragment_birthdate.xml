@@ -40,7 +40,7 @@
             android:id="@+id/tv_birthdate_intro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Để giúp giữ cho Pinterest an toàn, chúng tôi đang cần ngày sinh của bạn. Ngày sinh của giúp chúng tôi cung cấp các đề xuất được cá nhân hoá nhiều hơn và quảng cáo có liên quan hơn. Chúng tôi cũng sẽ không chia sẻ thông tin này mà không có sự cho phép của bạn và thông tin sẽ không hiển thị trên hồ sơ của bạn."
+            android:text="Để giúp giữ cho Pinterest an toàn, chúng tôi đang cần ngày sinh của bạn. Ngày sinh của bạn giúp chúng tôi cung cấp các đề xuất được cá nhân hoá nhiều hơn và quảng cáo có liên quan hơn. Chúng tôi cũng sẽ không chia sẻ thông tin này mà không có sự cho phép của bạn và thông tin sẽ không hiển thị trên hồ sơ của bạn."
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_am_title" />
 
@@ -50,8 +50,9 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="20dp"
             android:backgroundTint="@android:color/holo_red_light"
-            android:inputType="date"
-            android:text="01/01/2007"
+            android:focusable="false"
+            android:inputType="none"
+            android:text="02 thg 02, 2022"
             android:textAlignment="center"
             android:textSize="30sp"
             android:textStyle="bold"
@@ -73,11 +74,11 @@
             android:id="@+id/btn_birthdate_update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="150dp"
             android:layout_marginTop="20dp"
             android:backgroundTint="@android:color/holo_red_light"
             android:text="Cập nhật"
             app:layout_constraintTop_toBottomOf="@id/tv_birthdate_warning"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
