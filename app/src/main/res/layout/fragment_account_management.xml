@@ -117,7 +117,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/your_email"
+                android:id="@+id/tv_your_email"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="ahihi@gmail.com"
