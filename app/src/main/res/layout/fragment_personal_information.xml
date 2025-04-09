@@ -26,8 +26,8 @@
             android:id="@+id/tv_am_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="Personal Information"
-            android:text="Personal Information"
+            android:contentDescription="Thông tin cá nhân"
+            android:text="Thông tin cá nhân"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="16sp"
@@ -40,7 +40,7 @@
             android:id="@+id/tv_am_intro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Change your personal information to improve our suggestion. These informations will not show in your public profile"
+            android:text="Chỉnh sửa thông tin cá nhân cơ bản của bạn để cải thiện đề xuất. Thông tin này sẽ không hiển thị trong hồ sơ của bạn."
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_am_title" />
 
@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Your personal information"
+            android:text="Thông tin cá nhân của bạn"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_am_intro" />
@@ -69,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:text="Birthdate"
+                android:text="Ngày sinh"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -109,7 +109,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="Gender"
+                android:text="Giới tính"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -149,10 +149,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="Region"
+                android:text="Khu vực"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -170,7 +171,7 @@
                 android:id="@+id/your_region"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="Vietnam"
+                android:text="Việt Nam"
                 app:layout_constraintEnd_toStartOf="@id/chevron_region"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -190,7 +191,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="Language"
+                android:text="Ngôn ngữ"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -211,7 +212,7 @@
                 android:id="@+id/your_email"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="English (US)"
+                android:text="Tiếng Việt"
                 app:layout_constraintEnd_toStartOf="@id/chevron_language"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
