@@ -1,6 +1,5 @@
 package com.example.pinterest_clone_test2.ui.account.board_tab;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +23,7 @@ import com.example.pinterest_clone_test2.ui.pin.PinFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class BoardDetailFragment extends Fragment {
     private Board board;
@@ -41,7 +41,6 @@ public class BoardDetailFragment extends Fragment {
         return binding.getRoot();
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -49,13 +48,14 @@ public class BoardDetailFragment extends Fragment {
         board = getArguments() != null ? getArguments().getParcelable("board") : null;
         if (board == null) return;
         binding.tvBoardTitle.setText(board.getName());
-        binding.tvNumberOfPins.setText(board.getPins().size() + " ghim");
-        binding.btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavController navController = Navigation.findNavController(view);
-                navController.navigateUp();
-            }
+        if (board.getPins().size() > 1) {
+            binding.tvNumberOfPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), getResources().getString(R.string.pins).toLowerCase()));
+        } else {
+            binding.tvNumberOfPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), getResources().getString(R.string.pin).toLowerCase()));
+        }
+        binding.btnBack.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(view);
+            navController.navigateUp();
         });
         pins = board.getPinsObj();
 

@@ -1,6 +1,5 @@
 package com.example.pinterest_clone_test2.adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +16,7 @@ import com.example.pinterest_clone_test2.interfaces.OnBoardClickListener;
 import com.example.pinterest_clone_test2.models.Board;
 
 import java.util.List;
+import java.util.Locale;
 
 public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHolder> {
     private final Context context;
@@ -50,13 +50,16 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHol
         return new BoardViewHolder(view);
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(BoardViewHolder holder, int position) {
         Board board = boardList.get(position);
 
         holder.tvTitle.setText(board.getName());
-        holder.tvPins.setText(board.getPins().size() + " ghim");
+        if (board.getPins().size() > 1) {
+            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), context.getResources().getString(R.string.pins).toLowerCase()));
+        } else {
+            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), context.getResources().getString(R.string.pin).toLowerCase()));
+        }
         int pinSize = board.getPins().size();
         if (pinSize > 0)
             Glide.with(context).load(board.getPinsObj().get(0).getThumbnailUrl()).into(holder.ivFirst);

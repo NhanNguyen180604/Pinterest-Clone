@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingVertical="8dp"
-            android:text="Quản lý tài khoản"
+            android:text="@string/account_management"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="16sp"
@@ -39,7 +39,7 @@
             android:id="@+id/tv_am_intro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thực hiện thay đổi đối với thông tin cá nhân hoặc loại tài khoảng của bạn"
+            android:text="@string/account_management_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_am_title" />
 
@@ -48,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Tài khoản của bạn"
+            android:text="@string/your_account"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_am_intro" />
@@ -68,7 +68,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="Thông tin cá nhân"
+                android:text="@string/personal_info"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -100,7 +100,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="Email"
+                android:text="@string/email"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -120,7 +120,7 @@
                 android:id="@+id/tv_your_email"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="ahihi@gmail.com"
+                android:text="@string/placeholder_email"
                 app:layout_constraintEnd_toStartOf="@id/chevron_email"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -140,7 +140,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="Mật khẩu"
+                android:text="@string/password_text"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -159,7 +159,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="Thay đổi mật khẩu"
+                android:text="@string/change_password"
                 app:layout_constraintEnd_toStartOf="@id/chevron_password"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>

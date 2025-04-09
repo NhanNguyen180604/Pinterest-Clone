@@ -2,18 +2,16 @@ package com.example.pinterest_clone_test2.ui.settings;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.databinding.FragmentBirthdateBinding;
@@ -29,7 +27,7 @@ public class BirthdateFragment extends Fragment {
     FragmentBirthdateBinding binding;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentBirthdateBinding.inflate(inflater, container, false);
@@ -39,12 +37,9 @@ public class BirthdateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.btnBack.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                NavController navController = Navigation.findNavController(view);
-                navController.navigateUp();
-            }
+        binding.btnBack.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(view);
+            navController.navigateUp();
         });
         DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
         String birthdate = currentUserDocument.getString("birthdate");
@@ -71,23 +66,27 @@ public class BirthdateFragment extends Fragment {
             );
             datePickerDialog.show();
         });
-        binding.btnBirthdateUpdate.setOnClickListener(v->{
+        binding.btnBirthdateUpdate.setOnClickListener(v -> {
             String newBirthdate = binding.etBirthdate.getText().toString();
             binding.btnBirthdateUpdate.setEnabled(false);
-            binding.btnBirthdateUpdate.setText("Đang cập nhật...");
-            FirebaseUserService.updateBirthdate(newBirthdate, new FirebaseUserService.UpdateBirthdateCallback(){
+            binding.btnBirthdateUpdate.setText(getString(R.string.updating));
+            FirebaseUserService.updateBirthdate(newBirthdate, new FirebaseUserService.UpdateBirthdateCallback() {
                 @Override
                 public void OnSuccess() {
-                    Toast.makeText(requireContext(), "Cập nhật ngày sinh thành công", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.birthdate_update_success), Toast.LENGTH_SHORT).show();
                     binding.btnBack.performClick();
+                    binding.btnBirthdateUpdate.setEnabled(true);
+                    binding.btnBirthdateUpdate.setText(R.string.update);
                 }
+
                 @Override
                 public void OnFailure(Exception e) {
-                    Toast.makeText(requireContext(), "Cập nhật ngày sinh thất bại", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.birthdate_update_failure), Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                    binding.btnBirthdateUpdate.setEnabled(true);
+                    binding.btnBirthdateUpdate.setText(R.string.update);
                 }
             });
-            binding.btnBirthdateUpdate.setEnabled(true);
-            binding.btnBirthdateUpdate.setText("Cập nhật");
         });
     }
 }
