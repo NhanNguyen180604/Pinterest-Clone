@@ -164,4 +164,7 @@
     <string name="language">Language</string>
     <string name="Vietnamese">Vietnamese</string>
     <string name="advice_to_use_real_birthdate">Use your real birthdate, even if this is a business account</string>
+    <string name="birthdate_not_valid">Invalid birthdate</string>
+    <string name="birthdate_warning">User must be at least 6 years old to use this app</string>
+
 </resources>

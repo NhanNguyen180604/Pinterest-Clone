@@ -51,24 +51,36 @@
             android:layout_marginTop="20dp"
             android:backgroundTint="@android:color/holo_red_light"
             android:focusable="false"
-            android:inputType="none"
+            android:inputType="textNoSuggestions|textVisiblePassword"
             android:paddingHorizontal="20dp"
             android:text="@string/birthdate_placeholder_2"
             android:textAlignment="center"
             android:textSize="30sp"
             android:textStyle="bold"
+            android:importantForAutofill="no"
+            android:privateImeOptions="nm"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_birthdate_intro" />
 
         <TextView
             android:id="@+id/tv_birthdate_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_birthdate"/>
+
+        <TextView
+            android:id="@+id/tv_birthdate_suggest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/advice_to_use_real_birthdate"
             android:textAlignment="center"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/et_birthdate" />
+            app:layout_constraintTop_toBottomOf="@id/tv_birthdate_warning" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_birthdate_update"
@@ -80,6 +92,7 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_birthdate_warning" />
+            app:layout_constraintTop_toBottomOf="@id/tv_birthdate_suggest" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
+
