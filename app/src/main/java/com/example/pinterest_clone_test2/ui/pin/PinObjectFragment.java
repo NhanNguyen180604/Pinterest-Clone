@@ -40,6 +40,7 @@ import com.example.pinterest_clone_test2.models.User;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
+import com.example.pinterest_clone_test2.services.download.PinMediaDownloader;
 import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinMoreActionModalBottomSheet;
 import com.google.firebase.auth.FirebaseAuth;
@@ -577,9 +578,9 @@ public class PinObjectFragment extends Fragment {
 
             PinMediaDownloader downloader = new PinMediaDownloader(requireContext());
             downloader.DownloadFile(pin.getMediaUrl(), mimeType, String.valueOf(System.currentTimeMillis()));
-            handler.post(() -> Toast.makeText(requireContext(), "Download finished", Toast.LENGTH_SHORT).show());
         });
         thread.start();
+        //TODO: broadcast receiver when download finishes
     }
 
     @NonNull

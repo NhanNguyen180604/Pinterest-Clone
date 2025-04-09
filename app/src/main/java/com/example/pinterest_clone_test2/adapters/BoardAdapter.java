@@ -69,7 +69,7 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHol
 
     @Override
     public int getItemCount() {
-        return boardList.size();
+        return boardList != null ? boardList.size() : 0;
     }
 }
 

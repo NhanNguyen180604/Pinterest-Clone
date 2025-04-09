@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
@@ -11,6 +12,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 import java.util.Objects;
@@ -82,6 +84,8 @@ public abstract class FirebaseUserService {
                 .update("blockedPins", FieldValue.arrayUnion(pinId))
                 .addOnSuccessListener(unused -> callback.OnSuccess())
                 .addOnFailureListener(callback::OnFailure);
+
+        removePinFromProfileAndBoards(pinId, firestore, currentUser);
     }
 
     public static void blockUser(@NonNull String userId, HidePinCallback callback) {
@@ -94,6 +98,63 @@ public abstract class FirebaseUserService {
                 .update("blockedUsers", FieldValue.arrayUnion(userId))
                 .addOnSuccessListener(unused -> callback.OnSuccess())
                 .addOnFailureListener(callback::OnFailure);
+
+        // remove pins of blocked users from profile, boards
+        firestore.collection("pins")
+                .whereEqualTo("authorId", userId)
+                .get()
+                .continueWithTask(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot queryDocumentSnapshots = task.getResult();
+                        List<DocumentSnapshot> pinDocuments = queryDocumentSnapshots.getDocuments();
+                        for (DocumentSnapshot pinDoc :
+                                pinDocuments) {
+                            removePinFromProfileAndBoards(pinDoc.getId(), firestore, currentUser);
+                        }
+                    }
+                    return Tasks.forResult(null);
+                });
+    }
+
+    private static void removePinFromProfileAndBoards(@NonNull String pinId, FirebaseFirestore firestore, FirebaseUser currentUser) {
+        firestore.collection("users")
+                .document(currentUser.getUid())
+                .update("pins", FieldValue.arrayRemove(pinId))
+                .addOnSuccessListener(unused -> Log.d("FirebaseUserService", "Removed blocked pin from profile"));
+
+        firestore.collection("boards")
+                .whereEqualTo("userId", currentUser.getUid())
+                .get()
+                .continueWithTask(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot queryDocumentSnapshots = task.getResult();
+                        List<DocumentSnapshot> documentSnapshots = queryDocumentSnapshots.getDocuments();
+                        for (DocumentSnapshot boardDoc :
+                                documentSnapshots) {
+                            firestore.collection("boards")
+                                    .document(boardDoc.getId())
+                                    .update("pins", FieldValue.arrayRemove(pinId))
+                                    .addOnSuccessListener(unused -> {
+                                        if (boardDoc.getString("name") != null) {
+                                            Log.d("FirebaseUserService", "Removed blocked pin from board: " + boardDoc.getString("name"));
+                                        } else {
+                                            Log.d("FirebaseUserService", "Removed blocked pin from board id: " + boardDoc.getId());
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        if (boardDoc.getString("name") != null) {
+                                            Log.e("FirebaseUserService", "Failed to removed blocked pin from board: " + boardDoc.getString("name"));
+                                        } else {
+                                            Log.e("FirebaseUserService", "Failed to remove blocked pin from board id: " + boardDoc.getId());
+                                        }
+                                        e.printStackTrace();
+                                    });
+                        }
+                    } else {
+                        Log.d("FirebaseUserService", "Failed to remove fetch board document");
+                    }
+                    return Tasks.forResult(null);
+                });
     }
 
     public static void updateGender(@NonNull String gender, UpdateGenderCallback callback) {
