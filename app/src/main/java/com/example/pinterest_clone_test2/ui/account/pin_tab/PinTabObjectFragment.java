@@ -164,6 +164,7 @@ public class PinTabObjectFragment extends Fragment {
         }
         viewModel.setPinState(pins);
         viewModel.setOnLastPage(isOnLastPage);
+        viewModel.setLastUpdateTime(profileLastUpdated);
     }
 
     @Override
@@ -171,6 +172,10 @@ public class PinTabObjectFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         initRecyclerView();
         binding.progressBar.setVisibility(View.VISIBLE);
+
+        long oldLastUpdateState = viewModel.getLastUpdateTime();
+        if (oldLastUpdateState != 0)
+            profileLastUpdated = oldLastUpdateState;
 
         long lastUpdateTime = FirebaseUserService.getLastUpdateTime();
         if (lastUpdateTime != profileLastUpdated) {
