@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +16,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinTabObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
@@ -25,8 +23,6 @@ import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Filter;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +34,12 @@ public class PinTabObjectFragment extends Fragment {
     List<Pin> pins = new ArrayList<>();
     PinTabObjectViewModel viewModel;
     Handler handler = new Handler();
+    long profileLastUpdated = 0;
 
     final int perPage = 20;
     boolean isOnLastPage = false;
     boolean isLoading = false;
+    boolean fetchSavedPins = true;
     DocumentSnapshot lastVisible;  // for pagination
 
     public PinTabObjectFragment() {
@@ -72,12 +70,9 @@ public class PinTabObjectFragment extends Fragment {
 
             try {
                 DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
-                if (currentUserDocument != null) {
-                    Filter filter = Filter.equalTo("authorId", currentUserDocument.getId());
-                    FirebasePinService.getPins(lastVisible, perPage, filter, callback);
-                } else {
-                    Toast.makeText(requireContext(), getResources().getString(R.string.fetch_user_failure), Toast.LENGTH_SHORT).show();
-                }
+                assert currentUserDocument != null;
+                FirebasePinService.getUserProfilePins(currentUserDocument.getId(), lastVisible, perPage, callback, fetchSavedPins);
+                fetchSavedPins = false;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -85,11 +80,10 @@ public class PinTabObjectFragment extends Fragment {
         thread.start();
     }
 
-    final FirebasePinService.GetPinServiceCallback callback = new FirebasePinService.GetPinServiceCallback() {
+    final FirebasePinService.GetProfilePinServiceCallback callback = new FirebasePinService.GetProfilePinServiceCallback() {
         @Override
-        public void OnSuccess(QuerySnapshot querySnapshot) {
+        public void OnSuccess(List<DocumentSnapshot> documents, DocumentSnapshot returnLastVisible) {
             List<Pin> newPins = new ArrayList<>();
-            List<DocumentSnapshot> documents = querySnapshot.getDocuments();
 
             if (documents.isEmpty()) {
                 isOnLastPage = true;
@@ -97,7 +91,7 @@ public class PinTabObjectFragment extends Fragment {
                 return;
             }
 
-            lastVisible = documents.get(documents.size() - 1);
+            lastVisible = returnLastVisible;
 
             // create pins from documents
             for (DocumentSnapshot document :
@@ -122,7 +116,9 @@ public class PinTabObjectFragment extends Fragment {
 
                 newPins.add(pin);
             }
-            handler.post(() -> updateUI(newPins, true));
+            long lastUpdateTime = FirebaseUserService.getLastUpdateTime();
+            handler.post(() -> updateUI(newPins, profileLastUpdated == lastUpdateTime));
+            profileLastUpdated = lastUpdateTime;
         }
 
         @Override
@@ -175,6 +171,15 @@ public class PinTabObjectFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         initRecyclerView();
         binding.progressBar.setVisibility(View.VISIBLE);
+
+        long lastUpdateTime = FirebaseUserService.getLastUpdateTime();
+        if (lastUpdateTime != profileLastUpdated) {
+            fetchSavedPins = true;
+            isOnLastPage = false;
+            lastVisible = null;
+            fetchPinsAsync();
+            return;
+        }
 
         // restore states
         List<Pin> oldPinState = viewModel.getPinState();

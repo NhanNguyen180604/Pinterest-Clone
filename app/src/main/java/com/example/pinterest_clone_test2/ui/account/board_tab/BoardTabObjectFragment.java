@@ -58,6 +58,11 @@ public class BoardTabObjectFragment extends Fragment {
         recyclerView.setAdapter(boardAdapter);
         recyclerView.setLayoutManager((new GridLayoutManager(requireContext(), 2)));
 
+        if (!boardList.isEmpty()) {
+            binding.progressLoading.setVisibility(View.GONE);
+            return;
+        }
+
         FirebaseBoardService.getUserBoards(new FirebaseBoardService.GetBoardServiceCallback() {
             @Override
             public void OnSuccess(QuerySnapshot querySnapshot) {

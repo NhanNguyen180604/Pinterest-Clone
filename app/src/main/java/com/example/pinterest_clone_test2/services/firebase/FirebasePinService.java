@@ -6,11 +6,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.pinterest_clone_test2.models.Pin;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -47,6 +49,97 @@ public abstract class FirebasePinService {
                 .get()
                 .addOnSuccessListener(callback::OnSuccess)
                 .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void getUserProfilePins(@NonNull String userId, @Nullable DocumentSnapshot lastVisible, int perPage, GetProfilePinServiceCallback callback, boolean fetchSavedPins) {
+        if (perPage < 1) {
+            throw new IllegalArgumentException("Per page number must be greater than 0");
+        }
+
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        List<DocumentSnapshot> result = new ArrayList<>();
+        final DocumentSnapshot[] returnLastVisible = new DocumentSnapshot[1];
+        returnLastVisible[0] = lastVisible;
+
+        Query createdPinQuery = firestore.collection("pins")
+                .whereEqualTo("authorId", userId)
+                .orderBy("createdAt", Query.Direction.DESCENDING);
+
+        // this is for pagination, use lastVisible to avoid infinite scrolling
+        if (lastVisible != null) {
+            createdPinQuery = createdPinQuery.startAfter(lastVisible);
+        }
+
+        List<Task<QuerySnapshot>> fetchPinTasks = new ArrayList<>();
+
+        // fetch pin created by user
+        fetchPinTasks.add(
+                createdPinQuery
+                        .limit(perPage)
+                        .get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                            if (!docs.isEmpty()) {
+                                result.addAll(docs);
+                                returnLastVisible[0] = docs.get(docs.size() - 1);
+                            }
+                        })
+        );
+
+        if (fetchSavedPins) {
+            FirebaseUserService.getUserInfos(userId, new FirebaseUserService.GetUserInfoCallback() {
+                @Override
+                public void OnSuccess(DocumentSnapshot documentSnapshot) {
+                    List<String> savedPins = null;
+                    try {
+                        savedPins = (List<String>) documentSnapshot.get("pins");
+                    } catch (Exception e) {
+                        //eat exception
+                    }
+
+                    if (savedPins != null) {
+                        for (String savePinId :
+                                savedPins) {
+                            // fetch pin saved to profile by user
+                            fetchPinTasks.add(
+                                    firestore.collection("pins")
+                                            .whereEqualTo(FieldPath.documentId(), savePinId)
+                                            .get()
+                                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                                List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
+                                                if (!docs.isEmpty()) {
+                                                    result.addAll(docs);
+                                                }
+                                            })
+                            );
+                        }
+                    }
+
+                    Tasks.whenAllComplete(fetchPinTasks)
+                            .addOnSuccessListener(unused -> {
+                                callback.OnSuccess(result, returnLastVisible[0]);
+                            })
+                            .addOnFailureListener(callback::OnFailure);
+                }
+
+                @Override
+                public void OnFailure(Exception e) {
+                    e.printStackTrace();
+                    Tasks.whenAllComplete(fetchPinTasks)
+                            .addOnSuccessListener(unused -> {
+                                callback.OnSuccess(result, returnLastVisible[0]);
+                            })
+                            .addOnFailureListener(callback::OnFailure);
+                }
+            });
+        } else {
+            Tasks.whenAllComplete(fetchPinTasks)
+                    .addOnSuccessListener(unused -> {
+                        callback.OnSuccess(result, returnLastVisible[0]);
+                    })
+                    .addOnFailureListener(callback::OnFailure);
+        }
     }
 
     public static void searchPins(@NonNull String searchQuery, @Nullable DocumentSnapshot lastVisible, int perPage, @NonNull SearchPinServiceCallback callback) {
@@ -150,7 +243,7 @@ public abstract class FirebasePinService {
 
             try {
                 blockedPins = (List<String>) currentUserDocument.get("blockedPins");
-                blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
             } catch (Exception e) {
                 // eat exception
             }
@@ -228,6 +321,12 @@ public abstract class FirebasePinService {
 
     public interface GetPinServiceCallback {
         void OnSuccess(QuerySnapshot querySnapshot);
+
+        void OnFailure(Exception e);
+    }
+
+    public interface GetProfilePinServiceCallback {
+        void OnSuccess(List<DocumentSnapshot> documentSnapshots, DocumentSnapshot lastVisible);
 
         void OnFailure(Exception e);
     }
