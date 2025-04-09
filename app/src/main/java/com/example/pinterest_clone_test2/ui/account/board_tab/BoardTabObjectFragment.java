@@ -1,6 +1,7 @@
-package com.example.pinterest_clone_test2.ui.account;
+package com.example.pinterest_clone_test2.ui.account.board_tab;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +30,8 @@ import java.util.List;
 public class BoardTabObjectFragment extends Fragment {
     private FragmentBoardTabObjectBinding binding;
     private BoardAdapter boardAdapter;
-    private List<Board> boardList;
+    private List<Board> boardList = new ArrayList<>();
+    Handler handler = new Handler();
 
     public BoardTabObjectFragment() {
         // Required empty public constructor
@@ -45,12 +47,20 @@ public class BoardTabObjectFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         RecyclerView recyclerView = binding.rvBoards;
+        boardAdapter = new BoardAdapter(requireContext(), boardList, board -> {
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("board", board);
+            navController.navigate(R.id.action_navigation_account_to_boardDetailFragment, bundle);
+        });
+        recyclerView.setAdapter(boardAdapter);
         recyclerView.setLayoutManager((new GridLayoutManager(requireContext(), 2)));
+
         FirebaseBoardService.getUserBoards(new FirebaseBoardService.GetBoardServiceCallback() {
             @Override
             public void OnSuccess(QuerySnapshot querySnapshot) {
-                boardList = new ArrayList<>();
                 for (var doc : querySnapshot.getDocuments()) {
                     Board board = doc.toObject(Board.class);
                     if (board == null)
@@ -60,32 +70,29 @@ public class BoardTabObjectFragment extends Fragment {
                         FirebaseBoardService.fetchPinsFromIds(board.getPins(), new FirebaseBoardService.OnPinsFetchedCallback() {
                             @Override
                             public void onSuccess(List<Pin> pins) {
-                                board.setPinsObj(pins); // this is your new field
-                                boardList.add(board);
-                                boardAdapter.notifyDataSetChanged(); // or use submitList for diffing
+                                handler.post(() -> {
+                                    board.setPinsObj(pins);
+                                    boardList.add(board);
+                                    boardAdapter.notifyDataSetChanged();
+                                    binding.progressLoading.setVisibility(View.GONE);
+                                });
                             }
 
                             @Override
                             public void onFailure(Exception e) {
                                 Log.e("BoardFragment", "Failed to fetch pins for board: " + board.getId(), e);
+                                binding.progressLoading.setVisibility(View.GONE);
                             }
                         });
                     } else {
-                        board.setPinsObj(new ArrayList<>());
-                        boardList.add(board);
-                        boardAdapter.notifyDataSetChanged();
+                        handler.post(() -> {
+                            board.setPinsObj(new ArrayList<>());
+                            boardList.add(board);
+                            boardAdapter.notifyDataSetChanged();
+                            binding.progressLoading.setVisibility(View.GONE);
+                        });
                     }
-                    binding.progressLoading.setVisibility(View.GONE);
                 }
-
-                boardAdapter = new BoardAdapter(requireContext(), boardList, board -> {
-                    NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelable("board", board); // Make sure Board implements Parcelable
-                    navController.navigate(R.id.action_navigation_account_to_boardDetailFragment, bundle);
-                });
-
-                recyclerView.setAdapter(boardAdapter);
             }
 
             @Override

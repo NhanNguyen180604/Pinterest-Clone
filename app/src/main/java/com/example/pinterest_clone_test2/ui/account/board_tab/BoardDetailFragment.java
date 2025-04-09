@@ -1,4 +1,4 @@
-package com.example.pinterest_clone_test2.ui.account;
+package com.example.pinterest_clone_test2.ui.account.board_tab;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;

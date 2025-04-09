@@ -127,7 +127,7 @@ public class LoginActivity extends AppCompatActivity {
                     userInfos.put("email", firebaseUser.getEmail());
                     userInfos.put("role", "User");
                     userInfos.put("gender", user.getGender().name());
-                    userInfos.put("birthDate", user.getBirthDate());
+                    userInfos.put("birthdate", user.getBirthDate());
                     userInfos.put("pins", new ArrayList<String>());
                     userInfos.put("boards", new ArrayList<String>());
                     userInfos.put("collages", new ArrayList<String>());
