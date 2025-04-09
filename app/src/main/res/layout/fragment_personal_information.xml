@@ -86,7 +86,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/your_birthdate"
+                android:id="@+id/tv_your_birthdate"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="01/01/2007"
@@ -126,7 +126,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/your_gender"
+                android:id="@+id/tv_your_gender"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="Male"
