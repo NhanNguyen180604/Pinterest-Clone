@@ -31,7 +31,7 @@ import java.util.List;
 public class BoardChoosingFragment extends Fragment {
     public static String NAME = "BoardChoosingFragment";
     FragmentBoardChoosingBinding binding;
-    Pin pin;
+    final Pin pin;
     List<BaseItem> items = new ArrayList<>();
     Handler handler = new Handler();
     final boolean suggestNewBoard;
@@ -39,9 +39,10 @@ public class BoardChoosingFragment extends Fragment {
 
     public BoardChoosingFragment() {
         suggestNewBoard = false;
+        pin = null;
     }
 
-    public BoardChoosingFragment(@Nullable Pin pin, boolean suggestNewBoard) {
+    public BoardChoosingFragment(Pin pin, boolean suggestNewBoard) {
         this.pin = pin;
         this.suggestNewBoard = suggestNewBoard;
     }
@@ -82,7 +83,12 @@ public class BoardChoosingFragment extends Fragment {
     }
 
     private void initializeBoards() {
-        BoardItemAdapter adapter = new BoardItemAdapter(items, itemClickListener);
+        BoardItemAdapter adapter;
+        if (pin != null) {
+            adapter = new BoardItemAdapter(items, itemClickListener, pin.getId());
+        } else {
+            adapter = new BoardItemAdapter(items, itemClickListener);
+        }
         binding.rvBoards.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false);
         binding.rvBoards.setLayoutManager(layoutManager);
@@ -148,12 +154,11 @@ public class BoardChoosingFragment extends Fragment {
                 List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
                 for (DocumentSnapshot document :
                         documentSnapshots) {
-                    Board board = new Board()
-                            .setId(document.getId())
-                            .setName(document.getString("name"))
-                            .setDescription(document.getString("description"))
-                            .setAuthorId(document.getString("authorId"))
-                            .setPublic(Boolean.TRUE.equals(document.getBoolean("isPublic")));
+                    Board board = document.toObject(Board.class);
+                    if (board == null) {
+                        continue;
+                    }
+                    board.setId(document.getId());
                     BaseItem newItem = new BoardItem(board, false);
                     items.add(newItem);
                 }

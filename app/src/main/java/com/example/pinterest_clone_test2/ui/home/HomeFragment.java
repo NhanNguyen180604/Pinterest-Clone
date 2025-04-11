@@ -2,6 +2,7 @@ package com.example.pinterest_clone_test2.ui.home;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,30 +12,28 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.ViewPagerHomeAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentHomeBinding;
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
-import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.Objects;
 
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
-    ViewPager2 view_pager;
-    TabLayout tab_layout;
+    ViewPagerHomeAdapter adapter;
     List<Board> boards = new ArrayList<>();
     Handler handler = new Handler();
     HomeViewModel viewModel;
+    boolean addOnlyNewBoards = false;
 
     public HomeFragment() {
     }
@@ -58,6 +57,9 @@ public class HomeFragment extends Fragment {
         List<Board> oldBoardState = viewModel.getBoards();
         if (oldBoardState == null) {
             fetchBoardsAsync();
+        } else if (FirebaseBoardService.isCurrentUserBoardListUpdated()) {
+            addOnlyNewBoards = true;
+            fetchBoardsAsync();
         } else {
             boards = oldBoardState;
             updateTabUI();
@@ -72,8 +74,18 @@ public class HomeFragment extends Fragment {
 
     void fetchBoardsAsync() {
         Thread thread = new Thread(() -> {
+            if (addOnlyNewBoards) {
+                FirebaseBoardService.getUserBoards(callback);
+                return;
+            }
+
             binding.progressBar.setVisibility(View.VISIBLE);
-            FirebaseBoardService.getUserBoards(callback);
+            QuerySnapshot currentUserBoardSnapshot = FirebaseBoardService.getCurrentUserBoardSnapshot();
+            if (currentUserBoardSnapshot == null) {
+                FirebaseBoardService.getUserBoards(callback);
+            } else {
+                callback.OnSuccess(currentUserBoardSnapshot);
+            }
         });
         thread.start();
     }
@@ -84,37 +96,51 @@ public class HomeFragment extends Fragment {
             return;
 
         binding.progressBar.setVisibility(View.GONE);
-        view_pager = binding.homePager;
-        ViewPagerHomeAdapter adapter = new ViewPagerHomeAdapter(this, boards);
-        view_pager.setAdapter(adapter);
+        adapter = new ViewPagerHomeAdapter(this, boards);
+        binding.homePager.setAdapter(adapter);
 
-        tab_layout = binding.homeTabPager;
-        new TabLayoutMediator(tab_layout, view_pager,
-                (tab, position) -> {
-                    tab.setText(String.format(Locale.US, boards.get(position).getName(), position + 1));
-                }).attach();
+        new TabLayoutMediator(binding.homeTabPager, binding.homePager,
+                (tab, position) -> tab.setText(boards.get(position).getName())).attach();
     }
 
     private final FirebaseBoardService.GetBoardServiceCallback callback = new FirebaseBoardService.GetBoardServiceCallback() {
         @Override
         public void OnSuccess(QuerySnapshot querySnapshot) {
-            boards.add(new Board().setName(getResources().getString(R.string.all)));
-            List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
-            for (DocumentSnapshot document :
-                    documentSnapshots) {
-                boards.add(new Board()
-                        .setId(document.getId())
-                        .setName(document.getString("name"))
-                        .setDescription(document.getString("description"))
-                        .setAuthorId(document.getString("authorId"))
-                        .setPublic(Boolean.TRUE.equals(document.getBoolean("isPublic")))
-                );
+            if (!addOnlyNewBoards) {
+                boards.add(new Board().setName(getResources().getString(R.string.all)));
+                List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
+                for (DocumentSnapshot document :
+                        documentSnapshots) {
+                    boards.add(new Board()
+                            .setId(document.getId())
+                            .setName(document.getString("name"))
+                            .setDescription(document.getString("description"))
+                            .setAuthorId(document.getString("authorId"))
+                            .setPublic(Boolean.TRUE.equals(document.getBoolean("isPublic")))
+                    );
+                }
+            } else {
+                List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
+                for (DocumentSnapshot document :
+                        documentSnapshots) {
+                    if (boards.stream().noneMatch(b -> Objects.equals(b.getId(), document.getId()))) {
+                        boards.add(new Board()
+                                .setId(document.getId())
+                                .setName(document.getString("name"))
+                                .setDescription(document.getString("description"))
+                                .setAuthorId(document.getString("authorId"))
+                                .setPublic(Boolean.TRUE.equals(document.getBoolean("isPublic")))
+                        );
+                    }
+                }
+                addOnlyNewBoards = false;
             }
             handler.post(() -> updateTabUI());
         }
 
         @Override
         public void OnFailure(Exception e) {
+            Log.d("HomeFragment", "Failed to fetch user boards");
             e.printStackTrace();
             boards.add(new Board().setName(getResources().getString(R.string.all)));
             handler.post(() -> updateTabUI());

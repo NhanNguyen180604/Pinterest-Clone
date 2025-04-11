@@ -3,10 +3,7 @@ package com.example.pinterest_clone_test2.services.firebase;
 import androidx.annotation.NonNull;
 
 import com.example.pinterest_clone_test2.models.Board;
-import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -22,6 +19,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class FirebaseBoardService {
+    private static QuerySnapshot currentUserBoardSnapshot;
+
+    public static QuerySnapshot getCurrentUserBoardSnapshot() {
+        return currentUserBoardSnapshot;
+    }
+
+    private static boolean currentUserBoardListUpdated = false;
+
+    public static boolean isCurrentUserBoardListUpdated() {
+        return currentUserBoardListUpdated;
+    }
+
     public static void getUserBoards(GetBoardServiceCallback callback) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -30,46 +39,12 @@ public abstract class FirebaseBoardService {
         firestore.collection("boards")
                 .whereEqualTo("userId", currentUser.getUid())
                 .get()
-                .addOnSuccessListener(callback::OnSuccess)
-                .addOnFailureListener(callback::OnFailure);
-    }
-
-    public static void fetchPinsFromIds(List<String> pinIds, OnPinsFetchedCallback callback) {
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-        if (pinIds == null || pinIds.isEmpty()) {
-            callback.onSuccess(new ArrayList<>());
-            return;
-        }
-
-        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
-        for (String pinId : pinIds) {
-            tasks.add(firestore.collection("pins").document(pinId).get());
-        }
-
-        Tasks.whenAllSuccess(tasks)
-                .addOnSuccessListener(results -> {
-                    List<Pin> pins = new ArrayList<>();
-                    for (Object result : results) {
-                        if (result instanceof DocumentSnapshot) {
-                            DocumentSnapshot doc = (DocumentSnapshot) result;
-                            Pin pin = doc.toObject(Pin.class);
-                            if (pin != null) {
-                                pin.setId(doc.getId());
-                                pins.add(pin);
-                            }
-                        }
-                    }
-                    callback.onSuccess(pins);
+                .addOnSuccessListener(querySnapshot -> {
+                    callback.OnSuccess(querySnapshot);
+                    currentUserBoardSnapshot = querySnapshot;
+                    currentUserBoardListUpdated = false;
                 })
-                .addOnFailureListener(callback::onFailure);
-    }
-
-
-    public interface OnPinsFetchedCallback {
-        void onSuccess(List<Pin> pins);
-
-        void onFailure(Exception e);
+                .addOnFailureListener(callback::OnFailure);
     }
 
     public static void createNewBoard(@NonNull Board board, CreateBoardServiceCallback callback) {
@@ -109,7 +84,10 @@ public abstract class FirebaseBoardService {
 
                     firestore.collection("boards")
                             .add(boardData)
-                            .addOnSuccessListener(callback::OnSuccess)
+                            .addOnSuccessListener(documentReference -> {
+                                currentUserBoardListUpdated = true;
+                                callback.OnSuccess(documentReference);
+                            })
                             .addOnFailureListener(callback::OnFailure);
                 })
                 .addOnFailureListener(callback::OnFailure);

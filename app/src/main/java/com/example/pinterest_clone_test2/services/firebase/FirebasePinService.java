@@ -142,6 +142,37 @@ public abstract class FirebasePinService {
         }
     }
 
+    public static void fetchPinsFromIds(List<String> pinIds, OnPinsFetchedFromIdsCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        if (pinIds == null || pinIds.isEmpty()) {
+            callback.onSuccess(new ArrayList<>());
+            return;
+        }
+
+        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+        for (String pinId : pinIds) {
+            tasks.add(firestore.collection("pins").document(pinId).get());
+        }
+
+        Tasks.whenAllSuccess(tasks)
+                .addOnSuccessListener(results -> {
+                    List<Pin> pins = new ArrayList<>();
+                    for (Object result : results) {
+                        if (result instanceof DocumentSnapshot) {
+                            DocumentSnapshot doc = (DocumentSnapshot) result;
+                            Pin pin = doc.toObject(Pin.class);
+                            if (pin != null) {
+                                pin.setId(doc.getId());
+                                pins.add(pin);
+                            }
+                        }
+                    }
+                    callback.onSuccess(pins);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
     public static void searchPins(@NonNull String searchQuery, @Nullable DocumentSnapshot lastVisible, int perPage, @NonNull SearchPinServiceCallback callback) {
         if (perPage < 1) {
             throw new IllegalArgumentException("Per page number must be greater than 0");
@@ -346,5 +377,11 @@ public abstract class FirebasePinService {
         void onSearchSuccess(List<Pin> results, DocumentSnapshot lastVisible);
 
         void onSearchFailure(Exception e);
+    }
+
+    public interface OnPinsFetchedFromIdsCallback {
+        void onSuccess(List<Pin> pins);
+
+        void onFailure(Exception e);
     }
 }
