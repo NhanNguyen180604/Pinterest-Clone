@@ -35,12 +35,13 @@ import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
+import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
+import com.example.pinterest_clone_test2.services.download.PinMediaDownloader;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
-import com.example.pinterest_clone_test2.services.download.PinMediaDownloader;
 import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinMoreActionModalBottomSheet;
 import com.google.firebase.auth.FirebaseAuth;
@@ -229,6 +230,49 @@ public class PinObjectFragment extends Fragment {
         isLoading = false;
     }
 
+    // use this to check if this pin is saved inside a board
+    void fetchBoardsAsync() {
+        Thread thread = new Thread(() -> {
+            QuerySnapshot currentUserBoardSnapshot = FirebaseBoardService.getCurrentUserBoardSnapshot();
+            if (currentUserBoardSnapshot == null) {
+                FirebaseBoardService.getUserBoards(getBoardServiceCallback);
+            } else {
+                getBoardServiceCallback.OnSuccess(currentUserBoardSnapshot);
+            }
+        });
+        thread.start();
+    }
+
+    final FirebaseBoardService.GetBoardServiceCallback getBoardServiceCallback = new FirebaseBoardService.GetBoardServiceCallback() {
+        @Override
+        public void OnSuccess(QuerySnapshot querySnapshot) {
+            List<DocumentSnapshot> documents = querySnapshot.getDocuments();
+            for (DocumentSnapshot document :
+                    documents) {
+                Board board = document.toObject(Board.class);
+                if (board == null) {
+                    continue;
+                }
+                board.setId(document.getId());
+                if (pin != null && board.getPins() != null && board.getPins().contains(pin.getId())) {
+                    handler.post(() -> {
+                        binding.btnSave.setText(getString(R.string.saved));
+                        binding.btnSave.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.gray_button_pinterest));
+                        binding.btnSave.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+                    });
+                    break;
+                } else if (pin == null) {
+                    Log.d("PinObjectFragment", "Pin is null again bitch");
+                }
+            }
+        }
+
+        @Override
+        public void OnFailure(Exception e) {
+
+        }
+    };
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -393,6 +437,8 @@ public class PinObjectFragment extends Fragment {
         if (scroll_state != null && binding.rvRelevant.getLayoutManager() != null) {
             binding.rvRelevant.getLayoutManager().onRestoreInstanceState(scroll_state);
         }
+
+        fetchBoardsAsync();
     }
 
     @Override
@@ -553,8 +599,7 @@ public class PinObjectFragment extends Fragment {
                 action = R.id.action_pinFragment_self;
             } else if (Objects.equals(source, "search")) {
                 action = R.id.action_pinFragment2_self;
-            } else if (Objects.equals(source, "account")){
-                // TODO: change this to R.id.action_pinFragment3_self or whatever it generates
+            } else if (Objects.equals(source, "account")) {
                 action = R.id.action_pinFragment3_self;
             }
 

@@ -22,6 +22,7 @@ import com.example.pinterest_clone_test2.databinding.FragmentBoardTabObjectBindi
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
+import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import java.util.List;
 public class BoardTabObjectFragment extends Fragment {
     private FragmentBoardTabObjectBinding binding;
     private BoardAdapter boardAdapter;
-    private List<Board> boardList = new ArrayList<>();
+    private final List<Board> boardList = new ArrayList<>();
     Handler handler = new Handler();
 
     public BoardTabObjectFragment() {
@@ -72,13 +73,13 @@ public class BoardTabObjectFragment extends Fragment {
                         continue;
 
                     if (board.getPins() != null && !board.getPins().isEmpty()) {
-                        FirebaseBoardService.fetchPinsFromIds(board.getPins(), new FirebaseBoardService.OnPinsFetchedCallback() {
+                        FirebasePinService.fetchPinsFromIds(board.getPins(), new FirebasePinService.OnPinsFetchedFromIdsCallback() {
                             @Override
                             public void onSuccess(List<Pin> pins) {
                                 handler.post(() -> {
                                     board.setPinsObj(pins);
                                     boardList.add(board);
-                                    boardAdapter.notifyDataSetChanged();
+                                    boardAdapter.notifyItemInserted(boardList.size() - 1);
                                     binding.progressLoading.setVisibility(View.GONE);
                                 });
                             }
@@ -93,7 +94,7 @@ public class BoardTabObjectFragment extends Fragment {
                         handler.post(() -> {
                             board.setPinsObj(new ArrayList<>());
                             boardList.add(board);
-                            boardAdapter.notifyDataSetChanged();
+                            boardAdapter.notifyItemInserted(boardList.size() - 1);
                             binding.progressLoading.setVisibility(View.GONE);
                         });
                     }

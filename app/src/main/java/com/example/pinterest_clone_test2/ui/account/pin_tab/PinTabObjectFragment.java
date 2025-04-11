@@ -13,15 +13,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinTabObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
+import com.example.pinterest_clone_test2.ui.pin.PinFragment;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
@@ -236,10 +240,14 @@ public class PinTabObjectFragment extends Fragment {
         binding = null;
     }
 
-    PinClickListener pinClickListener = new PinClickListener() {
-        @Override
-        public void OnClick(int position, View v) {
-
-        }
+    PinClickListener pinClickListener = (position, v) -> {
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+        Bundle args = new Bundle();
+        args.putParcelableArrayList("pins", new ArrayList<>(pins));
+        args.putInt("position", position);
+        args.putString("source", "account");
+        PinFragment fragment = new PinFragment();
+        fragment.setArguments(args);
+        navController.navigate(R.id.action_navigation_account_to_pinFragment3, args, null, null);
     };
 }
