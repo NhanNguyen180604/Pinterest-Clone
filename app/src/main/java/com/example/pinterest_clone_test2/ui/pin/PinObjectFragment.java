@@ -644,7 +644,6 @@ public class PinObjectFragment extends Fragment {
             downloader.DownloadFile(pin.getMediaUrl(), mimeType, String.valueOf(System.currentTimeMillis()));
         });
         thread.start();
-        //TODO: broadcast receiver when download finishes
     }
 
     @NonNull

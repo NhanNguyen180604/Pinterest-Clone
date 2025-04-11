@@ -172,5 +172,6 @@
     <string name="pin_not_found">Pin not found</string>
     <string name="no_pin_id">Empty pin ID</string>
     <string name="unknown_error">Unknown error</string>
+    <string name="download_pin_finished">Finished downloading media</string>
 
 </resources>

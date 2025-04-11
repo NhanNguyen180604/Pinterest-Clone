@@ -1,6 +1,9 @@
 package com.example.pinterest_clone_test2;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
@@ -10,7 +13,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.pinterest_clone_test2.broadcast_receivers.DownloadMediaBroadcastReceiver;
 import com.example.pinterest_clone_test2.databinding.ActivityMainBinding;
+import com.example.pinterest_clone_test2.services.download.PinMediaDownloader;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.upload.UploadDialogFragment;
 import com.example.pinterest_clone_test2.utils.CloudinaryManager;
@@ -19,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    DownloadMediaBroadcastReceiver downloadMediaBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +63,25 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }, 1000);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        downloadMediaBroadcastReceiver = new DownloadMediaBroadcastReceiver();
+        IntentFilter filter = new IntentFilter(PinMediaDownloader.ACTION_PIN_DOWNLOAD_COMPLETE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(downloadMediaBroadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            // my IDE is highlighting this as an error, but it still works
+            registerReceiver(downloadMediaBroadcastReceiver, filter);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(downloadMediaBroadcastReceiver);
     }
 
     @Override
