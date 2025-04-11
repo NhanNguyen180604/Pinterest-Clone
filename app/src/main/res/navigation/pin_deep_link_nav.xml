@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/pin_deep_link_nav"
+    app:startDestination="@id/pinDeepLinkStartingFragment">
+
+    <fragment
+        android:id="@+id/pinFragmentDeepLink"
+        android:name="com.example.pinterest_clone_test2.ui.pin.PinFragment"
+        android:label="fragment_pin"
+        tools:layout="@layout/fragment_pin">
+        <action
+            android:id="@+id/action_pinFragmentDeepLink_self"
+            app:destination="@id/pinFragmentDeepLink"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/pinDeepLinkStartingFragment"
+        android:name="com.example.pinterest_clone_test2.deep_link.PinDeepLinkStartingFragment"
+        android:label="fragment_pin_deep_link_starting"
+        tools:layout="@layout/fragment_pin_deep_link_starting">
+        <action
+            android:id="@+id/action_pinDeepLinkStartingFragment_to_pinFragmentDeepLink"
+            app:destination="@id/pinFragmentDeepLink"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out" />
+        <action
+            android:id="@+id/action_pinDeepLinkStartingFragment_to_pinDeepLinkErrorFragment"
+            app:destination="@id/pinDeepLinkErrorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/pinDeepLinkErrorFragment"
+        android:name="com.example.pinterest_clone_test2.deep_link.PinDeepLinkErrorFragment"
+        android:label="fragment_pin_deep_link_error"
+        tools:layout="@layout/fragment_pin_deep_link_error" />
+</navigation>
