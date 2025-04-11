@@ -170,4 +170,11 @@
     <string name="advice_to_use_real_birthdate">Sử dụng ngày sinh của chính bạn, ngay cả khi đây là tài khoản doanh nghiệp</string>
     <string name="birthdate_not_valid">Ngày sinh không hợp lệ</string>
     <string name="birthdate_warning">Người dùng từ 6 tuổi trở lên mới được sử dụng ứng dụng</string>
+    <string name="return_home">Quay về</string>
+    <string name="error_message_placeholder">Thông báo lỗi</string>
+    <string name="fetch_pin_failure">Đã có lỗi khi tải ghim</string>
+    <string name="pin_not_found">Ghim không tồn tại</string>
+    <string name="no_pin_id">ID của ghim trống</string>
+    <string name="unknown_error">Đã có lỗi không rõ nguyên nhân</string>
+    <string name="pin_deep_link_string_template" translatable="false">https://open.my.pinterest-clone/shared-pin/?pinId=%s</string>
 </resources>

@@ -241,7 +241,7 @@ public class PinTabObjectFragment extends Fragment {
     }
 
     PinClickListener pinClickListener = (position, v) -> {
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
         Bundle args = new Bundle();
         args.putParcelableArrayList("pins", new ArrayList<>(pins));
         args.putInt("position", position);

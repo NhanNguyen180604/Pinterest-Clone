@@ -166,5 +166,11 @@
     <string name="advice_to_use_real_birthdate">Use your real birthdate, even if this is a business account</string>
     <string name="birthdate_not_valid">Invalid birthdate</string>
     <string name="birthdate_warning">User must be at least 6 years old to use this app</string>
+    <string name="return_home">Return home</string>
+    <string name="error_message_placeholder">Error message</string>
+    <string name="fetch_pin_failure">Failed to fetch pin</string>
+    <string name="pin_not_found">Pin not found</string>
+    <string name="no_pin_id">Empty pin ID</string>
+    <string name="unknown_error">Unknown error</string>
 
 </resources>

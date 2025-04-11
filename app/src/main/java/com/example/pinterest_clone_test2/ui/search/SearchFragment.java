@@ -77,7 +77,7 @@ public class SearchFragment extends Fragment {
     private final SearchIdeaClickListener searchIdeaClickListener = this::navigateToSearchResult;
 
     private void navigateToSearchResult(String query) {
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
         Bundle args = new Bundle();
         args.putString("query", query);
 

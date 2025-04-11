@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         // delay to fetch current user and init cloudinary, pray that this works
         new Handler().postDelayed(() -> {
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_pin_deep_link);
             binding.navView.setOnItemSelectedListener(item -> {
                 if (item.getItemId() == R.id.nav_upload_tab) {
                     UploadDialogFragment dialog = new UploadDialogFragment();

@@ -51,6 +51,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class PinObjectFragment extends Fragment {
@@ -269,7 +270,8 @@ public class PinObjectFragment extends Fragment {
 
         @Override
         public void OnFailure(Exception e) {
-
+            Log.e("PinObjectFragment", "Failed to fetch boards");
+            e.printStackTrace();
         }
     };
 
@@ -352,29 +354,6 @@ public class PinObjectFragment extends Fragment {
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinObjectViewModel.class);
         initRecyclerViewRelevantPins();
 
-        binding.btnComment.setOnClickListener(v -> {
-            if (pin != null) {
-                CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId(), requireContext());
-                modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
-            } else {
-                Toast.makeText(requireContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        binding.btnMore.setOnClickListener(v -> {
-            if (pin != null) {
-                PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, requireContext(), downloadPinMediaCallback, hidePinCallback);
-                sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
-            } else {
-                Toast.makeText(requireContext(), "Pin is null, end my suffering", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        binding.fabBack.setOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(view);
-            navController.navigateUp();
-        });
-
         binding.btnLove.setOnClickListener(v -> {
             if (pin != null) {
                 pin.setIsLiked(!pin.getIsLiked());
@@ -383,8 +362,46 @@ public class PinObjectFragment extends Fragment {
                 // update like on database
                 FirebasePinService.updateLike(pin.getId(), pin.getIsLiked(), updateLikeCallback);
             } else {
-                Toast.makeText(requireContext(), "Pin is null, one must imagine CS students being happy", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
             }
+        });
+
+        binding.btnComment.setOnClickListener(v -> {
+            if (pin != null) {
+                CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId(), requireContext());
+                modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
+            } else {
+                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        binding.btnShare.setOnClickListener(v -> {
+            if (pin != null) {
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                String sharedLink = String.format(Locale.US, getResources().getString(R.string.pin_deep_link_string_template), pin.getId());
+                sendIntent.putExtra(Intent.EXTRA_TEXT, sharedLink);
+                sendIntent.setType("text/plain");
+
+                Intent shareIntent = Intent.createChooser(sendIntent, null);
+                startActivity(shareIntent);
+            } else {
+                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        binding.btnMore.setOnClickListener(v -> {
+            if (pin != null) {
+                PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, requireContext(), downloadPinMediaCallback, hidePinCallback);
+                sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
+            } else {
+                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        binding.fabBack.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(view);
+            navController.navigateUp();
         });
 
         binding.btnSave.setOnClickListener(v -> {
@@ -394,7 +411,7 @@ public class PinObjectFragment extends Fragment {
                 intent.putExtra("suggestNewBoard", true);
                 chooseBoardActivityLauncher.launch(intent);
             } else {
-                Toast.makeText(requireContext(), "Pin is null, i regret studying this major", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -588,7 +605,7 @@ public class PinObjectFragment extends Fragment {
     private final PinClickListener relevantPinClickListener = new PinClickListener() {
         @Override
         public void OnClick(int position, View v) {
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
             Bundle bundle = new Bundle();
             bundle.putInt("position", position);
             bundle.putString("source", source);
@@ -601,6 +618,8 @@ public class PinObjectFragment extends Fragment {
                 action = R.id.action_pinFragment2_self;
             } else if (Objects.equals(source, "account")) {
                 action = R.id.action_pinFragment3_self;
+            } else if (Objects.equals(source, "pinDeepLink")) {
+                action = R.id.action_pinFragmentDeepLink_self;
             }
 
             navController.navigate(
