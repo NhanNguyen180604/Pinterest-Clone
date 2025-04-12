@@ -177,4 +177,18 @@
     <string name="no_pin_id">ID của ghim trống</string>
     <string name="unknown_error">Đã có lỗi không rõ nguyên nhân</string>
     <string name="pin_deep_link_string_template" translatable="false">https://open.my.pinterest-clone/shared-pin/?pinId=%s</string>
+    <string name="download_pin_finished">Đã tải xong ghim</string>
+    <string name="video_duration_placeholder" translatable="false">00:00</string>
+    <string name="download_permission_denied">Không thể tải xuống vì không đủ quyền hạn</string>
+    <string name="fetch_boards_failure">Đã có lỗi khi tải bảng</string>
+    <string name="upload_image_failure">Đã có lỗi khi tải hình ảnh lên</string>
+    <string name="upload_video_failure">Đã có lỗi khi video lên</string>
+    <string name="search_failure">Đã có lỗi khi tìm kiếm ghim</string>
+    <string name="hello_user_string_template">Xin chào %s</string>
+    <string name="no_media_selected">Chưa chọn hình ảnh/video để đăng</string>
+    <string name="user_info_init_failure">Lỗi khi khởi tạo thông tin người dùng</string>
+    <string name="register_failure">Đã có lỗi trong lúc đăng kí</string>
+    <string name="login_failure">Đã có lỗi trong lúc đăng nhập</string>
+    <string name="media_upload_failure">Đã có lỗi khi đăng tải hình ảnh/video</string>
+    <string name="upload_pin_failure">Đã có lỗi khi đăng tải ghim</string>
 </resources>

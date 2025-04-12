@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +24,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.MediaItem;
+import androidx.media3.exoplayer.ExoPlayer;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
@@ -57,6 +60,7 @@ import java.util.Objects;
 public class PinObjectFragment extends Fragment {
     PinObjectViewModel viewModel;
     private Pin pin;
+    boolean isBlocked = false;
     User author = new User();
     FragmentPinObjectBinding binding;
     String source;
@@ -69,6 +73,7 @@ public class PinObjectFragment extends Fragment {
     DocumentSnapshot lastVisible;  // for pagination
     List<Pin> relevantPins = new ArrayList<>();
     PinListAdapter relevantPinAdapter;
+    ExoPlayer exoPlayer;
 
     // need this to prevent crash idk why
     public PinObjectFragment() {
@@ -305,7 +310,7 @@ public class PinObjectFragment extends Fragment {
 
                         // idk if this gonna happen or not, just to make sure
                         if (pin == null) {
-                            Toast.makeText(requireContext(), "Give praise, for android has no equal", Toast.LENGTH_SHORT).show();
+                            Log.e("PinObjectFragment", "pin is fucking null, at on create");
                             return;
                         }
 
@@ -468,11 +473,35 @@ public class PinObjectFragment extends Fragment {
         viewModel.setSourceState(source);
         viewModel.setAuthorState(author);
         viewModel.setRelevantPinState(relevantPins);
+
+        stopAndStoreVideoState();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+
+        // only release when view is destroyed, if put this in onPause, it will look like shit
+        releaseExoPlayer();
+    }
+
+    void stopAndStoreVideoState() {
+        if (exoPlayer != null) {
+            exoPlayer.stop();
+            viewModel.setVideoPositionState(exoPlayer.getCurrentPosition());
+        }
+    }
+
+    void releaseExoPlayer() {
+        if (exoPlayer != null) {
+            exoPlayer.release();
+            exoPlayer = null;
+        }
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        Log.d("PinObjectFragment", "On view state restored");
         super.onViewStateRestored(savedInstanceState);
         restoreStates();
 
@@ -487,7 +516,7 @@ public class PinObjectFragment extends Fragment {
         }
 
         if (pin == null) {
-            Log.d("PinObjectFragment", "pin is null, whyyyyyyyyyyyyyyyyyyyyy?");
+            Log.d("PinObjectFragment", "pin is null, why?");
         } else {
             RequestOptions options = new RequestOptions()
                     .placeholder(R.drawable.ic_loading)
@@ -496,6 +525,7 @@ public class PinObjectFragment extends Fragment {
             if (pin.getType() == Pin.PinType.VIDEO) {
                 binding.ivImage.setVisibility(View.GONE);
                 binding.videoView.setVisibility(View.VISIBLE);
+                binding.fabBgRemoval.setVisibility(View.GONE);
             } else {
                 binding.ivImage.setVisibility(View.VISIBLE);
                 binding.videoView.setVisibility(View.GONE);
@@ -536,10 +566,6 @@ public class PinObjectFragment extends Fragment {
                         .apply(options)
                         .into(binding.ivImage);
             }
-            // VIDEO
-            else {
-                //TODO: load video
-            }
 
             fetchPinLikesAsync();
             binding.setPinViewModel(pin);
@@ -554,25 +580,48 @@ public class PinObjectFragment extends Fragment {
                 .apply(options)
                 .into(binding.ivImage);
 
-        binding.btnSave.setEnabled(false);
-        binding.btnLove.setEnabled(false);
-        binding.btnComment.setEnabled(false);
-        binding.btnShare.setEnabled(false);
-        binding.btnMore.setEnabled(false);
-        binding.fabBgRemoval.setEnabled(false);
-        binding.tvLikeCount.setText("");
-        binding.tvPinDescription.setText("");
-        binding.tvPinTitle.setText("");
+        // pin title is still visible, fuck me, idk why
+        binding.setPinViewModel(null);
+
+        binding.btnSave.setVisibility(View.GONE);
+        binding.btnLove.setVisibility(View.GONE);
+        binding.btnComment.setVisibility(View.GONE);
+        binding.btnShare.setVisibility(View.GONE);
+        binding.btnMore.setVisibility(View.GONE);
+        binding.fabBgRemoval.setVisibility(View.GONE);
+        binding.fabBgRemoval.setVisibility(View.GONE);
+        binding.tvLikeCount.setVisibility(View.GONE);
+        binding.tvPinDescription.setVisibility(View.GONE);
+        binding.tvPinTitle.setVisibility(View.GONE);
+        binding.tvAuthor.setVisibility(View.GONE);
+        binding.ivAuthorAvatar.setVisibility(View.GONE);
+
+        isBlocked = true;
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    public void onResume() {
+        super.onResume();
+        // load video here because onViewStateRestored won't be called every single time
+        if (!isBlocked && pin != null && pin.getType() == Pin.PinType.VIDEO) {
+            if (exoPlayer == null) {
+                exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+                binding.videoView.setPlayer(exoPlayer);
+                MediaItem mediaItem = MediaItem.fromUri(Uri.parse(pin.getMediaUrl()));
+                exoPlayer.setMediaItem(mediaItem);
+                exoPlayer.prepare();
+            }
+
+            exoPlayer.setPlayWhenReady(true);
+            long oldPositionState = viewModel.getVideoPositionState();
+            if (oldPositionState > 0) {
+                exoPlayer.seekTo(oldPositionState);
+            }
+        }
     }
 
     private void initRecyclerViewRelevantPins() {
-        relevantPinAdapter = new PinListAdapter(relevantPins, relevantPinClickListener);
+        relevantPinAdapter = new PinListAdapter(requireContext(), relevantPins, relevantPinClickListener);
         relevantPinAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.rvRelevant.setAdapter(relevantPinAdapter);
 
@@ -644,7 +693,6 @@ public class PinObjectFragment extends Fragment {
             downloader.DownloadFile(pin.getMediaUrl(), mimeType, String.valueOf(System.currentTimeMillis()));
         });
         thread.start();
-        //TODO: broadcast receiver when download finishes
     }
 
     @NonNull
@@ -670,7 +718,7 @@ public class PinObjectFragment extends Fragment {
                 if (isGranted) {
                     downloadMediaAsync();
                 } else {
-                    Toast.makeText(requireContext(), "Permission denied, download failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getResources().getString(R.string.download_permission_denied), Toast.LENGTH_SHORT).show();
                 }
             });
 

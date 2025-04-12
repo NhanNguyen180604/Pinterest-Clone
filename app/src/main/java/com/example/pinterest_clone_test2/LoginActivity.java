@@ -18,11 +18,9 @@ import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterName;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterPassword;
 import com.example.pinterest_clone_test2.ui.auth.FragmentStartScreen;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -171,11 +169,11 @@ public class LoginActivity extends AppCompatActivity {
                             })
                             .addOnFailureListener(e -> {
                                 Log.e("firebase-cloud-firestore", "Error initializing user data", e);
-                                Toast.makeText(LoginActivity.this, "Lỗi khi khởi tạo thông tin người dùng", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, getResources().getString(R.string.user_info_init_failure), Toast.LENGTH_SHORT).show();
                             }), 1000);
                 })
                 .addOnFailureListener(this, e -> {
-                    Toast.makeText(LoginActivity.this, "Đã có lỗi trong lúc đăng kí", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.register_failure), Toast.LENGTH_SHORT).show();
                     Log.e("firebase-auth-singup", "Error signing up", e);
                     fragmentManager.beginTransaction()
                             .replace(R.id.login_fragment_container, new FragmentRegisterEmail())
@@ -192,7 +190,7 @@ public class LoginActivity extends AppCompatActivity {
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(LoginActivity.this, "Đã có lỗi trong lúc đăng nhập", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.login_failure), Toast.LENGTH_SHORT).show();
                     Log.e("firebase-auth-login", "Error logging in", e);
                 });
     }

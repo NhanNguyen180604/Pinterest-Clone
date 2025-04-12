@@ -104,7 +104,7 @@ public class BoardTabObjectFragment extends Fragment {
             @Override
             public void OnFailure(Exception e) {
                 Log.e("Firebase", "Error fetching boards", e);
-                Toast.makeText(requireContext(), "Failed to load boards", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getResources().getString(R.string.fetch_boards_failure), Toast.LENGTH_SHORT).show();
                 binding.progressLoading.setVisibility(View.GONE);
             }
         });

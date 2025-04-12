@@ -85,6 +85,6 @@ public class BoardDetailFragment extends Fragment {
             }
         };
 
-        return new PinListAdapter(pins, pinClickListener);
+        return new PinListAdapter(requireContext(), pins, pinClickListener);
     }
 }

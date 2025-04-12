@@ -2,16 +2,14 @@ package com.example.pinterest_clone_test2.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
 import com.example.pinterest_clone_test2.BR;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class Pin extends BaseObservable implements Parcelable {
     public enum PinType {
@@ -120,11 +118,19 @@ public class Pin extends BaseObservable implements Parcelable {
         return name;
     }
 
-    public Pin setName(String name) {
+    public Pin setName(@Nullable String name) {
         this.name = name;
-        this.nameNormalized = name.toLowerCase();
+        if (name != null) {
+            this.nameNormalized = name.toLowerCase();
+        }
         notifyPropertyChanged(BR.name);
+        notifyPropertyChanged(BR.titleVisibility);
         return this;
+    }
+
+    @Bindable
+    public int getTitleVisibility() {
+        return name != null && !name.isBlank() ? View.VISIBLE : View.GONE;
     }
 
     public String getNameNormalized() {
@@ -140,11 +146,17 @@ public class Pin extends BaseObservable implements Parcelable {
         this.description = description;
         this.descriptionNormalized = description.toLowerCase();
         notifyPropertyChanged(BR.description);
+        notifyPropertyChanged(BR.descriptionVisibility);
         return this;
     }
 
     public String getDescriptionNormalized() {
         return descriptionNormalized;
+    }
+
+    @Bindable
+    public int getDescriptionVisibility() {
+        return description != null && !description.isBlank() ? View.VISIBLE : View.GONE;
     }
 
     @Bindable
@@ -189,13 +201,13 @@ public class Pin extends BaseObservable implements Parcelable {
 
     public void readFromParcel(Parcel in) {
         id = in.readString();
-        mediaUrl = in.readString();
+        setMediaUrl(in.readString());
         authorId = in.readString();
-        thumbnailUrl = in.readString();
+        setThumbnailUrl(in.readString());
         type = (PinType) in.readSerializable();
-        isLiked = in.readBoolean();
-        likeCount = in.readInt();
-        name = in.readString();
+        setIsLiked(in.readBoolean());
+        setLikeCount(in.readInt());
+        setName(in.readString());
         description = in.readString();
         allowComment = in.readBoolean();
         createdAt = in.readLong();
