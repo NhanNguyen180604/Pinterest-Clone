@@ -1,8 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="100dp"
     android:layout_height="100dp"
     android:layout_gravity="center"
-    android:elevation="4dp">
+    android:elevation="4dp"
+    android:radius="8dp">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -12,13 +14,19 @@
         android:background="@android:color/black">
 
         <ImageView
-            android:id="@+id/imageItemView"
+            android:id="@+id/mediaItemView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:maxWidth="100dp"
-            android:maxHeight="100dp"
-            android:minWidth="100dp"
-            android:minHeight="100dp" />
+            android:layout_gravity="center" />
+
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:layout_gravity="center" />
+
+
     </FrameLayout>
 </androidx.cardview.widget.CardView>

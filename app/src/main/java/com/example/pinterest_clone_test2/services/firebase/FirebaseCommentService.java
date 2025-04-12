@@ -177,7 +177,7 @@ public abstract class FirebaseCommentService {
 
         //TODO: upload attachment to Cloudinary
         if (comment.getAttachmentUri() != null) {
-            CloudinaryManager.uploadImage(comment.getAttachmentUri(), new UploadCallback() {
+            CloudinaryManager.uploadMedia(comment.getAttachmentUri(), "image/gif", new UploadCallback() {
                 @Override
                 public void onStart(String requestId) {
 
