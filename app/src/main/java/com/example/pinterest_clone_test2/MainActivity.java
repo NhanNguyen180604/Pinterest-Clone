@@ -22,6 +22,8 @@ import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     DownloadMediaBroadcastReceiver downloadMediaBroadcastReceiver;
@@ -47,7 +49,11 @@ public class MainActivity extends AppCompatActivity {
         // Initialize Cloudinary
         CloudinaryManager.initCloudinary(this);
 
-        Toast.makeText(this, "Xin chào " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(
+                this,
+                String.format(Locale.US, getResources().getString(R.string.hello_user_string_template), user.getDisplayName()),
+                Toast.LENGTH_SHORT
+        ).show();
 
         // delay to fetch current user and init cloudinary, pray that this works
         new Handler().postDelayed(() -> {

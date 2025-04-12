@@ -350,6 +350,33 @@ public abstract class FirebasePinService {
         }
     }
 
+    public static void uploadPin(@NonNull Pin pin, UploadPinServiceCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        pin.setAuthorId(currentUser.getUid());
+
+        firestore.collection("pins")
+                .add(pin)
+                .addOnSuccessListener(documentReference -> {
+                    callback.OnSuccess(documentReference);
+                    FirebaseUserService.savePinToProfile(documentReference.getId(), new FirebaseUserService.SavePinToProfileCallback() {
+                        @Override
+                        public void OnSuccess() {
+                            Log.d("FirebaseUserService", "Saved pin to profile successfully");
+                        }
+
+                        @Override
+                        public void OnFailure(Exception e) {
+                            Log.e("FirebaseUserService", "Failed to saved pin to profile");
+                            e.printStackTrace();
+                        }
+                    });
+                })
+                .addOnFailureListener(callback::OnFailure);
+    }
+
     public interface GetPinServiceCallback {
         void OnSuccess(QuerySnapshot querySnapshot);
 
@@ -372,7 +399,6 @@ public abstract class FirebasePinService {
         void OnFailure(Exception e);
     }
 
-
     public interface SearchPinServiceCallback {
         void onSearchSuccess(List<Pin> results, DocumentSnapshot lastVisible);
 
@@ -383,5 +409,11 @@ public abstract class FirebasePinService {
         void onSuccess(List<Pin> pins);
 
         void onFailure(Exception e);
+    }
+
+    public interface UploadPinServiceCallback {
+        void OnSuccess(DocumentReference documentReference);
+
+        void OnFailure(Exception e);
     }
 }

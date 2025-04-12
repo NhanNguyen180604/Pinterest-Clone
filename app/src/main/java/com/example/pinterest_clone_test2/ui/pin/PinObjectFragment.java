@@ -310,7 +310,7 @@ public class PinObjectFragment extends Fragment {
 
                         // idk if this gonna happen or not, just to make sure
                         if (pin == null) {
-                            Toast.makeText(requireContext(), "Give praise, for android has no equal", Toast.LENGTH_SHORT).show();
+                            Log.e("PinObjectFragment", "pin is fucking null, at on create");
                             return;
                         }
 
@@ -718,7 +718,7 @@ public class PinObjectFragment extends Fragment {
                 if (isGranted) {
                     downloadMediaAsync();
                 } else {
-                    Toast.makeText(requireContext(), "Permission denied, download failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getResources().getString(R.string.download_permission_denied), Toast.LENGTH_SHORT).show();
                 }
             });
 

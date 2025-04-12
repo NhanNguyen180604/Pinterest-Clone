@@ -73,11 +73,10 @@ public class CloudinaryManager {
                             .dispatch();
                 }
             } else {
-                Log.d("Cloudinary", "No MIME type detected for URI: " + mediaUri);
+                Log.e("Cloudinary", "No MIME type detected for URI: " + mediaUri);
             }
         } else {
-            Log.d("Cloudinary", "No media selected");
-//            Toast.makeText(context, "No media selected", Toast.LENGTH_SHORT).show();
+            Log.e("Cloudinary", "No media selected");
         }
     }
 }

@@ -12,10 +12,12 @@ import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.databinding.ActivityUploadBinding;
 import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadPinDetailsFragment;
 import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Map;
@@ -97,7 +99,11 @@ public class UploadActivity extends AppCompatActivity {
                     public void onSuccess(String requestId, Map resultData) {
                         String url = (String) resultData.get("secure_url");
                         if (url == null) {
-                            Toast.makeText(UploadActivity.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
+                            if (mimeType.startsWith("image")) {
+                                Toast.makeText(UploadActivity.this, getResources().getString(R.string.upload_image_failure), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(UploadActivity.this, getResources().getString(R.string.upload_video_failure), Toast.LENGTH_SHORT).show();
+                            }
                         } else {
                             savePinToFirestore(url, title, description, mediaType);  // Lưu vào Firestore
                             navigateBackToHome();  // Điều hướng về trang chủ sau khi upload thành công
@@ -106,8 +112,8 @@ public class UploadActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
-                        Toast.makeText(UploadActivity.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
-                        Log.d("Cloudinary", "Error: " + error.getDescription());
+                        Toast.makeText(UploadActivity.this, "", Toast.LENGTH_SHORT).show();
+                        Log.e("Cloudinary", "Error: " + error.getDescription());
                     }
 
                     @Override
@@ -117,7 +123,7 @@ public class UploadActivity extends AppCompatActivity {
                 });
             } else {
                 Log.d("Cloudinary", "No media selected");
-                Toast.makeText(this, "No media selected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getResources().getString(R.string.no_media_selected), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -144,18 +150,21 @@ public class UploadActivity extends AppCompatActivity {
                 .setThumbnailUrl(thumbnailUrl)
                 .setName(title)
                 .setDescription(description)
-                .setIsLiked(false)
                 .setAllowComment(true)
-                .setLikeCount(0)
                 .setCreatedAt(System.currentTimeMillis());
 
-        firestore.collection("pins")
-                .add(pin)
-                .addOnSuccessListener(documentReference -> Log.d("Firestore", "Pin added with ID: " + documentReference.getId()))
-                .addOnFailureListener(e -> {
-                    Log.d("Firestore", "Error adding Pin: " + e.getMessage());
-                    Toast.makeText(UploadActivity.this, "Failed to save Pin.", Toast.LENGTH_SHORT).show();
-                });
+        FirebasePinService.uploadPin(pin, new FirebasePinService.UploadPinServiceCallback() {
+            @Override
+            public void OnSuccess(DocumentReference documentReference) {
+                Log.d("Firestore", "Pin added with ID: " + documentReference.getId());
+            }
+
+            @Override
+            public void OnFailure(Exception e) {
+                Log.e("Firestore", "Error adding Pin: " + e.getMessage());
+                Toast.makeText(UploadActivity.this, getResources().getString(R.string.upload_pin_failure), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // Navigate back to the home screen after successful upload

@@ -173,5 +173,17 @@
     <string name="no_pin_id">Empty pin ID</string>
     <string name="unknown_error">Unknown error</string>
     <string name="download_pin_finished">Finished downloading media</string>
+    <string name="download_permission_denied">Permission denied, download failed</string>
+    <string name="fetch_boards_failure">Failed to load boards</string>
+    <string name="upload_image_failure">Failed to upload image</string>
+    <string name="upload_video_failure">Failed to upload video</string>
+    <string name="search_failure">Failed to search for pins</string>
+    <string name="hello_user_string_template">Welcome %s</string>
+    <string name="no_media_selected">No media selected</string>
+    <string name="user_info_init_failure">Failed to initialize user\'s info</string>
+    <string name="register_failure">Failed to register</string>
+    <string name="login_failure">Failed to login</string>
+    <string name="media_upload_failure">Failed to upload media</string>
+    <string name="upload_pin_failure">Failed to upload Pin</string>
 
 </resources>

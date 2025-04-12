@@ -14,6 +14,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.exoplayer.ExoPlayer;
 
 import com.bumptech.glide.Glide;
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.UploadActivity;
 import com.example.pinterest_clone_test2.databinding.FragmentUploadPinDetailsBinding;
 
@@ -75,7 +76,7 @@ public class UploadPinDetailsFragment extends Fragment {
                     ((UploadActivity) getActivity()).uploadMedia(mediaUri, title, description);
                 }
             } else {
-                Toast.makeText(getContext(), "No media selected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getResources().getString(R.string.no_media_selected), Toast.LENGTH_SHORT).show();
             }
         });
         binding.btnBack.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());

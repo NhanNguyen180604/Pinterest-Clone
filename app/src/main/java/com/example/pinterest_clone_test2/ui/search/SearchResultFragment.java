@@ -220,7 +220,9 @@ public class SearchResultFragment extends Fragment {
                             binding.progressBar.setVisibility(View.GONE);
 
                             // Hiển thị thông báo lỗi
-                            Toast.makeText(requireContext(), "Không thể tìm kiếm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(), getResources().getString(R.string.search_failure), Toast.LENGTH_SHORT).show();
+                            Log.e("SearchResultFragment", "Failed to search");
+                            e.printStackTrace();
                         });
                     }
                 });
@@ -234,7 +236,7 @@ public class SearchResultFragment extends Fragment {
                     binding.progressBar.setVisibility(View.GONE);
 
                     // Hiển thị thông báo lỗi
-                    Toast.makeText(requireContext(), "Lỗi tìm kiếm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getResources().getString(R.string.search_failure), Toast.LENGTH_SHORT).show();
                 });
             }
         });
