@@ -60,6 +60,7 @@ import java.util.Objects;
 public class PinObjectFragment extends Fragment {
     PinObjectViewModel viewModel;
     private Pin pin;
+    boolean isBlocked = false;
     User author = new User();
     FragmentPinObjectBinding binding;
     String source;
@@ -473,11 +474,7 @@ public class PinObjectFragment extends Fragment {
         viewModel.setAuthorState(author);
         viewModel.setRelevantPinState(relevantPins);
 
-        // stop and store the current video position
-        if (exoPlayer != null) {
-            exoPlayer.stop();
-            viewModel.setVideoPositionState(exoPlayer.getCurrentPosition());
-        }
+        stopAndStoreVideoState();
     }
 
     @Override
@@ -486,6 +483,17 @@ public class PinObjectFragment extends Fragment {
         binding = null;
 
         // only release when view is destroyed, if put this in onPause, it will look like shit
+        releaseExoPlayer();
+    }
+
+    void stopAndStoreVideoState() {
+        if (exoPlayer != null) {
+            exoPlayer.stop();
+            viewModel.setVideoPositionState(exoPlayer.getCurrentPosition());
+        }
+    }
+
+    void releaseExoPlayer() {
         if (exoPlayer != null) {
             exoPlayer.release();
             exoPlayer = null;
@@ -572,22 +580,30 @@ public class PinObjectFragment extends Fragment {
                 .apply(options)
                 .into(binding.ivImage);
 
-        binding.btnSave.setEnabled(false);
-        binding.btnLove.setEnabled(false);
-        binding.btnComment.setEnabled(false);
-        binding.btnShare.setEnabled(false);
-        binding.btnMore.setEnabled(false);
-        binding.fabBgRemoval.setEnabled(false);
-        binding.tvLikeCount.setText("");
-        binding.tvPinDescription.setText("");
-        binding.tvPinTitle.setText("");
+        // pin title is still visible, fuck me, idk why
+        binding.setPinViewModel(null);
+
+        binding.btnSave.setVisibility(View.GONE);
+        binding.btnLove.setVisibility(View.GONE);
+        binding.btnComment.setVisibility(View.GONE);
+        binding.btnShare.setVisibility(View.GONE);
+        binding.btnMore.setVisibility(View.GONE);
+        binding.fabBgRemoval.setVisibility(View.GONE);
+        binding.fabBgRemoval.setVisibility(View.GONE);
+        binding.tvLikeCount.setVisibility(View.GONE);
+        binding.tvPinDescription.setVisibility(View.GONE);
+        binding.tvPinTitle.setVisibility(View.GONE);
+        binding.tvAuthor.setVisibility(View.GONE);
+        binding.ivAuthorAvatar.setVisibility(View.GONE);
+
+        isBlocked = true;
     }
 
     @Override
     public void onResume() {
         super.onResume();
         // load video here because onViewStateRestored won't be called every single time
-        if (pin != null && pin.getType() == Pin.PinType.VIDEO) {
+        if (!isBlocked && pin != null && pin.getType() == Pin.PinType.VIDEO) {
             if (exoPlayer == null) {
                 exoPlayer = new ExoPlayer.Builder(requireContext()).build();
                 binding.videoView.setPlayer(exoPlayer);

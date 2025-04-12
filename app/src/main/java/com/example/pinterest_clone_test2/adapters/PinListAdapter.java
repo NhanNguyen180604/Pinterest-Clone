@@ -148,6 +148,7 @@ public class PinListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         .fitCenter()
                         .apply(options)
                         .into(vh.iv);
+                vh.tvDuration.setVisibility(View.GONE);
                 return;
             }
 
@@ -195,9 +196,11 @@ public class PinListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         super.onViewRecycled(holder);
         if (holder instanceof PinVideoViewHolder) {
             PinVideoViewHolder vh = (PinVideoViewHolder) holder;
-            vh.player.stop();
-            vh.player.release();
-            vh.player = null;
+            if (vh.player != null) {
+                vh.player.stop();
+                vh.player.release();
+                vh.player = null;
+            }
         }
     }
 
