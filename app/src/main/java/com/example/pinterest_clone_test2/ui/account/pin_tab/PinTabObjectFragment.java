@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +27,7 @@ import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.pin.PinFragment;
+import com.google.common.collect.Lists;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
@@ -36,15 +38,16 @@ public class PinTabObjectFragment extends Fragment {
     FragmentPinTabObjectBinding binding;
     PinListAdapter adapter;
     List<Pin> pins = new ArrayList<>();
+    List<String> pinIds = new ArrayList<>();
     PinTabObjectViewModel viewModel;
     Handler handler = new Handler();
     long profileLastUpdated = 0;
 
+    int page = 1;
     final int perPage = 20;
+    int totalPage = 0;
     boolean isOnLastPage = false;
     boolean isLoading = false;
-    boolean fetchSavedPins = true;
-    DocumentSnapshot lastVisible;  // for pagination
 
     public PinTabObjectFragment() {
         // Required empty public constructor
@@ -75,58 +78,31 @@ public class PinTabObjectFragment extends Fragment {
             try {
                 DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
                 assert currentUserDocument != null;
-                FirebasePinService.getUserProfilePins(currentUserDocument.getId(), lastVisible, perPage, callback, fetchSavedPins);
-                fetchSavedPins = false;
+                FirebasePinService.fetchPinsFromIds(pinIds.subList((page - 1) * perPage, Math.min(page * perPage, pinIds.size())), onPinsFetchedFromIdsCallback);
             } catch (Exception e) {
                 e.printStackTrace();
+                handler.post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.fetch_pin_failure), Toast.LENGTH_SHORT).show());
             }
         });
         thread.start();
     }
 
-    final FirebasePinService.GetProfilePinServiceCallback callback = new FirebasePinService.GetProfilePinServiceCallback() {
+    final FirebasePinService.OnPinsFetchedFromIdsCallback onPinsFetchedFromIdsCallback = new FirebasePinService.OnPinsFetchedFromIdsCallback() {
         @Override
-        public void OnSuccess(List<DocumentSnapshot> documents, DocumentSnapshot returnLastVisible) {
-            List<Pin> newPins = new ArrayList<>();
-
-            if (documents.isEmpty()) {
+        public void onSuccess(List<Pin> newPins) {
+            page++;
+            // janky coding belike
+            if (page == totalPage + 1) {
                 isOnLastPage = true;
-                isLoading = false;
-                return;
             }
 
-            lastVisible = returnLastVisible;
-
-            // create pins from documents
-            for (DocumentSnapshot document :
-                    documents) {
-                Pin pin = new Pin()
-                        .setId(document.getId())
-                        .setAllowComment(Boolean.TRUE.equals(document.getBoolean("allowComment")))
-                        .setAuthorId(document.getString("authorId"))
-                        .setMediaUrl(document.getString("mediaUrl"))
-                        .setThumbnailUrl(document.getString("thumbnailUrl"))
-                        .setType(document.get("type", Pin.PinType.class));
-
-                String description = document.getString("description");
-                String name = document.getString("name");
-                pin.setDescription(description != null ? description : "")
-                        .setName(name != null ? name : "");
-
-                Long createdAt = document.getLong("createdAt");
-                Integer likeCount = document.get("likeCount", Integer.class);
-                pin.setCreatedAt(createdAt != null ? createdAt : 0);
-                pin.setLikeCount(likeCount != null ? likeCount : 0);
-
-                newPins.add(pin);
-            }
             long lastUpdateTime = FirebaseUserService.getLastUpdateTime();
             handler.post(() -> updateUI(newPins, profileLastUpdated == lastUpdateTime));
             profileLastUpdated = lastUpdateTime;
         }
 
         @Override
-        public void OnFailure(Exception e) {
+        public void onFailure(Exception e) {
             e.printStackTrace();
             isLoading = false;
         }
@@ -169,6 +145,8 @@ public class PinTabObjectFragment extends Fragment {
         viewModel.setPinState(pins);
         viewModel.setOnLastPage(isOnLastPage);
         viewModel.setLastUpdateTime(profileLastUpdated);
+        viewModel.setPinIdsState(pinIds);
+        viewModel.setPageState(page);
     }
 
     @Override
@@ -183,14 +161,49 @@ public class PinTabObjectFragment extends Fragment {
 
         long lastUpdateTime = FirebaseUserService.getLastUpdateTime();
         if (lastUpdateTime != profileLastUpdated) {
-            fetchSavedPins = true;
             isOnLastPage = false;
-            lastVisible = null;
+
+            try {
+                DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+                assert currentUserDocument != null;
+                List<String> userPinIds = (List<String>) currentUserDocument.get("pins");
+                if (userPinIds != null) {
+                    if (pinIds.isEmpty()) {
+                        pinIds.addAll(Lists.reverse(userPinIds));
+                    } else {
+                        pinIds = Lists.reverse(userPinIds);
+                    }
+                }
+                totalPage = (int) Math.ceil((double) pinIds.size() / perPage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             fetchPinsAsync();
             return;
         }
 
-        // restore states
+        int oldPageState = viewModel.getPageState();
+        if (oldPageState > 0) {
+            page = oldPageState;
+        }
+
+        List<String> oldPinIdsState = viewModel.getPinIdsState();
+        if (oldPinIdsState != null && !oldPinIdsState.isEmpty()) {
+            pinIds = oldPinIdsState;
+        } else {
+            try {
+                DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+                assert currentUserDocument != null;
+                List<String> userPinIds = (List<String>) currentUserDocument.get("pins");
+                if (userPinIds != null)
+                    pinIds.addAll(userPinIds);
+                totalPage = (int) Math.ceil((double) pinIds.size() / perPage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         List<Pin> oldPinState = viewModel.getPinState();
         if (oldPinState == null || oldPinState.isEmpty()) {
             fetchPinsAsync();
