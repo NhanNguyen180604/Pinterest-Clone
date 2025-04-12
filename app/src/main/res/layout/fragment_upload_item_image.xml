@@ -10,23 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:padding="1dp"
-        android:background="@android:color/black">
+        android:background="@android:color/black"
+        android:padding="1dp">
 
         <ImageView
             android:id="@+id/mediaItemView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:layout_gravity="center" />
-
-        <VideoView
-            android:id="@+id/videoView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            android:layout_gravity="center" />
-
-
+            android:layout_gravity="center"
+            android:scaleType="centerCrop" />
     </FrameLayout>
 </androidx.cardview.widget.CardView>

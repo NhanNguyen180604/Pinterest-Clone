@@ -13,8 +13,6 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.VideoView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -25,11 +23,14 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.media3.common.MediaItem;
+import androidx.media3.exoplayer.ExoPlayer;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.bumptech.glide.Glide;
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.UploadActivity;
-import com.example.pinterest_clone_test2.adapters.ImageAdapter;
+import com.example.pinterest_clone_test2.adapters.MediaAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentUploadBinding;
 
 import java.io.File;
@@ -46,10 +47,11 @@ public class UploadFragment extends Fragment {
     private static final int STORAGE_PERMISSION_CODE = 102;
 
     FragmentUploadBinding binding;
-    private ImageAdapter imageAdapter;
+    private MediaAdapter mediaAdapter;
     private ArrayList<Uri> mediaList;
     Uri cameraUri;
     Uri selectMediaUri;
+    ExoPlayer exoPlayer;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
     public UploadFragment() {
@@ -94,9 +96,9 @@ public class UploadFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         mediaList = new ArrayList<>();
-        imageAdapter = new ImageAdapter(mediaList, getContext(), mediaSelectedListener);
+        mediaAdapter = new MediaAdapter(mediaList, getContext(), mediaSelectedListener);
         binding.recyclerViewImages.setLayoutManager(new GridLayoutManager(getContext(), 4));
-        binding.recyclerViewImages.setAdapter(imageAdapter);
+        binding.recyclerViewImages.setAdapter(mediaAdapter);
 
         binding.btnNext.setEnabled(false);
         binding.selectedMediaContainer.setVisibility(View.GONE);
@@ -124,6 +126,12 @@ public class UploadFragment extends Fragment {
         if (selectMediaUri != null) {
             outState.putParcelable("selectedMediaUri", selectMediaUri);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        releaseExoPlayer();
     }
 
     private void requestPermissionIfNeeded(@NonNull String permission, int requestCode) {
@@ -201,7 +209,7 @@ public class UploadFragment extends Fragment {
             // After collecting all the media URIs, update the media list and notify the adapter
             if (!newMediaList.isEmpty()) {
                 mediaList.addAll(newMediaList); // Add the new media to the list
-                imageAdapter.notifyItemRangeInserted(mediaList.size() - newMediaList.size(), newMediaList.size());
+                mediaAdapter.notifyItemRangeInserted(mediaList.size() - newMediaList.size(), newMediaList.size());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -220,7 +228,7 @@ public class UploadFragment extends Fragment {
                 if (!uris.isEmpty()) {
                     int startPos = mediaList.size();
                     mediaList.addAll(uris);
-                    imageAdapter.notifyItemRangeInserted(startPos, uris.size());
+                    mediaAdapter.notifyItemRangeInserted(startPos, uris.size());
                     for (Uri uri : uris) {
                         requireContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     }
@@ -241,7 +249,7 @@ public class UploadFragment extends Fragment {
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && cameraUri != null) {
                     mediaList.add(cameraUri);
-                    imageAdapter.notifyItemInserted(mediaList.size() - 1);
+                    mediaAdapter.notifyItemInserted(mediaList.size() - 1);
                     onMediaSelected(cameraUri);
                 }
             });
@@ -267,38 +275,32 @@ public class UploadFragment extends Fragment {
             ((UploadActivity) getActivity()).showDetailFragment(selectMediaUri);
         }
     }
+
     public void onMediaSelected(Uri mediaUri) {
         this.selectMediaUri = mediaUri;
         String mimeType = requireContext().getContentResolver().getType(mediaUri);
 
+        releaseExoPlayer();
+        binding.selectedMediaContainer.setVisibility(View.VISIBLE);
+
         if (mimeType != null && (mimeType.startsWith("image") || mimeType.contains("gif"))) {
-            // Nếu chọn ảnh hoặc GIF
             Glide.with(binding.selectedImageView.getContext())
                     .load(mediaUri)
+                    .placeholder(R.drawable.ic_loading)
                     .into(binding.selectedImageView);  // Hiển thị ảnh hoặc GIF
 
-
-            binding.selectedMediaContainer.setVisibility(View.VISIBLE);  // Hiển thị ImageView
             binding.selectedImageView.setVisibility(View.VISIBLE);
-            binding.selectedVideoView.setVisibility(View.GONE);  // Ẩn VideoView khi chọn ảnh/GIF
+            binding.selectedVideoView.setVisibility(View.GONE);
 
         } else if (mimeType != null && mimeType.startsWith("video")) {
-            // Nếu chọn video
             binding.selectedImageView.setVisibility(View.GONE);
             binding.selectedVideoView.setVisibility(View.VISIBLE);
-            binding.selectedMediaContainer.setVisibility(View.VISIBLE);
-            // Đặt video URI cho VideoView
-            binding.selectedVideoView.setVideoURI(mediaUri);
 
-            // Khi video chuẩn bị xong, bắt đầu phát
-            binding.selectedVideoView.setOnPreparedListener(mp -> {
-                mp.start();  // Bắt đầu phát video
-            });
-
-            // Lắng nghe khi video hoàn thành
-            binding.selectedVideoView.setOnCompletionListener(mp -> {
-                Toast.makeText(getContext(), "Video completed", Toast.LENGTH_SHORT).show();
-            });
+            exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+            binding.selectedVideoView.setPlayer(exoPlayer);
+            MediaItem mediaItem = MediaItem.fromUri(mediaUri);
+            exoPlayer.setMediaItem(mediaItem);
+            exoPlayer.prepare();
         }
 
         // Ẩn button container và kích hoạt nút Next khi media được chọn
@@ -313,7 +315,17 @@ public class UploadFragment extends Fragment {
         binding.selectedVideoView.setVisibility(View.GONE);
         binding.buttonContainer.setVisibility(View.VISIBLE);
         binding.btnNext.setEnabled(false);
+        releaseExoPlayer();
     }
 
-    private final ImageAdapter.OnMediaSelectedListener mediaSelectedListener = this::onMediaSelected;
+    void releaseExoPlayer() {
+        if (exoPlayer == null)
+            return;
+
+        exoPlayer.stop();
+        exoPlayer.release();
+        exoPlayer = null;
+    }
+
+    private final MediaAdapter.OnMediaSelectedListener mediaSelectedListener = this::onMediaSelected;
 }

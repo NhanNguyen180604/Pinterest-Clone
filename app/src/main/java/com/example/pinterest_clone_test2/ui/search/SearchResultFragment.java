@@ -76,7 +76,7 @@ public class SearchResultFragment extends Fragment {
         setupSearchUI();
 
         // Thiết lập RecyclerView
-        adapter = new PinListAdapter(pins, pinClickListener);
+        adapter = new PinListAdapter(requireContext(), pins, pinClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.rvSearchResult.setAdapter(adapter);
 

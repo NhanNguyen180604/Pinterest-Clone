@@ -13,8 +13,8 @@
 
     <fragment
         android:id="@+id/uploadImageDetailFragment"
-        android:name="com.example.pinterest_clone_test2.ui.upload.UploadImageDetailsFragment"
+        android:name="com.example.pinterest_clone_test2.ui.upload.UploadPinDetailsFragment"
         android:label="Upload Detail"
-        tools:layout="@layout/fragment_upload_image_details" />
+        tools:layout="@layout/fragment_upload_pin_details" />
 
 </navigation>

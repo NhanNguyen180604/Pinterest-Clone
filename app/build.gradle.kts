@@ -12,8 +12,8 @@ android {
     namespace = "com.example.pinterest_clone_test2"
     compileSdk = 35
 
-    var file = rootProject.file("local.properties")
-    var properties = Properties()
+    val file = rootProject.file("local.properties")
+    val properties = Properties()
     properties.load(FileInputStream(file))
 
     defaultConfig {
@@ -82,4 +82,8 @@ dependencies {
     implementation(libs.firebase.firestore)
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
+
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.exoplayer.dash)
+    implementation(libs.media3.ui)
 }

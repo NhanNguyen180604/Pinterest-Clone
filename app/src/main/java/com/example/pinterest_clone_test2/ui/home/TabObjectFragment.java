@@ -165,7 +165,7 @@ public class TabObjectFragment extends Fragment {
     };
 
     void updateUI(List<Pin> newPins, boolean append) {
-        if (binding == null){
+        if (binding == null) {
             return;
         }
 
@@ -215,7 +215,7 @@ public class TabObjectFragment extends Fragment {
 
     private void initRecyclerView() {
         Log.d("HomeTab", "Init recyclerview");
-        adapter = new PinListAdapter(pins, pinClickListener);
+        adapter = new PinListAdapter(requireContext(), pins, pinClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.homePagerRecyclerView.setAdapter(adapter);
 

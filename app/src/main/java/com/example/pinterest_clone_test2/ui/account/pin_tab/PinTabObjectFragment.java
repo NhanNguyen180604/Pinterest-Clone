@@ -205,7 +205,7 @@ public class PinTabObjectFragment extends Fragment {
     }
 
     void initRecyclerView() {
-        adapter = new PinListAdapter(pins, pinClickListener);
+        adapter = new PinListAdapter(requireContext(), pins, pinClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.rvPins.setAdapter(adapter);
 

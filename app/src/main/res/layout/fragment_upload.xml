@@ -98,16 +98,16 @@
             android:id="@+id/selectedImageView"
             android:layout_width="80dp"
             android:layout_height="80dp"
+            android:contentDescription="@string/selectedImage"
             android:scaleType="centerCrop"
-            android:visibility="gone"
-            android:contentDescription="@string/selectedImage" />
+            android:visibility="gone" />
 
-        <VideoView
+        <androidx.media3.ui.PlayerView
             android:id="@+id/selectedVideoView"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:visibility="gone"
-            android:scaleType="centerCrop" />
+            app:resize_mode="zoom" />
 
         <ImageButton
             android:id="@+id/btnRemoveSelectedMedia"

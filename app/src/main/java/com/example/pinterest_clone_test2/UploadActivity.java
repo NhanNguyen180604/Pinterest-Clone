@@ -13,7 +13,7 @@ import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.databinding.ActivityUploadBinding;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
-import com.example.pinterest_clone_test2.ui.upload.UploadImageDetailsFragment;
+import com.example.pinterest_clone_test2.ui.upload.UploadPinDetailsFragment;
 import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -46,7 +46,7 @@ public class UploadActivity extends AppCompatActivity {
     public void showDetailFragment(Uri mediaUri) {
         Log.d("Cloudinary", "Navigating to UploadImageDetailsFragment with mediaUri: " + mediaUri);
 
-        UploadImageDetailsFragment detailsFragment = new UploadImageDetailsFragment();
+        UploadPinDetailsFragment detailsFragment = new UploadPinDetailsFragment();
 
         // Pass only mediaUri to UploadImageDetailsFragment
         Bundle bundle = new Bundle();
