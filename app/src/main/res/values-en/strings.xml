@@ -139,9 +139,12 @@
     <string name="btn_share_account">share account</string>
     <string name="follow">Follow</string>
     <string name="other_actions">other_actions</string>
-    <string name="followers">followers</string>
-    <string name="following">following</string>
-
-
+    <string name="followers">Followers</string>
+    <string name="following">Following</string>
+    <string name="no_pin">No pin</string>
+    <string name="loading_user_info_failed">Failed to load user information</string>
+    <string name="check_status_failed">Failed to check follow status</string>
+    <string name="unfollow_failed">Failed to unfollow: </string>
+    <string name="follow_failed">Failed to follow: </string>
 
 </resources>
