@@ -30,6 +30,22 @@
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right" />
+        <action
+            android:id="@+id/action_pinFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+        <argument
+            android:name="source"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.pinterest_clone_test2.ui.user.UserProfileFragment"
+        android:label="User Profile"
+        tools:layout="@layout/fragment_user_profile">
         <argument
             android:name="source"
             app:argType="string" />

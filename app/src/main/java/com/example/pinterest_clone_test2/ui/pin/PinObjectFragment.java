@@ -352,6 +352,17 @@ public class PinObjectFragment extends Fragment {
                 Toast.makeText(requireContext(), "Pin is null, i regret studying this major", Toast.LENGTH_SHORT).show();
             }
         });
+        binding.ivAuthorAvatar.setOnClickListener(v -> {
+            if (pin != null && pin.getAuthorId() != null) {
+                navigateToUserProfile(pin.getAuthorId());
+            }
+        });
+        binding.tvAuthor.setOnClickListener(v -> {
+            if (pin != null && pin.getAuthorId() != null) {
+                navigateToUserProfile(pin.getAuthorId());
+            }
+        });
+
     }
 
     final FirebasePinService.UpdateLikeCallback updateLikeCallback = new FirebasePinService.UpdateLikeCallback() {
@@ -552,7 +563,7 @@ public class PinObjectFragment extends Fragment {
                 action = R.id.action_pinFragment_self;
             } else if (Objects.equals(source, "search")) {
                 action = R.id.action_pinFragment2_self;
-            } else if (Objects.equals(source, "account")){
+            } else if (Objects.equals(source, "account")) {
                 // TODO: change this to R.id.action_pinFragment3_self or whatever it generates
                 action = R.id.action_pinFragment3_self;
             }
@@ -649,4 +660,22 @@ public class PinObjectFragment extends Fragment {
             }
         });
     };
+
+    private void navigateToUserProfile(String userId) {
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+
+        Bundle args = new Bundle();
+        args.putString("userId", userId);
+
+        int action;
+        if (Objects.equals(source, "home")) {
+            action = R.id.action_pinFragment_to_userProfileFragment;
+        } else if (Objects.equals(source, "search")) {
+            action = R.id.action_pinFragment2_to_userProfileFragment;
+        } else {
+            action = R.id.action_pinFragment3_to_userProfileFragment;
+        }
+
+        navController.navigate(action, args, null, null);
+    }
 }
