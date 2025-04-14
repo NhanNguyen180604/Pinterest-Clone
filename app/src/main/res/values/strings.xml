@@ -136,6 +136,16 @@
     <string name="collages">Ghim ghép</string>
     <string name="start_creating_now">Bắt đầu tạo ngay</string>
     <string name="close">Đóng</string>
+    <string name="btn_share_account">Chia sẻ tài khoản</string>
+    <string name="follow">Theo dõi</string>
+    <string name="other_actions">thao tác khác</string>
+    <string name="followers">Người theo dõi</string>
+    <string name="following">Đang theo dõi</string>
+    <string name="no_pin">Chưa có pin</string>
+    <string name="loading_user_info_failed">Tải dữ liệu người dùng không thành công</string>
+    <string name="check_status_failed">Kiểm tra trạng thái theo dõi thất bại</string>
+    <string name="unfollow_failed">Hủy theo dõi thất bại: </string>
+    <string name="follow_failed">Theo dõi thất bại: </string>
     <string name="update">Cập nhật</string>
     <string name="email" translatable="false">Email</string>
     <string name="placeholder_email" translatable="false">placeholder@gmail.com</string>

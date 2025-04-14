@@ -51,7 +51,7 @@ public class BoardTabObjectFragment extends Fragment {
 
         RecyclerView recyclerView = binding.rvBoards;
         boardAdapter = new BoardAdapter(requireContext(), boardList, board -> {
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
             Bundle bundle = new Bundle();
             bundle.putParcelable("board", board);
             navController.navigate(R.id.action_navigation_account_to_boardDetailFragment, bundle);

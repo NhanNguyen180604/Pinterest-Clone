@@ -17,6 +17,13 @@
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right" />
+        <action
+            android:id="@+id/action_pinFragmentDeepLink_to_userProfileFragmentDeepLink"
+            app:destination="@id/userProfileFragmentDeepLink"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/pinDeepLinkStartingFragment"
@@ -37,4 +44,16 @@
         android:name="com.example.pinterest_clone_test2.deep_link.PinDeepLinkErrorFragment"
         android:label="fragment_pin_deep_link_error"
         tools:layout="@layout/fragment_pin_deep_link_error" />
+    <fragment
+        android:id="@+id/userProfileFragmentDeepLink"
+        android:name="com.example.pinterest_clone_test2.ui.user.UserProfileFragment"
+        android:label="UserProfileFragment" >
+        <action
+            android:id="@+id/action_userProfileFragmentDeepLink_to_pinFragmentDeepLink"
+            app:destination="@id/pinFragmentDeepLink"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+    </fragment>
 </navigation>

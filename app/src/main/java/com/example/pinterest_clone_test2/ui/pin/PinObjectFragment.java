@@ -419,6 +419,17 @@ public class PinObjectFragment extends Fragment {
                 Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
             }
         });
+        binding.ivAuthorAvatar.setOnClickListener(v -> {
+            if (pin != null && pin.getAuthorId() != null) {
+                navigateToUserProfile(pin.getAuthorId());
+            }
+        });
+        binding.tvAuthor.setOnClickListener(v -> {
+            if (pin != null && pin.getAuthorId() != null) {
+                navigateToUserProfile(pin.getAuthorId());
+            }
+        });
+
     }
 
     final FirebasePinService.UpdateLikeCallback updateLikeCallback = new FirebasePinService.UpdateLikeCallback() {
@@ -654,7 +665,13 @@ public class PinObjectFragment extends Fragment {
     private final PinClickListener relevantPinClickListener = new PinClickListener() {
         @Override
         public void OnClick(int position, View v) {
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+            NavController navController;
+            if (Objects.equals(source, "pinDeepLink")) {
+                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+            } else {
+                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            }
+
             Bundle bundle = new Bundle();
             bundle.putInt("position", position);
             bundle.putString("source", source);
@@ -762,4 +779,28 @@ public class PinObjectFragment extends Fragment {
             }
         });
     };
+
+    private void navigateToUserProfile(String userId) {
+        NavController navController;
+        if (Objects.equals(source, "pinDeepLink")) {
+            navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+        } else {
+            navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+        }
+
+        Bundle args = new Bundle();
+        args.putString("userId", userId);
+        args.putString("source", source);
+
+        int action = R.id.action_pinFragment_to_userProfileFragment;
+        if (Objects.equals(source, "search")) {
+            action = R.id.action_pinFragment2_to_userProfileFragment;
+        } else if (Objects.equals(source, "account")) {
+            action = R.id.action_pinFragment3_to_userProfileFragment;
+        } else if (Objects.equals(source, "pinDeepLink")) {
+            action = R.id.action_pinFragmentDeepLink_to_userProfileFragmentDeepLink;
+        }
+
+        navController.navigate(action, args, null, null);
+    }
 }

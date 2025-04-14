@@ -136,6 +136,16 @@
     <string name="collages">Collages</string>
     <string name="start_creating_now">Start creating now</string>
     <string name="close">Close</string>
+    <string name="btn_share_account">share account</string>
+    <string name="follow">Follow</string>
+    <string name="other_actions">other_actions</string>
+    <string name="followers">Followers</string>
+    <string name="following">Following</string>
+    <string name="no_pin">No pin</string>
+    <string name="loading_user_info_failed">Failed to load user information</string>
+    <string name="check_status_failed">Failed to check follow status</string>
+    <string name="unfollow_failed">Failed to unfollow: </string>
+    <string name="follow_failed">Failed to follow: </string>
     <string name="update">Update</string>
     <string name="old_password">Old pasword</string>
     <string name="enter_old_password">Enter old password</string>
@@ -185,5 +195,4 @@
     <string name="login_failure">Failed to login</string>
     <string name="media_upload_failure">Failed to upload media</string>
     <string name="upload_pin_failure">Failed to upload Pin</string>
-
 </resources>
