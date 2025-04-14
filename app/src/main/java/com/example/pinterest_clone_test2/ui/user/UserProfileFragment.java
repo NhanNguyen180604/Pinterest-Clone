@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -27,29 +28,67 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
+import java.util.Map;
 
 public class UserProfileFragment extends Fragment {
     private FragmentUserProfileBinding binding;
-    private String userId;
-    private String source;
+    private UserProfileViewModel viewModel;
     private final List<Pin> userPins = new ArrayList<>();
     private PinListAdapter pinAdapter;
-    private boolean isFollowing = false;
     private boolean isSelf = false;
 
-    private int followersCount;
-    private int followingCount;
+    // Constants for source values
+    public static final String SOURCE_HOME = "home";
+    public static final String SOURCE_SEARCH = "search";
+    public static final String SOURCE_ACCOUNT = "account";
+    public static final String SOURCE_PIN_DEEP_LINK = "pinDeepLink";
+
+    // Maps to store navigation controllers and actions by source
+    private final Map<String, Integer> navHostResIds = new HashMap<>();
+    private final Map<String, Integer> navActionIds = new HashMap<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Initialize ViewModel
+        viewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
+
+        // Process arguments and restore state
         if (getArguments() != null) {
-            userId = getArguments().getString("userId");
-            source = getArguments().getString("source");
+            // Only set userId from arguments if it's not already in ViewModel
+            if (viewModel.getUserId() == null) {
+                viewModel.setUserId(getArguments().getString("userId"));
+            }
+
+            // Only set source from arguments if it's not already in ViewModel
+            if (viewModel.getSource() == null) {
+                viewModel.setSource(getArguments().getString("source", SOURCE_HOME));
+            }
         }
+
+        // Initialize navigation mappings
+        initNavigationMappings();
+    }
+
+
+     //Initialize navigation host resources and action IDs based on source
+
+    private void initNavigationMappings() {
+        // Navigation host resource IDs
+        navHostResIds.put(SOURCE_HOME, R.id.nav_host_fragment_activity_main);
+        navHostResIds.put(SOURCE_SEARCH, R.id.nav_host_fragment_activity_main);
+        navHostResIds.put(SOURCE_ACCOUNT, R.id.nav_host_fragment_activity_main);
+        navHostResIds.put(SOURCE_PIN_DEEP_LINK, R.id.nav_host_fragment_activity_pin_deep_link);
+
+        // Navigation action IDs
+        navActionIds.put(SOURCE_HOME, R.id.action_userProfileFragment_to_pinFragment);
+        navActionIds.put(SOURCE_SEARCH, R.id.action_userProfileFragment2_to_pinFragment2);
+        navActionIds.put(SOURCE_ACCOUNT, R.id.action_userProfileFragment3_to_pinFragment3);
+        navActionIds.put(SOURCE_PIN_DEEP_LINK, R.id.action_userProfileFragmentDeepLink_to_pinFragmentDeepLink);
     }
 
     @Nullable
@@ -65,7 +104,7 @@ public class UserProfileFragment extends Fragment {
 
         // Check if this is the current user's profile
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null && userId != null && userId.equals(currentUser.getUid())) {
+        if (currentUser != null && viewModel.getUserId() != null && viewModel.getUserId().equals(currentUser.getUid())) {
             isSelf = true;
             binding.btnFollow.setVisibility(View.GONE);
         }
@@ -73,50 +112,110 @@ public class UserProfileFragment extends Fragment {
         // Set up the RecyclerView for pins
         setupRecyclerView();
 
-        if (userId != null) {
-            loadUserInfo();
-            checkFollowStatus();
-            loadUserPins();
+        if (viewModel.getUserId() != null) {
+            // Restore UI state from ViewModel if available
+            restoreUiState();
+
+            // Load data if needed
+            loadUserData();
         }
 
         binding.btnBack.setOnClickListener(v -> {
-            NavController navController;
-            if (Objects.equals(source, "pinDeepLink")) {
-                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
-            } else {
-                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
-            }
+            NavController navController = getNavController();
             navController.navigateUp();
         });
 
         binding.btnFollow.setOnClickListener(v -> toggleFollow());
     }
 
+    //Restore UI state from ViewModel
+    private void restoreUiState() {
+        // Restore name if available
+        String name = viewModel.getName();
+        if(name != null){
+            binding.tvName.setText(name);
+        }
+
+        // Restore avatar url if available
+        String avatarUrl = viewModel.getAvatarUrl();
+        if(avatarUrl !=null ){
+            Glide.with(binding.ivUserAvatar.getContext())
+                    .load(avatarUrl)
+                    .apply(new RequestOptions()
+                            .placeholder(R.drawable.ic_loading)
+                            .error(R.drawable.turtle_huh))
+                    .into(binding.ivUserAvatar);
+        }
+
+        // Restore following status if available
+        Boolean isFollowing = viewModel.getIsFollowing();
+        if (isFollowing != null) {
+            updateFollowButton(isFollowing);
+        }
+
+        // Restore follower count if available
+        Integer followersCount = viewModel.getFollowersCount();
+        if (followersCount != null) {
+            binding.tvFollowers.setText(String.format(Locale.US,
+                    "%d %s", followersCount, getString(R.string.followers)));
+        }
+
+        // Restore following count if available
+        Integer followingCount = viewModel.getFollowingCount();
+        if (followingCount != null) {
+            binding.tvFollowing.setText(String.format(Locale.US,
+                    "%d %s", followingCount, getString(R.string.following)));
+        }
+    }
+
+    //Load user data from Firebase
+    private void loadUserData() {
+        // Load user info if not already loaded or refresh needed
+        if (viewModel.getFollowersCount() == null || viewModel.getFollowingCount() == null) {
+            loadUserInfo();
+        }
+
+        // Check follow status if not already checked
+        if (viewModel.getIsFollowing() == null && !isSelf) {
+            checkFollowStatus();
+        }
+
+        // Always load pins (they could change)
+        loadUserPins();
+    }
+
+    /**
+     * Get the appropriate NavController based on current source
+     * @return NavController for the current source
+     */
+    private NavController getNavController() {
+        String source = viewModel.getSource();
+        int navHostId = navHostResIds.getOrDefault(source, R.id.nav_host_fragment_activity_main);
+        return Navigation.findNavController(requireActivity(), navHostId);
+    }
+
+    /**
+     * Get the appropriate navigation action ID based on current source
+     * @return action ID for navigation
+     */
+    private int getNavigationActionId() {
+        String source = viewModel.getSource();
+        return navActionIds.getOrDefault(source, R.id.action_userProfileFragment_to_pinFragment);
+    }
+
     private void setupRecyclerView() {
         // Initialize the pin adapter
         pinAdapter = new PinListAdapter(requireContext(), userPins, (position, v) -> {
-            // Navigate to PinFragment (similar to how it's done in BoardDetailFragment)
-            NavController navController;
-            if (Objects.equals(source, "pinDeepLink")) {
-                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
-            } else {
-                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
-            }
+            // Navigate to PinFragment using source-specific navigation
+            NavController navController = getNavController();
 
             Bundle args = new Bundle();
             args.putParcelableArrayList("pins", new ArrayList<>(userPins));
             args.putInt("position", position);
-            args.putString("source", source);
+            args.putString("source", viewModel.getSource());
 
-            // Navigate to the appropriate pin fragment based on which tab is active
-            int action = R.id.action_userProfileFragment_to_pinFragment;
-            if (Objects.equals(source, "search")) {
-                action = R.id.action_userProfileFragment2_to_pinFragment2;
-            } else if (Objects.equals(source, "account")) {
-                action = R.id.action_userProfileFragment3_to_pinFragment3;
-            } else if (Objects.equals(source, "pinDeepLink")) {
-                action = R.id.action_userProfileFragmentDeepLink_to_pinFragmentDeepLink;
-            }
+            // Navigate to the appropriate pin fragment based on source
+            int action = getNavigationActionId();
             navController.navigate(action, args);
         });
 
@@ -131,11 +230,11 @@ public class UserProfileFragment extends Fragment {
     private void checkFollowStatus() {
         if (isSelf) return;
 
-        FirebaseUserService.checkIfFollowing(userId, new FirebaseUserService.CheckFollowStatusCallback() {
+        FirebaseUserService.checkIfFollowing(viewModel.getUserId(), new FirebaseUserService.CheckFollowStatusCallback() {
             @Override
             public void OnSuccess(boolean following) {
-                isFollowing = following;
-                updateFollowButton();
+                viewModel.setIsFollowing(following);
+                updateFollowButton(following);
             }
 
             @Override
@@ -145,7 +244,7 @@ public class UserProfileFragment extends Fragment {
         });
     }
 
-    private void updateFollowButton() {
+    private void updateFollowButton(boolean isFollowing) {
         if (isSelf) {
             binding.btnFollow.setVisibility(View.GONE);
             return;
@@ -163,15 +262,21 @@ public class UserProfileFragment extends Fragment {
         if (isSelf) return;
 
         binding.btnFollow.setEnabled(false);
+        boolean isFollowing = viewModel.getIsFollowing() != null && viewModel.getIsFollowing();
 
         if (isFollowing) {
             // Unfollow
-            FirebaseUserService.unfollowUser(userId, new FirebaseUserService.FollowUserCallback() {
+            FirebaseUserService.unfollowUser(viewModel.getUserId(), new FirebaseUserService.FollowUserCallback() {
                 @Override
                 public void OnSuccess() {
-                    isFollowing = false;
-                    updateFollowButton();
-                    updateFollowerCount(-1);
+                    viewModel.setIsFollowing(false);
+                    updateFollowButton(false);
+
+                    // Update follower count in ViewModel and UI
+                    int newCount = viewModel.getFollowersCount() - 1;
+                    viewModel.setFollowersCount(newCount);
+                    binding.tvFollowers.setText(String.format(Locale.US, "%d %s", newCount, getString(R.string.followers)));
+
                     binding.btnFollow.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.colorRed));
                     binding.btnFollow.setEnabled(true);
                 }
@@ -184,12 +289,17 @@ public class UserProfileFragment extends Fragment {
             });
         } else {
             // Follow
-            FirebaseUserService.followUser(userId, new FirebaseUserService.FollowUserCallback() {
+            FirebaseUserService.followUser(viewModel.getUserId(), new FirebaseUserService.FollowUserCallback() {
                 @Override
                 public void OnSuccess() {
-                    isFollowing = true;
-                    updateFollowButton();
-                    updateFollowerCount(1);
+                    viewModel.setIsFollowing(true);
+                    updateFollowButton(true);
+
+                    // Update follower count in ViewModel and UI
+                    int newCount = viewModel.getFollowersCount() + 1;
+                    viewModel.setFollowersCount(newCount);
+                    binding.tvFollowers.setText(String.format(Locale.US, "%d %s", newCount, getString(R.string.followers)));
+
                     binding.btnFollow.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.black));
                     binding.btnFollow.setEnabled(true);
                 }
@@ -203,19 +313,17 @@ public class UserProfileFragment extends Fragment {
         }
     }
 
-    private void updateFollowerCount(int delta) {
-        followersCount += delta;
-        binding.tvFollowers.setText((String.format(Locale.US, "%d %s", followersCount, getString(R.string.followers))));
-    }
-
     private void loadUserInfo() {
         binding.progressLoading.setVisibility(View.VISIBLE);
 
-        FirebaseUserService.getUserInfos(userId, new FirebaseUserService.GetUserInfoCallback() {
+        FirebaseUserService.getUserInfos(viewModel.getUserId(), new FirebaseUserService.GetUserInfoCallback() {
             @Override
             public void OnSuccess(DocumentSnapshot documentSnapshot) {
                 String name = documentSnapshot.getString("name");
+                viewModel.setName(name);
+
                 String avatarUrl = documentSnapshot.getString("avatarUrl");
+                viewModel.setAvatarUrl(avatarUrl);
 
                 binding.tvName.setText(name);
 
@@ -229,11 +337,13 @@ public class UserProfileFragment extends Fragment {
                 }
 
                 List<String> followers = (List<String>) documentSnapshot.get("followers");
-                followersCount = followers != null ? followers.size() : 0;
+                int followersCount = followers != null ? followers.size() : 0;
+                viewModel.setFollowersCount(followersCount);
                 binding.tvFollowers.setText(String.format(Locale.US, "%d %s", followersCount, getString(R.string.followers)));
 
                 List<String> following = (List<String>) documentSnapshot.get("following");
-                followingCount = following != null ? following.size() : 0;
+                int followingCount = following != null ? following.size() : 0;
+                viewModel.setFollowingCount(followingCount);
                 binding.tvFollowing.setText(String.format(Locale.US, "%d %s", followingCount, getString(R.string.following)));
             }
 
@@ -249,7 +359,7 @@ public class UserProfileFragment extends Fragment {
         binding.progressLoading.setVisibility(View.VISIBLE);
         binding.tvNoPins.setVisibility(View.GONE);
 
-        FirebaseUserService.getUserPins(userId, new FirebaseUserService.GetUserPinsCallback() {
+        FirebaseUserService.getUserPins(viewModel.getUserId(), new FirebaseUserService.GetUserPinsCallback() {
             @Override
             public void OnSuccess(List<Pin> pins) {
                 binding.progressLoading.setVisibility(View.GONE);
