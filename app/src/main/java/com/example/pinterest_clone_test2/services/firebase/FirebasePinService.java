@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.pinterest_clone_test2.models.Pin;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,6 +48,37 @@ public abstract class FirebasePinService {
                 .get()
                 .addOnSuccessListener(callback::OnSuccess)
                 .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void fetchPinsFromIds(List<String> pinIds, OnPinsFetchedFromIdsCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        if (pinIds == null || pinIds.isEmpty()) {
+            callback.onSuccess(new ArrayList<>());
+            return;
+        }
+
+        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+        for (String pinId : pinIds) {
+            tasks.add(firestore.collection("pins").document(pinId).get());
+        }
+
+        Tasks.whenAllSuccess(tasks)
+                .addOnSuccessListener(results -> {
+                    List<Pin> pins = new ArrayList<>();
+                    for (Object result : results) {
+                        if (result instanceof DocumentSnapshot) {
+                            DocumentSnapshot doc = (DocumentSnapshot) result;
+                            Pin pin = doc.toObject(Pin.class);
+                            if (pin != null) {
+                                pin.setId(doc.getId());
+                                pins.add(pin);
+                            }
+                        }
+                    }
+                    callback.onSuccess(pins);
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 
     public static void searchPins(@NonNull String searchQuery, @Nullable DocumentSnapshot lastVisible, int perPage, @NonNull SearchPinServiceCallback callback) {
@@ -150,7 +182,7 @@ public abstract class FirebasePinService {
 
             try {
                 blockedPins = (List<String>) currentUserDocument.get("blockedPins");
-                blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
             } catch (Exception e) {
                 // eat exception
             }
@@ -216,14 +248,39 @@ public abstract class FirebasePinService {
                             return Tasks.forException(Objects.requireNonNull(task.getException()));
                         }
                     })
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d("FirebasePinService-UpdateLike", "like removed successfully");
-                    })
+                    .addOnSuccessListener(aVoid -> Log.d("FirebasePinService-UpdateLike", "like removed successfully"))
                     .addOnFailureListener(e -> {
                         Log.e("FirebasePinService-UpdateLike", "like failed to remove: ", e);
                         callback.OnFailure(e);
                     });
         }
+    }
+
+    public static void uploadPin(@NonNull Pin pin, UploadPinServiceCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        pin.setAuthorId(currentUser.getUid());
+
+        firestore.collection("pins")
+                .add(pin)
+                .addOnSuccessListener(documentReference -> {
+                    callback.OnSuccess(documentReference);
+                    FirebaseUserService.savePinToProfile(documentReference.getId(), new FirebaseUserService.SavePinToProfileCallback() {
+                        @Override
+                        public void OnSuccess() {
+                            Log.d("FirebaseUserService", "Saved pin to profile successfully");
+                        }
+
+                        @Override
+                        public void OnFailure(Exception e) {
+                            Log.e("FirebaseUserService", "Failed to saved pin to profile");
+                            e.printStackTrace();
+                        }
+                    });
+                })
+                .addOnFailureListener(callback::OnFailure);
     }
 
     public interface GetPinServiceCallback {
@@ -242,10 +299,21 @@ public abstract class FirebasePinService {
         void OnFailure(Exception e);
     }
 
-
     public interface SearchPinServiceCallback {
         void onSearchSuccess(List<Pin> results, DocumentSnapshot lastVisible);
 
         void onSearchFailure(Exception e);
+    }
+
+    public interface OnPinsFetchedFromIdsCallback {
+        void onSuccess(List<Pin> pins);
+
+        void onFailure(Exception e);
+    }
+
+    public interface UploadPinServiceCallback {
+        void OnSuccess(DocumentReference documentReference);
+
+        void OnFailure(Exception e);
     }
 }

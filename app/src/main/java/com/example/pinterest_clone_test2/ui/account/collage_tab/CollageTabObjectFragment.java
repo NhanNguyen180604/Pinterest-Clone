@@ -1,4 +1,4 @@
-package com.example.pinterest_clone_test2.ui.account;
+package com.example.pinterest_clone_test2.ui.account.collage_tab;
 
 import android.os.Bundle;
 

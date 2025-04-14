@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -20,9 +22,14 @@ import java.util.Objects;
 
 public abstract class FirebaseUserService {
     private static DocumentSnapshot currentUserDocument;
+    private static long lastUpdateTime = 0;
 
     public static DocumentSnapshot getCurrentUserDocument() {
         return currentUserDocument;
+    }
+
+    public static long getLastUpdateTime() {
+        return lastUpdateTime;
     }
 
     public static void initUserDocument() {
@@ -40,6 +47,7 @@ public abstract class FirebaseUserService {
 
                     if (documentSnapshot != null && documentSnapshot.exists()) {
                         currentUserDocument = documentSnapshot;
+                        lastUpdateTime = System.currentTimeMillis();
                         Log.d("FirebaseUserService", "User info updated");
                     }
                 });
@@ -85,6 +93,8 @@ public abstract class FirebaseUserService {
                 .update("blockedPins", FieldValue.arrayUnion(pinId))
                 .addOnSuccessListener(unused -> callback.OnSuccess())
                 .addOnFailureListener(callback::OnFailure);
+
+        removePinFromProfileAndBoards(pinId, firestore, currentUser);
     }
 
     public static void blockUser(@NonNull String userId, HidePinCallback callback) {
@@ -96,6 +106,116 @@ public abstract class FirebaseUserService {
                 .document(currentUser.getUid())
                 .update("blockedUsers", FieldValue.arrayUnion(userId))
                 .addOnSuccessListener(unused -> callback.OnSuccess())
+                .addOnFailureListener(callback::OnFailure);
+
+        // remove pins of blocked users from profile, boards
+        firestore.collection("pins")
+                .whereEqualTo("authorId", userId)
+                .get()
+                .continueWithTask(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot queryDocumentSnapshots = task.getResult();
+                        List<DocumentSnapshot> pinDocuments = queryDocumentSnapshots.getDocuments();
+                        for (DocumentSnapshot pinDoc :
+                                pinDocuments) {
+                            removePinFromProfileAndBoards(pinDoc.getId(), firestore, currentUser);
+                        }
+                    }
+                    return Tasks.forResult(null);
+                });
+    }
+
+    private static void removePinFromProfileAndBoards(@NonNull String pinId, FirebaseFirestore firestore, FirebaseUser currentUser) {
+        firestore.collection("users")
+                .document(currentUser.getUid())
+                .update("pins", FieldValue.arrayRemove(pinId))
+                .addOnSuccessListener(unused -> Log.d("FirebaseUserService", "Removed blocked pin from profile"));
+
+        firestore.collection("boards")
+                .whereEqualTo("userId", currentUser.getUid())
+                .get()
+                .continueWithTask(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot queryDocumentSnapshots = task.getResult();
+                        List<DocumentSnapshot> documentSnapshots = queryDocumentSnapshots.getDocuments();
+                        for (DocumentSnapshot boardDoc :
+                                documentSnapshots) {
+                            firestore.collection("boards")
+                                    .document(boardDoc.getId())
+                                    .update("pins", FieldValue.arrayRemove(pinId))
+                                    .addOnSuccessListener(unused -> {
+                                        if (boardDoc.getString("name") != null) {
+                                            Log.d("FirebaseUserService", "Removed blocked pin from board: " + boardDoc.getString("name"));
+                                        } else {
+                                            Log.d("FirebaseUserService", "Removed blocked pin from board id: " + boardDoc.getId());
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        if (boardDoc.getString("name") != null) {
+                                            Log.e("FirebaseUserService", "Failed to removed blocked pin from board: " + boardDoc.getString("name"));
+                                        } else {
+                                            Log.e("FirebaseUserService", "Failed to remove blocked pin from board id: " + boardDoc.getId());
+                                        }
+                                        e.printStackTrace();
+                                    });
+                        }
+                    } else {
+                        Log.d("FirebaseUserService", "Failed to remove fetch board document");
+                    }
+                    return Tasks.forResult(null);
+                });
+    }
+
+    public static void updateGender(@NonNull String gender, UpdateGenderCallback callback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.getUid())
+                .update("gender", gender)
+                .addOnSuccessListener(unused -> callback.OnSuccess())
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void updateEmail(@NonNull String email, UpdateEmailCallback callback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.getUid())
+                .update("email", email)
+                .addOnSuccessListener(unused -> callback.OnSuccess())
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void updateBirthdate(@NonNull String birthdate, UpdateBirthdateCallback callback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.getUid())
+                .update("birthdate", birthdate)
+                .addOnSuccessListener(unused -> callback.OnSuccess())
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void updatePassword(@NonNull String oldPassword, @NonNull String newPassword, UpdatePasswordCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null || user.getEmail() == null) {
+            callback.OnFailure(new Exception("Người dùng không hợp lệ"));
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), oldPassword);
+        user.reauthenticate(credential)
+                .addOnSuccessListener(authResult -> {
+                    user.updatePassword(newPassword)
+                            .addOnSuccessListener(unused -> callback.OnSuccess())
+                            .addOnFailureListener(callback::OnFailure);
+                })
                 .addOnFailureListener(callback::OnFailure);
     }
 
@@ -254,6 +374,30 @@ public abstract class FirebaseUserService {
         void OnFailure(Exception e);
     }
 
+    public interface UpdateGenderCallback {
+        void OnSuccess();
+
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdateEmailCallback {
+        void OnSuccess();
+
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdatePasswordCallback {
+        void OnSuccess();
+
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdateBirthdateCallback {
+        void OnSuccess();
+
+        void OnFailure(Exception e);
+    }
+
     public interface FollowUserCallback {
         void OnSuccess();
 
@@ -271,6 +415,7 @@ public abstract class FirebaseUserService {
 
         void OnFailure(Exception e);
     }
+
     public interface GetUserInfoCallback {
         void OnSuccess(DocumentSnapshot documentSnapshot);
 

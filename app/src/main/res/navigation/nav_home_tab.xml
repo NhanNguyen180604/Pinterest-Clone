@@ -49,5 +49,12 @@
         <argument
             android:name="source"
             app:argType="string" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_pinFragment"
+            app:destination="@id/pinFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
 </navigation>

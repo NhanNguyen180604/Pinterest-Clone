@@ -23,10 +23,14 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.media3.common.MediaItem;
+import androidx.media3.exoplayer.ExoPlayer;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.bumptech.glide.Glide;
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.UploadActivity;
-import com.example.pinterest_clone_test2.adapters.ImageAdapter;
+import com.example.pinterest_clone_test2.adapters.MediaAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentUploadBinding;
 
 import java.io.File;
@@ -43,10 +47,11 @@ public class UploadFragment extends Fragment {
     private static final int STORAGE_PERMISSION_CODE = 102;
 
     FragmentUploadBinding binding;
-    private ImageAdapter imageAdapter;
-    private ArrayList<Uri> imageList;
+    private MediaAdapter mediaAdapter;
+    private ArrayList<Uri> mediaList;
     Uri cameraUri;
-    Uri selectImageUri;
+    Uri selectMediaUri;
+    ExoPlayer exoPlayer;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
     public UploadFragment() {
@@ -66,7 +71,7 @@ public class UploadFragment extends Fragment {
                     break;
                 case STORAGE_PERMISSION_CODE:
                     if (isGranted) {
-                        loadAllImagesFromGallery();
+                        loadAllMediaFromGallery();
                     }
                     break;
             }
@@ -90,27 +95,27 @@ public class UploadFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        imageList = new ArrayList<>();
-        imageAdapter = new ImageAdapter(imageList, getContext(), imageSelectedListener);
+        mediaList = new ArrayList<>();
+        mediaAdapter = new MediaAdapter(mediaList, getContext(), mediaSelectedListener);
         binding.recyclerViewImages.setLayoutManager(new GridLayoutManager(getContext(), 4));
-        binding.recyclerViewImages.setAdapter(imageAdapter);
+        binding.recyclerViewImages.setAdapter(mediaAdapter);
 
         binding.btnNext.setEnabled(false);
-        binding.selectedImageContainer.setVisibility(View.GONE);
+        binding.selectedMediaContainer.setVisibility(View.GONE);
 
         binding.btnExit.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
         binding.btnLibrary.setOnClickListener(v -> openGallery());
         binding.btnCamera.setOnClickListener(v -> requestPermissionIfNeeded(Manifest.permission.CAMERA, CAMERA_REQUEST_CODE));
         binding.btnAddUrl.setOnClickListener(v -> openUrlInput());
         binding.btnNext.setOnClickListener(v -> proceedToNextStep());
-        binding.btnRemoveSelectedImage.setOnClickListener(v -> resetSelectedImage());
+        binding.btnRemoveSelectedMedia.setOnClickListener(v -> resetSelectedMedia());
 
         requestPermissionIfNeeded(Manifest.permission.READ_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE);
 
         if (savedInstanceState != null) {
-            selectImageUri = savedInstanceState.getParcelable("selectedImageUri");
-            if (selectImageUri != null) {
-                onImageSelected(selectImageUri);
+            selectMediaUri = savedInstanceState.getParcelable("selectedMediaUri");
+            if (selectMediaUri != null) {
+                onMediaSelected(selectMediaUri);
             }
         }
     }
@@ -118,9 +123,15 @@ public class UploadFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (selectImageUri != null) {
-            outState.putParcelable("selectedImageUri", selectImageUri);
+        if (selectMediaUri != null) {
+            outState.putParcelable("selectedMediaUri", selectMediaUri);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        releaseExoPlayer();
     }
 
     private void requestPermissionIfNeeded(@NonNull String permission, int requestCode) {
@@ -130,7 +141,7 @@ public class UploadFragment extends Fragment {
                 case GALLERY_REQUEST_CODE:
                     break;
                 case STORAGE_PERMISSION_CODE:
-                    loadAllImagesFromGallery();
+                    loadAllMediaFromGallery();
                     break;
                 case CAMERA_REQUEST_CODE:
                     openCamera();
@@ -141,40 +152,83 @@ public class UploadFragment extends Fragment {
         }
     }
 
-    private void loadAllImagesFromGallery() {
+    private void loadAllMediaFromGallery() {
         ContentResolver contentResolver = requireContext().getContentResolver();
-        Uri imagesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = {MediaStore.Images.Media._ID};
 
-        try (Cursor cursor = contentResolver.query(imagesUri, projection, null, null, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                if (columnIndex != -1) {
-                    do {
-                        long imageId = cursor.getLong(columnIndex);
-                        Uri imageUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(imageId));
-                        imageList.add(imageUri);
-                        imageAdapter.notifyItemInserted(imageList.size() - 1);
-                    } while (cursor.moveToNext());
+        // Query images and GIFs
+        Uri imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        String[] imageProjection = {MediaStore.Images.Media._ID, MediaStore.Images.Media.MIME_TYPE};
+
+        // Query videos
+        Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        String[] videoProjection = {MediaStore.Video.Media._ID, MediaStore.Video.Media.MIME_TYPE};
+
+        try {
+            ArrayList<Uri> newMediaList = new ArrayList<>();
+
+            // Query for images and GIFs
+            try (Cursor cursor = contentResolver.query(imageUri, imageProjection, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+                    int mimeTypeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
+                    if (columnIndex != -1 && mimeTypeIndex != -1) {
+                        do {
+                            long mediaId = cursor.getLong(columnIndex);
+                            String mimeType = cursor.getString(mimeTypeIndex);
+                            Uri mediaUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(mediaId));
+
+                            // Add image or gif
+                            if (mimeType.startsWith("image") || mimeType.equals("image/gif")) {
+                                newMediaList.add(mediaUri);
+                            }
+                        } while (cursor.moveToNext());
+                    }
                 }
+            }
+
+            // Query for videos
+            try (Cursor cursor = contentResolver.query(videoUri, videoProjection, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndex(MediaStore.Video.Media._ID);
+                    int mimeTypeIndex = cursor.getColumnIndex(MediaStore.Video.Media.MIME_TYPE);
+                    if (columnIndex != -1 && mimeTypeIndex != -1) {
+                        do {
+                            long mediaId = cursor.getLong(columnIndex);
+                            String mimeType = cursor.getString(mimeTypeIndex);
+                            Uri mediaUri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(mediaId));
+
+                            // Add video
+                            if (mimeType.startsWith("video")) {
+                                newMediaList.add(mediaUri);
+                            }
+                        } while (cursor.moveToNext());
+                    }
+                }
+            }
+
+            // After collecting all the media URIs, update the media list and notify the adapter
+            if (!newMediaList.isEmpty()) {
+                mediaList.addAll(newMediaList); // Add the new media to the list
+                mediaAdapter.notifyItemRangeInserted(mediaList.size() - newMediaList.size(), newMediaList.size());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+
     private void openGallery() {
         photoPickerLauncher.launch(new PickVisualMediaRequest.Builder()
-                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
                 .build());
     }
 
     private final ActivityResultLauncher<PickVisualMediaRequest> photoPickerLauncher =
             registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(), uris -> {
                 if (!uris.isEmpty()) {
-                    int startPos = imageList.size();
-                    imageList.addAll(uris);
-                    imageAdapter.notifyItemRangeInserted(startPos, uris.size());
+                    int startPos = mediaList.size();
+                    mediaList.addAll(uris);
+                    mediaAdapter.notifyItemRangeInserted(startPos, uris.size());
                     for (Uri uri : uris) {
                         requireContext().getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     }
@@ -194,9 +248,9 @@ public class UploadFragment extends Fragment {
     private final ActivityResultLauncher<Intent> cameraActivityLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && cameraUri != null) {
-                    imageList.add(cameraUri);
-                    imageAdapter.notifyItemInserted(imageList.size() - 1);
-                    onImageSelected(cameraUri);
+                    mediaList.add(cameraUri);
+                    mediaAdapter.notifyItemInserted(mediaList.size() - 1);
+                    onMediaSelected(cameraUri);
                 }
             });
 
@@ -218,24 +272,60 @@ public class UploadFragment extends Fragment {
 
     private void proceedToNextStep() {
         if (getActivity() instanceof UploadActivity) {
-            ((UploadActivity) getActivity()).showDetailFragment(selectImageUri);
+            ((UploadActivity) getActivity()).showDetailFragment(selectMediaUri);
         }
     }
 
-    public void onImageSelected(Uri imageUri) {
-        this.selectImageUri = imageUri;
-        binding.selectedImageView.setImageURI(imageUri);
-        binding.selectedImageContainer.setVisibility(View.VISIBLE);
+    public void onMediaSelected(Uri mediaUri) {
+        this.selectMediaUri = mediaUri;
+        String mimeType = requireContext().getContentResolver().getType(mediaUri);
+
+        releaseExoPlayer();
+        binding.selectedMediaContainer.setVisibility(View.VISIBLE);
+
+        if (mimeType != null && (mimeType.startsWith("image") || mimeType.contains("gif"))) {
+            Glide.with(binding.selectedImageView.getContext())
+                    .load(mediaUri)
+                    .placeholder(R.drawable.ic_loading)
+                    .into(binding.selectedImageView);  // Hiển thị ảnh hoặc GIF
+
+            binding.selectedImageView.setVisibility(View.VISIBLE);
+            binding.selectedVideoView.setVisibility(View.GONE);
+
+        } else if (mimeType != null && mimeType.startsWith("video")) {
+            binding.selectedImageView.setVisibility(View.GONE);
+            binding.selectedVideoView.setVisibility(View.VISIBLE);
+
+            exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+            binding.selectedVideoView.setPlayer(exoPlayer);
+            MediaItem mediaItem = MediaItem.fromUri(mediaUri);
+            exoPlayer.setMediaItem(mediaItem);
+            exoPlayer.prepare();
+        }
+
+        // Ẩn button container và kích hoạt nút Next khi media được chọn
         binding.buttonContainer.setVisibility(View.GONE);
         binding.btnNext.setEnabled(true);
     }
 
-    private void resetSelectedImage() {
-        selectImageUri = null;
-        binding.selectedImageContainer.setVisibility(View.GONE);
+
+    private void resetSelectedMedia() {
+        selectMediaUri = null;
+        binding.selectedMediaContainer.setVisibility(View.GONE);
+        binding.selectedVideoView.setVisibility(View.GONE);
         binding.buttonContainer.setVisibility(View.VISIBLE);
         binding.btnNext.setEnabled(false);
+        releaseExoPlayer();
     }
 
-    private final ImageAdapter.OnImageSelectedListener imageSelectedListener = this::onImageSelected;
+    void releaseExoPlayer() {
+        if (exoPlayer == null)
+            return;
+
+        exoPlayer.stop();
+        exoPlayer.release();
+        exoPlayer = null;
+    }
+
+    private final MediaAdapter.OnMediaSelectedListener mediaSelectedListener = this::onMediaSelected;
 }

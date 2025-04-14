@@ -26,8 +26,8 @@
             android:id="@+id/tv_am_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="Thông tin cá nhân"
-            android:text="Thông tin cá nhân"
+            android:contentDescription="@string/personal_info"
+            android:text="@string/personal_info"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="16sp"
@@ -40,7 +40,7 @@
             android:id="@+id/tv_am_intro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Chỉnh sửa thông tin cá nhân cơ bản của bạn để cải thiện đề xuất. Thông tin này sẽ không hiển thị trong hồ sơ của bạn."
+            android:text="@string/personal_information_change_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_am_title" />
 
@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Thông tin cá nhân của bạn"
+            android:text="@string/your_personal_information"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_am_intro" />
@@ -69,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:text="Ngày sinh"
+                android:text="@string/birthdate_text"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -89,7 +89,7 @@
                 android:id="@+id/tv_your_birthdate"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="01/01/2007"
+                android:text="@string/birthdate_placeholder"
                 app:layout_constraintEnd_toStartOf="@id/chevron_birthdate"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -109,7 +109,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="Giới tính"
+                android:text="@string/gender"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -129,7 +129,7 @@
                 android:id="@+id/tv_your_gender"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="Male"
+                android:text="@string/male_text"
                 app:layout_constraintEnd_toStartOf="@id/chevron_gender"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -149,7 +149,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="Khu vực"
+                android:text="@string/region"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -171,7 +171,7 @@
                 android:id="@+id/your_region"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="Việt Nam"
+                android:text="@string/VietNam"
                 app:layout_constraintEnd_toStartOf="@id/chevron_region"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -191,7 +191,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="Ngôn ngữ"
+                android:text="@string/language"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -212,7 +212,7 @@
                 android:id="@+id/your_email"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="Tiếng Việt"
+                android:text="@string/Vietnamese"
                 app:layout_constraintEnd_toStartOf="@id/chevron_language"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>

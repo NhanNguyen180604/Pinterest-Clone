@@ -1,6 +1,7 @@
 package com.example.pinterest_clone_test2.ui.user;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +20,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentUserProfileBinding;
-import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Pin;
-import com.example.pinterest_clone_test2.models.User;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,12 +28,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 public class UserProfileFragment extends Fragment {
     private FragmentUserProfileBinding binding;
     private String userId;
-    private User user;
-    private List<Pin> userPins = new ArrayList<>();
+    private String source;
+    private final List<Pin> userPins = new ArrayList<>();
     private PinListAdapter pinAdapter;
     private boolean isFollowing = false;
     private boolean isSelf = false;
@@ -47,6 +48,7 @@ public class UserProfileFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             userId = getArguments().getString("userId");
+            source = getArguments().getString("source");
         }
     }
 
@@ -78,7 +80,12 @@ public class UserProfileFragment extends Fragment {
         }
 
         binding.btnBack.setOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            NavController navController;
+            if (Objects.equals(source, "pinDeepLink")) {
+                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+            } else {
+                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            }
             navController.navigateUp();
         });
 
@@ -87,19 +94,30 @@ public class UserProfileFragment extends Fragment {
 
     private void setupRecyclerView() {
         // Initialize the pin adapter
-        pinAdapter = new PinListAdapter(userPins, new PinClickListener() {
-            @Override
-            public void OnClick(int position, View v) {
-                // Navigate to PinFragment (similar to how it's done in BoardDetailFragment)
-                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
-                Bundle args = new Bundle();
-                args.putParcelableArrayList("pins", new ArrayList<>(userPins));
-                args.putInt("position", position);
-                args.putString("source", "user_profile");
-
-                // Navigate to the appropriate pin fragment based on which tab is active
-                navController.navigate(R.id.pinFragment, args);
+        pinAdapter = new PinListAdapter(requireContext(), userPins, (position, v) -> {
+            // Navigate to PinFragment (similar to how it's done in BoardDetailFragment)
+            NavController navController;
+            if (Objects.equals(source, "pinDeepLink")) {
+                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+            } else {
+                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
             }
+
+            Bundle args = new Bundle();
+            args.putParcelableArrayList("pins", new ArrayList<>(userPins));
+            args.putInt("position", position);
+            args.putString("source", source);
+
+            // Navigate to the appropriate pin fragment based on which tab is active
+            int action = R.id.action_userProfileFragment_to_pinFragment;
+            if (Objects.equals(source, "search")) {
+                action = R.id.action_userProfileFragment2_to_pinFragment2;
+            } else if (Objects.equals(source, "account")) {
+                action = R.id.action_userProfileFragment3_to_pinFragment3;
+            } else if (Objects.equals(source, "pinDeepLink")) {
+                action = R.id.action_userProfileFragmentDeepLink_to_pinFragmentDeepLink;
+            }
+            navController.navigate(action, args);
         });
 
         // Set up the RecyclerView with a StaggeredGridLayoutManager
@@ -187,7 +205,7 @@ public class UserProfileFragment extends Fragment {
 
     private void updateFollowerCount(int delta) {
         followersCount += delta;
-        binding.tvFollowers.setText(followersCount + " " +getString(R.string.followers));
+        binding.tvFollowers.setText((String.format(Locale.US, "%d %s", followersCount, getString(R.string.followers))));
     }
 
     private void loadUserInfo() {
@@ -212,11 +230,11 @@ public class UserProfileFragment extends Fragment {
 
                 List<String> followers = (List<String>) documentSnapshot.get("followers");
                 followersCount = followers != null ? followers.size() : 0;
-                binding.tvFollowers.setText(followersCount + " " +getString(R.string.followers));
+                binding.tvFollowers.setText(String.format(Locale.US, "%d %s", followersCount, getString(R.string.followers)));
 
                 List<String> following = (List<String>) documentSnapshot.get("following");
                 followingCount = following != null ? following.size() : 0;
-                binding.tvFollowing.setText(followingCount +" " +getString(R.string.following));
+                binding.tvFollowing.setText(String.format(Locale.US, "%d %s", followingCount, getString(R.string.following)));
             }
 
             @Override
@@ -241,9 +259,11 @@ public class UserProfileFragment extends Fragment {
                     return;
                 }
 
+                int oldSize = userPins.size();
                 userPins.clear();
+                pinAdapter.notifyItemRangeRemoved(0, oldSize);
                 userPins.addAll(pins);
-                pinAdapter.notifyDataSetChanged();
+                pinAdapter.notifyItemRangeInserted(0, userPins.size());
             }
 
             @Override

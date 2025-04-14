@@ -1,13 +1,18 @@
 package com.example.pinterest_clone_test2.adapters;
 
-import android.util.Log;
+import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.VideoView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -19,6 +24,7 @@ import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.List;
+import java.util.Locale;
 
 public class PinListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static class PinImageViewHolder extends RecyclerView.ViewHolder {
@@ -31,16 +37,20 @@ public class PinListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public static class PinVideoViewHolder extends RecyclerView.ViewHolder {
-        VideoView videoView;
+        PlayerView playerView;
+        ExoPlayer player;
         ImageView iv;
+        TextView tvDuration;
 
         public PinVideoViewHolder(@NonNull View itemView) {
             super(itemView);
-            videoView = itemView.findViewById(R.id.video_view);
+            playerView = itemView.findViewById(R.id.video_view);
             iv = itemView.findViewById(R.id.image_view_holder);
+            tvDuration = itemView.findViewById(R.id.tv_duration);
         }
     }
 
+    Context context;
     List<Pin> pins;
     PinClickListener listener;
     DocumentSnapshot currentUserDocument;
@@ -49,7 +59,8 @@ public class PinListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     final int VIEW_TYPE_IMAGE = 1;
     final int VIEW_TYPE_VIDEO = 2;
 
-    public PinListAdapter(List<Pin> pins, PinClickListener listener) {
+    public PinListAdapter(Context context, List<Pin> pins, PinClickListener listener) {
+        this.context = context;
         this.pins = pins;
         this.listener = listener;
         currentUserDocument = FirebaseUserService.getCurrentUserDocument();
@@ -106,7 +117,6 @@ public class PinListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (holder instanceof PinImageViewHolder) {
             PinImageViewHolder vh = (PinImageViewHolder) holder;
             if (isBlocked(pin)) {
-                Log.d("PinListAdapter", "blocked");
                 Glide.with(vh.itemView.getContext())
                         .load(R.drawable.hidden_image)
                         .fitCenter()
@@ -131,23 +141,67 @@ public class PinListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         } else {
             PinVideoViewHolder vh = (PinVideoViewHolder) holder;
-            // TODO: fix this stupidity
             if (isBlocked(pin)) {
-                Log.d("PinListAdapter", "blocked");
-                vh.iv.setVisibility(View.VISIBLE);
-                vh.videoView.setVisibility(View.GONE);
+                vh.playerView.setVisibility(View.GONE);
                 Glide.with(vh.itemView.getContext())
                         .load(R.drawable.hidden_image)
                         .fitCenter()
                         .apply(options)
                         .into(vh.iv);
+                vh.tvDuration.setVisibility(View.GONE);
                 return;
             }
 
-            //TODO: load video
+            Glide.with(vh.itemView.getContext())
+                    .load(R.drawable.video_placeholder)
+                    .fitCenter()
+                    .apply(options)
+                    .into(vh.iv);
+
+            if (vh.player == null) {
+                vh.player = new ExoPlayer.Builder(context).build();
+                vh.playerView.setPlayer(vh.player);
+            }
+
+            MediaItem mediaItem = MediaItem.fromUri(Uri.parse(pin.getThumbnailUrl()));
+            vh.player.setMediaItem(mediaItem);
+            vh.player.prepare();
+            vh.player.setPlayWhenReady(false);
+
+            vh.player.addListener(new Player.Listener() {
+                @Override
+                public void onPlaybackStateChanged(int playbackState) {
+                    Player.Listener.super.onPlaybackStateChanged(playbackState);
+                    if (playbackState == Player.STATE_READY) {
+                        vh.iv.setVisibility(View.GONE);
+                        long durationMs = vh.player.getDuration();
+                        if (durationMs > 0) {
+                            long durationSeconds = durationMs / 1000;
+                            long minutes = (durationSeconds % 3600) / 60;
+                            long seconds = durationSeconds % 60;
+                            vh.player.removeListener(this);
+                            String durationString = String.format(Locale.US, "%02d:%02d", minutes, seconds);
+                            vh.tvDuration.setText(durationString);
+                        }
+                    }
+                }
+            });
         }
 
         holder.itemView.setOnClickListener(v -> listener.OnClick(holder.getBindingAdapterPosition(), v));
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder instanceof PinVideoViewHolder) {
+            PinVideoViewHolder vh = (PinVideoViewHolder) holder;
+            if (vh.player != null) {
+                vh.player.stop();
+                vh.player.release();
+                vh.player = null;
+            }
+        }
     }
 
     @Override

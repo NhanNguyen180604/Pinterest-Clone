@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +24,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.MediaItem;
+import androidx.media3.exoplayer.ExoPlayer;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,8 +38,10 @@ import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
+import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
+import com.example.pinterest_clone_test2.services.download.PinMediaDownloader;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
@@ -49,11 +54,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class PinObjectFragment extends Fragment {
     PinObjectViewModel viewModel;
     private Pin pin;
+    boolean isBlocked = false;
     User author = new User();
     FragmentPinObjectBinding binding;
     String source;
@@ -66,6 +73,7 @@ public class PinObjectFragment extends Fragment {
     DocumentSnapshot lastVisible;  // for pagination
     List<Pin> relevantPins = new ArrayList<>();
     PinListAdapter relevantPinAdapter;
+    ExoPlayer exoPlayer;
 
     // need this to prevent crash idk why
     public PinObjectFragment() {
@@ -157,7 +165,7 @@ public class PinObjectFragment extends Fragment {
 
                 try {
                     blockedPins = (List<String>) currentUserDocument.get("blockedPins");
-                    blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                    blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
                 } catch (Exception e) {
                     // eat exception
                 }
@@ -228,6 +236,50 @@ public class PinObjectFragment extends Fragment {
         isLoading = false;
     }
 
+    // use this to check if this pin is saved inside a board
+    void fetchBoardsAsync() {
+        Thread thread = new Thread(() -> {
+            QuerySnapshot currentUserBoardSnapshot = FirebaseBoardService.getCurrentUserBoardSnapshot();
+            if (currentUserBoardSnapshot == null) {
+                FirebaseBoardService.getUserBoards(getBoardServiceCallback);
+            } else {
+                getBoardServiceCallback.OnSuccess(currentUserBoardSnapshot);
+            }
+        });
+        thread.start();
+    }
+
+    final FirebaseBoardService.GetBoardServiceCallback getBoardServiceCallback = new FirebaseBoardService.GetBoardServiceCallback() {
+        @Override
+        public void OnSuccess(QuerySnapshot querySnapshot) {
+            List<DocumentSnapshot> documents = querySnapshot.getDocuments();
+            for (DocumentSnapshot document :
+                    documents) {
+                Board board = document.toObject(Board.class);
+                if (board == null) {
+                    continue;
+                }
+                board.setId(document.getId());
+                if (pin != null && board.getPins() != null && board.getPins().contains(pin.getId())) {
+                    handler.post(() -> {
+                        binding.btnSave.setText(getString(R.string.saved));
+                        binding.btnSave.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.gray_button_pinterest));
+                        binding.btnSave.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+                    });
+                    break;
+                } else if (pin == null) {
+                    Log.d("PinObjectFragment", "Pin is null again bitch");
+                }
+            }
+        }
+
+        @Override
+        public void OnFailure(Exception e) {
+            Log.e("PinObjectFragment", "Failed to fetch boards");
+            e.printStackTrace();
+        }
+    };
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -258,7 +310,7 @@ public class PinObjectFragment extends Fragment {
 
                         // idk if this gonna happen or not, just to make sure
                         if (pin == null) {
-                            Toast.makeText(requireContext(), "Give praise, for android has no equal", Toast.LENGTH_SHORT).show();
+                            Log.e("PinObjectFragment", "pin is fucking null, at on create");
                             return;
                         }
 
@@ -307,29 +359,6 @@ public class PinObjectFragment extends Fragment {
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinObjectViewModel.class);
         initRecyclerViewRelevantPins();
 
-        binding.btnComment.setOnClickListener(v -> {
-            if (pin != null) {
-                CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId(), requireContext());
-                modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
-            } else {
-                Toast.makeText(requireContext(), "Pin is null, idk why", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        binding.btnMore.setOnClickListener(v -> {
-            if (pin != null) {
-                PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, requireContext(), downloadPinMediaCallback, hidePinCallback);
-                sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
-            } else {
-                Toast.makeText(requireContext(), "Pin is null, end my suffering", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        binding.fabBack.setOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(view);
-            navController.navigateUp();
-        });
-
         binding.btnLove.setOnClickListener(v -> {
             if (pin != null) {
                 pin.setIsLiked(!pin.getIsLiked());
@@ -338,8 +367,46 @@ public class PinObjectFragment extends Fragment {
                 // update like on database
                 FirebasePinService.updateLike(pin.getId(), pin.getIsLiked(), updateLikeCallback);
             } else {
-                Toast.makeText(requireContext(), "Pin is null, one must imagine CS students being happy", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
             }
+        });
+
+        binding.btnComment.setOnClickListener(v -> {
+            if (pin != null) {
+                CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId(), requireContext());
+                modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
+            } else {
+                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        binding.btnShare.setOnClickListener(v -> {
+            if (pin != null) {
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                String sharedLink = String.format(Locale.US, getResources().getString(R.string.pin_deep_link_string_template), pin.getId());
+                sendIntent.putExtra(Intent.EXTRA_TEXT, sharedLink);
+                sendIntent.setType("text/plain");
+
+                Intent shareIntent = Intent.createChooser(sendIntent, null);
+                startActivity(shareIntent);
+            } else {
+                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        binding.btnMore.setOnClickListener(v -> {
+            if (pin != null) {
+                PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, requireContext(), downloadPinMediaCallback, hidePinCallback);
+                sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
+            } else {
+                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        binding.fabBack.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(view);
+            navController.navigateUp();
         });
 
         binding.btnSave.setOnClickListener(v -> {
@@ -349,7 +416,7 @@ public class PinObjectFragment extends Fragment {
                 intent.putExtra("suggestNewBoard", true);
                 chooseBoardActivityLauncher.launch(intent);
             } else {
-                Toast.makeText(requireContext(), "Pin is null, i regret studying this major", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
             }
         });
         binding.ivAuthorAvatar.setOnClickListener(v -> {
@@ -403,6 +470,8 @@ public class PinObjectFragment extends Fragment {
         if (scroll_state != null && binding.rvRelevant.getLayoutManager() != null) {
             binding.rvRelevant.getLayoutManager().onRestoreInstanceState(scroll_state);
         }
+
+        fetchBoardsAsync();
     }
 
     @Override
@@ -415,11 +484,35 @@ public class PinObjectFragment extends Fragment {
         viewModel.setSourceState(source);
         viewModel.setAuthorState(author);
         viewModel.setRelevantPinState(relevantPins);
+
+        stopAndStoreVideoState();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+
+        // only release when view is destroyed, if put this in onPause, it will look like shit
+        releaseExoPlayer();
+    }
+
+    void stopAndStoreVideoState() {
+        if (exoPlayer != null) {
+            exoPlayer.stop();
+            viewModel.setVideoPositionState(exoPlayer.getCurrentPosition());
+        }
+    }
+
+    void releaseExoPlayer() {
+        if (exoPlayer != null) {
+            exoPlayer.release();
+            exoPlayer = null;
+        }
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        Log.d("PinObjectFragment", "On view state restored");
         super.onViewStateRestored(savedInstanceState);
         restoreStates();
 
@@ -434,7 +527,7 @@ public class PinObjectFragment extends Fragment {
         }
 
         if (pin == null) {
-            Log.d("PinObjectFragment", "pin is null, whyyyyyyyyyyyyyyyyyyyyy?");
+            Log.d("PinObjectFragment", "pin is null, why?");
         } else {
             RequestOptions options = new RequestOptions()
                     .placeholder(R.drawable.ic_loading)
@@ -443,6 +536,7 @@ public class PinObjectFragment extends Fragment {
             if (pin.getType() == Pin.PinType.VIDEO) {
                 binding.ivImage.setVisibility(View.GONE);
                 binding.videoView.setVisibility(View.VISIBLE);
+                binding.fabBgRemoval.setVisibility(View.GONE);
             } else {
                 binding.ivImage.setVisibility(View.VISIBLE);
                 binding.videoView.setVisibility(View.GONE);
@@ -456,7 +550,7 @@ public class PinObjectFragment extends Fragment {
 
                 try {
                     blockedPins = (List<String>) currentUserDocument.get("blockedPins");
-                    blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                    blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
                 } catch (Exception e) {
                     // eat exception
                 }
@@ -483,10 +577,6 @@ public class PinObjectFragment extends Fragment {
                         .apply(options)
                         .into(binding.ivImage);
             }
-            // VIDEO
-            else {
-                //TODO: load video
-            }
 
             fetchPinLikesAsync();
             binding.setPinViewModel(pin);
@@ -501,25 +591,48 @@ public class PinObjectFragment extends Fragment {
                 .apply(options)
                 .into(binding.ivImage);
 
-        binding.btnSave.setEnabled(false);
-        binding.btnLove.setEnabled(false);
-        binding.btnComment.setEnabled(false);
-        binding.btnShare.setEnabled(false);
-        binding.btnMore.setEnabled(false);
-        binding.fabBgRemoval.setEnabled(false);
-        binding.tvLikeCount.setText("");
-        binding.tvPinDescription.setText("");
-        binding.tvPinTitle.setText("");
+        // pin title is still visible, fuck me, idk why
+        binding.setPinViewModel(null);
+
+        binding.btnSave.setVisibility(View.GONE);
+        binding.btnLove.setVisibility(View.GONE);
+        binding.btnComment.setVisibility(View.GONE);
+        binding.btnShare.setVisibility(View.GONE);
+        binding.btnMore.setVisibility(View.GONE);
+        binding.fabBgRemoval.setVisibility(View.GONE);
+        binding.fabBgRemoval.setVisibility(View.GONE);
+        binding.tvLikeCount.setVisibility(View.GONE);
+        binding.tvPinDescription.setVisibility(View.GONE);
+        binding.tvPinTitle.setVisibility(View.GONE);
+        binding.tvAuthor.setVisibility(View.GONE);
+        binding.ivAuthorAvatar.setVisibility(View.GONE);
+
+        isBlocked = true;
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    public void onResume() {
+        super.onResume();
+        // load video here because onViewStateRestored won't be called every single time
+        if (!isBlocked && pin != null && pin.getType() == Pin.PinType.VIDEO) {
+            if (exoPlayer == null) {
+                exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+                binding.videoView.setPlayer(exoPlayer);
+                MediaItem mediaItem = MediaItem.fromUri(Uri.parse(pin.getMediaUrl()));
+                exoPlayer.setMediaItem(mediaItem);
+                exoPlayer.prepare();
+            }
+
+            exoPlayer.setPlayWhenReady(true);
+            long oldPositionState = viewModel.getVideoPositionState();
+            if (oldPositionState > 0) {
+                exoPlayer.seekTo(oldPositionState);
+            }
+        }
     }
 
     private void initRecyclerViewRelevantPins() {
-        relevantPinAdapter = new PinListAdapter(relevantPins, relevantPinClickListener);
+        relevantPinAdapter = new PinListAdapter(requireContext(), relevantPins, relevantPinClickListener);
         relevantPinAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.rvRelevant.setAdapter(relevantPinAdapter);
 
@@ -552,7 +665,13 @@ public class PinObjectFragment extends Fragment {
     private final PinClickListener relevantPinClickListener = new PinClickListener() {
         @Override
         public void OnClick(int position, View v) {
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            NavController navController;
+            if (Objects.equals(source, "pinDeepLink")) {
+                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+            } else {
+                navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            }
+
             Bundle bundle = new Bundle();
             bundle.putInt("position", position);
             bundle.putString("source", source);
@@ -564,8 +683,9 @@ public class PinObjectFragment extends Fragment {
             } else if (Objects.equals(source, "search")) {
                 action = R.id.action_pinFragment2_self;
             } else if (Objects.equals(source, "account")) {
-                // TODO: change this to R.id.action_pinFragment3_self or whatever it generates
                 action = R.id.action_pinFragment3_self;
+            } else if (Objects.equals(source, "pinDeepLink")) {
+                action = R.id.action_pinFragmentDeepLink_self;
             }
 
             navController.navigate(
@@ -588,7 +708,6 @@ public class PinObjectFragment extends Fragment {
 
             PinMediaDownloader downloader = new PinMediaDownloader(requireContext());
             downloader.DownloadFile(pin.getMediaUrl(), mimeType, String.valueOf(System.currentTimeMillis()));
-            handler.post(() -> Toast.makeText(requireContext(), "Download finished", Toast.LENGTH_SHORT).show());
         });
         thread.start();
     }
@@ -616,7 +735,7 @@ public class PinObjectFragment extends Fragment {
                 if (isGranted) {
                     downloadMediaAsync();
                 } else {
-                    Toast.makeText(requireContext(), "Permission denied, download failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getResources().getString(R.string.download_permission_denied), Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -662,18 +781,24 @@ public class PinObjectFragment extends Fragment {
     };
 
     private void navigateToUserProfile(String userId) {
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+        NavController navController;
+        if (Objects.equals(source, "pinDeepLink")) {
+            navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+        } else {
+            navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+        }
 
         Bundle args = new Bundle();
         args.putString("userId", userId);
+        args.putString("source", source);
 
-        int action;
-        if (Objects.equals(source, "home")) {
-            action = R.id.action_pinFragment_to_userProfileFragment;
-        } else if (Objects.equals(source, "search")) {
+        int action = R.id.action_pinFragment_to_userProfileFragment;
+        if (Objects.equals(source, "search")) {
             action = R.id.action_pinFragment2_to_userProfileFragment;
-        } else {
+        } else if (Objects.equals(source, "account")) {
             action = R.id.action_pinFragment3_to_userProfileFragment;
+        } else if (Objects.equals(source, "pinDeepLink")) {
+            action = R.id.action_pinFragmentDeepLink_to_userProfileFragmentDeepLink;
         }
 
         navController.navigate(action, args, null, null);

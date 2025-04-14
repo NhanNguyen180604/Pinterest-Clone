@@ -105,7 +105,7 @@ public class TabObjectFragment extends Fragment {
 
                 try {
                     blockedPins = (List<String>) currentUserDocument.get("blockedPins");
-                    blockedUsers = (List<String>) currentUserDocument.get("blockedUser");
+                    blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
                 } catch (Exception e) {
                     // eat exception
                 }
@@ -165,6 +165,10 @@ public class TabObjectFragment extends Fragment {
     };
 
     void updateUI(List<Pin> newPins, boolean append) {
+        if (binding == null) {
+            return;
+        }
+
         binding.progressBar.setVisibility(View.GONE);
 
         if (!append) {
@@ -211,7 +215,7 @@ public class TabObjectFragment extends Fragment {
 
     private void initRecyclerView() {
         Log.d("HomeTab", "Init recyclerview");
-        adapter = new PinListAdapter(pins, pinClickListener);
+        adapter = new PinListAdapter(requireContext(), pins, pinClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.homePagerRecyclerView.setAdapter(adapter);
 
