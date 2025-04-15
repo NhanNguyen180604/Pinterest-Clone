@@ -397,8 +397,18 @@ public class PinObjectFragment extends Fragment {
 
         binding.btnMore.setOnClickListener(v -> {
             if (pin != null) {
-                PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, requireContext(), downloadPinMediaCallback, hidePinCallback);
-                sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
+                DocumentSnapshot currentUserDoc = FirebaseUserService.getCurrentUserDocument();
+                assert currentUserDoc != null;
+
+                // display author's exclusive dialog to manage pin
+                if (currentUserDoc.getId().equals(pin.getAuthorId())) {
+                    // TODO: display dialog that allows author to edit pin
+                }
+                // display normal dialog for viewers
+                else {
+                    PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, requireContext(), downloadPinMediaCallback, hidePinCallback);
+                    sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
+                }
             } else {
                 Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
             }
