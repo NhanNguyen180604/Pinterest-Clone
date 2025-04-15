@@ -37,6 +37,7 @@ public class User extends BaseObservable implements Parcelable {
     private Gender gender;
     private Role role;
     private String avatarUrl;
+    private boolean isBlocked;
 
     // Danh sách mock users
     private static List<User> mockUsers = new ArrayList<>(Arrays.asList(
@@ -57,6 +58,7 @@ public class User extends BaseObservable implements Parcelable {
         this.birthDate = birthDate;
         this.gender = gender;
         this.role = role;
+        this.isBlocked = false;
     }
 
     public User(String password, String email, String firstName, String birthDate, Gender gender, Role role) {
@@ -66,6 +68,7 @@ public class User extends BaseObservable implements Parcelable {
         this.birthDate = birthDate;
         this.gender = gender;
         this.role = role;
+        this.isBlocked = false;
     }
 
     public User(String password, String email, String firstName, String birthDate, Gender gender) {
@@ -75,6 +78,7 @@ public class User extends BaseObservable implements Parcelable {
         this.birthDate = birthDate;
         this.gender = gender;
         this.role = Role.USER;
+        this.isBlocked = false;
     }
 
 
@@ -144,6 +148,14 @@ public class User extends BaseObservable implements Parcelable {
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
         notifyPropertyChanged(BR.avatarUrl);
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
     }
 
     public static boolean isValidEnum(String value) {
