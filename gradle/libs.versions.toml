@@ -23,6 +23,7 @@ cloudinary = "3.0.2"
 legacySupportV4 = "1.0.0"
 recyclerview = "1.4.0"
 activity = "1.10.1"
+media3Common = "1.6.0"
 
 [libraries]
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
@@ -51,6 +52,7 @@ cloudinary = { module = "com.cloudinary:cloudinary-android", version.ref = "clou
 legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "legacySupportV4" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3Common" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
