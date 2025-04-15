@@ -43,6 +43,7 @@ public class TabObjectFragment extends Fragment {
     final int perPage = 20;
     boolean isOnLastPage = false;
     boolean isLoading = false;
+    boolean isRefreshing = false;
     DocumentSnapshot lastVisible;  // for pagination
 
     // need this to prevent crash idk why
@@ -70,6 +71,22 @@ public class TabObjectFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(TabObjectViewModel.class);
+
+        binding.swipeContainer.setOnRefreshListener(() -> {
+            if (!isRefreshing && !isLoading) {
+                refresh();
+            }
+        });
+    }
+
+    void refresh() {
+        isRefreshing = true;
+        lastVisible = null;
+        isOnLastPage = false;
+        int oldSize = pins.size();
+        pins.clear();
+        adapter.notifyItemRangeRemoved(0, oldSize);
+        fetchPinsAsync();
     }
 
     void fetchPinsAsync() {
@@ -179,7 +196,12 @@ public class TabObjectFragment extends Fragment {
         adapter.notifyItemRangeInserted(startPos, newPins.size());
 
         isLoading = false;
-        restoreScrollState();
+        if (!isRefreshing) {
+            restoreScrollState();
+        }
+
+        binding.swipeContainer.setRefreshing(false);
+        isRefreshing = false;
     }
 
     @Override
