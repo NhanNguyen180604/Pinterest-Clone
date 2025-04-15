@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.pinterest_clone_test2.models.User;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ManageUserViewModel extends ViewModel {
 
@@ -45,6 +47,25 @@ public class ManageUserViewModel extends ViewModel {
     public void setTab(TabType tab) {
         currentTab = tab;
         applyFilter();
+    }
+
+    public void loadUsersFromFirebase() {
+        FirebaseFirestore.getInstance().collection("USER")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<User> usersList = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        User user = doc.toObject(User.class);
+                        if (user != null) {
+                            usersList.add(user);
+                        }
+                    }
+                    // Cập nhật LiveData
+                    users.setValue(usersList); // Sửa chỗ này, gọi setValue trên users (LiveData)
+                })
+                .addOnFailureListener(e -> {
+                    // Log lỗi hoặc báo lỗi
+                });
     }
 
     public void applyFilter() {

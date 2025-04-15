@@ -3,12 +3,19 @@ package com.example.pinterest_clone_test2.ui.admin.manage_user;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.adapters.UserListAdapter;
+import com.example.pinterest_clone_test2.models.User;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,7 +67,41 @@ public class ManageUserFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_manage_user, container, false);
+        View view = inflater.inflate(R.layout.fragment_manage_user, container, false);
+
+        RecyclerView recyclerView = view.findViewById(R.id.rv_users);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        ManageUserViewModel viewModel = new ViewModelProvider(this).get(ManageUserViewModel.class);
+
+        UserListAdapter adapter = new UserListAdapter(new ArrayList<>(), new UserListAdapter.UserActionListener() {
+            @Override
+            public void onBlockClick(User user) {
+                if (user.isBlocked()) {
+                    viewModel.unblockUser(user);
+                } else {
+                    viewModel.blockUser(user);
+                }
+            }
+
+            @Override
+            public void onDeleteClick(User user) {
+                viewModel.deleteUser(user);
+            }
+
+            @Override
+            public void onItemClick(User user) {
+                // TODO: Hiển thị chi tiết hoặc mở dialog
+            }
+        });
+
+        recyclerView.setAdapter(adapter);
+
+        // Quan sát dữ liệu LiveData
+        viewModel.getUsers().observe(getViewLifecycleOwner(), adapter::setUserList);
+
+        viewModel.loadUsersFromFirebase();
+
+        return view;
     }
 }
