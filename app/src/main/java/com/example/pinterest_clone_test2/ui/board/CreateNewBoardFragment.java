@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.pinterest_clone_test2.CreateBoardActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.databinding.FragmentCreateNewBoardBinding;
 import com.example.pinterest_clone_test2.models.Board;
@@ -61,14 +62,22 @@ public class CreateNewBoardFragment extends BottomSheetDialogFragment {
                 .centerCrop();
 
         if (viewModel.getPin() != null) {
+            binding.cvPreviewImage.setVisibility(View.VISIBLE);
             Glide.with(binding.ivPreviewImage.getContext())
                     .load(viewModel.getPin().getThumbnailUrl())
                     .apply(options)
                     .into(binding.ivPreviewImage);
+        } else {
+            binding.cvPreviewImage.setVisibility(View.GONE);
         }
 
         binding.btnClose.setOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
+            Activity activity = requireActivity();
+            if (activity instanceof CreateBoardActivity) {
+                activity.finish();
+            } else {
+                getParentFragmentManager().popBackStack();
+            }
         });
 
         binding.btnCreate.setOnClickListener(v -> {

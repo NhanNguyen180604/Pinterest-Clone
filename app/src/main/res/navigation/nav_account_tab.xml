@@ -36,6 +36,13 @@
         <action
             android:id="@+id/action_settingsDrawerFragment_to_account_management"
             app:destination="@id/account_management" />
+        <action
+            android:id="@+id/action_settingsDrawerFragment_to_userProfileFragment3"
+            app:destination="@id/userProfileFragment3"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/account_management"

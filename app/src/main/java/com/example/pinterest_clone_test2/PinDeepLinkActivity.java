@@ -1,6 +1,5 @@
 package com.example.pinterest_clone_test2;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -93,26 +92,20 @@ public class PinDeepLinkActivity extends AppCompatActivity {
                         firstTime = false;
                         return;
                     }
-
-                    if (isTaskRoot()) {
-                        returnHome();
-                    }
-
-                    // when we get back to the starting fragment, finish the activity
-                    finish();
+                    returnHome();
                 }
             });
         });
 
-        binding.btnReturnHome.setOnClickListener(v -> {
-            returnHome();
-            finish();
-        });
+        binding.btnReturnHome.setOnClickListener(v -> returnHome());
     }
 
     private void returnHome() {
-        Intent mainActivityIntent = new Intent(PinDeepLinkActivity.this, MainActivity.class);
-        startActivity(mainActivityIntent);
+        if (isTaskRoot()) {
+            Intent mainActivityIntent = new Intent(PinDeepLinkActivity.this, MainActivity.class);
+            startActivity(mainActivityIntent);
+        }
+        finish();
     }
 
     private void navigateToErrorFragment(NavController navController, String errorMessage) {

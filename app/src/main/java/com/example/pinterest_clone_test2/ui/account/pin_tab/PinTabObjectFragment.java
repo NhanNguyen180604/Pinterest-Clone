@@ -46,8 +46,8 @@ public class PinTabObjectFragment extends Fragment {
     int page = 1;
     final int perPage = 20;
     int totalPage = 0;
-    boolean isOnLastPage = false;
     boolean isLoading = false;
+    boolean isRefreshing = false;
 
     public PinTabObjectFragment() {
         // Required empty public constructor
@@ -65,11 +65,29 @@ public class PinTabObjectFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinTabObjectViewModel.class);
+
+        binding.swipeContainer.setOnRefreshListener(() -> {
+            if (!isRefreshing && !isLoading) {
+                refresh();
+            }
+        });
+    }
+
+    void refresh() {
+        isRefreshing = true;
+        page = 1;
+        int oldSize = pins.size();
+        pins.clear();
+        adapter.notifyItemRangeRemoved(0, oldSize);
+        pinIds.clear();
+        totalPage = 0;
+        setPinIdsAndTotalPageCount();
+        fetchPinsAsync();
     }
 
     void fetchPinsAsync() {
         Thread thread = new Thread(() -> {
-            if (isOnLastPage || isLoading)
+            if (outOfPins() || isLoading)
                 return;
 
             Log.d("AccountPinTab", "Fetching pins");
@@ -81,6 +99,9 @@ public class PinTabObjectFragment extends Fragment {
                 FirebasePinService.fetchPinsFromIds(pinIds.subList((page - 1) * perPage, Math.min(page * perPage, pinIds.size())), onPinsFetchedFromIdsCallback);
             } catch (Exception e) {
                 e.printStackTrace();
+                if (e.getMessage() != null) {
+                    Log.e("AccountPinTab", e.getMessage());
+                }
                 handler.post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.fetch_pin_failure), Toast.LENGTH_SHORT).show());
             }
         });
@@ -90,15 +111,12 @@ public class PinTabObjectFragment extends Fragment {
     final FirebasePinService.OnPinsFetchedFromIdsCallback onPinsFetchedFromIdsCallback = new FirebasePinService.OnPinsFetchedFromIdsCallback() {
         @Override
         public void onSuccess(List<Pin> newPins) {
-            page++;
-            // janky coding belike
-            if (page == totalPage + 1) {
-                isOnLastPage = true;
-            }
-
             long lastUpdateTime = FirebaseUserService.getLastUpdateTime();
-            handler.post(() -> updateUI(newPins, profileLastUpdated == lastUpdateTime));
-            profileLastUpdated = lastUpdateTime;
+            handler.post(() -> {
+                updateUI(newPins, profileLastUpdated == lastUpdateTime);
+                profileLastUpdated = lastUpdateTime;
+                page++;
+            });
         }
 
         @Override
@@ -123,7 +141,12 @@ public class PinTabObjectFragment extends Fragment {
         adapter.notifyItemRangeInserted(startPos, newPins.size());
 
         isLoading = false;
-        restoreScrollState();
+        if (!isRefreshing) {
+            restoreScrollState();
+        }
+
+        isRefreshing = false;
+        binding.swipeContainer.setRefreshing(false);
     }
 
     private void restoreScrollState() {
@@ -143,7 +166,6 @@ public class PinTabObjectFragment extends Fragment {
             viewModel.setScrollState(binding.rvPins.getLayoutManager().onSaveInstanceState());
         }
         viewModel.setPinState(pins);
-        viewModel.setOnLastPage(isOnLastPage);
         viewModel.setLastUpdateTime(profileLastUpdated);
         viewModel.setPinIdsState(pinIds);
         viewModel.setPageState(page);
@@ -161,24 +183,7 @@ public class PinTabObjectFragment extends Fragment {
 
         long lastUpdateTime = FirebaseUserService.getLastUpdateTime();
         if (lastUpdateTime != profileLastUpdated) {
-            isOnLastPage = false;
-
-            try {
-                DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
-                assert currentUserDocument != null;
-                List<String> userPinIds = (List<String>) currentUserDocument.get("pins");
-                if (userPinIds != null) {
-                    if (pinIds.isEmpty()) {
-                        pinIds.addAll(Lists.reverse(userPinIds));
-                    } else {
-                        pinIds = Lists.reverse(userPinIds);
-                    }
-                }
-                totalPage = (int) Math.ceil((double) pinIds.size() / perPage);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            setPinIdsAndTotalPageCount();
             fetchPinsAsync();
             return;
         }
@@ -192,16 +197,7 @@ public class PinTabObjectFragment extends Fragment {
         if (oldPinIdsState != null && !oldPinIdsState.isEmpty()) {
             pinIds = oldPinIdsState;
         } else {
-            try {
-                DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
-                assert currentUserDocument != null;
-                List<String> userPinIds = (List<String>) currentUserDocument.get("pins");
-                if (userPinIds != null)
-                    pinIds.addAll(userPinIds);
-                totalPage = (int) Math.ceil((double) pinIds.size() / perPage);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            setPinIdsAndTotalPageCount();
         }
 
         List<Pin> oldPinState = viewModel.getPinState();
@@ -213,8 +209,20 @@ public class PinTabObjectFragment extends Fragment {
             restoreScrollState();
             binding.progressBar.setVisibility(View.GONE);
         }
+    }
 
-        isOnLastPage = viewModel.isOnLastPage();
+    private void setPinIdsAndTotalPageCount() {
+        try {
+            DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+            assert currentUserDocument != null;
+            List<String> userPinIds = (List<String>) currentUserDocument.get("pins");
+            if (userPinIds != null) {
+                pinIds.addAll(Lists.reverse(userPinIds));
+            }
+            totalPage = (int) Math.ceil((double) pinIds.size() / perPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     void initRecyclerView() {
@@ -231,7 +239,7 @@ public class PinTabObjectFragment extends Fragment {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy <= 0 || isOnLastPage || isLoading)
+                if (dy <= 0 || outOfPins() || isLoading)
                     return;
 
                 int totalItemCount = layoutManager.getItemCount();
@@ -245,6 +253,10 @@ public class PinTabObjectFragment extends Fragment {
                 }
             }
         });
+    }
+
+    boolean outOfPins() {
+        return page > totalPage;
     }
 
     @Override
