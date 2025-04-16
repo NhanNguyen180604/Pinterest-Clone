@@ -17,13 +17,15 @@ import java.util.List;
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserViewHolder> {
     private List<User> userList = new ArrayList<>();
     private final UserActionListener actionListener;
+    private boolean isBannedList = false;
 
+    // Thiết lập các hàm xử lý sự kiện cho các nút trong ViewHolder
     public interface UserActionListener {
-        void onBlockClick(User user);
-        void onDeleteClick(User user);
+        void onBanClick(User user);
         void onItemClick(User user);
     }
 
+    // Constructor
     @SuppressLint("NotifyDataSetChanged")
     public UserListAdapter(List<User> userList, UserActionListener listener) {
         this.userList = userList;
@@ -31,15 +33,13 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    public void setUserList(List<User> newUsers) {
-        this.userList.clear();
-        this.userList.addAll(newUsers);
+    public void updateData(List<User> newList) {
+        this.userList = newList;
         notifyDataSetChanged();
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    public void updateData(List<User> newList) {
-        this.userList = newList;
+    public void setBannedList(boolean isBanned) {
+        this.isBannedList = isBanned;
         notifyDataSetChanged();
     }
 
@@ -50,31 +50,38 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         return new UserViewHolder(view);
     }
 
+    // ViewHolder cho mỗi item trong RecyclerView
+    static class UserViewHolder extends RecyclerView.ViewHolder {
+        TextView name, email;
+        Button banBtn;
+
+        public UserViewHolder(@NonNull View itemView) {
+            super(itemView);
+            name = itemView.findViewById(R.id.tv_user_name);
+            email = itemView.findViewById(R.id.tv_user_email);
+            banBtn = itemView.findViewById(R.id.btn_ban);
+        }
+    }
+
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = userList.get(position);
-        holder.name.setText(user.getFirstName());
+        holder.name.setText(user.getName());
         holder.email.setText(user.getEmail());
-        holder.blockBtn.setOnClickListener(v -> actionListener.onBlockClick(user));
-        holder.deleteBtn.setOnClickListener(v -> actionListener.onDeleteClick(user));
+
+        // Đổi text dựa vào trạng thái banned
+        if (isBannedList) {
+            holder.banBtn.setText("BỎ CẤM");
+        } else {
+            holder.banBtn.setText("CẤM");
+        }
+
+        holder.banBtn.setOnClickListener(v -> actionListener.onBanClick(user));
         holder.itemView.setOnClickListener(v -> actionListener.onItemClick(user));
     }
 
     @Override
     public int getItemCount() {
         return userList != null ? userList.size() : 0;
-    }
-
-    static class UserViewHolder extends RecyclerView.ViewHolder {
-        TextView name, email;
-        Button blockBtn, deleteBtn;
-
-        public UserViewHolder(@NonNull View itemView) {
-            super(itemView);
-            name = itemView.findViewById(R.id.tv_username);
-            email = itemView.findViewById(R.id.tv_user_email);
-            blockBtn = itemView.findViewById(R.id.btn_block);
-            deleteBtn = itemView.findViewById(R.id.btn_delete);
-        }
     }
 }

@@ -12,21 +12,11 @@
 
         <!-- First Name -->
         <EditText
-            android:id="@+id/edit_first_name"
+            android:id="@+id/edit_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints=""
-            android:hint="Họ"
-            android:inputType="textPersonName"
-            android:minHeight="48dp" />
-
-        <!-- Last Name -->
-        <EditText
-            android:id="@+id/edit_last_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Tên"
-            android:layout_marginTop="12dp"
+            android:hint="Họ Tên"
             android:inputType="textPersonName"
             android:minHeight="48dp" />
 

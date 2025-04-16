@@ -1,6 +1,5 @@
 package com.example.pinterest_clone_test2.models;
 
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,168 +8,118 @@ import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
 import com.example.pinterest_clone_test2.BR;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.firebase.firestore.DocumentId;
 
 public class User extends BaseObservable implements Parcelable {
-    @SuppressWarnings("unused")
     public enum Role {
-        ADMIN,
-        USER,
+        Admin,
+        User,
     }
-
     public enum Gender {
         Nam,
         Nữ,
         Khác,
     }
-
+    public enum Mode {
+        NORMAL,
+        BANNED,
+    }
+    private String userId;
     private String password;
     private String email;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String birthDate;
     private Gender gender;
     private Role role;
     private String avatarUrl;
-    private boolean isBlocked;
 
-    // Danh sách mock users
-    private static List<User> mockUsers = new ArrayList<>(Arrays.asList(
-            new User("password1", "user1@example.com", "Tân", "01/01/1990", Gender.Nam),
-            new User("password2", "user2@example.com", "Tandy", "02/02/1992", Gender.Nữ),
-            new User("password3", "user3@example.com", "Võ", "03/03/1995", Gender.Khác)
-    ));
-    private static Map<String, String> tokenMap = new HashMap<>();
-
-    public User() {
-    }
-
-    public User(String password, String email, String firstName, String lastName, String birthDate, Gender gender, Role role) {
+    // Constructor
+    public User() {}
+    public User(String password, String email, String name, String birthDate, Gender gender, Role role) {
         this.password = password;
         this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.name = name;
         this.birthDate = birthDate;
         this.gender = gender;
         this.role = role;
-        this.isBlocked = false;
     }
-
-    public User(String password, String email, String firstName, String birthDate, Gender gender, Role role) {
+    public User(String password, String email, String name, String birthDate, Gender gender) {
         this.password = password;
         this.email = email;
-        this.firstName = firstName;
+        this.name = name;
         this.birthDate = birthDate;
         this.gender = gender;
-        this.role = role;
-        this.isBlocked = false;
+        this.role = Role.User;
     }
 
-    public User(String password, String email, String firstName, String birthDate, Gender gender) {
-        this.password = password;
-        this.email = email;
-        this.firstName = firstName;
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.role = Role.USER;
-        this.isBlocked = false;
+    // Getter, Setter
+    @Bindable
+    public String getUserId() {
+        return userId;
     }
-
-
+    public void setUserId(String userId) {
+        this.userId = userId;
+        notifyPropertyChanged(BR.userId);
+    }
     public void setPassword(String password) {
         this.password = password;
     }
-
+    @Bindable
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
+        notifyPropertyChanged(BR.email);
     }
-
     @Bindable
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-        notifyPropertyChanged(BR.firstName);
+    public void setName(String name) {
+        this.name = name;
+        notifyPropertyChanged(BR.name);
     }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
+    @Bindable
     public Gender getGender() {
         return gender;
     }
-
     public void setGender(String gender) {
         this.gender = Gender.valueOf(gender);
+        notifyPropertyChanged(BR.gender);
     }
-
+    @Bindable
     public String getBirthDate() {
         return birthDate;
     }
-
     public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
-
+    @Bindable
     public Role getRole() {
         return role;
     }
-
     public void setRole(Role role) {
         this.role = role;
+        notifyPropertyChanged(BR.role);
     }
-
-    public String getFullName() {
-        return firstName + " " + lastName;
-    }
-
     @Bindable
     public String getAvatarUrl() {
         return avatarUrl;
     }
-
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
         notifyPropertyChanged(BR.avatarUrl);
     }
 
-    public boolean isBlocked() {
-        return isBlocked;
+    public boolean isBanned() {
+        return false; // Thêm logic kiểm tra trạng thái ban ở đây
     }
 
-    public void setBlocked(boolean blocked) {
-        isBlocked = blocked;
-    }
-
-    public static boolean isValidEnum(String value) {
-        try {
-            Gender.valueOf(value);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
-
+    // Implement Interface
     public User(Parcel in) {
         email = in.readString();
-        firstName = in.readString();
-        lastName = in.readString();
+        name = in.readString();
         birthDate = in.readString();
         gender = (Gender) in.readSerializable();
         role = (Role) in.readSerializable();
@@ -197,8 +146,7 @@ public class User extends BaseObservable implements Parcelable {
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
         parcel.writeString(email);
-        parcel.writeString(firstName);
-        parcel.writeString(lastName);
+        parcel.writeString(name);
         parcel.writeString(birthDate);
         parcel.writeSerializable(gender);
         parcel.writeSerializable(role);

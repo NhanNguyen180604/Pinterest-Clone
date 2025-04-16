@@ -5,7 +5,6 @@
     android:layout_height="wrap_content"
     android:elevation="3dp"
     android:foreground="?android:attr/selectableItemBackground">
-<!--    android:cardCornerRadius="12dp"-->
 
     <LinearLayout
         android:orientation="horizontal"
@@ -22,7 +21,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_username"
+                android:id="@+id/tv_user_name"
                 android:text="Tên người dùng"
                 android:textStyle="bold"
                 android:textSize="16sp"
@@ -34,27 +33,19 @@
                 android:id="@+id/tv_user_email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="user_email"
+                android:text="Email người dùng"
                 android:textColor="#757575"
                 android:textSize="14sp" />
         </LinearLayout>
 
         <!-- Action buttons -->
         <Button
-            android:id="@+id/btn_block"
-            android:text="CHẶN"
+            android:id="@+id/btn_ban"
+            android:text="CẤM"
             android:layout_marginEnd="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            android:background="@drawable/gray_button_pinterest" />
-
-        <Button
-            android:id="@+id/btn_delete"
-            android:text="XÓA"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:background="@drawable/black_button_pinterest" />
+            android:background="@drawable/red_button_pinterest" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

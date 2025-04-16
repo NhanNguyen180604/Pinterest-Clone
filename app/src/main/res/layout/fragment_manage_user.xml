@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:padding="10dp"
+    android:layout_marginBottom="45dp"
     tools:context=".ui.admin.manage_user.ManageUserFragment">
 
     <!-- Thanh tìm kiếm + lọc -->
@@ -19,83 +20,93 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <EditText
-            android:id="@+id/et_search"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:autofillHints=""
-            android:hint="Tìm kiếm người dùng"
-            android:paddingStart="12dp"
-            android:background="@drawable/rounded_edittext"
-            android:inputType="text"
-            tools:ignore="RtlSymmetry,VisualLintTextFieldSize" />
+            android:layout_marginEnd="8dp"
+            app:startIconDrawable="@drawable/ic_search"
+            app:boxBackgroundMode="filled"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxBackgroundColor="@color/searchBoxBg">
 
-        <ImageButton
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_search"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="       Tìm kiếm người dùng"
+                android:inputType="text"
+                android:background="@null"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_filter"
+            style="@style/Widget.Material3.Button.Icon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/rounded_button"
-            android:src="@drawable/ic_filter"
+            app:icon="@drawable/ic_filter"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@color/colorRed"
             android:contentDescription="Lọc" />
     </LinearLayout>
 
     <!-- Tabs: Bình thường | Bị cấm -->
-    <LinearLayout
+    <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/layout_tabs"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/layout_search"
+        app:layout_constraintTop_toBottomOf="@id/layout_search"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:singleSelection="true"
+        app:selectionRequired="true">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_normal"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:layout_weight="1"
             android:text="BÌNH THƯỜNG"
-            android:background="@drawable/red_button_pinterest"
-            android:textColor="@android:color/white"
-            tools:ignore="VisualLintButtonSize" />
+            app:cornerRadius="16dp" />
 
-        <Button
-            android:id="@+id/btn_blocked"
-            android:layout_width="0dp"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_banned"
+            android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:layout_weight="1"
             android:text="BỊ CẤM"
-            android:background="@drawable/gray_button_pinterest"
-            android:textColor="@android:color/white"
-            tools:ignore="VisualLintButtonSize" />
-    </LinearLayout>
+            app:cornerRadius="16dp" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_users"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="12dp"
         android:padding="4dp"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@+id/layout_tabs"
-        app:layout_constraintBottom_toTopOf="@+id/btn_add_user"
+        app:layout_constraintTop_toBottomOf="@id/layout_tabs"
+        app:layout_constraintBottom_toTopOf="@id/btn_add_user"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Nút thêm -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_add_user"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorRed"
+        android:icon="@drawable/ic_add"
         android:text="THÊM TÀI KHOẢN"
-        android:textColor="#000000"
+        android:textColor="@android:color/white"
+        app:cornerRadius="16dp"
+        app:iconPadding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rv_users" />
+        app:layout_constraintTop_toBottomOf="@id/rv_users" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
