@@ -11,6 +11,9 @@ import androidx.databinding.Bindable;
 
 import com.example.pinterest_clone_test2.BR;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Pin extends BaseObservable implements Parcelable {
     public enum PinType {
         IMAGE,
@@ -31,6 +34,7 @@ public class Pin extends BaseObservable implements Parcelable {
     private String descriptionNormalized;
     private boolean allowComment;
     private long createdAt;
+    private List<String> tags;
 
     public Pin() {
 
@@ -181,6 +185,17 @@ public class Pin extends BaseObservable implements Parcelable {
         return this;
     }
 
+    @Bindable
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public Pin setTags(List<String> tags) {
+        this.tags = tags;
+        notifyPropertyChanged(BR.tags);
+        return this;
+    }
+
     public Pin(Parcel in) {
         super();
         readFromParcel(in);
@@ -211,6 +226,8 @@ public class Pin extends BaseObservable implements Parcelable {
         description = in.readString();
         allowComment = in.readBoolean();
         createdAt = in.readLong();
+        tags = new ArrayList<>();
+        in.readStringList(tags);
     }
 
     @Override
@@ -231,5 +248,6 @@ public class Pin extends BaseObservable implements Parcelable {
         dest.writeString(description);
         dest.writeBoolean(allowComment);
         dest.writeLong(createdAt);
+        dest.writeStringList(tags);
     }
 }

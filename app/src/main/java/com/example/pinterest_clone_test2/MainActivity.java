@@ -16,6 +16,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.pinterest_clone_test2.broadcast_receivers.DownloadMediaBroadcastReceiver;
 import com.example.pinterest_clone_test2.databinding.ActivityMainBinding;
 import com.example.pinterest_clone_test2.services.download.PinMediaDownloader;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseTagService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.upload.UploadDialogFragment;
 import com.example.pinterest_clone_test2.utils.CloudinaryManager;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
+        FirebaseTagService.initFixedTags(this);
         if (user == null) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
