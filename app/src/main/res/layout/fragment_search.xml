@@ -42,7 +42,7 @@
             android:id="@+id/inner_search_view_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/custom_search_view_background"
+            android:background="@drawable/rounded_text_input_background"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_search_cancel"
             app:layout_constraintHorizontal_bias="0.5"
@@ -82,10 +82,10 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_search_cancel"
-            android:background="@drawable/gray_button_pinterest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:background="@drawable/gray_button_pinterest"
             android:text="@string/cancel"
             android:textAllCaps="false"
             android:visibility="gone"

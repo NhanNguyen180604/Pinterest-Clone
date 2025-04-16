@@ -11,6 +11,8 @@ import androidx.databinding.Bindable;
 
 import com.example.pinterest_clone_test2.BR;
 
+import java.util.Objects;
+
 public class Pin extends BaseObservable implements Parcelable {
     public enum PinType {
         IMAGE,
@@ -25,10 +27,10 @@ public class Pin extends BaseObservable implements Parcelable {
     PinType type;
     boolean isLiked;
     int likeCount;
-    private String name;
-    private String nameNormalized;
-    private String description;
-    private String descriptionNormalized;
+    private String name = "";
+    private String nameNormalized = "";
+    private String description = "";
+    private String descriptionNormalized = "";
     private boolean allowComment;
     private long createdAt;
 
@@ -119,10 +121,8 @@ public class Pin extends BaseObservable implements Parcelable {
     }
 
     public Pin setName(@Nullable String name) {
-        this.name = name;
-        if (name != null) {
-            this.nameNormalized = name.toLowerCase();
-        }
+        this.name = Objects.requireNonNullElse(name, "");
+        setNameNormalized(this.name.toLowerCase());
         notifyPropertyChanged(BR.name);
         notifyPropertyChanged(BR.titleVisibility);
         return this;
@@ -137,14 +137,18 @@ public class Pin extends BaseObservable implements Parcelable {
         return nameNormalized;
     }
 
+    public void setNameNormalized(String nameNormalized) {
+        this.nameNormalized = nameNormalized;
+    }
+
     @Bindable
     public String getDescription() {
         return description;
     }
 
     public Pin setDescription(String description) {
-        this.description = description;
-        this.descriptionNormalized = description.toLowerCase();
+        this.description = Objects.requireNonNullElse(description, "");
+        setDescriptionNormalized(this.description.toLowerCase());
         notifyPropertyChanged(BR.description);
         notifyPropertyChanged(BR.descriptionVisibility);
         return this;
@@ -152,6 +156,10 @@ public class Pin extends BaseObservable implements Parcelable {
 
     public String getDescriptionNormalized() {
         return descriptionNormalized;
+    }
+
+    public void setDescriptionNormalized(String descriptionNormalized) {
+        this.descriptionNormalized = descriptionNormalized;
     }
 
     @Bindable
@@ -167,7 +175,13 @@ public class Pin extends BaseObservable implements Parcelable {
     public Pin setAllowComment(boolean allowComment) {
         this.allowComment = allowComment;
         notifyPropertyChanged(BR.allowComment);
+        notifyPropertyChanged(BR.commentVisibility);
         return this;
+    }
+
+    @Bindable
+    public int getCommentVisibility() {
+        return allowComment ? View.VISIBLE : View.GONE;
     }
 
     @Bindable
@@ -208,7 +222,7 @@ public class Pin extends BaseObservable implements Parcelable {
         setIsLiked(in.readBoolean());
         setLikeCount(in.readInt());
         setName(in.readString());
-        description = in.readString();
+        setDescription(in.readString());
         allowComment = in.readBoolean();
         createdAt = in.readLong();
     }

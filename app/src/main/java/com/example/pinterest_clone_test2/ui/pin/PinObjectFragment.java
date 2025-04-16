@@ -46,7 +46,8 @@ import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
-import com.example.pinterest_clone_test2.ui.pin.btn_more.PinMoreActionModalBottomSheet;
+import com.example.pinterest_clone_test2.ui.pin.btn_more.PinAuthorMoreActionModal;
+import com.example.pinterest_clone_test2.ui.pin.btn_more.PinNormalMoreActionModal;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -66,6 +67,7 @@ public class PinObjectFragment extends Fragment {
     String source;
     Handler handler = new Handler();
     ActivityResultLauncher<Intent> chooseBoardActivityLauncher;
+    ActivityResultLauncher<Intent> editPinActivityLauncher;
 
     final int perPage = 20;
     boolean isOnLastPage = false;
@@ -237,8 +239,26 @@ public class PinObjectFragment extends Fragment {
     }
 
     // use this to check if this pin is saved inside a board
-    void fetchBoardsAsync() {
+    void checkSavedPinAndSetButtonText() {
         Thread thread = new Thread(() -> {
+            DocumentSnapshot currentUserSnapshot = FirebaseUserService.getCurrentUserDocument();
+            assert currentUserSnapshot != null;
+
+            List<String> pinIds = null;
+            try {
+                pinIds = (List<String>) currentUserSnapshot.get("pins");
+            } catch (Exception e) {
+                //eat exception
+            }
+            if (pinIds != null && !pinIds.isEmpty() && pinIds.contains(pin.getId())) {
+                handler.post(() -> {
+                    binding.btnSave.setText(getString(R.string.saved));
+                    binding.btnSave.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.gray_button_pinterest));
+                    binding.btnSave.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+                });
+                return;
+            }
+
             QuerySnapshot currentUserBoardSnapshot = FirebaseBoardService.getCurrentUserBoardSnapshot();
             if (currentUserBoardSnapshot == null) {
                 FirebaseBoardService.getUserBoards(getBoardServiceCallback);
@@ -268,7 +288,7 @@ public class PinObjectFragment extends Fragment {
                     });
                     break;
                 } else if (pin == null) {
-                    Log.d("PinObjectFragment", "Pin is null again bitch");
+                    Log.e("PinObjectFragment", "Pin is null again bitch");
                 }
             }
         }
@@ -292,25 +312,29 @@ public class PinObjectFragment extends Fragment {
                             return;
                         }
 
-                        if (data.getBooleanExtra("profile", false)) {
-                            FirebaseUserService.savePinToProfile(pin.getId(), new FirebaseUserService.SavePinToProfileCallback() {
-                                @Override
-                                public void OnSuccess() {
+                        // seems like pinterest always saves to profile
+                        FirebaseUserService.savePinToProfile(pin.getId(), new FirebaseUserService.SavePinToProfileCallback() {
+                            @Override
+                            public void OnSuccess() {
+                                if (data.getBooleanExtra("profile", false)) {
                                     Toast.makeText(requireContext(), getResources().getString(R.string.save_pin_to_profile_sucess), Toast.LENGTH_SHORT).show();
                                 }
+                            }
 
-                                @Override
-                                public void OnFailure(Exception e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(requireContext(), getResources().getString(R.string.save_pin_to_profile_failure), Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            return;
-                        }
+                            @Override
+                            public void OnFailure(Exception e) {
+                                e.printStackTrace();
+                                Toast.makeText(requireContext(), getResources().getString(R.string.save_pin_to_profile_failure), Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
                         // idk if this gonna happen or not, just to make sure
                         if (pin == null) {
                             Log.e("PinObjectFragment", "pin is fucking null, at on create");
+                            return;
+                        }
+
+                        if (data.getBooleanExtra("profile", false)) {
                             return;
                         }
 
@@ -338,6 +362,27 @@ public class PinObjectFragment extends Fragment {
                                 }
                             });
                         }
+                    }
+                }
+        );
+
+        editPinActivityLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data == null) {
+                            return;
+                        }
+
+                        Pin updatedPin = data.getParcelableExtra("pin");
+                        if (updatedPin == null) {
+                            return;
+                        }
+
+                        pin.setName(updatedPin.getName());
+                        pin.setDescription(updatedPin.getDescription());
+                        pin.setAllowComment(updatedPin.getAllowComment());
                     }
                 }
         );
@@ -402,12 +447,13 @@ public class PinObjectFragment extends Fragment {
 
                 // display author's exclusive dialog to manage pin
                 if (currentUserDoc.getId().equals(pin.getAuthorId())) {
-                    // TODO: display dialog that allows author to edit pin
+                    PinAuthorMoreActionModal sheet = new PinAuthorMoreActionModal(pin, requireContext(), downloadPinMediaCallback, editPinActivityLauncher);
+                    sheet.show(requireActivity().getSupportFragmentManager(), PinAuthorMoreActionModal.TAG);
                 }
                 // display normal dialog for viewers
                 else {
-                    PinMoreActionModalBottomSheet sheet = new PinMoreActionModalBottomSheet(pin, requireContext(), downloadPinMediaCallback, hidePinCallback);
-                    sheet.show(requireActivity().getSupportFragmentManager(), PinMoreActionModalBottomSheet.TAG);
+                    PinNormalMoreActionModal sheet = new PinNormalMoreActionModal(pin, requireContext(), downloadPinMediaCallback, hidePinCallback);
+                    sheet.show(requireActivity().getSupportFragmentManager(), PinNormalMoreActionModal.TAG);
                 }
             } else {
                 Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -481,7 +527,7 @@ public class PinObjectFragment extends Fragment {
             binding.rvRelevant.getLayoutManager().onRestoreInstanceState(scroll_state);
         }
 
-        fetchBoardsAsync();
+        checkSavedPinAndSetButtonText();
     }
 
     @Override

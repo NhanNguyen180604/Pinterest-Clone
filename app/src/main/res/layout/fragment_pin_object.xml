@@ -142,6 +142,7 @@
                         android:layout_marginHorizontal="8dp"
                         android:background="@null"
                         android:src="@drawable/ic_chat"
+                        android:visibility="@{pinViewModel.commentVisibility}"
                         app:layout_constraintBottom_toBottomOf="@id/btn_save"
                         app:layout_constraintStart_toEndOf="@id/tv_like_count"
                         app:layout_constraintTop_toTopOf="@id/btn_save" />

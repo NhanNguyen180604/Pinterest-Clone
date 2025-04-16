@@ -132,6 +132,7 @@
     <string name="pins">Pins</string>
     <string name="board">Board</string>
     <string name="boards">Boards</string>
+    <string name="choose_boards">Choose board(s)</string>
     <string name="collage">Collage</string>
     <string name="collages">Collages</string>
     <string name="start_creating_now">Start creating now</string>
@@ -195,4 +196,13 @@
     <string name="login_failure">Failed to login</string>
     <string name="media_upload_failure">Failed to upload media</string>
     <string name="upload_pin_failure">Failed to upload Pin</string>
+    <string name="edit">Edit</string>
+    <string name="edit_pin">Edit pin</string>
+    <string name="delete_pin">Delete pin</string>
+    <string name="delete">Delete</string>
+    <string name="allow_comments">Allow comments</string>
+    <string name="update_pin_values_failure">Failed to update pin\'s fields</string>
+    <string name="update_pin_boards_failure">Failed to update pin\'s board</string>
+    <string name="pin_delete_title">Are you sure?</string>
+    <string name="pin_delete_warning">You won\'t be able to get this Pin back if you delete it</string>
 </resources>
