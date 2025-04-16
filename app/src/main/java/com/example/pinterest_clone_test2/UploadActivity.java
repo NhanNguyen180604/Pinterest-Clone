@@ -12,6 +12,7 @@ import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.databinding.ActivityUploadBinding;
 import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.ui.upload.UploadCollageFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadImageDetailsFragment;
 import com.example.pinterest_clone_test2.utils.CloudinaryManager;
@@ -32,36 +33,40 @@ public class UploadActivity extends AppCompatActivity {
         binding = ActivityUploadBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
 
+        Intent intent = getIntent();
         if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_upload_container, new UploadFragment())
-                    .commit();
+            if (intent.getBooleanExtra("isCollage", false)) {
+
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_upload_container, new UploadCollageFragment())
+                        .commit();
+            } else if (intent.getBooleanExtra("isPin", false)) {
+
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_upload_container, new UploadFragment())
+                        .commit();
+            }
         }
     }
-
     public void showDetailFragment(Uri imageUri) {
         Log.d("Cloudinary", "Navigating to UploadImageDetailsFragment with imageUri: " + imageUri);
 
         UploadImageDetailsFragment detailsFragment = new UploadImageDetailsFragment();
 
-        // Pass only imageUri to UploadImageDetailsFragment (uploadPreset is already in UploadActivity)
         Bundle bundle = new Bundle();
         bundle.putParcelable("imageUri", imageUri);
         detailsFragment.setArguments(bundle);
 
-        // Perform fragment transaction
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_upload_container, detailsFragment)
                 .addToBackStack(null)
                 .commit();
     }
-
-    // Use CloudinaryManager to upload the image
     public void uploadImage(Uri imageUri, String title, String description) {
         Log.d("Cloudinary", "Attempting to upload image");
 
@@ -85,13 +90,12 @@ public class UploadActivity extends AppCompatActivity {
                     String url = (String) resultData.get("secure_url");
                     Log.d("Cloudinary", "Uploaded image URL: " + url);
 
-                    // Save Pin information to Firestore
-                    savePinToFirestore(url, title, description);
+                    if (url != null) {
+                        savePinToFirestore(url, title, description);
+                    }
 
-                    // Display success message to the user
                     Toast.makeText(UploadActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
 
-                    // Navigate back to MainActivity after successful upload
                     Intent intent = new Intent(UploadActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
@@ -114,7 +118,6 @@ public class UploadActivity extends AppCompatActivity {
             Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
         }
     }
-
     private void savePinToFirestore(String imageUrl, String title, String description) {
         String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 

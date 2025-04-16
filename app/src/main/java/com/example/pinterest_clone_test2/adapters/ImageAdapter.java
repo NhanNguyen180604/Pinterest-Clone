@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -19,12 +20,19 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     private final ArrayList<Uri> imageList;
     private final Context context;
     private final OnImageSelectedListener onImageSelectedListener;
+    private final boolean isSelectedImageList; // Flag to indicate if this adapter is for selected images
 
-    // Constructor với interface callback
+    // Constructor with callback interface and flag for selected images
     public ImageAdapter(ArrayList<Uri> imageList, Context context, OnImageSelectedListener onImageSelectedListener) {
+        this(imageList, context, onImageSelectedListener, false);
+    }
+
+    // New constructor with isSelectedImageList flag
+    public ImageAdapter(ArrayList<Uri> imageList, Context context, OnImageSelectedListener onImageSelectedListener, boolean isSelectedImageList) {
         this.imageList = imageList;
         this.context = context;
-        this.onImageSelectedListener = onImageSelectedListener;  // Gán listener
+        this.onImageSelectedListener = onImageSelectedListener;
+        this.isSelectedImageList = isSelectedImageList;
     }
 
     @NonNull
@@ -44,8 +52,30 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 .centerCrop()
                 .into(holder.imageItemView);
 
-        // Set an OnClickListener on the image to trigger the callback
-        holder.imageItemView.setOnClickListener(v -> onImageSelectedListener.onImageSelected(currentImageUri));
+        // Show remove button only for selected images
+        if (isSelectedImageList && holder.btnRemoveSelectedImage != null) {
+            holder.btnRemoveSelectedImage.setVisibility(View.VISIBLE);
+            holder.btnRemoveSelectedImage.setOnClickListener(v -> {
+                if (onImageSelectedListener != null) {
+                    onImageSelectedListener.onImageDeselected(currentImageUri);
+                }
+            });
+        } else if (holder.btnRemoveSelectedImage != null) {
+            holder.btnRemoveSelectedImage.setVisibility(View.GONE);
+        }
+
+        // Set onClickListener to select image
+        holder.imageItemView.setOnClickListener(v -> {
+            if (onImageSelectedListener != null) {
+                if (isSelectedImageList) {
+                    // If this is a selected image, deselect it when clicked
+                    onImageSelectedListener.onImageDeselected(currentImageUri);
+                } else {
+                    // Otherwise, select it
+                    onImageSelectedListener.onImageSelected(currentImageUri);
+                }
+            }
+        });
     }
 
     @Override
@@ -55,15 +85,18 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     public static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageItemView;
+        ImageButton btnRemoveSelectedImage;
 
         public ImageViewHolder(View itemView) {
             super(itemView);
             imageItemView = itemView.findViewById(R.id.imageItemView);
+            btnRemoveSelectedImage = itemView.findViewById(R.id.btnRemoveSelectedImage);
         }
     }
 
     // Define an interface for image selection callback
     public interface OnImageSelectedListener {
         void onImageSelected(Uri imageUri);
+        void onImageDeselected(Uri imageUri);
     }
 }

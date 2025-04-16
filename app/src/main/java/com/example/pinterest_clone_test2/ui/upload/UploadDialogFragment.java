@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.UploadActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -28,14 +27,22 @@ public class UploadDialogFragment extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        view.findViewById(R.id.btnPin).setOnClickListener(v -> {
-            dismiss();
-            Intent intent = new Intent(requireContext(), UploadActivity.class);
-            startActivity(intent);
-        });
         // Bấm nút Ghép
         view.findViewById(R.id.btnCollage).setOnClickListener(v -> {
             dismiss();
+            // Truyền thông tin vào UploadActivity để mở CollageFragment
+            Intent intent = new Intent(requireContext(), UploadActivity.class);
+            intent.putExtra("isCollage", true);  // Truyền thông tin chọn chế độ ghép ảnh
+            startActivity(intent);
+        });
+
+        // Bấm nút Pin
+        view.findViewById(R.id.btnPin).setOnClickListener(v -> {
+            dismiss();
+            // Truyền thông tin vào UploadActivity để mở UploadFragment
+            Intent intent = new Intent(requireContext(), UploadActivity.class);
+            intent.putExtra("isPin", true);  // Truyền thông tin chọn chế độ pin ảnh
+            startActivity(intent);
         });
 
         // Bấm nút Bảng

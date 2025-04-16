@@ -237,5 +237,22 @@ public class UploadFragment extends Fragment {
         binding.btnNext.setEnabled(false);
     }
 
-    private final ImageAdapter.OnImageSelectedListener imageSelectedListener = this::onImageSelected;
+    private final ImageAdapter.OnImageSelectedListener imageSelectedListener = new ImageAdapter.OnImageSelectedListener() {
+        @Override
+        public void onImageSelected(Uri imageUri) {
+            selectImageUri = imageUri;
+            binding.selectedImageView.setImageURI(imageUri);
+            binding.selectedImageContainer.setVisibility(View.VISIBLE);
+            binding.buttonContainer.setVisibility(View.GONE);
+            binding.btnNext.setEnabled(true);
+        }
+
+        @Override
+        public void onImageDeselected(Uri imageUri) {
+            selectImageUri = null;
+            binding.selectedImageContainer.setVisibility(View.GONE);
+            binding.buttonContainer.setVisibility(View.VISIBLE);
+            binding.btnNext.setEnabled(false);
+        }
+    };
 }

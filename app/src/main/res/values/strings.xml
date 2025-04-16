@@ -177,4 +177,5 @@
     <string name="no_pin_id">ID của ghim trống</string>
     <string name="unknown_error">Đã có lỗi không rõ nguyên nhân</string>
     <string name="pin_deep_link_string_template" translatable="false">https://open.my.pinterest-clone/shared-pin/?pinId=%s</string>
+    <string name="create_collage">Tạo ảnh ghép</string>
 </resources>

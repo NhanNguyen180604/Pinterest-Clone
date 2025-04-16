@@ -1,4 +1,5 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="100dp"
     android:layout_height="100dp"
     android:layout_gravity="center"
@@ -20,5 +21,19 @@
             android:maxHeight="100dp"
             android:minWidth="100dp"
             android:minHeight="100dp" />
+
+        <!-- Nút X xoá ảnh -->
+        <ImageButton
+            android:id="@+id/btnRemoveSelectedImage"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="4dp"
+            android:background="@drawable/bg_circle_black"
+            android:contentDescription="@string/deleteImage"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_close"
+            app:tint="@android:color/white"
+            android:visibility="gone" />
     </FrameLayout>
 </androidx.cardview.widget.CardView>
