@@ -205,4 +205,5 @@
     <string name="update_pin_boards_failure">Failed to update pin\'s board</string>
     <string name="pin_delete_title">Are you sure?</string>
     <string name="pin_delete_warning">You won\'t be able to get this Pin back if you delete it</string>
+    <string name="pin_delete_failure">Failed to delete pin</string>
 </resources>

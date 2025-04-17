@@ -212,6 +212,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                     if (index > -1) {
                         comments.remove(index);
                         commentListAdapter.notifyItemRemoved(index);
+                        binding.tvCount.setText(getCommentCountString());
                     }
                     Toast.makeText(_context, getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
                 });

@@ -98,7 +98,8 @@ public class EditPinFragment extends Fragment {
 
         binding.tvClickableDelete.setOnClickListener(v -> {
             ConfirmDeletePinModalBottomSheet sheet = new ConfirmDeletePinModalBottomSheet(() -> {
-                //TODO: delete this shiet
+                deletePin();
+                binding.btnSave.setEnabled(false);
             });
             sheet.show(requireActivity().getSupportFragmentManager(), ConfirmDeletePinModalBottomSheet.TAG);
         });
@@ -231,7 +232,11 @@ public class EditPinFragment extends Fragment {
         @Override
         public void OnFailure(Exception e) {
             Log.e("EditPinFragment", "Failed to fetch boards");
-            e.printStackTrace();
+            if (e.getMessage() != null) {
+                Log.e("EditPinFragment", e.getMessage());
+            } else {
+                e.printStackTrace();
+            }
         }
     };
 
@@ -297,6 +302,29 @@ public class EditPinFragment extends Fragment {
             }
             if (!updateBoardSuccess) {
                 Toast.makeText(requireContext(), getResources().getString(R.string.update_pin_boards_failure), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    void deletePin() {
+        FirebasePinService.deletePin(pin.getId(), new FirebasePinService.DeletePinCallback() {
+            @Override
+            public void OnSuccess() {
+                Intent data = new Intent();
+                data.putExtra("delete", true);
+                requireActivity().setResult(Activity.RESULT_OK, data);
+                requireActivity().finish();
+            }
+
+            @Override
+            public void OnFailure(Exception e) {
+                Toast.makeText(requireContext(), getResources().getString(R.string.update_pin_boards_failure), Toast.LENGTH_SHORT).show();
+                if (e.getMessage() != null) {
+                    Log.e("EditPinFragment", e.getMessage());
+                } else {
+                    e.printStackTrace();
+                }
+                binding.btnSave.setEnabled(true);
             }
         });
     }

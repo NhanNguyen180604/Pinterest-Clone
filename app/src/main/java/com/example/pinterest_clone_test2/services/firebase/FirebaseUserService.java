@@ -18,6 +18,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public abstract class FirebaseUserService {
@@ -360,6 +361,24 @@ public abstract class FirebaseUserService {
                     }
                 })
                 .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void removePinFromProfile(@NonNull String pinId) {
+        assert currentUserDocument != null;
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        firestore.collection("users")
+                .document(currentUserDocument.getId())
+                .update("pins", FieldValue.arrayRemove(pinId))
+                .addOnSuccessListener(unused -> Log.d("FirebaseUserService", String.format(Locale.US, "Removed pin %s from profile", pinId)))
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseUserService", String.format(Locale.US, "Failed to remove pin %s from profile", pinId));
+                    if (e.getMessage() != null) {
+                        Log.e("FirebaseUserService", e.getMessage());
+                    } else {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     public interface SavePinToProfileCallback {

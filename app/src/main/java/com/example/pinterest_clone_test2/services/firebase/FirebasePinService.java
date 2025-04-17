@@ -276,8 +276,7 @@ public abstract class FirebasePinService {
 
                         @Override
                         public void OnFailure(Exception e) {
-                            Log.e("FirebaseUserService", "Failed to saved pin to profile");
-                            e.printStackTrace();
+                            printExceptionMessage("Failed to saved pin to profile", e);
                         }
                     });
                 })
@@ -286,8 +285,6 @@ public abstract class FirebasePinService {
 
     public static void updatePinWithBoards(@NonNull Pin pin, Map<String, BoardBooleanPair> boardMap, UpdatePinWithBoardsCallback callback) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        assert currentUser != null;
 
         Map<String, Object> pinUpdateMap = new HashMap<>();
         pinUpdateMap.put("name", pin.getName());
@@ -300,14 +297,7 @@ public abstract class FirebasePinService {
                 .document(pin.getId())
                 .update(pinUpdateMap)
                 .addOnSuccessListener(unused -> Log.d("FirebasePinService", "Updated pin values successfully"))
-                .addOnFailureListener(e -> {
-                    Log.e("FirebasePinService", "Failed to update pin values");
-                    if (e.getMessage() != null) {
-                        Log.e("FirebasePinService", e.getMessage());
-                    } else {
-                        e.printStackTrace();
-                    }
-                });
+                .addOnFailureListener(e -> printExceptionMessage("Failed to update pin values", e));
 
         List<Task<?>> updateBoardTasks = new ArrayList<>();
         for (Map.Entry<String, BoardBooleanPair> entry : boardMap.entrySet()) {
@@ -318,28 +308,14 @@ public abstract class FirebasePinService {
                         .document(boardId)
                         .update("pins", FieldValue.arrayUnion(pin.getId()))
                         .addOnSuccessListener(unused -> Log.d("FirebasePinService", "Added pin to board " + entry.getValue().getBoard().getName()))
-                        .addOnFailureListener(e -> {
-                            Log.e("FirebasePinService", "Failed to add pin to board " + entry.getValue().getBoard().getName());
-                            if (e.getMessage() != null) {
-                                Log.e("FirebasePinService", e.getMessage());
-                            } else {
-                                e.printStackTrace();
-                            }
-                        })
+                        .addOnFailureListener(e -> printExceptionMessage("Failed to add pin to board " + entry.getValue().getBoard().getName(), e))
                 );
             } else {
                 updateBoardTasks.add(firestore.collection("boards")
                         .document(boardId)
                         .update("pins", FieldValue.arrayRemove(pin.getId()))
                         .addOnSuccessListener(unused -> Log.d("FirebasePinService", "Removed pin from board " + entry.getValue().getBoard().getName()))
-                        .addOnFailureListener(e -> {
-                            Log.e("FirebasePinService", "Failed to remove pin from board " + entry.getValue().getBoard().getName());
-                            if (e.getMessage() != null) {
-                                Log.e("FirebasePinService", e.getMessage());
-                            } else {
-                                e.printStackTrace();
-                            }
-                        })
+                        .addOnFailureListener(e -> printExceptionMessage("Failed to remove pin from board " + entry.getValue().getBoard().getName(), e))
                 );
             }
         }
@@ -353,6 +329,38 @@ public abstract class FirebasePinService {
                     boolean boardUpdateSuccess = updateBoardTasks.stream().allMatch(Task::isSuccessful);
                     callback.Callback(pinUpdateSuccess, boardUpdateSuccess);
                 });
+    }
+
+    // there will be a rule on firebase to check if is admin or is owner
+    public static void deletePin(@NonNull String pinId, DeletePinCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("pins")
+                .document(pinId)
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    callback.OnSuccess();
+                    FirebaseUserService.removePinFromProfile(pinId);
+                    FirebaseCommentService.deleteCommentsOfPin(pinId);
+                })
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void checkPinExists(@NonNull String pinId, CheckPinExistsCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("pins")
+                .document(pinId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> callback.OnComplete(documentSnapshot.exists()))
+                .addOnFailureListener(e -> printExceptionMessage("Failed to check if pin exist", e));
+    }
+
+    private static void printExceptionMessage(String message, Exception e) {
+        Log.e("FirebasePinService", message);
+        if (e.getMessage() != null) {
+            Log.e("FirebasePinService", e.getMessage());
+        } else {
+            e.printStackTrace();
+        }
     }
 
     public interface GetPinServiceCallback {
@@ -391,5 +399,15 @@ public abstract class FirebasePinService {
 
     public interface UpdatePinWithBoardsCallback {
         void Callback(boolean updatePinSuccess, boolean updateBoardSuccess);
+    }
+
+    public interface DeletePinCallback {
+        void OnSuccess();
+
+        void OnFailure(Exception e);
+    }
+
+    public interface CheckPinExistsCallback {
+        void OnComplete(boolean exist);
     }
 }
