@@ -136,7 +136,7 @@ public class PinObjectFragment extends Fragment {
     final FirebaseUserService.GetUserInfoCallback getAuthorInfoCallback = new FirebaseUserService.GetUserInfoCallback() {
         @Override
         public void OnSuccess(DocumentSnapshot documentSnapshot) {
-            author.setFirstName(documentSnapshot.getString("name"));
+            author.setName(documentSnapshot.getString("name"));
             author.setAvatarUrl(documentSnapshot.getString("avatarUrl"));
             if (author.getAvatarUrl() != null) {
                 Glide.with(binding.ivAuthorAvatar.getContext())
@@ -450,7 +450,7 @@ public class PinObjectFragment extends Fragment {
 
         restoreStates();
 
-        if ((author.getFirstName() == null || author.getAvatarUrl() == null) && pin != null) {
+        if ((author.getName() == null || author.getAvatarUrl() == null) && pin != null) {
             fetchAuthorAsync();
         } else {
             binding.setAuthorViewModel(author);
@@ -689,6 +689,70 @@ public class PinObjectFragment extends Fragment {
                 .placeholder(R.drawable.ic_loading)
                 .error(R.drawable.turtle_huh);
 
+        if ((author.getName() == null || author.getAvatarUrl() == null) && pin != null) {
+            fetchAuthorAsync();
+        } else {
+            binding.setAuthorViewModel(author);
+            Glide.with(binding.ivAuthorAvatar.getContext())
+                    .load(author.getAvatarUrl())
+                    .fitCenter()
+                    .into(binding.ivAuthorAvatar);
+        }
+
+        if (pin == null) {
+            Log.d("PinObjectFragment", "pin is null, why?");
+        } else {
+            if (pin.getType() == Pin.PinType.VIDEO) {
+                binding.ivImage.setVisibility(View.GONE);
+                binding.videoView.setVisibility(View.VISIBLE);
+                binding.fabBgRemoval.setVisibility(View.GONE);
+            } else {
+                binding.ivImage.setVisibility(View.VISIBLE);
+                binding.videoView.setVisibility(View.GONE);
+            }
+
+            // handle blocked pin case when user navigate up
+            DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+            if (currentUserDocument != null) {
+                List<String> blockedPins = null;
+                List<String> blockedUsers = null;
+
+                try {
+                    blockedPins = (List<String>) currentUserDocument.get("blockedPins");
+                    blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
+                } catch (Exception e) {
+                    // eat exception
+                }
+
+                if (blockedPins != null && blockedPins.contains(pin.getId()) || blockedUsers != null && blockedUsers.contains(pin.getAuthorId())) {
+                    hidePinContentAndDisableInteractions(options);
+                    return;
+                }
+            }
+
+            if (pin.getType() == Pin.PinType.IMAGE) {
+                Glide.with(binding.ivImage.getContext())
+                        .load(pin.getMediaUrl())
+                        .fitCenter()
+                        .apply(options)
+                        .into(binding.ivImage);
+            }
+            // GIF
+            else if (pin.getType() == Pin.PinType.GIF) {
+                Glide.with(binding.ivImage.getContext())
+                        .asGif()
+                        .load(pin.getMediaUrl())
+                        .fitCenter()
+                        .apply(options)
+                        .into(binding.ivImage);
+            }
+
+            fetchPinLikesAsync();
+            binding.setPinViewModel(pin);
+        }
+    }
+
+    private void hidePinContentAndDisableInteractions(RequestOptions options) {
         binding.ivImage.setVisibility(View.VISIBLE);
         Glide.with(binding.ivImage.getContext())
                 .load(R.drawable.hidden_image)

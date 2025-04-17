@@ -287,7 +287,7 @@ public abstract class FirebaseCommentService {
                         firestore.collection("comments")
                                 .document(doc.getId())
                                 .delete()
-                                .addOnSuccessListener(unused -> Log.e("FirebaseCommentService", String.format(Locale.US, "Deleted comment %s from pin %s", doc.getId(), pinId)))
+                                .addOnSuccessListener(unused -> Log.d("FirebaseCommentService", String.format(Locale.US, "Deleted comment %s from pin %s", doc.getId(), pinId)))
                                 .addOnFailureListener(e -> logExceptionMessage(String.format(Locale.US, "Failed to delete comment %s", pinId), e));
                     }
                 })
