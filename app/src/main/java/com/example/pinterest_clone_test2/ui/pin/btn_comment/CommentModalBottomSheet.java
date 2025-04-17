@@ -25,14 +25,13 @@ import com.example.pinterest_clone_test2.services.firebase.FirebaseCommentServic
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     private final Context _context;
@@ -85,7 +84,23 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         });
 
         commentListAdapter.setMoreClickListener(comment -> {
-            CommentOptionsModalBottomSheet bottomSheet = new CommentOptionsModalBottomSheet(comment, _context);
+            CommentOptionsModalBottomSheet bottomSheet = new CommentOptionsModalBottomSheet(comment, _context, new BlockUserCallback() {
+                @Override
+                public void Block(@NonNull String userToBeBlockedId) {
+                    FirebaseUserService.blockUser(userToBeBlockedId, new FirebaseUserService.HidePinCallback() {
+                        @Override
+                        public void OnSuccess() {
+                            Toast.makeText(_context, _context.getResources().getString(R.string.user_blocked_success), Toast.LENGTH_SHORT).show();
+                            handler.post(() -> removeBlockedComments(userToBeBlockedId));
+                        }
+
+                        @Override
+                        public void OnFailure(Exception e) {
+                            Toast.makeText(_context, _context.getResources().getString(R.string.user_blocked_failure), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
             bottomSheet.show(requireActivity().getSupportFragmentManager(), CommentOptionsModalBottomSheet.TAG);
         });
 
@@ -95,9 +110,22 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         });
     }
 
+    public interface BlockUserCallback {
+        void Block(@NonNull String userToBeBlockedId);
+    }
+
+    void removeBlockedComments(String userToBeBlockedId) {
+        List<Comment> blockedComments = comments.stream().filter(comment -> Objects.equals(comment.getAuthorId(), userToBeBlockedId)).collect(Collectors.toList());
+        // remove blocked comments
+        comments.removeIf(blockedComments::contains);
+        // remove comments replying to blocked comments
+        comments.removeIf(comment -> blockedComments.stream().anyMatch(blockedComment -> Objects.equals(blockedComment.getId(), comment.getReplyCommentId())));
+        commentListAdapter.notifyDataSetChanged();
+        binding.tvCount.setText(getCommentCountString());
+    }
+
     void fetchCommentsAsync() {
         Thread thread = new Thread(() -> {
-            //TODO: exclude comments from blocked user
             FirebaseCommentService.getPinComments(_pinId, null, getCommentServiceCallback, _context);
         });
         thread.start();
@@ -107,6 +135,7 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         @Override
         public void OnSuccess(List<Comment> commentList) {
             handler.post(() -> {
+                binding.progressBar.setVisibility(View.GONE);
                 int startPos = comments.size();
                 comments.addAll(commentList);
                 commentListAdapter.notifyItemRangeInserted(startPos, commentList.size());
@@ -187,26 +216,18 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                     Toast.makeText(_context, getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
                 });
             };
-            FirebaseUserService.GetUserInfoCallback getUserInfoCallback = new FirebaseUserService.GetUserInfoCallback() {
-                @Override
-                public void OnSuccess(DocumentSnapshot documentSnapshot) {
-                    comment.setAuthorId(documentSnapshot.getString("userId"));
-                    comment.setAuthorName(documentSnapshot.getString("name"));
-                    comment.setAuthorAvatarUrl(documentSnapshot.getString("avatarUrl"));
-                    // upload to database
-                    FirebaseCommentService.uploadPinComment(comment, uploadCommentServiceCallback);
-                    handler.post(() -> addNewlyPostedComment(comment));
-                }
 
-                @Override
-                public void OnFailure(Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(_context, getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
-                }
-            };
-            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-            assert currentUser != null;
-            FirebaseUserService.getUserInfos(currentUser.getUid(), getUserInfoCallback);
+            DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+            if (currentUserDocument != null) {
+                comment.setAuthorId(currentUserDocument.getString("userId"));
+                comment.setAuthorName(currentUserDocument.getString("name"));
+                comment.setAuthorAvatarUrl(currentUserDocument.getString("avatarUrl"));
+                // upload to database
+                FirebaseCommentService.uploadPinComment(comment, uploadCommentServiceCallback);
+                handler.post(() -> addNewlyPostedComment(comment));
+            } else {
+                Toast.makeText(_context, getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
+            }
         });
         thread.start();
     }

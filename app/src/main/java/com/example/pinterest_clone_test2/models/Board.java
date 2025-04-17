@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.firestore.Exclude;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,9 +17,10 @@ public class Board implements Parcelable {
     String description;
     String authorId;
     boolean isPublic;
-    //    List<User> collaborators;
-    List<Pin> pins;
-//    List<Collage> collages;
+    List<User> collaborators;
+    List<String> pins;
+    @Exclude
+    List<Pin> pinsObj;
 
     public Board() {
     }
@@ -67,45 +70,32 @@ public class Board implements Parcelable {
         return this;
     }
 
-    public List<Pin> getPins() {
+    public List<String> getPins() {
         return pins;
     }
 
-    public Board setPins(List<Pin> pins) {
+    public Board setPins(List<String> pins) {
         this.pins = pins;
         return this;
     }
 
-    public static List<Board> seedData = new ArrayList<>(Arrays.asList(
-            new Board()
-                    .setId("board01")
-                    .setAuthorId("user01")
-                    .setName("Tuyu")
-                    .setDescription("Tuyu")
-                    .setPublic(true)
-                    .setPins(Pin.testData.subList(0, 4)),
-            new Board()
-                    .setId("board02")
-                    .setAuthorId("user02")
-                    .setName("Troll")
-                    .setDescription("tron tron")
-                    .setPublic(true)
-                    .setPins(Pin.testData.subList(2, 5)),
-            new Board()
-                    .setId("board03")
-                    .setAuthorId("user03")
-                    .setName("Who is Amanai")
-                    .setDescription("Why is Gojo apologizing")
-                    .setPublic(true)
-                    .setPins(Pin.testData.subList(3, 7)),
-            new Board()
-                    .setId("board04")
-                    .setAuthorId("user04")
-                    .setName("Lucilius")
-                    .setDescription("Father of all Primal Beasts")
-                    .setPublic(true)
-                    .setPins(Pin.testData.subList(0, 11))
-    ));
+    public List<Pin> getPinsObj() {
+        return pinsObj;
+    }
+
+    public Board setPinsObj(List<Pin> pinsObj) {
+        this.pinsObj = pinsObj;
+        return this;
+    }
+
+    public List<User> getCollaborators() {
+        return collaborators;
+    }
+
+    public Board setCollaborators(List<User> collaborators) {
+        this.collaborators = collaborators;
+        return this;
+    }
 
     public static List<Board> ideaBoardSeedData = new ArrayList<>(Arrays.asList(
             new Board()
@@ -163,7 +153,7 @@ public class Board implements Parcelable {
         description = in.readString();
         authorId = in.readString();
         isPublic = in.readBoolean();
-        pins = in.createTypedArrayList(Pin.CREATOR);
+        pinsObj = in.createTypedArrayList(Pin.CREATOR);
     }
 
     @Override
@@ -178,6 +168,6 @@ public class Board implements Parcelable {
         parcel.writeString(description);
         parcel.writeString(authorId);
         parcel.writeBoolean(isPublic);
-        parcel.writeParcelableList(pins, i);
+        parcel.writeParcelableList(pinsObj, i);
     }
 }

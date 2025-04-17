@@ -20,10 +20,6 @@ public class User extends BaseObservable implements Parcelable {
         Nữ,
         Khác,
     }
-    public enum Mode {
-        NORMAL,
-        BANNED,
-    }
     private String userId;
     private String password;
     private String email;

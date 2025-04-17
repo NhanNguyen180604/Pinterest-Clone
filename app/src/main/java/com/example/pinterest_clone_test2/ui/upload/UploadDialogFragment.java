@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
+import com.example.pinterest_clone_test2.CreateBoardActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.UploadActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -41,7 +42,8 @@ public class UploadDialogFragment extends BottomSheetDialogFragment {
         // Bấm nút Bảng
         view.findViewById(R.id.btnBoard).setOnClickListener(v -> {
             dismiss();
-            // Xử lý sau nếu cần
+            Intent intent = new Intent(requireContext(), CreateBoardActivity.class);
+            startActivity(intent);
         });
 
         // Bấm nút đóng

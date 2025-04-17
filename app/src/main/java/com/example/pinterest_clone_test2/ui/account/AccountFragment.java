@@ -12,16 +12,20 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.ViewPagerAccountAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentAccountBinding;
-import com.example.pinterest_clone_test2.ui.pin_uploading.UploadingModalBottomSheet;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
+import com.example.pinterest_clone_test2.ui.upload.UploadDialogFragment;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
 
-    public AccountFragment(){
+    public AccountFragment() {
     }
 
     @Override
@@ -41,13 +45,13 @@ public class AccountFragment extends Fragment {
         new TabLayoutMediator(binding.tabLayout, binding.accountPager, (tab, position) -> {
             switch (position) {
                 case 0:
-                    tab.setText("Pins");
+                    tab.setText(getResources().getString(R.string.pins));
                     break;
                 case 1:
-                    tab.setText("Boards");
+                    tab.setText(getResources().getString(R.string.boards));
                     break;
                 case 2:
-                    tab.setText("Collages");
+                    tab.setText(getResources().getString(R.string.collages));
                     break;
             }
         }).attach();
@@ -66,25 +70,27 @@ public class AccountFragment extends Fragment {
             }
         });
 
-        binding.btnAccount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavController navController = Navigation.findNavController(view);
-                navController.navigate(
-                        R.id.action_navigation_account_to_settingsDrawerFragment,
-                        null,
-                        null,
-                        null
-                );
-            }
+        DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+        if (currentUserDocument != null) {
+            RequestOptions glideOptions = new RequestOptions()
+                    .placeholder(R.drawable.ic_loading)
+                    .error(R.drawable.turtle_huh)
+                    .centerCrop();
+
+            Glide.with(binding.btnAccount.getContext())
+                    .load(currentUserDocument.getString("avatarUrl"))
+                    .apply(glideOptions)
+                    .into(binding.btnAccount);
+        }
+
+        binding.btnAccount.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(view);
+            navController.navigate(R.id.action_navigation_account_to_settingsDrawerFragment);
         });
 
-        binding.btnAddNewPin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UploadingModalBottomSheet modalBottomSheet = new UploadingModalBottomSheet();
-                modalBottomSheet.show(requireActivity().getSupportFragmentManager(), UploadingModalBottomSheet.TAG);
-            }
+        binding.btnAddNewPin.setOnClickListener(v -> {
+            UploadDialogFragment uploadDialogFragment = new UploadDialogFragment();
+            uploadDialogFragment.show(requireActivity().getSupportFragmentManager(), null);
         });
     }
 

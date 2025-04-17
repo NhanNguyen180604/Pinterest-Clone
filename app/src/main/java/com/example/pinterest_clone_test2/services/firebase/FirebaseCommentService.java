@@ -6,7 +6,10 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.models.Comment;
+import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,12 +23,14 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public abstract class FirebaseCommentService {
+    // use this function for a pin comment only, admin should have a separate function that doesn't filter out anyone
     public static void getPinComments(@NonNull String pinId, @Nullable Filter filter, GetCommentServiceCallback callback, Context context) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -41,7 +46,8 @@ public abstract class FirebaseCommentService {
 
         query.get()
                 .addOnSuccessListener(commentDocumentSnapshots -> {
-                    List<DocumentSnapshot> commentDocuments = commentDocumentSnapshots.getDocuments();
+                    List<DocumentSnapshot> commentDocuments = tryFilterBlockedUsers(commentDocumentSnapshots);
+
                     if (commentDocuments.isEmpty()) {
                         callback.OnSuccess(Collections.emptyList());
                         return;
@@ -122,6 +128,7 @@ public abstract class FirebaseCommentService {
                                     result.add(comment);
                                     List<Comment> commentChain = commentMap.get(comment.getId());
                                     if (commentChain != null) {
+                                        commentChain.sort(Comparator.comparingLong(Comment::getCreatedAt));
                                         result.addAll(commentChain);
                                     }
                                 }
@@ -131,6 +138,28 @@ public abstract class FirebaseCommentService {
                             .addOnFailureListener(callback::OnFailure);
                 })
                 .addOnFailureListener(callback::OnFailure);
+    }
+
+    @NonNull
+    private static List<DocumentSnapshot> tryFilterBlockedUsers(QuerySnapshot commentDocumentSnapshots) {
+        List<DocumentSnapshot> commentDocuments = commentDocumentSnapshots.getDocuments();
+
+        DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+        if (currentUserDocument != null) {
+            List<String> blockedUsers = null;
+
+            try {
+                blockedUsers = (List<String>) currentUserDocument.get("blockedUsers");
+            } catch (Exception e) {
+                // eat exception
+            }
+
+            if (blockedUsers != null) {
+                List<String> finalBlockedUsers = blockedUsers;
+                commentDocuments.removeIf(doc -> finalBlockedUsers.contains(doc.getString("userId")));
+            }
+        }
+        return commentDocuments;
     }
 
     public static void uploadPinComment(@NonNull Comment comment, UploadCommentServiceCallback callback) {
@@ -145,15 +174,60 @@ public abstract class FirebaseCommentService {
         commentData.put("replyTo", comment.getReplyCommentId());
         commentData.put("content", comment.getContent());
         commentData.put("createdAt", System.currentTimeMillis());
-        //TODO: upload attachment to Cloudinary
 
-        firestore.collection("comments")
-                .add(commentData)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d("FirebaseCommentService", "added comment successfully, " + documentReference.getId());
-                    comment.setId(documentReference.getId());
-                })
-                .addOnFailureListener(callback::OnFailure);
+        //TODO: upload attachment to Cloudinary
+        if (comment.getAttachmentUri() != null) {
+            CloudinaryManager.uploadMedia(comment.getAttachmentUri(), "image/gif", new UploadCallback() {
+                @Override
+                public void onStart(String requestId) {
+
+                }
+
+                @Override
+                public void onProgress(String requestId, long bytes, long totalBytes) {
+
+                }
+
+                @Override
+                public void onSuccess(String requestId, Map resultData) {
+                    String url = (String) resultData.get("secure_url");
+                    if (url == null) {
+                        callback.OnFailure(new Exception("Failed to upload attachment url"));
+                        return;
+                    }
+
+                    commentData.put("attachmentUrl", url);
+                    String thumbnailUrl = url.replace("/upload/", "/upload/c_thumb,w_200/");
+                    commentData.put("attachmentThumbnailUrl", thumbnailUrl);
+
+                    firestore.collection("comments")
+                            .add(commentData)
+                            .addOnSuccessListener(documentReference -> {
+                                Log.d("FirebaseCommentService", "added comment successfully, " + documentReference.getId());
+                                comment.setId(documentReference.getId());
+                            })
+                            .addOnFailureListener(callback::OnFailure);
+                }
+
+                @Override
+                public void onError(String requestId, ErrorInfo error) {
+                    callback.OnFailure(new Exception(error.getDescription()));
+                }
+
+                @Override
+                public void onReschedule(String requestId, ErrorInfo error) {
+
+                }
+            });
+        } else {
+            firestore.collection("comments")
+                    .add(commentData)
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d("FirebaseCommentService", "added comment successfully, " + documentReference.getId());
+                        comment.setId(documentReference.getId());
+                    })
+                    .addOnFailureListener(callback::OnFailure);
+        }
     }
 
     public static void updateLike(@NonNull String commentId, boolean isLiked, UpdateLikeCallback callback) {

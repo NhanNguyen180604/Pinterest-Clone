@@ -29,6 +29,6 @@ public class ViewPagerPinAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return pins.size();
+        return pins == null ? 0 : pins.size();
     }
 }

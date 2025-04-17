@@ -16,9 +16,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:src="@drawable/ic_chevron_left"
             android:paddingVertical="8dp"
             android:paddingEnd="16dp"
+            android:src="@drawable/ic_chevron_left"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,12 +26,12 @@
             android:id="@+id/tv_am_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Birthdate"
+            android:paddingVertical="8dp"
+            android:text="@string/birthdate_text"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:paddingVertical="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -39,42 +39,60 @@
             android:id="@+id/tv_birthdate_intro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="To keep Pinterest safe, we need your birthdate. We will not share this information without your permission."
+            android:paddingHorizontal="8dp"
+            android:text="@string/birthdate_advice_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_am_title" />
 
         <EditText
             android:id="@+id/et_birthdate"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="110dp"
+            android:layout_marginTop="20dp"
             android:backgroundTint="@android:color/holo_red_light"
-            android:inputType="date"
-            android:text="01/01/2007"
+            android:focusable="false"
+            android:inputType="textNoSuggestions|textVisiblePassword"
+            android:paddingHorizontal="20dp"
+            android:text="@string/birthdate_placeholder_2"
             android:textAlignment="center"
             android:textSize="30sp"
             android:textStyle="bold"
-            android:layout_marginTop="20dp"
+            android:importantForAutofill="no"
+            android:privateImeOptions="nm"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_birthdate_intro" />
 
         <TextView
             android:id="@+id/tv_birthdate_warning"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Please use your own birthdate"
-            android:textAlignment="center"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/et_birthdate" />
-
-        <Button
-            android:id="@+id/btn_birthdate_update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="150dp"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_birthdate"/>
+
+        <TextView
+            android:id="@+id/tv_birthdate_suggest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/advice_to_use_real_birthdate"
+            android:textAlignment="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_birthdate_warning" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_birthdate_update"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@android:color/holo_red_light"
-            android:text="Update"
-            app:layout_constraintTop_toBottomOf="@id/tv_birthdate_warning"
-            app:layout_constraintStart_toStartOf="parent"/>
+            android:background="@drawable/red_button_pinterest"
+            android:text="@string/update"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_birthdate_suggest" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
+

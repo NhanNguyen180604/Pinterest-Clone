@@ -1,6 +1,10 @@
 package com.example.pinterest_clone_test2.ui.settings;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,77 +12,79 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
-
 import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.databinding.FragmentPasswordBinding;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link PasswordFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class PasswordFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public PasswordFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment password.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PasswordFragment newInstance(String param1, String param2) {
-        PasswordFragment fragment = new PasswordFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    FragmentPasswordBinding binding;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_password, container, false);
+        binding = FragmentPasswordBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ImageButton btnBack = view.findViewById(R.id.btn_back);
-        btnBack.setOnClickListener(new View.OnClickListener(){
+        binding.btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 NavController navController = Navigation.findNavController(view);
                 navController.navigateUp();
             }
+        });
+        binding.btnSave.setOnClickListener(v -> {
+            String oldPassword = "";
+            if (binding.etOldPassword.getText() != null) {
+                oldPassword = binding.etOldPassword.getText().toString().trim();
+            }
+            String newPassword = "";
+            if (binding.etNewPassword.getText() != null) {
+                newPassword = binding.etNewPassword.getText().toString().trim();
+            }
+
+            // Validate inputs
+            if (oldPassword.isEmpty()) {
+                binding.tvOldPasswordWarning.setText(getString(R.string.please_enter_old_password));
+                binding.tvOldPasswordWarning.setVisibility(View.VISIBLE);
+                binding.etOldPassword.requestFocus();
+                return;
+            }
+
+            if (newPassword.isEmpty()) {
+                binding.tvNewPasswordWarning.setText(getString(R.string.please_enter_new_password));
+                binding.tvNewPasswordWarning.setVisibility(View.VISIBLE);
+                binding.tilNewPassword.requestFocus();
+                return;
+            }
+            binding.btnSave.setEnabled(false);
+            binding.btnSave.setText(getString(R.string.updating));
+            FirebaseUserService.updatePassword(oldPassword, newPassword, new FirebaseUserService.UpdatePasswordCallback() {
+                @Override
+                public void OnSuccess() {
+                    Toast.makeText(requireContext(), getString(R.string.password_update_success), Toast.LENGTH_SHORT).show();
+                    binding.tvOldPasswordWarning.setVisibility(View.GONE);
+                    binding.tvNewPasswordWarning.setVisibility(View.GONE);
+                    binding.etNewPassword.setText("");
+                    binding.etOldPassword.setText("");
+                    binding.btnBack.performClick();
+                    binding.btnSave.setEnabled(true);
+                    binding.btnSave.setText(getString(R.string.update));
+                }
+
+                @Override
+                public void OnFailure(Exception e) {
+                    binding.tvOldPasswordWarning.setText(getString(R.string.old_password_error));
+                    binding.tvOldPasswordWarning.setVisibility(View.VISIBLE);
+                    binding.etOldPassword.requestFocus();
+                    e.printStackTrace();
+                    binding.btnSave.setEnabled(true);
+                    binding.btnSave.setText(getString(R.string.update));
+                }
+            });
         });
     }
 }
