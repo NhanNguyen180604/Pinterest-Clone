@@ -13,6 +13,7 @@ import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.databinding.ActivityUploadBinding;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseTagService;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadPinDetailsFragment;
 import com.example.pinterest_clone_test2.utils.CloudinaryManager;
@@ -20,6 +21,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -105,14 +108,28 @@ public class UploadActivity extends AppCompatActivity {
                                 Toast.makeText(UploadActivity.this, getResources().getString(R.string.upload_video_failure), Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            savePinToFirestore(url, title, description, mediaType);  // Lưu vào Firestore
-                            navigateBackToHome();  // Điều hướng về trang chủ sau khi upload thành công
+                            List<String> rawTags = extractTagsFromResult(resultData);
+                            List<String> processedTags = FirebaseTagService.processTags(rawTags);
+                            Log.d("Cloudinary", "Raw detected tags: " + rawTags);
+                            Log.d("Cloudinary", "Processed tags: " + processedTags);
+
+                            savePinToFirestore(url, title, description, mediaType, processedTags,
+                                    (pinId) -> {
+                                        // After pin is saved, update tags with the pin ID
+                                        if (pinId != null && !processedTags.isEmpty()) {
+                                            FirebaseTagService.saveTagsToFirestore(processedTags, pinId);
+                                            Log.d("Cloudinary", "Tags saved with pinId: " + pinId);
+                                        }
+
+                                        // Navigate back to home after successful upload
+                                        navigateBackToHome();
+                                    });
                         }
                     }
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
-                        Toast.makeText(UploadActivity.this, "", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(UploadActivity.this, getResources().getString(R.string.media_upload_failure), Toast.LENGTH_SHORT).show();
                         Log.e("Cloudinary", "Error: " + error.getDescription());
                     }
 
@@ -128,7 +145,29 @@ public class UploadActivity extends AppCompatActivity {
         }
     }
 
-    private void savePinToFirestore(String mediaUrl, String title, String description, String mediaType) {
+    private List<String> extractTagsFromResult(Map resultData) {
+        List<String> tags = new ArrayList<>();
+
+        try {
+            if (resultData.containsKey("tags")) {
+                Object tagsObj = resultData.get("tags");
+                if (tagsObj instanceof List) {
+                    tags.addAll((List<String>) tagsObj);
+                    Log.d("Cloudinary", "Tags extracted: " + tags);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("Cloudinary", "Error extracting tags: " + e.getMessage());
+        }
+
+        // Xử lý tags (ưu tiên fixed tags và giới hạn số lượng)
+        return FirebaseTagService.processTags(tags);
+    }
+
+    public interface PinSaveCallback {
+        void onPinSaved(String pinId);
+    }
+    private void savePinToFirestore(String mediaUrl, String title, String description, String mediaType, List<String> tags, PinSaveCallback callback) {
         String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
         String thumbnailUrl = mediaUrl.replace("/upload/", "/upload/w_200/");
@@ -151,20 +190,33 @@ public class UploadActivity extends AppCompatActivity {
                 .setName(title)
                 .setDescription(description)
                 .setAllowComment(true)
-                .setCreatedAt(System.currentTimeMillis());
+                .setCreatedAt(System.currentTimeMillis())
+                .setTags(tags);
 
         FirebasePinService.uploadPin(pin, new FirebasePinService.UploadPinServiceCallback() {
             @Override
             public void OnSuccess(DocumentReference documentReference) {
-                Log.d("Firestore", "Pin added with ID: " + documentReference.getId());
+                String pinId = documentReference.getId();
+                Log.d("Firestore", "Pin added with ID: " + pinId);
+                if (callback != null) {
+                    callback.onPinSaved(pinId);
+                }
             }
 
             @Override
             public void OnFailure(Exception e) {
                 Log.e("Firestore", "Error adding Pin: " + e.getMessage());
                 Toast.makeText(UploadActivity.this, getResources().getString(R.string.upload_pin_failure), Toast.LENGTH_SHORT).show();
+                if (callback != null) {
+                    callback.onPinSaved(null); // Indicate failure with null pinId
+                }
             }
         });
+    }
+    //Overload of savePinToFirestore without callback
+    private void savePinToFirestore(String mediaUrl, String title, String description,
+                                    String mediaType, List<String> tags) {
+        savePinToFirestore(mediaUrl, title, description, mediaType, tags, null);
     }
 
     // Navigate back to the home screen after successful upload
