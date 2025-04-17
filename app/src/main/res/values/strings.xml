@@ -212,4 +212,21 @@
     <string name="pin_delete_title">Bạn có chắc chắn không?</string>
     <string name="pin_delete_warning">Bạn sẽ không thể khôi phục lại được Ghim này nếu nó bị xóa</string>
     <string name="pin_delete_failure">Đã có lỗi khi xóa ghim</string>
+    <string name="anime">anime</string>
+    <string name="travel">du lịch</string>
+    <string name="food">ẩm thực</string>
+    <string name="fashion">thời trang</string>
+    <string name="art">nghệ thuật</string>
+    <string name="photography">nhiếp ảnh</string>
+    <string name="beauty">làm đẹp</string>
+    <string name="technology">công nghệ</string>
+    <string name="animal">động vật</string>
+    <string name="education">giáo dục</string>
+    <string name="decor">trang trí</string>
+    <string name="cars">ô tô</string>
+    <string name="wedding">đám cưới</string>
+    <string name="landscape">phong cảnh</string>
+    <string name="music">âm nhạc</string>
+    <string name="science">khoa học</string>
+>>>>>>> main
 </resources>

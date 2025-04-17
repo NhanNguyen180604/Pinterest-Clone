@@ -6,18 +6,18 @@ import android.util.Log;
 
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.UploadCallback;
-import com.example.pinterest_clone_test2.BuildConfig;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class CloudinaryManager {
 
-    private static final String CLOUD_NAME = BuildConfig.CLOUD_NAME;
-    private static final String API_KEY = BuildConfig.API_KEY;
-    private static final String API_SECRET = BuildConfig.API_SECRET;
-    private static final String UPLOAD_PRESET = BuildConfig.UPLOAD_PRESET;
+    private static final String CLOUD_NAME = "dvaaneijh";
+    private static final String API_KEY = "498715797365392";
+    private static final String API_SECRET = "OCYQgWLOvLeq3KxuYkNXQQcNjpI";
+    private static final String UPLOAD_PRESET = "test-cloud";
 
+    private static boolean isInitialized = false;
     // Initialize Cloudinary
     public static void initCloudinary(Context context) {
         Log.d("Cloudinary", "Initializing Cloudinary...");
@@ -28,6 +28,7 @@ public class CloudinaryManager {
 
         if (!isMediaManagerInitialized()) {
             MediaManager.init(context, config);
+            isInitialized = true;
             Log.d("Cloudinary", "Cloudinary initialized.");
         }
     }
@@ -44,6 +45,10 @@ public class CloudinaryManager {
 
     // Upload image to Cloudinary
     public static void uploadMedia(Uri mediaUri, String mimeType, UploadCallback callback) {
+        if (!isInitialized) {
+            Log.e("Cloudinary", "Cloudinary is not initialized!");
+            return;
+        }
         if (mediaUri != null) {
             Log.d("Cloudinary", "Media URI to upload: " + mediaUri);
 

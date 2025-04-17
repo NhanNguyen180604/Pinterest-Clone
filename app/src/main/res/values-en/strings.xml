@@ -206,4 +206,21 @@
     <string name="pin_delete_title">Are you sure?</string>
     <string name="pin_delete_warning">You won\'t be able to get this Pin back if you delete it</string>
     <string name="pin_delete_failure">Failed to delete pin</string>
+    <string name="anime">anime</string>
+    <string name="travel">travel</string>
+    <string name="food">food</string>
+    <string name="fashion">fashion</string>
+    <string name="art">art</string>
+    <string name="photography">photography</string>
+    <string name="beauty">beauty</string>
+    <string name="technology">technology</string>
+    <string name="animal">animal</string>
+    <string name="education">education</string>
+    <string name="decor">decor</string>
+    <string name="cars">cars</string>
+    <string name="wedding">wedding</string>
+    <string name="landscape">landscape</string>
+    <string name="music">music</string>
+    <string name="science">science</string>
+>>>>>>> main
 </resources>
