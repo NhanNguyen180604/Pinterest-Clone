@@ -54,7 +54,7 @@ public class FirebaseUserService {
     //================================== Phần này của LÊ TRƯỜNG
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference userRef = db.collection("users");
-    private CollectionReference bannedRef = db.collection("bannedUser");
+    private CollectionReference bannedRef = db.collection("bannedUsers");
 
     // 1. Lấy toàn bộ user
     public void getAllUsers(OnCompleteListener<QuerySnapshot> listener) {
