@@ -95,7 +95,7 @@ public class PinObjectFragment extends Fragment {
     final FirebaseUserService.GetUserInfoCallback getAuthorInfoCallback = new FirebaseUserService.GetUserInfoCallback() {
         @Override
         public void OnSuccess(DocumentSnapshot documentSnapshot) {
-            author.setFirstName(documentSnapshot.getString("name"));
+            author.setName(documentSnapshot.getString("name"));
             author.setAvatarUrl(documentSnapshot.getString("avatarUrl"));
             if (author.getAvatarUrl() != null) {
                 Glide.with(binding.ivAuthorAvatar.getContext())
@@ -516,7 +516,7 @@ public class PinObjectFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         restoreStates();
 
-        if ((author.getFirstName() == null || author.getAvatarUrl() == null) && pin != null) {
+        if ((author.getName() == null || author.getAvatarUrl() == null) && pin != null) {
             fetchAuthorAsync();
         } else {
             binding.setAuthorViewModel(author);
