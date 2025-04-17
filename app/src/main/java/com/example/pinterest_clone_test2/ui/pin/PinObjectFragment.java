@@ -643,7 +643,9 @@ public class PinObjectFragment extends Fragment {
             binding.rvRelevant.getLayoutManager().onRestoreInstanceState(scroll_state);
         }
 
-        checkSavedPinAndSetButtonText();
+        if (pin != null) {
+            checkSavedPinAndSetButtonText();
+        }
     }
 
     @Override
