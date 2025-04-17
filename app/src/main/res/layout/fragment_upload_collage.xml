@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.upload.UploadCollageFragment">
 
-    <!-- Top navigation bar -->
     <ImageButton
         android:id="@+id/btnExit"
         android:layout_width="48dp"
@@ -57,6 +56,8 @@
         android:paddingEnd="16dp"
         android:text="@string/next"
         android:textAllCaps="false"
+        android:background="@drawable/red_button_pinterest"
+        android:enabled="false"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/btnExit" />
