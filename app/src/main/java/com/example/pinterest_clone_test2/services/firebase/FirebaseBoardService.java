@@ -74,7 +74,7 @@ public abstract class FirebaseBoardService {
                     if (board.getCollaborators() != null && !board.getCollaborators().isEmpty()) {
                         boardData.put("collaborators", board.getCollaborators()
                                 .stream()
-                                .map(User::getId)
+                                .map(User::getUserId)
                                 .collect(Collectors.toList())
                         );
                     } else {
