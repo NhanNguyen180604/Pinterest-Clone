@@ -13,13 +13,10 @@ import java.util.stream.Collectors;
 
 import com.example.pinterest_clone_test2.models.User;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class ManageUserViewModel extends ViewModel {
     private static final String TAG = "ManageUserViewModel";
-    private final FirebaseUserService userService = new FirebaseUserService();
 
     // LiveData cho các danh sách người dùng
     private final MutableLiveData<List<User>> allUsers = new MutableLiveData<>();
@@ -72,7 +69,7 @@ public class ManageUserViewModel extends ViewModel {
      */
     public void fetchAllUsers() {
         isLoading.setValue(true);
-        userService.getAllUsers(task -> {
+        FirebaseUserService.getAllUsers(task -> {
             isLoading.setValue(false);
             if (task.isSuccessful()) {
                 List<User> users = new ArrayList<>();
@@ -102,7 +99,7 @@ public class ManageUserViewModel extends ViewModel {
      */
     public void fetchBannedUsers() {
         isLoading.setValue(true);
-        userService.getBannedUsers(task -> {
+        FirebaseUserService.getBannedUsers(task -> {
             isLoading.setValue(false);
             if (task.isSuccessful()) {
                 List<User> users = task.getResult();
@@ -123,7 +120,7 @@ public class ManageUserViewModel extends ViewModel {
      */
     public void fetchNormalUsers() {
         isLoading.setValue(true);
-        userService.getNormalUsers(task -> {
+        FirebaseUserService.getNormalUsers(task -> {
             isLoading.setValue(false);
             if (task.isSuccessful()) {
                 List<User> users = task.getResult();
@@ -154,7 +151,7 @@ public class ManageUserViewModel extends ViewModel {
         }
 
         isLoading.setValue(true);
-        userService.addBannedUser(userId,
+        FirebaseUserService.addBannedUser(userId,
                 documentReference -> {
                     isLoading.setValue(false);
                     // Refresh danh sách
@@ -181,7 +178,7 @@ public class ManageUserViewModel extends ViewModel {
         }
 
         isLoading.setValue(true);
-        userService.removeBannedUser(userId,
+        FirebaseUserService.removeBannedUser(userId,
                 unused -> {
                     isLoading.setValue(false);
                     // Refresh danh sách
@@ -208,7 +205,7 @@ public class ManageUserViewModel extends ViewModel {
         }
 
         isLoading.setValue(true);
-        userService.editRoleUser(userId, newRole,
+        FirebaseUserService.editRoleUser(userId, newRole,
                 unused -> {
                     isLoading.setValue(false);
                     // Refresh all lists
@@ -231,7 +228,7 @@ public class ManageUserViewModel extends ViewModel {
      */
     public void addUser(User user, Runnable onSuccess, Consumer<Exception> onError) {
         isLoading.setValue(true);
-        userService.addUser(user,
+        FirebaseUserService.addUser(user,
                 unused -> {
                     isLoading.setValue(false);
                     // Refresh lists

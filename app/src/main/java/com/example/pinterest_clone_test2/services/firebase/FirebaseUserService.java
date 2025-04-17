@@ -35,7 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class FirebaseUserService {
+public class FirebaseUserService {
+    private static final String TAG = "FirebaseUserService";
     private static DocumentSnapshot currentUserDocument;
     private static long lastUpdateTime = 0;
 
@@ -67,7 +68,7 @@ public abstract class FirebaseUserService {
                     }
                 });
     }
-  
+
     public static void getUserInfos(String userId, GetUserInfoCallback callback) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
@@ -180,7 +181,7 @@ public abstract class FirebaseUserService {
                     return Tasks.forResult(null);
                 });
     }
-  
+
     public static void updateGender(@NonNull String gender, UpdateGenderCallback callback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         assert currentUser != null;
@@ -377,94 +378,33 @@ public abstract class FirebaseUserService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
-    public interface SavePinToProfileCallback {
-        void OnSuccess();
-
-        void OnFailure(Exception e);
-    }
-
-    public interface HidePinCallback {
-        void OnSuccess();
-
-        void OnFailure(Exception e);
-    }
-
-    public interface UpdateGenderCallback {
-        void OnSuccess();
-
-        void OnFailure(Exception e);
-    }
-
-    public interface UpdateEmailCallback {
-        void OnSuccess();
-
-        void OnFailure(Exception e);
-    }
-
-    public interface UpdatePasswordCallback {
-        void OnSuccess();
-
-        void OnFailure(Exception e);
-    }
-
-    public interface UpdateBirthdateCallback {
-        void OnSuccess();
-
-        void OnFailure(Exception e);
-    }
-
-    public interface FollowUserCallback {
-        void OnSuccess();
-
-        void OnFailure(Exception e);
-    }
-
-    public interface CheckFollowStatusCallback {
-        void OnSuccess(boolean isFollowing);
-
-        void OnFailure(Exception e);
-    }
-
-    public interface GetUserPinsCallback {
-        void OnSuccess(List<Pin> pins);
-
-        void OnFailure(Exception e);
-    }
-
-    public interface GetUserInfoCallback {
-        void OnSuccess(DocumentSnapshot documentSnapshot);
-
-        void OnFailure(Exception e);
-    }
-
-
-    //================================== Phần này của LÊ TRƯỜNG
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference userRef = db.collection("users");
-    private CollectionReference bannedRef = db.collection("bannedUsers");
-
+    //================================== Admin Functions
     // 1. Lấy toàn bộ user
-    public void getAllUsers(OnCompleteListener<QuerySnapshot> listener) {
-        userRef.get().addOnCompleteListener(listener);
+    public static void getAllUsers(OnCompleteListener<QuerySnapshot> listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").get().addOnCompleteListener(listener);
     }
 
     // 2. Lấy user theo ID - đã sửa để dùng document ID trực tiếp
-    public void getUserById(String userId, OnCompleteListener<DocumentSnapshot> listener) {
-        userRef.document(userId).get().addOnCompleteListener(listener);
+    public static void getUserById(String userId, OnCompleteListener<DocumentSnapshot> listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userId).get().addOnCompleteListener(listener);
     }
 
     // 3. Chỉnh role user theo ID
-    public void editRoleUser(String userId, String newRole, OnSuccessListener<Void> listener, OnFailureListener failListener) {
-        userRef.document(userId)
+    public static void editRoleUser(String userId, String newRole, OnSuccessListener<Void> listener, OnFailureListener failListener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userId)
                 .update("role", newRole)
                 .addOnSuccessListener(listener)
                 .addOnFailureListener(failListener);
     }
 
     // 4. Thêm user - đã sửa để đảm bảo userId là document ID
-    public void addUser(User user, OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+    public static void addUser(User user, OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         // Tạo document reference trước
-        DocumentReference newUserRef = userRef.document();
+        DocumentReference newUserRef = db.collection("users").document();
 
         // Gán ID từ document reference làm userId
         String userId = newUserRef.getId();
@@ -477,12 +417,14 @@ public abstract class FirebaseUserService {
     }
 
     // 5. Lấy toàn bộ userId bị ban
-    public void getBannedUserId(OnCompleteListener<QuerySnapshot> listener) {
-        bannedRef.get().addOnCompleteListener(listener);
+    public static void getBannedUserId(OnCompleteListener<QuerySnapshot> listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("bannedUsers").get().addOnCompleteListener(listener);
     }
 
     // 6. Lấy danh sách user bị ban
-    public void getBannedUsers(OnCompleteListener<List<User>> listener) {
+    public static void getBannedUsers(OnCompleteListener<List<User>> listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         getBannedUserId(task -> {
             if (task.isSuccessful()) {
                 List<String> bannedIds = new ArrayList<>();
@@ -503,7 +445,7 @@ public abstract class FirebaseUserService {
                 List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
 
                 for (String id : bannedIds) {
-                    tasks.add(userRef.document(id).get()
+                    tasks.add(db.collection("users").document(id).get()
                             .addOnSuccessListener(snapshot -> {
                                 if (snapshot.exists()) {
                                     User user = snapshot.toObject(User.class);
@@ -529,7 +471,8 @@ public abstract class FirebaseUserService {
     }
 
     // 7. Lấy user không bị cấm - đã sửa
-    public void getNormalUsers(OnCompleteListener<List<User>> listener) {
+    public static void getNormalUsers(OnCompleteListener<List<User>> listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         getBannedUserId(task -> {
             if (task.isSuccessful()) {
                 List<String> bannedIds = new ArrayList<>();
@@ -541,7 +484,7 @@ public abstract class FirebaseUserService {
                 }
 
                 // Lấy tất cả users
-                userRef.get().addOnCompleteListener(userTask -> {
+                db.collection("users").get().addOnCompleteListener(userTask -> {
                     if (userTask.isSuccessful()) {
                         List<User> normalUsers = new ArrayList<>();
                         for (QueryDocumentSnapshot doc : userTask.getResult()) {
@@ -575,17 +518,19 @@ public abstract class FirebaseUserService {
     }
 
     // 8. Thêm user vào danh sách bị cấm
-    public void addBannedUser(String userId, OnSuccessListener<DocumentReference> listener, OnFailureListener failListener) {
+    public static void addBannedUser(String userId, OnSuccessListener<DocumentReference> listener, OnFailureListener failListener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> banData = new HashMap<>();
         banData.put("userId", userId);
-        bannedRef.add(banData)
+        db.collection("bannedUsers").add(banData)
                 .addOnSuccessListener(listener)
                 .addOnFailureListener(failListener);
     }
 
     // 9. Xóa user khỏi danh sách bị cấm
-    public void removeBannedUser(String userId, OnSuccessListener<Void> listener, OnFailureListener failListener) {
-        bannedRef.whereEqualTo("userId", userId).get().addOnCompleteListener(task -> {
+    public static void removeBannedUser(String userId, OnSuccessListener<Void> listener, OnFailureListener failListener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("bannedUsers").whereEqualTo("userId", userId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && !task.getResult().isEmpty()) {
                 WriteBatch batch = db.batch();
                 for (QueryDocumentSnapshot doc : task.getResult()) {
@@ -599,5 +544,56 @@ public abstract class FirebaseUserService {
                 failListener.onFailure(task.getException());
             }
         });
+    }
+
+    // Interfaces
+    public interface SavePinToProfileCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface HidePinCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdateGenderCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdateEmailCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdatePasswordCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdateBirthdateCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface FollowUserCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface CheckFollowStatusCallback {
+        void OnSuccess(boolean isFollowing);
+        void OnFailure(Exception e);
+    }
+
+    public interface GetUserPinsCallback {
+        void OnSuccess(List<Pin> pins);
+        void OnFailure(Exception e);
+    }
+
+    public interface GetUserInfoCallback {
+        void OnSuccess(DocumentSnapshot documentSnapshot);
+        void OnFailure(Exception e);
     }
 }
