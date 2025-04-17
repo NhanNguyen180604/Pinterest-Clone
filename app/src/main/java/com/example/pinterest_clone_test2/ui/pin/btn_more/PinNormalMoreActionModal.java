@@ -23,7 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
-public class PinMoreActionModalBottomSheet extends BottomSheetDialogFragment {
+public class PinNormalMoreActionModal extends BottomSheetDialogFragment {
     PinMoreActionModalBottomSheetBinding binding;
     public static String TAG = "PinMoreActionModalBottomSheet";
     Pin pin;
@@ -31,7 +31,7 @@ public class PinMoreActionModalBottomSheet extends BottomSheetDialogFragment {
     PinObjectFragment.HidePinCallback hidePinCallback;
     Context context;
 
-    public PinMoreActionModalBottomSheet(Pin pin, Context context, PinObjectFragment.DownloadPinMediaCallback downloadCallback, PinObjectFragment.HidePinCallback hidePinCallback) {
+    public PinNormalMoreActionModal(Pin pin, Context context, PinObjectFragment.DownloadPinMediaCallback downloadCallback, PinObjectFragment.HidePinCallback hidePinCallback) {
         this.pin = pin;
         this.context = context;
         this.downloadCallback = downloadCallback;
@@ -71,9 +71,7 @@ public class PinMoreActionModalBottomSheet extends BottomSheetDialogFragment {
             dismiss();
         });
 
-        binding.btnClose.setOnClickListener(v -> {
-            dismiss();
-        });
+        binding.btnClose.setOnClickListener(v -> dismiss());
     }
 
     ReportModalCallbacks reportModalCallbacks = new ReportModalCallbacks() {
