@@ -76,7 +76,7 @@ public class SearchResultFragment extends Fragment {
         setupSearchUI();
 
         // Thiết lập RecyclerView
-        adapter = new PinListAdapter(pins, pinClickListener);
+        adapter = new PinListAdapter(requireContext(), pins, pinClickListener);
         adapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
         binding.rvSearchResult.setAdapter(adapter);
 
@@ -143,7 +143,7 @@ public class SearchResultFragment extends Fragment {
         });
 
         binding.backBtn.setOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
             navController.navigateUp();
         });
     }
@@ -220,7 +220,9 @@ public class SearchResultFragment extends Fragment {
                             binding.progressBar.setVisibility(View.GONE);
 
                             // Hiển thị thông báo lỗi
-                            Toast.makeText(requireContext(), "Không thể tìm kiếm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(), getResources().getString(R.string.search_failure), Toast.LENGTH_SHORT).show();
+                            Log.e("SearchResultFragment", "Failed to search");
+                            e.printStackTrace();
                         });
                     }
                 });
@@ -234,7 +236,7 @@ public class SearchResultFragment extends Fragment {
                     binding.progressBar.setVisibility(View.GONE);
 
                     // Hiển thị thông báo lỗi
-                    Toast.makeText(requireContext(), "Lỗi tìm kiếm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getResources().getString(R.string.search_failure), Toast.LENGTH_SHORT).show();
                 });
             }
         });
@@ -261,7 +263,7 @@ public class SearchResultFragment extends Fragment {
     }
 
     private final PinClickListener pinClickListener = (position, v) -> {
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
 
         Bundle args = new Bundle();
         args.putParcelableArrayList("pins", new ArrayList<>(pins));

@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -175,9 +176,8 @@ public abstract class FirebaseCommentService {
         commentData.put("content", comment.getContent());
         commentData.put("createdAt", System.currentTimeMillis());
 
-        //TODO: upload attachment to Cloudinary
         if (comment.getAttachmentUri() != null) {
-            CloudinaryManager.uploadImage(comment.getAttachmentUri(), new UploadCallback() {
+            CloudinaryManager.uploadMedia(comment.getAttachmentUri(), "image/gif", new UploadCallback() {
                 @Override
                 public void onStart(String requestId) {
 
@@ -243,7 +243,7 @@ public abstract class FirebaseCommentService {
             likeData.put("createdAt", System.currentTimeMillis());
             firestore.collection("likes")
                     .add(likeData)
-                    .addOnSuccessListener(documentReference -> Log.d("FirebaseCommentService-UpdateLike", "add like successfully"))
+                    .addOnSuccessListener(documentReference -> Log.d("FirebaseCommentService", "add like successfully"))
                     .addOnFailureListener(callback::OnFailure);
         } else {
             // fetch existing like
@@ -268,14 +268,40 @@ public abstract class FirebaseCommentService {
                             return Tasks.forException(Objects.requireNonNull(task.getException()));
                         }
                     })
-                    .addOnSuccessListener(aVoid -> Log.d("FirebaseCommentService-UpdateLike", "like removed successfully"))
+                    .addOnSuccessListener(aVoid -> Log.d("FirebaseCommentService", "like removed successfully"))
                     .addOnFailureListener(e -> {
-                        Log.e("FirebaseCommentService-UpdateLike", "like failed to remove: ", e);
+                        Log.e("FirebaseCommentService", "like failed to remove: ", e);
                         callback.OnFailure(e);
                     });
         }
     }
 
+    public static void deleteCommentsOfPin(@NonNull String pinId) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("comments")
+                .whereEqualTo("pin", pinId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
+                    for (DocumentSnapshot doc : documentSnapshots) {
+                        firestore.collection("comments")
+                                .document(doc.getId())
+                                .delete()
+                                .addOnSuccessListener(unused -> Log.d("FirebaseCommentService", String.format(Locale.US, "Deleted comment %s from pin %s", doc.getId(), pinId)))
+                                .addOnFailureListener(e -> logExceptionMessage(String.format(Locale.US, "Failed to delete comment %s", pinId), e));
+                    }
+                })
+                .addOnFailureListener(e -> logExceptionMessage(String.format(Locale.US, "Failed to fetch comments of pin %s", pinId), e));
+    }
+
+    private static void logExceptionMessage(String message, Exception e) {
+        Log.e("FirebaseCommentService", message);
+        if (e.getMessage() != null) {
+            Log.e("FirebaseCommentService", e.getMessage());
+        } else {
+            e.printStackTrace();
+        }
+    }
 
     public interface GetCommentServiceCallback {
         void OnSuccess(List<Comment> commentList);

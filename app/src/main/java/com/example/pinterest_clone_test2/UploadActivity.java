@@ -12,19 +12,22 @@ import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.databinding.ActivityUploadBinding;
 import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseTagService;
 import com.example.pinterest_clone_test2.ui.upload.UploadCollageFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
-import com.example.pinterest_clone_test2.ui.upload.UploadImageDetailsFragment;
+import com.example.pinterest_clone_test2.ui.upload.UploadPinDetailsFragment;
 import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class UploadActivity extends AppCompatActivity {
-
-    private FirebaseFirestore firestore;
     private ActivityUploadBinding binding;
 
     @Override
@@ -33,7 +36,7 @@ public class UploadActivity extends AppCompatActivity {
         binding = ActivityUploadBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
         Intent intent = getIntent();
         if (savedInstanceState == null) {
@@ -52,13 +55,16 @@ public class UploadActivity extends AppCompatActivity {
             }
         }
     }
-    public void showDetailFragment(Uri imageUri) {
-        Log.d("Cloudinary", "Navigating to UploadImageDetailsFragment with imageUri: " + imageUri);
 
-        UploadImageDetailsFragment detailsFragment = new UploadImageDetailsFragment();
+    public void showDetailFragment(Uri mediaUri) {
+        Log.d("Cloudinary", "Navigating to UploadImageDetailsFragment with mediaUri: " + mediaUri);
 
+        UploadPinDetailsFragment detailsFragment = new UploadPinDetailsFragment();
+
+        // Pass only mediaUri to UploadImageDetailsFragment
         Bundle bundle = new Bundle();
-        bundle.putParcelable("imageUri", imageUri);
+        bundle.putParcelable("mediaUri", mediaUri);
+        bundle.putBoolean("isCollage", true);
         detailsFragment.setArguments(bundle);
 
         getSupportFragmentManager()
@@ -67,84 +73,171 @@ public class UploadActivity extends AppCompatActivity {
                 .addToBackStack(null)
                 .commit();
     }
-    public void uploadImage(Uri imageUri, String title, String description) {
-        Log.d("Cloudinary", "Attempting to upload image");
 
-        if (imageUri != null) {
-            Log.d("Cloudinary", "Image URI to upload: " + imageUri);
+    public void uploadMedia(Uri mediaUri, String title, String description, boolean isCollage) {
+        Log.d("Cloudinary", "Attempting to upload media");
 
-            CloudinaryManager.uploadImage(imageUri, new UploadCallback() {
-                @Override
-                public void onStart(String requestId) {
-                    Log.d("Cloudinary Quickstart", "Upload start");
+        if (mediaUri != null) {
+            Log.d("Cloudinary", "Media URI to upload: " + mediaUri);
+
+            // Kiểm tra MIME type và gọi hàm upload từ CloudinaryManager
+            String mimeType = getContentResolver().getType(mediaUri);
+            String mediaType;
+
+            if (isCollage)
+                mimeType = "image";
+
+            // Xác định loại media: "image", "video", "gif"
+            if (mimeType != null) {
+                if (mimeType.startsWith("image") && mimeType.contains("gif")) {
+                    mediaType = "gif";  // Xử lý GIF
+                } else if (mimeType.startsWith("video")) {
+                    mediaType = "video";  // Xử lý video
+                } else {
+                    mediaType = "image";  // Xử lý ảnh
                 }
 
-                @Override
-                public void onProgress(String requestId, long bytes, long totalBytes) {
-                    Log.d("Cloudinary Quickstart", "Upload progress: " + bytes + "/" + totalBytes);
-                }
-
-                @Override
-                public void onSuccess(String requestId, Map resultData) {
-                    Log.d("Cloudinary Quickstart", "Upload success");
-                    String url = (String) resultData.get("secure_url");
-                    Log.d("Cloudinary", "Uploaded image URL: " + url);
-
-                    if (url != null) {
-                        savePinToFirestore(url, title, description);
+                // Call CloudinaryManager to upload the media
+                String finalMimeType = mimeType;
+                CloudinaryManager.uploadMedia(mediaUri, mimeType, new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {
+                        Log.d("Cloudinary", "Upload start");
                     }
 
-                    Toast.makeText(UploadActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {
+                        Log.d("Cloudinary", "Upload progress: " + bytes + "/" + totalBytes);
+                    }
 
-                    Intent intent = new Intent(UploadActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                    finish();
-                }
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        String url = (String) resultData.get("secure_url");
+                        if (url == null) {
+                            if (finalMimeType.startsWith("image")) {
+                                Toast.makeText(UploadActivity.this, getResources().getString(R.string.upload_image_failure), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(UploadActivity.this, getResources().getString(R.string.upload_video_failure), Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            List<String> rawTags = extractTagsFromResult(resultData);
+                            List<String> processedTags = FirebaseTagService.processTags(rawTags);
+                            Log.d("Cloudinary", "Raw detected tags: " + rawTags);
+                            Log.d("Cloudinary", "Processed tags: " + processedTags);
 
-                @Override
-                public void onError(String requestId, ErrorInfo error) {
-                    Log.d("Cloudinary Quickstart", "Upload failed: " + error.getDescription());
-                    Toast.makeText(UploadActivity.this, "Upload failed: " + error.getDescription(), Toast.LENGTH_SHORT).show();
-                }
+                            savePinToFirestore(url, title, description, mediaType, processedTags,
+                                    (pinId) -> {
+                                        // After pin is saved, update tags with the pin ID
+                                        if (pinId != null && !processedTags.isEmpty()) {
+                                            FirebaseTagService.saveTagsToFirestore(processedTags, pinId);
+                                            Log.d("Cloudinary", "Tags saved with pinId: " + pinId);
+                                        }
 
-                @Override
-                public void onReschedule(String requestId, ErrorInfo error) {
-                    Log.d("Cloudinary Quickstart", "Upload rescheduled");
-                }
-            });
-        } else {
-            Log.d("Cloudinary", "No image selected");
-            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
+                                        // Navigate back to home after successful upload
+                                        navigateBackToHome();
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        Toast.makeText(UploadActivity.this, getResources().getString(R.string.media_upload_failure), Toast.LENGTH_SHORT).show();
+                        Log.e("Cloudinary", "Error: " + error.getDescription());
+                    }
+
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {
+                        Log.d("Cloudinary", "Rescheduled");
+                    }
+                });
+            } else {
+                Log.d("Cloudinary", "No media selected");
+                Toast.makeText(this, getResources().getString(R.string.no_media_selected), Toast.LENGTH_SHORT).show();
+            }
         }
     }
-    private void savePinToFirestore(String imageUrl, String title, String description) {
+
+    private List<String> extractTagsFromResult(Map<String, Object> resultData) {
+        List<String> tags = new ArrayList<>();
+
+        try {
+            if (resultData.containsKey("tags")) {
+                Object tagsObj = resultData.get("tags");
+                if (tagsObj instanceof List) {
+                    tags.addAll((List<String>) tagsObj);
+                    Log.d("Cloudinary", "Tags extracted: " + tags);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("Cloudinary", "Error extracting tags: " + e.getMessage());
+        }
+
+        // Xử lý tags (ưu tiên fixed tags và giới hạn số lượng)
+        return FirebaseTagService.processTags(tags);
+    }
+
+    public interface PinSaveCallback {
+        void onPinSaved(String pinId);
+    }
+
+    private void savePinToFirestore(String mediaUrl, String title, String description, String mediaType, List<String> tags, PinSaveCallback callback) {
         String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
-        String thumbnailUrl = imageUrl.replace("/upload/", "/upload/c_thumb,w_200/");
+        String thumbnailUrl = mediaUrl.replace("/upload/", "/upload/w_200/");
 
-        // Create a Pin object
+        Pin.PinType pinType;
+        if ("video".equals(mediaType)) {
+            pinType = Pin.PinType.VIDEO;
+        } else if ("gif".equals(mediaType)) {
+            pinType = Pin.PinType.GIF;
+        } else {
+            pinType = Pin.PinType.IMAGE;
+        }
+
+        // Tạo đối tượng Pin
         Pin pin = new Pin()
                 .setAuthorId(userId)
-                .setType(Pin.PinType.IMAGE)
-                .setMediaUrl(imageUrl)
+                .setType(pinType)
+                .setMediaUrl(mediaUrl)
                 .setThumbnailUrl(thumbnailUrl)
                 .setName(title)
                 .setDescription(description)
-                .setIsLiked(false)
                 .setAllowComment(true)
-                .setLikeCount(0)
-                .setCreatedAt(System.currentTimeMillis());
+                .setCreatedAt(System.currentTimeMillis())
+                .setTags(tags);
 
-        firestore.collection("pins")
-                .add(pin)
-                .addOnSuccessListener(documentReference ->
-                        Log.d("Firestore", "Pin added with ID: " + documentReference.getId())
-                )
-                .addOnFailureListener(e -> {
-                    Log.d("Firestore", "Error adding Pin: " + e.getMessage());
-                    Toast.makeText(UploadActivity.this, "Failed to save Pin.", Toast.LENGTH_SHORT).show();
-                });
+        FirebasePinService.uploadPin(pin, new FirebasePinService.UploadPinServiceCallback() {
+            @Override
+            public void OnSuccess(DocumentReference documentReference) {
+                String pinId = documentReference.getId();
+                Log.d("Firestore", "Pin added with ID: " + pinId);
+                if (callback != null) {
+                    callback.onPinSaved(pinId);
+                }
+            }
+
+            @Override
+            public void OnFailure(Exception e) {
+                Log.e("Firestore", "Error adding Pin: " + e.getMessage());
+                Toast.makeText(UploadActivity.this, getResources().getString(R.string.upload_pin_failure), Toast.LENGTH_SHORT).show();
+                if (callback != null) {
+                    callback.onPinSaved(null); // Indicate failure with null pinId
+                }
+            }
+        });
+    }
+
+    //Overload of savePinToFirestore without callback
+    private void savePinToFirestore(String mediaUrl, String title, String description,
+                                    String mediaType, List<String> tags) {
+        savePinToFirestore(mediaUrl, title, description, mediaType, tags, null);
+    }
+
+    // Navigate back to the home screen after successful upload
+    private void navigateBackToHome() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish(); // Optional: Finish the current activity to prevent user from going back to upload screen
     }
 }
-

@@ -86,6 +86,14 @@ public class SettingsDrawerFragment extends Fragment {
                 startActivity(intent);
                 activity.finish();
             });
+
+            binding.viewProfileBtn.setOnClickListener(v -> {
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+                Bundle args = new Bundle();
+                args.putString("userId", currentUserDocument.getId());
+                args.putString("source", "account");
+                navController.navigate(R.id.action_settingsDrawerFragment_to_userProfileFragment3, args);
+            });
         } else {
             Toast.makeText(requireContext(), getResources().getString(R.string.fetch_user_failure), Toast.LENGTH_SHORT).show();
         }

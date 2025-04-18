@@ -85,14 +85,8 @@ public class AccountFragment extends Fragment {
 
         binding.btnAccount.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(view);
-            navController.navigate(
-                    R.id.action_navigation_account_to_settingsDrawerFragment,
-                    null,
-                    null,
-                    null
-            );
+            navController.navigate(R.id.action_navigation_account_to_settingsDrawerFragment);
         });
-
 
         binding.btnAddNewPin.setOnClickListener(v -> {
             UploadDialogFragment uploadDialogFragment = new UploadDialogFragment();

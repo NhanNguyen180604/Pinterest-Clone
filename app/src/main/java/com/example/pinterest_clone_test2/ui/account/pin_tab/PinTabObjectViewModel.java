@@ -13,8 +13,9 @@ public class PinTabObjectViewModel extends ViewModel {
     private final SavedStateHandle _savedStateHandle;
     public static String SCROLL_STATE = "ScrollState";
     public static String PIN_STATE = "PinState";
-    public static String LAST_PAGE_STATE = "OnLastPageState";
     public static String LAST_UPDATE_TIME_STATE = "LastUpdateTimeState";
+    public static String PIN_IDS_STATE = "PinIdsState";
+    public static String PAGE_STATE = "PageState";
 
     public PinTabObjectViewModel(SavedStateHandle savedStateHandle) {
         _savedStateHandle = savedStateHandle;
@@ -36,14 +37,6 @@ public class PinTabObjectViewModel extends ViewModel {
         _savedStateHandle.set(PIN_STATE, pinState);
     }
 
-    public boolean isOnLastPage() {
-        return Boolean.TRUE.equals(_savedStateHandle.get(LAST_PAGE_STATE));
-    }
-
-    public void setOnLastPage(boolean isOnLastPage) {
-        _savedStateHandle.set(LAST_PAGE_STATE, isOnLastPage);
-    }
-
     public long getLastUpdateTime() {
         Long result = _savedStateHandle.get(LAST_UPDATE_TIME_STATE);
         return result != null ? result : 0;
@@ -51,5 +44,22 @@ public class PinTabObjectViewModel extends ViewModel {
 
     public void setLastUpdateTime(long lastUpdateTime) {
         _savedStateHandle.set(LAST_UPDATE_TIME_STATE, lastUpdateTime);
+    }
+
+    public List<String> getPinIdsState() {
+        return _savedStateHandle.get(PIN_IDS_STATE);
+    }
+
+    public void setPinIdsState(List<String> pinIds) {
+        _savedStateHandle.set(PIN_IDS_STATE, pinIds);
+    }
+
+    public int getPageState() {
+        Integer page = _savedStateHandle.get(PAGE_STATE);
+        return page != null ? page : 0;
+    }
+
+    public void setPageState(int pageState) {
+        _savedStateHandle.set(PAGE_STATE, pageState);
     }
 }

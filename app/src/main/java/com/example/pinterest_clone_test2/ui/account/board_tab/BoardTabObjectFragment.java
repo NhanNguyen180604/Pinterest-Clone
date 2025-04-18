@@ -51,7 +51,7 @@ public class BoardTabObjectFragment extends Fragment {
 
         RecyclerView recyclerView = binding.rvBoards;
         boardAdapter = new BoardAdapter(requireContext(), boardList, board -> {
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
             Bundle bundle = new Bundle();
             bundle.putParcelable("board", board);
             navController.navigate(R.id.action_navigation_account_to_boardDetailFragment, bundle);
@@ -104,7 +104,7 @@ public class BoardTabObjectFragment extends Fragment {
             @Override
             public void OnFailure(Exception e) {
                 Log.e("Firebase", "Error fetching boards", e);
-                Toast.makeText(requireContext(), "Failed to load boards", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getResources().getString(R.string.fetch_boards_failure), Toast.LENGTH_SHORT).show();
                 binding.progressLoading.setVisibility(View.GONE);
             }
         });
