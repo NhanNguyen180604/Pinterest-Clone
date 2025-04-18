@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.models.Tag;
 import com.example.pinterest_clone_test2.ui.pin.edit.BoardBooleanPair;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -21,10 +22,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public abstract class FirebasePinService {
     public static void getPins(@Nullable DocumentSnapshot lastVisible, int perPage, Filter filter, GetPinServiceCallback callback) {
@@ -161,6 +165,46 @@ public abstract class FirebasePinService {
 
             callback.onSearchSuccess(pinResults, lastDoc);
         }).addOnFailureListener(callback::onSearchFailure)).addOnFailureListener(callback::onSearchFailure);
+    }
+
+    public static void getRelevantPinIdsByTags(@NonNull Pin pin, GetRelevantPinIdsByTagCallback callback) {
+        List<Task<QuerySnapshot>> fetchTagTasks = new ArrayList<>();
+        List<String> tagNames = pin.getTags();
+        if (tagNames == null || tagNames.isEmpty()) {
+            callback.OnComplete(new ArrayList<>());
+            return;
+        }
+
+        for (String tagName : tagNames) {
+            if (tagName.isBlank())
+                continue;
+            fetchTagTasks.add(FirebaseTagService.getPinsByTagName(tagName));
+        }
+
+        Set<String> pinIdSet = new HashSet<>();
+        Tasks.whenAllComplete(fetchTagTasks)
+                .addOnCompleteListener(listTask -> {
+                    for (Task<QuerySnapshot> task : fetchTagTasks) {
+                        if (task.isSuccessful()) {
+                            List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                            if (docs.isEmpty())
+                                return;
+
+                            Tag tag = docs.get(0).toObject(Tag.class);
+                            if (tag == null)
+                                continue;
+
+                            List<String> pinIds = tag.getPinIds();
+                            if (pinIds != null && !pinIds.isEmpty()) {
+                                pinIds.remove(pin.getId());
+                                pinIdSet.addAll(pinIds);
+                            }
+                        }
+                    }
+                    List<String> result = new ArrayList<>(pinIdSet);
+                    Collections.shuffle(result);
+                    callback.OnComplete(result);
+                });
     }
 
     @NonNull
@@ -409,5 +453,9 @@ public abstract class FirebasePinService {
 
     public interface CheckPinExistsCallback {
         void OnComplete(boolean exist);
+    }
+
+    public interface GetRelevantPinIdsByTagCallback {
+        void OnComplete(List<String> pinIds);
     }
 }

@@ -14,10 +14,12 @@ public class PinObjectViewModel extends ViewModel {
     private final SavedStateHandle _savedStateHandle;
     public static String SCROLL_STATE_KEY = "scroll_state";
     public static String PIN_STATE_KEY = "pin_state";
+    public static String RELEVANT_PIN_IDS_STATE_KEY = "relevant_pin_ids_state";
     public static String RELEVANT_PIN_STATE_KEY = "relevant_pin_state";
     public static String AUTHOR_STATE_KEY = "author_state";
     public static String SOURCE_STATE_KEY = "source_state";
     public static String VIDEO_POSITION_STATE = "video_position_state";
+    public static String PAGE_STATE_KEY = "page_state";
 
     public PinObjectViewModel(SavedStateHandle savedStateHandle) {
         _savedStateHandle = savedStateHandle;
@@ -70,5 +72,22 @@ public class PinObjectViewModel extends ViewModel {
 
     public void setVideoPositionState(long videoPositionState) {
         _savedStateHandle.set(VIDEO_POSITION_STATE, videoPositionState);
+    }
+
+    public int getPageState() {
+        Integer page = _savedStateHandle.get(PAGE_STATE_KEY);
+        return page != null ? page : 0;
+    }
+
+    public void setPageState(int pageState) {
+        _savedStateHandle.set(PAGE_STATE_KEY, pageState);
+    }
+
+    public List<String> getRelevantPinIdsState() {
+        return _savedStateHandle.get(RELEVANT_PIN_IDS_STATE_KEY);
+    }
+
+    public void setRelevantPinIdsState(List<String> relevantPinIdsState) {
+        _savedStateHandle.set(RELEVANT_PIN_IDS_STATE_KEY, relevantPinIdsState);
     }
 }
