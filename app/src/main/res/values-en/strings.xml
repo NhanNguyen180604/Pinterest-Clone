@@ -183,6 +183,18 @@
     <string name="pin_not_found">Pin not found</string>
     <string name="no_pin_id">Empty pin ID</string>
     <string name="unknown_error">Unknown error</string>
+    <string name="create_collage">Create collage</string>
+    <string name="stroke_width">Stroke Width</string>
+    <string name="brush_options">Brush Options</string>
+    <string name="basic_colors">Basic Colors</string>
+    <string name="done">Done</string>
+    <string name="custom_color">Custom Color</string>
+    <string name="camera">Camera</string>
+    <string name="collage_tools">Collage Tools</string>
+    <string name="enter_text">Enter text</string>
+    <string name="text_color">Text color</string>
+    <string name="text_size">Text size</string>
+    <string name="default_size">24</string>
     <string name="download_pin_finished">Finished downloading media</string>
     <string name="download_permission_denied">Permission denied, download failed</string>
     <string name="fetch_boards_failure">Failed to load boards</string>
@@ -222,5 +234,4 @@
     <string name="landscape">landscape</string>
     <string name="music">music</string>
     <string name="science">science</string>
->>>>>>> main
 </resources>
