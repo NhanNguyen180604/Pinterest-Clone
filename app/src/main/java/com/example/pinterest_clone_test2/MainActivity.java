@@ -89,7 +89,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(downloadMediaBroadcastReceiver);
+        try {
+            unregisterReceiver(downloadMediaBroadcastReceiver);
+        } catch (Exception e) {
+            //eat exception
+        }
     }
 
     @Override

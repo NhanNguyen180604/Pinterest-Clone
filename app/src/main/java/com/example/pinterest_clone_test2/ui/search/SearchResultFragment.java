@@ -149,8 +149,9 @@ public class SearchResultFragment extends Fragment {
     }
 
     private void resetSearchState() {
+        int oldSize = pins.size();
         pins.clear();
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemRangeRemoved(0, oldSize);
         isLastPage = false;
         isLoading = false;
         lastVisible = null;
