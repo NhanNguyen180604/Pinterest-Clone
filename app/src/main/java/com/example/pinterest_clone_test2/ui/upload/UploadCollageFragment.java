@@ -22,7 +22,9 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -53,9 +55,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -64,30 +67,23 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
     private ArrayList<Uri> addedImagesList;
     private ImageView activeImageView;
     private float dX, dY;
-
     private ScaleGestureDetector scaleGestureDetector;
     private float scaleFactor = 1.0f;
     private static final float MIN_SCALE = 0.5f;
     private static final float MAX_SCALE = 3.0f;
-
     private static final int MODE_NONE = 0;
     private static final int MODE_DRAG = 1;
     private static final int MODE_ZOOM = 2;
     private int mode = MODE_NONE;
-
     private final PointF startPoint = new PointF();
     private final PointF mid = new PointF();
     private float oldDist = 1f;
-
     private final Stack<CollageAction> undoStack = new Stack<>();
     private final Stack<CollageAction> redoStack = new Stack<>();
     private static final int MAX_STACK_SIZE = 20;
-
     private float initialX, initialY, initialScaleX, initialScaleY;
-
-    // Drawing related variables
     private DrawingPathView drawingPathView;
-
+    private InputTextView activeTextView;
     private boolean isDrawingMode = false;
     private final HashMap<View, Integer> viewZIndexMap = new HashMap<>();
     private int zIndexCounter = 0;
@@ -177,19 +173,17 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         drawingPathView.setLayoutParams(params);
+        drawingPathView.setColor(currentColor);
         drawingPathView.setTag("drawingLayer");
         drawingPathView.setDrawingEnabled(false);
 
-        // Remove any existing drawing layer
         View existingDrawingLayer = binding.collageArea.findViewWithTag("drawingLayer");
         if (existingDrawingLayer != null) {
             binding.collageArea.removeView(existingDrawingLayer);
-            // Remove from z-index map if it exists
             viewZIndexMap.remove(existingDrawingLayer);
         }
 
         viewZIndexMap.put(drawingPathView, zIndexCounter++);
-
         binding.collageArea.addView(drawingPathView);
     }
     private void setupButtonListeners() {
@@ -199,7 +193,7 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         binding.btnAddImage.setOnClickListener(v -> openGallery());
 
         binding.btnBrush.setOnClickListener(v -> toggleDrawingMode());
-        binding.btnText.setOnClickListener(v -> Toast.makeText(requireContext(), "Text feature coming soon", Toast.LENGTH_SHORT).show());
+        binding.btnText.setOnClickListener(v -> showTextInputDialog());
         binding.btnAddItem.setOnClickListener(v -> Toast.makeText(requireContext(), "Add item feature coming soon", Toast.LENGTH_SHORT).show());
         binding.btnGrid.setOnClickListener(v -> showMediaOptionsDialog());
 
@@ -222,9 +216,7 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
             disableImageSelection();
 
             if (drawingPathView != null) {
-                // When drawing mode is enabled, ensure drawing layer is on top
                 binding.collageArea.removeView(drawingPathView);
-                // Assign the highest z-index
                 viewZIndexMap.put(drawingPathView, zIndexCounter++);
                 binding.collageArea.addView(drawingPathView);
             }
@@ -238,13 +230,11 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
     }
 
     private void disableImageSelection() {
-        // Hide the active image selection if any
         if (activeImageView != null) {
             activeImageView.setBackgroundResource(0);
             activeImageView = null;
         }
 
-        // Disable touch events on images
         for (int i = 0; i < binding.collageArea.getChildCount(); i++) {
             View child = binding.collageArea.getChildAt(i);
             if (child instanceof ImageView && child.getTag() instanceof Uri) {
@@ -254,7 +244,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
     }
 
     private void enableImageSelection() {
-        // Re-enable touch events on images
         for (int i = 0; i < binding.collageArea.getChildCount(); i++) {
             View child = binding.collageArea.getChildAt(i);
             if (child instanceof ImageView && child.getTag() instanceof Uri) {
@@ -266,15 +255,13 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
     private void showBrushOptionsDialog() {
         final Dialog dialog = new Dialog(requireContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        // Create the dialog view programmatically
         LinearLayout layout = new LinearLayout(requireContext());
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(40, 40, 40, 40);
         layout.setBackgroundColor(Color.WHITE);
 
-        // Add title
         TextView titleText = new TextView(requireContext());
         titleText.setText(R.string.brush_options);
         titleText.setTextSize(18);
@@ -282,20 +269,17 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         titleText.setPadding(0, 0, 0, 20);
         layout.addView(titleText);
 
-        // Create basic colors section
         TextView basicColorsTitle = new TextView(requireContext());
         basicColorsTitle.setText(R.string.basic_colors);
         basicColorsTitle.setTextSize(14);
         layout.addView(basicColorsTitle);
 
-        // Basic color grid in horizontal scrollview
         HorizontalScrollView basicColorsScroll = new HorizontalScrollView(requireContext());
         LinearLayout basicColorsLayout = new LinearLayout(requireContext());
         basicColorsLayout.setOrientation(LinearLayout.HORIZONTAL);
         basicColorsScroll.addView(basicColorsLayout);
         layout.addView(basicColorsScroll);
 
-        // Add standard colors
         int[] basicColors = new int[]{
                 Color.BLACK, Color.DKGRAY, Color.GRAY, Color.LTGRAY, Color.WHITE,
                 Color.RED, Color.rgb(255, 128, 0), Color.YELLOW,
@@ -309,19 +293,17 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
             basicColorsLayout.addView(colorButton);
         }
 
-        // Add custom color picker section
         TextView customColorTitle = new TextView(requireContext());
         customColorTitle.setText(R.string.custom_color);
         customColorTitle.setTextSize(14);
         customColorTitle.setPadding(0, 20, 0, 10);
         layout.addView(customColorTitle);
 
-        // RGB sliders for custom color
         LinearLayout customColorLayout = new LinearLayout(requireContext());
         customColorLayout.setOrientation(LinearLayout.VERTICAL);
         layout.addView(customColorLayout);
 
-        final int[] rgb = new int[]{255, 0, 0}; // Initial red color
+        final int[] rgb = new int[]{255, 0, 0};
 
         final View colorPreview = new View(requireContext());
         LinearLayout.LayoutParams previewParams = new LinearLayout.LayoutParams(80, 80);
@@ -335,7 +317,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         colorPreview.setBackground(previewShape);
         customColorLayout.addView(colorPreview);
 
-        // RGB sliders
         String[] rgbLabels = {"Red", "Green", "Blue"};
         for (int i = 0; i < 3; i++) {
             final int index = i;
@@ -379,15 +360,12 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
             customColorLayout.addView(sliderRow);
         }
 
-
-        // Create stroke width section
         TextView strokeWidthTitle = new TextView(requireContext());
         strokeWidthTitle.setText(R.string.stroke_width);
         strokeWidthTitle.setTextSize(14);
         strokeWidthTitle.setPadding(0, 20, 0, 10);
         layout.addView(strokeWidthTitle);
 
-        // Add preview of current stroke width
         final View strokePreview = new View(requireContext());
         LinearLayout.LayoutParams strokePreviewParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 40);
@@ -398,7 +376,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         strokePreview.setBackground(strokeShape);
         layout.addView(strokePreview);
 
-        // Create stroke width slider
         SeekBar strokeWidthSeekBar = new SeekBar(requireContext());
         strokeWidthSeekBar.setMax(50);
         strokeWidthSeekBar.setProgress((int) currentStrokeWidth);
@@ -407,8 +384,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 currentStrokeWidth = Math.max(1, progress);
                 drawingPathView.setStrokeWidth(currentStrokeWidth);
-
-                // Update preview
                 ViewGroup.LayoutParams params = strokePreview.getLayoutParams();
                 params.height = (int) (currentStrokeWidth * 1.5);
                 strokePreview.setLayoutParams(params);
@@ -422,7 +397,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         });
         layout.addView(strokeWidthSeekBar);
 
-        // Done button
         Button doneButton = new Button(requireContext());
         doneButton.setText(R.string.done);
         LinearLayout.LayoutParams doneButtonParams = new LinearLayout.LayoutParams(
@@ -441,7 +415,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         dialog.show();
     }
 
-    // Helper method to create color selection buttons
     private ImageButton createColorButton(int color, final Dialog dialog) {
         ImageButton colorButton = new ImageButton(requireContext());
         LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(80, 80);
@@ -475,12 +448,10 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         dialog.show();
     }
 
-
-    // Cần check quyền camera
     private void openCamera() {
         File photoFile;
         try {
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
             File storageDir = requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
             photoFile = File.createTempFile(
                     "JPEG_" + timeStamp + "_",
@@ -501,12 +472,10 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
         takePictureLauncher.launch(photoURI);
     }
-    // Add this launcher to the class
     private final ActivityResultLauncher<Uri> takePictureLauncher = registerForActivityResult(
             new ActivityResultContracts.TakePicture(),
             result -> {
                 if (result) {
-                    // Photo was taken successfully
                     ImageView addedImage = addImageToCollage(currentPhotoUri);
                     addedImagesList.add(currentPhotoUri);
 
@@ -543,7 +512,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
         int imageSize = containerWidth / 2;
 
-        // Count only image views instead of all children
         int imageCount = 0;
         for (int i = 0; i < binding.collageArea.getChildCount(); i++) {
             View child = binding.collageArea.getChildAt(i);
@@ -561,11 +529,9 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setTag(imageUri);
 
-        // Assign the highest z-index to this new image
         int newZIndex = zIndexCounter++;
         viewZIndexMap.put(imageView, newZIndex);
 
-        // Simply add the view at the top - no need to reorder
         binding.collageArea.addView(imageView);
 
         Glide.with(requireContext()).load(imageUri).centerCrop().into(imageView);
@@ -661,7 +627,187 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
             }
         });
     }
+    private void showTextInputDialog() {
+        final Dialog dialog = new Dialog(requireContext(), R.style.FullScreenDialog);
+        dialog.setContentView(R.layout.dialog_text_input);
 
+        ImageButton btnClose = dialog.findViewById(R.id.btnClose);
+        Button btnDone = dialog.findViewById(R.id.btnDone);
+        EditText editTextInput = dialog.findViewById(R.id.editTextInput);
+        SeekBar sizeSeekBar = dialog.findViewById(R.id.sizeSeekBar);
+        TextView textSizeValue = dialog.findViewById(R.id.textSizeValue);
+        LinearLayout colorContainer = dialog.findViewById(R.id.colorContainer);
+
+        final int[] selectedColor = {Color.BLACK};
+        final int minTextSize = 12;
+        final int maxTextSize = 60;
+
+        int defaultSize = 24;
+        sizeSeekBar.setMax(maxTextSize - minTextSize);
+        sizeSeekBar.setProgress(defaultSize - minTextSize);
+        textSizeValue.setText(String.valueOf(defaultSize));
+
+        sizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int size = progress + minTextSize;
+                textSizeValue.setText(String.valueOf(size));
+                editTextInput.setTextSize(size);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        populateColorOptions(colorContainer, selectedColor, editTextInput);
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        btnDone.setOnClickListener(v -> {
+            String text = editTextInput.getText().toString().trim();
+            if (!text.isEmpty()) {
+                int textSize = sizeSeekBar.getProgress() + minTextSize;
+                addTextToCollage(text, selectedColor[0], textSize);
+                dialog.dismiss();
+            } else {
+                Toast.makeText(requireContext(), "Please enter text", Toast.LENGTH_SHORT).show();
+            }
+        });
+        editTextInput.requestFocus();
+        dialog.show();
+        Objects.requireNonNull(dialog.getWindow()).setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
+    private void populateColorOptions(LinearLayout container, final int[] selectedColor, final EditText editText) {
+        int[] colors = new int[] {
+                Color.BLACK, Color.WHITE, Color.RED, Color.GREEN, Color.BLUE,
+                Color.YELLOW, Color.CYAN, Color.MAGENTA, Color.DKGRAY, Color.GRAY,
+                Color.rgb(255, 165, 0),
+                Color.rgb(128, 0, 128),
+                Color.rgb(165, 42, 42),
+                Color.rgb(255, 192, 203),
+                Color.rgb(0, 128, 0)
+        };
+
+        final View[] selectedIndicator = {null};
+
+        for (int color : colors) {
+            View colorView = new View(requireContext());
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(60, 60);
+            params.setMargins(10, 0, 10, 0);
+            colorView.setLayoutParams(params);
+
+            GradientDrawable shape = new GradientDrawable();
+            shape.setShape(GradientDrawable.OVAL);
+            shape.setColor(color);
+            shape.setStroke(2, Color.DKGRAY);
+            colorView.setBackground(shape);
+
+            colorView.setOnClickListener(v -> {
+                selectedColor[0] = color;
+                editText.setTextColor(color);
+
+                if (selectedIndicator[0] != null) {
+                    ((GradientDrawable) selectedIndicator[0].getBackground()).setStroke(2, Color.DKGRAY);
+                }
+                ((GradientDrawable) v.getBackground()).setStroke(4, Color.parseColor("#E60023"));
+                selectedIndicator[0] = v;
+            });
+
+            if (color == Color.BLACK) {
+                ((GradientDrawable) colorView.getBackground()).setStroke(4, Color.parseColor("#E60023"));
+                selectedIndicator[0] = colorView;
+            }
+
+            container.addView(colorView);
+        }
+    }
+    private void addTextToCollage(String text, int color, int textSize) {
+        InputTextView textView = new InputTextView(requireContext());
+        textView.setText(text);
+        textView.setTextColor(color);
+        textView.setTextSize(textSize);
+
+        int containerWidth = binding.collageArea.getWidth();
+        int containerHeight = binding.collageArea.getHeight();
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT);
+
+        textView.setLayoutParams(params);
+
+        textView.setTouchActionListener(new InputTextView.OnTouchActionListener() {
+            @Override
+            public void onTouchAction(View view, float initialX, float initialY) {
+                recordTextTransformAction((InputTextView) view, initialX, initialY);
+            }
+
+            @Override
+            public void onSelected(InputTextView view) {
+                setActiveTextView(view);
+            }
+        });
+
+        binding.collageArea.addView(textView);
+
+        viewZIndexMap.put(textView, zIndexCounter++);
+
+        setActiveTextView(textView);
+
+        textView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        int viewWidth = textView.getMeasuredWidth();
+        int viewHeight = textView.getMeasuredHeight();
+
+        textView.setX((containerWidth - viewWidth) / 2f);
+        textView.setY((containerHeight - viewHeight) / 2f);
+
+        recordAddTextAction(textView);
+        binding.btnNext.setEnabled(true);
+    }
+
+    private void setActiveTextView(InputTextView textView) {
+        if (activeTextView != null && activeTextView != textView) {
+            activeTextView.setActive(false);
+        }
+
+        if (activeImageView != null) {
+            activeImageView.setBackgroundResource(0);
+            activeImageView = null;
+        }
+
+        activeTextView = textView;
+        activeTextView.setActive(true);
+    }
+
+    private void recordAddTextAction(InputTextView textView) {
+        CollageAction action = new CollageAction(
+                CollageActionType.ADD_TEXT,
+                textView,
+                null,
+                textView.getX(),
+                textView.getY(),
+                1.0f,
+                1.0f);
+
+        addToUndoStack(action);
+        redoStack.clear();
+        updateUndoRedoButtonStates();
+    }
+
+    private void recordTextTransformAction(InputTextView textView, float oldX, float oldY) {
+        CollageAction action = new CollageAction(
+                CollageActionType.TRANSFORM_TEXT,
+                textView,
+                oldX,
+                oldY,
+                0.0f,
+                0.0f);
+
+        addToUndoStack(action);
+        redoStack.clear();
+        updateUndoRedoButtonStates();
+    }
     private void recordAddImageAction(ImageView imageView, Uri imageUri) {
         CollageAction action = new CollageAction(CollageActionType.ADD_IMAGE, imageView, imageUri, 0, 0, 0, 0);
 
@@ -722,16 +868,40 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
                 drawingPathView.undoLastPath();
                 redoStack.push(action);
                 break;
+
+            case ADD_TEXT:
+                binding.collageArea.removeView(action.getTextView());
+
+                if (activeTextView == action.getTextView()) {
+                    activeTextView = null;
+                }
+
+                redoStack.push(action);
+                break;
+
+            case TRANSFORM_TEXT:
+                InputTextView textView = action.getTextView();
+                if (textView != null) {
+                    CollageAction textRedoAction = new CollageAction(
+                            CollageActionType.TRANSFORM_TEXT,
+                            textView,
+                            textView.getX(),
+                            textView.getY(),
+                            0.0f,
+                            0.0f);
+
+                    textView.setX(action.getOldX());
+                    textView.setY(action.getOldY());
+
+                    redoStack.push(textRedoAction);
+                }
+                break;
         }
 
-        // Ensure z-index ordering is maintained
         sortViewsByZIndex();
-
         updateUndoRedoButtonStates();
 
-        if (addedImagesList.isEmpty() && drawingPathView.isDrawingEnabled()) {
-            binding.btnNext.setEnabled(true);
-        } else if (addedImagesList.isEmpty()) {
+        if (addedImagesList.isEmpty() && !hasDrawings() && activeTextView == null) {
             binding.btnNext.setEnabled(false);
         }
     }
@@ -745,7 +915,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
         switch (action.getType()) {
             case ADD_IMAGE:
-                // Add with the original z-index
                 int zIndex = viewZIndexMap.getOrDefault(action.getImageView(), zIndexCounter++);
                 viewZIndexMap.put(action.getImageView(), zIndex);
                 binding.collageArea.addView(action.getImageView());
@@ -758,7 +927,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
             case TRANSFORM:
                 CollageAction undoAction = new CollageAction(CollageActionType.TRANSFORM, action.getImageView(), action.getImageUri(), action.getImageView().getX(), action.getImageView().getY(), action.getImageView().getScaleX(), action.getImageView().getScaleY());
-
                 action.getImageView().setX(action.getOldX());
                 action.getImageView().setY(action.getOldY());
                 action.getImageView().setScaleX(action.getOldScaleX());
@@ -771,11 +939,35 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
                 drawingPathView.redoPath(action.getDrawnPath());
                 undoStack.push(action);
                 break;
+
+            case ADD_TEXT:
+                int textZIndex = viewZIndexMap.getOrDefault(action.getTextView(), zIndexCounter++);
+                viewZIndexMap.put(action.getTextView(), textZIndex);
+                binding.collageArea.addView(action.getTextView());
+
+                binding.btnNext.setEnabled(true);
+
+                undoStack.push(action);
+                break;
+
+            case TRANSFORM_TEXT:
+                InputTextView textView = action.getTextView();
+                if (textView != null) {
+                    CollageAction textUndoAction = new CollageAction(
+                            CollageActionType.TRANSFORM_TEXT,
+                            textView,
+                            textView.getX(),
+                            textView.getY(),
+                            0.0f,
+                            0.0f);
+                    textView.setX(action.getOldX());
+                    textView.setY(action.getOldY());
+
+                    undoStack.push(textUndoAction);
+                }
+                break;
         }
-
-        // Ensure z-index ordering is maintained
         sortViewsByZIndex();
-
         updateUndoRedoButtonStates();
     }
 
@@ -827,7 +1019,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
     }
 
     private Bitmap createBitmapFromCollageArea() {
-        // Temporarily disable drawing mode for the export
         boolean wasDrawingEnabled = drawingPathView.isDrawingEnabled();
         drawingPathView.setDrawingEnabled(false);
 
@@ -856,9 +1047,7 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
             gridBackground.setVisibility(gridVisibility);
         }
 
-        // Restore drawing mode
         drawingPathView.setDrawingEnabled(wasDrawingEnabled);
-
         return bitmap;
     }
 
@@ -902,20 +1091,16 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         }
     }
 
-    // Method to check if there are any drawings
     private boolean hasDrawings() {
         return drawingPathView != null && drawingPathView.getLastPath() != null;
     }
     @SuppressLint("ClickableViewAccessibility")
-    // Override onResume to handle touch events properly when switching between fragments
     @Override
     public void onResume() {
         super.onResume();
-
         // Sắp xếp lại views theo z-index
         sortViewsByZIndex();
 
-        // Cài đặt listener cho drawing paths để ghi lại các hành động undo
         if (drawingPathView != null) {
             drawingPathView.setOnTouchListener((v, event) -> {
                 if (!isDrawingMode) {
@@ -932,7 +1117,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
                         redoStack.clear();
                         updateUndoRedoButtonStates();
 
-                        // Enable next button since we have content
                         binding.btnNext.setEnabled(true);
                     }
                 }
@@ -945,22 +1129,19 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         int childCount = binding.collageArea.getChildCount();
         ArrayList<View> sortedViews = new ArrayList<>();
 
-        // Collect all views
         for (int i = 0; i < childCount; i++) {
             sortedViews.add(binding.collageArea.getChildAt(i));
         }
 
-        // Sort views by z-index
-        Collections.sort(sortedViews, (v1, v2) -> {
+        sortedViews.sort((v1, v2) -> {
             Integer z1 = viewZIndexMap.getOrDefault(v1, 0);
             Integer z2 = viewZIndexMap.getOrDefault(v2, 0);
+            if (z1 == null) z1 = 0;
+            if (z2 == null) z2 = 0;
             return z1.compareTo(z2);
         });
 
-        // Clear the container
         binding.collageArea.removeAllViews();
-
-        // Add views back in the sorted order
         for (View view : sortedViews) {
             binding.collageArea.addView(view);
         }

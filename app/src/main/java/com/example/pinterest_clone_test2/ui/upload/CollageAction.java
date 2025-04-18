@@ -6,6 +6,7 @@ import android.widget.ImageView;
 public class CollageAction {
     private final CollageActionType type;
     private final ImageView imageView;
+    private InputTextView textView;
     private final Uri imageUri;
     private final float oldX;
     private final float oldY;
@@ -29,6 +30,7 @@ public class CollageAction {
         this.oldScaleX = oldScaleX;
         this.oldScaleY = oldScaleY;
         this.drawnPath = null;
+        this.textView = null;
     }
 
     CollageAction(
@@ -42,6 +44,44 @@ public class CollageAction {
         this.oldScaleX = 0;
         this.oldScaleY = 0;
         this.drawnPath = drawnPath;
+        this.textView = null;
+    }
+
+    CollageAction(
+            CollageActionType type,
+            InputTextView textView,
+            Uri imageUri,
+            float oldX,
+            float oldY,
+            float oldScaleX,
+            float oldScaleY) {
+        this.type = type;
+        this.textView = textView;
+        this.imageView = null;
+        this.imageUri = imageUri;
+        this.oldX = oldX;
+        this.oldY = oldY;
+        this.oldScaleX = oldScaleX;
+        this.oldScaleY = oldScaleY;
+        this.drawnPath = null;
+    }
+
+    CollageAction(
+            CollageActionType type,
+            InputTextView textView,
+            float oldX,
+            float oldY,
+            float oldScaleX,
+            float oldScaleY) {
+        this.type = type;
+        this.textView = textView;
+        this.imageView = null;
+        this.imageUri = null;
+        this.oldX = oldX;
+        this.oldY = oldY;
+        this.oldScaleX = oldScaleX;
+        this.oldScaleY = oldScaleY;
+        this.drawnPath = null;
     }
 
     public CollageActionType getType() {
@@ -50,6 +90,10 @@ public class CollageAction {
 
     public ImageView getImageView() {
         return imageView;
+    }
+
+    public InputTextView getTextView() {
+        return textView;
     }
 
     public Uri getImageUri() {
@@ -74,5 +118,9 @@ public class CollageAction {
 
     public DrawingPathView.DrawnPath getDrawnPath() {
         return drawnPath;
+    }
+
+    public void setTextView(InputTextView textView) {
+        this.textView = textView;
     }
 }

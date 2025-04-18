@@ -43,12 +43,10 @@ public class DrawingPathView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // Draw all saved paths
         for (DrawnPath drawnPath : paths) {
             canvas.drawPath(drawnPath.path, drawnPath.paint);
         }
 
-        // Draw current path
         if (isDrawingEnabled) {
             canvas.drawPath(currentPath, paint);
         }
@@ -93,7 +91,6 @@ public class DrawingPathView extends View {
         float dy = Math.abs(y - currentY);
 
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-            // quadTo makes a smoother line
             currentPath.quadTo(currentX, currentY, (x + currentX) / 2, (y + currentY) / 2);
             currentX = x;
             currentY = y;
@@ -102,10 +99,8 @@ public class DrawingPathView extends View {
 
     private void touchUp() {
         currentPath.lineTo(currentX, currentY);
-        // Save the drawn path
         DrawnPath drawnPath = new DrawnPath(new Path(currentPath), new Paint(paint));
         paths.add(drawnPath);
-        // Reset the current path
         currentPath.reset();
     }
 

@@ -180,4 +180,8 @@
     <string name="custom_color">Custom Color</string>
     <string name="camera">Camera</string>
     <string name="collage_tools">Collage Tools</string>
+    <string name="enter_text">Enter text</string>
+    <string name="text_color">Text color</string>
+    <string name="text_size">Text size</string>
+    <string name="default_size">24</string>
 </resources>

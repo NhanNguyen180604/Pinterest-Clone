@@ -185,4 +185,8 @@
     <string name="custom_color">Màu tùy chỉnh</string>
     <string name="camera">Máy ảnh</string>
     <string name="collage_tools">Công cụ</string>
+    <string name="enter_text">Nhập điều bạn muốn thêm</string>
+    <string name="text_color">Màu chữ</string>
+    <string name="text_size">Cỡ chữ</string>
+    <string name="default_size">24</string>
 </resources>
