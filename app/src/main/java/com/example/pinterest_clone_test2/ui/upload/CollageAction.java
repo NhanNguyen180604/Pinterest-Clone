@@ -11,6 +11,7 @@ public class CollageAction {
     private final float oldY;
     private final float oldScaleX;
     private final float oldScaleY;
+    private final DrawingPathView.DrawnPath drawnPath;
 
     CollageAction(
             CollageActionType type,
@@ -27,6 +28,20 @@ public class CollageAction {
         this.oldY = oldY;
         this.oldScaleX = oldScaleX;
         this.oldScaleY = oldScaleY;
+        this.drawnPath = null;
+    }
+
+    CollageAction(
+            CollageActionType type,
+            DrawingPathView.DrawnPath drawnPath) {
+        this.type = type;
+        this.imageView = null;
+        this.imageUri = null;
+        this.oldX = 0;
+        this.oldY = 0;
+        this.oldScaleX = 0;
+        this.oldScaleY = 0;
+        this.drawnPath = drawnPath;
     }
 
     public CollageActionType getType() {
@@ -55,5 +70,9 @@ public class CollageAction {
 
     public float getOldScaleY() {
         return oldScaleY;
+    }
+
+    public DrawingPathView.DrawnPath getDrawnPath() {
+        return drawnPath;
     }
 }

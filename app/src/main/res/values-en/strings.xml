@@ -173,4 +173,11 @@
     <string name="no_pin_id">Empty pin ID</string>
     <string name="unknown_error">Unknown error</string>
     <string name="create_collage">Create collage</string>
+    <string name="stroke_width">Stroke Width</string>
+    <string name="brush_options">Brush Options</string>
+    <string name="basic_colors">Basic Colors</string>
+    <string name="done">Done</string>
+    <string name="custom_color">Custom Color</string>
+    <string name="camera">Camera</string>
+    <string name="collage_tools">Collage Tools</string>
 </resources>

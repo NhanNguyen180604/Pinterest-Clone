@@ -1,24 +1,35 @@
 package com.example.pinterest_clone_test2.ui.upload;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Shader;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -26,18 +37,25 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.UploadActivity;
 import com.example.pinterest_clone_test2.databinding.FragmentUploadCollageBinding;
 import com.example.pinterest_clone_test2.interfaces.ScaleListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -57,15 +75,25 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
     private static final int MODE_ZOOM = 2;
     private int mode = MODE_NONE;
 
-    private PointF startPoint = new PointF();
-    private PointF mid = new PointF();
+    private final PointF startPoint = new PointF();
+    private final PointF mid = new PointF();
     private float oldDist = 1f;
 
-    private Stack<CollageAction> undoStack = new Stack<>();
-    private Stack<CollageAction> redoStack = new Stack<>();
+    private final Stack<CollageAction> undoStack = new Stack<>();
+    private final Stack<CollageAction> redoStack = new Stack<>();
     private static final int MAX_STACK_SIZE = 20;
 
     private float initialX, initialY, initialScaleX, initialScaleY;
+
+    // Drawing related variables
+    private DrawingPathView drawingPathView;
+
+    private boolean isDrawingMode = false;
+    private final HashMap<View, Integer> viewZIndexMap = new HashMap<>();
+    private int zIndexCounter = 0;
+    private int currentColor = Color.BLACK;
+    private float currentStrokeWidth = 8f;
+    private Uri currentPhotoUri;
 
     public UploadCollageFragment() {
     }
@@ -89,12 +117,13 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         addedImagesList = new ArrayList<>();
         scaleGestureDetector = new ScaleGestureDetector(requireContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
-            public boolean onScale(ScaleGestureDetector detector) {
+            public boolean onScale(@NonNull ScaleGestureDetector detector) {
                 return UploadCollageFragment.this.onScale(detector, activeImageView, MIN_SCALE, MAX_SCALE);
             }
         });
         setupCollageArea();
         setupButtonListeners();
+        setupDrawingLayer();
         updateUndoRedoButtonStates();
     }
 
@@ -142,16 +171,37 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         binding.collageArea.addView(gridBackground, 0);
     }
 
+    private void setupDrawingLayer() {
+        drawingPathView = new DrawingPathView(requireContext());
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        drawingPathView.setLayoutParams(params);
+        drawingPathView.setTag("drawingLayer");
+        drawingPathView.setDrawingEnabled(false);
+
+        // Remove any existing drawing layer
+        View existingDrawingLayer = binding.collageArea.findViewWithTag("drawingLayer");
+        if (existingDrawingLayer != null) {
+            binding.collageArea.removeView(existingDrawingLayer);
+            // Remove from z-index map if it exists
+            viewZIndexMap.remove(existingDrawingLayer);
+        }
+
+        viewZIndexMap.put(drawingPathView, zIndexCounter++);
+
+        binding.collageArea.addView(drawingPathView);
+    }
     private void setupButtonListeners() {
         binding.btnExit.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
         binding.btnNext.setOnClickListener(v -> saveAndProceed());
 
         binding.btnAddImage.setOnClickListener(v -> openGallery());
 
-        binding.btnBrush.setOnClickListener(v -> Toast.makeText(requireContext(), "Brush feature coming soon", Toast.LENGTH_SHORT).show());
+        binding.btnBrush.setOnClickListener(v -> toggleDrawingMode());
         binding.btnText.setOnClickListener(v -> Toast.makeText(requireContext(), "Text feature coming soon", Toast.LENGTH_SHORT).show());
         binding.btnAddItem.setOnClickListener(v -> Toast.makeText(requireContext(), "Add item feature coming soon", Toast.LENGTH_SHORT).show());
-        binding.btnGrid.setOnClickListener(v -> Toast.makeText(requireContext(), "Grid feature coming soon", Toast.LENGTH_SHORT).show());
+        binding.btnGrid.setOnClickListener(v -> showMediaOptionsDialog());
 
         binding.btnUndo.setOnClickListener(v -> performUndo());
         binding.btnRedo.setOnClickListener(v -> performRedo());
@@ -162,6 +212,312 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         binding.btnRedo.setEnabled(false);
     }
 
+    private void toggleDrawingMode() {
+        isDrawingMode = !isDrawingMode;
+        drawingPathView.setDrawingEnabled(isDrawingMode);
+
+        if (isDrawingMode) {
+            binding.btnBrush.setBackgroundResource(R.drawable.red_button_pinterest);
+            showBrushOptionsDialog();
+            disableImageSelection();
+
+            if (drawingPathView != null) {
+                // When drawing mode is enabled, ensure drawing layer is on top
+                binding.collageArea.removeView(drawingPathView);
+                // Assign the highest z-index
+                viewZIndexMap.put(drawingPathView, zIndexCounter++);
+                binding.collageArea.addView(drawingPathView);
+            }
+        } else {
+            binding.btnBrush.setBackground(null);
+            TypedValue outValue = new TypedValue();
+            requireContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+            binding.btnBrush.setBackgroundResource(outValue.resourceId);
+            enableImageSelection();
+        }
+    }
+
+    private void disableImageSelection() {
+        // Hide the active image selection if any
+        if (activeImageView != null) {
+            activeImageView.setBackgroundResource(0);
+            activeImageView = null;
+        }
+
+        // Disable touch events on images
+        for (int i = 0; i < binding.collageArea.getChildCount(); i++) {
+            View child = binding.collageArea.getChildAt(i);
+            if (child instanceof ImageView && child.getTag() instanceof Uri) {
+                child.setOnTouchListener(null);
+            }
+        }
+    }
+
+    private void enableImageSelection() {
+        // Re-enable touch events on images
+        for (int i = 0; i < binding.collageArea.getChildCount(); i++) {
+            View child = binding.collageArea.getChildAt(i);
+            if (child instanceof ImageView && child.getTag() instanceof Uri) {
+                setupDraggableZoomableImage((ImageView) child);
+            }
+        }
+    }
+
+    private void showBrushOptionsDialog() {
+        final Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Create the dialog view programmatically
+        LinearLayout layout = new LinearLayout(requireContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(40, 40, 40, 40);
+        layout.setBackgroundColor(Color.WHITE);
+
+        // Add title
+        TextView titleText = new TextView(requireContext());
+        titleText.setText(R.string.brush_options);
+        titleText.setTextSize(18);
+        titleText.setTypeface(null, Typeface.BOLD);
+        titleText.setPadding(0, 0, 0, 20);
+        layout.addView(titleText);
+
+        // Create basic colors section
+        TextView basicColorsTitle = new TextView(requireContext());
+        basicColorsTitle.setText(R.string.basic_colors);
+        basicColorsTitle.setTextSize(14);
+        layout.addView(basicColorsTitle);
+
+        // Basic color grid in horizontal scrollview
+        HorizontalScrollView basicColorsScroll = new HorizontalScrollView(requireContext());
+        LinearLayout basicColorsLayout = new LinearLayout(requireContext());
+        basicColorsLayout.setOrientation(LinearLayout.HORIZONTAL);
+        basicColorsScroll.addView(basicColorsLayout);
+        layout.addView(basicColorsScroll);
+
+        // Add standard colors
+        int[] basicColors = new int[]{
+                Color.BLACK, Color.DKGRAY, Color.GRAY, Color.LTGRAY, Color.WHITE,
+                Color.RED, Color.rgb(255, 128, 0), Color.YELLOW,
+                Color.GREEN, Color.CYAN, Color.BLUE, Color.MAGENTA,
+                Color.rgb(128, 0, 0), Color.rgb(128, 64, 0), Color.rgb(128, 128, 0),
+                Color.rgb(0, 128, 0), Color.rgb(0, 128, 128), Color.rgb(0, 0, 128), Color.rgb(128, 0, 128)
+        };
+
+        for (int color : basicColors) {
+            ImageButton colorButton = createColorButton(color, dialog);
+            basicColorsLayout.addView(colorButton);
+        }
+
+        // Add custom color picker section
+        TextView customColorTitle = new TextView(requireContext());
+        customColorTitle.setText(R.string.custom_color);
+        customColorTitle.setTextSize(14);
+        customColorTitle.setPadding(0, 20, 0, 10);
+        layout.addView(customColorTitle);
+
+        // RGB sliders for custom color
+        LinearLayout customColorLayout = new LinearLayout(requireContext());
+        customColorLayout.setOrientation(LinearLayout.VERTICAL);
+        layout.addView(customColorLayout);
+
+        final int[] rgb = new int[]{255, 0, 0}; // Initial red color
+
+        final View colorPreview = new View(requireContext());
+        LinearLayout.LayoutParams previewParams = new LinearLayout.LayoutParams(80, 80);
+        previewParams.gravity = Gravity.CENTER_HORIZONTAL;
+        previewParams.bottomMargin = 20;
+        colorPreview.setLayoutParams(previewParams);
+        GradientDrawable previewShape = new GradientDrawable();
+        previewShape.setShape(GradientDrawable.OVAL);
+        previewShape.setColor(Color.rgb(rgb[0], rgb[1], rgb[2]));
+        previewShape.setStroke(2, Color.BLACK);
+        colorPreview.setBackground(previewShape);
+        customColorLayout.addView(colorPreview);
+
+        // RGB sliders
+        String[] rgbLabels = {"Red", "Green", "Blue"};
+        for (int i = 0; i < 3; i++) {
+            final int index = i;
+            LinearLayout sliderRow = new LinearLayout(requireContext());
+            sliderRow.setOrientation(LinearLayout.HORIZONTAL);
+
+            TextView label = new TextView(requireContext());
+            label.setText(rgbLabels[i]);
+            label.setMinWidth(60);
+            sliderRow.addView(label);
+
+            SeekBar rgbSeekBar = new SeekBar(requireContext());
+            rgbSeekBar.setMax(255);
+            rgbSeekBar.setProgress(rgb[i]);
+            rgbSeekBar.setLayoutParams(new LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+
+            final TextView valueText = new TextView(requireContext());
+            valueText.setText(String.valueOf(rgb[i]));
+            valueText.setMinWidth(40);
+
+            rgbSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    rgb[index] = progress;
+                    valueText.setText(String.valueOf(progress));
+                    int newColor = Color.rgb(rgb[0], rgb[1], rgb[2]);
+                    ((GradientDrawable) colorPreview.getBackground()).setColor(newColor);
+                    colorPreview.invalidate();
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+
+            sliderRow.addView(rgbSeekBar);
+            sliderRow.addView(valueText);
+            customColorLayout.addView(sliderRow);
+        }
+
+
+        // Create stroke width section
+        TextView strokeWidthTitle = new TextView(requireContext());
+        strokeWidthTitle.setText(R.string.stroke_width);
+        strokeWidthTitle.setTextSize(14);
+        strokeWidthTitle.setPadding(0, 20, 0, 10);
+        layout.addView(strokeWidthTitle);
+
+        // Add preview of current stroke width
+        final View strokePreview = new View(requireContext());
+        LinearLayout.LayoutParams strokePreviewParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 40);
+        strokePreview.setLayoutParams(strokePreviewParams);
+        GradientDrawable strokeShape = new GradientDrawable();
+        strokeShape.setShape(GradientDrawable.RECTANGLE);
+        strokeShape.setColor(Color.BLACK);
+        strokePreview.setBackground(strokeShape);
+        layout.addView(strokePreview);
+
+        // Create stroke width slider
+        SeekBar strokeWidthSeekBar = new SeekBar(requireContext());
+        strokeWidthSeekBar.setMax(50);
+        strokeWidthSeekBar.setProgress((int) currentStrokeWidth);
+        strokeWidthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                currentStrokeWidth = Math.max(1, progress);
+                drawingPathView.setStrokeWidth(currentStrokeWidth);
+
+                // Update preview
+                ViewGroup.LayoutParams params = strokePreview.getLayoutParams();
+                params.height = (int) (currentStrokeWidth * 1.5);
+                strokePreview.setLayoutParams(params);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        layout.addView(strokeWidthSeekBar);
+
+        // Done button
+        Button doneButton = new Button(requireContext());
+        doneButton.setText(R.string.done);
+        LinearLayout.LayoutParams doneButtonParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        doneButtonParams.topMargin = 20;
+        doneButton.setLayoutParams(doneButtonParams);
+        doneButton.setOnClickListener(v ->{
+                int customColor = Color.rgb(rgb[0], rgb[1], rgb[2]);
+                currentColor = customColor;
+                drawingPathView.setColor(customColor);
+                dialog.dismiss();
+                });
+        layout.addView(doneButton);
+
+        dialog.setContentView(layout);
+        dialog.show();
+    }
+
+    // Helper method to create color selection buttons
+    private ImageButton createColorButton(int color, final Dialog dialog) {
+        ImageButton colorButton = new ImageButton(requireContext());
+        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(80, 80);
+        buttonParams.setMargins(10, 10, 10, 10);
+        colorButton.setLayoutParams(buttonParams);
+
+        GradientDrawable shape = new GradientDrawable();
+        shape.setShape(GradientDrawable.OVAL);
+        shape.setColor(color);
+        shape.setStroke(2, Color.BLACK);
+        colorButton.setBackground(shape);
+
+        colorButton.setOnClickListener(v -> {
+            currentColor = color;
+            drawingPathView.setColor(color);
+            dialog.dismiss();
+        });
+
+        return colorButton;
+    }
+    private void showMediaOptionsDialog() {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialog);
+        dialog.setContentView(R.layout.dialog_media_options);
+
+        ImageButton btnCamera = dialog.findViewById(R.id.btnCamera);
+        if (btnCamera != null) btnCamera.setOnClickListener(v -> {
+            openCamera();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+
+    // Cần check quyền camera
+    private void openCamera() {
+        File photoFile;
+        try {
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            File storageDir = requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
+            photoFile = File.createTempFile(
+                    "JPEG_" + timeStamp + "_",
+                    ".jpg",
+                    storageDir
+            );
+
+            currentPhotoUri = Uri.fromFile(photoFile);
+        } catch (IOException ex) {
+            Toast.makeText(requireContext(), "Error creating image file", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Uri photoURI = FileProvider.getUriForFile(
+                requireContext(),
+                requireContext().getPackageName() + ".fileprovider",
+                photoFile);
+
+        takePictureLauncher.launch(photoURI);
+    }
+    // Add this launcher to the class
+    private final ActivityResultLauncher<Uri> takePictureLauncher = registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
+            result -> {
+                if (result) {
+                    // Photo was taken successfully
+                    ImageView addedImage = addImageToCollage(currentPhotoUri);
+                    addedImagesList.add(currentPhotoUri);
+
+                    recordAddImageAction(addedImage, currentPhotoUri);
+
+                    binding.btnNext.setEnabled(true);
+                    redoStack.clear();
+                    updateUndoRedoButtonStates();
+                }
+            }
+    );
     private void openGallery() {
         photoPickerLauncher.launch(new PickVisualMediaRequest.Builder().setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build());
     }
@@ -187,8 +543,15 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
         int imageSize = containerWidth / 2;
 
-        int childCount = binding.collageArea.getChildCount();
-        int offset = childCount * 20;
+        // Count only image views instead of all children
+        int imageCount = 0;
+        for (int i = 0; i < binding.collageArea.getChildCount(); i++) {
+            View child = binding.collageArea.getChildAt(i);
+            if (child instanceof ImageView && child.getTag() instanceof Uri) {
+                imageCount++;
+            }
+        }
+        int offset = imageCount * 20;
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(imageSize, imageSize);
         params.leftMargin = 40 + (offset % (containerWidth - imageSize - 40));
@@ -198,18 +561,26 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setTag(imageUri);
 
-        Glide.with(requireContext()).load(imageUri).centerCrop().into(imageView);
+        // Assign the highest z-index to this new image
+        int newZIndex = zIndexCounter++;
+        viewZIndexMap.put(imageView, newZIndex);
 
-        setupDraggableZoomableImage(imageView);
+        // Simply add the view at the top - no need to reorder
         binding.collageArea.addView(imageView);
+
+        Glide.with(requireContext()).load(imageUri).centerCrop().into(imageView);
+        setupDraggableZoomableImage(imageView);
         setActiveImage(imageView);
 
         return imageView;
     }
-
     @SuppressLint("ClickableViewAccessibility")
     private void setupDraggableZoomableImage(ImageView imageView) {
         imageView.setOnTouchListener((v, event) -> {
+            if (isDrawingMode) {
+                return false;
+            }
+
             if (v != activeImageView) {
                 setActiveImage((ImageView) v);
             }
@@ -220,7 +591,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
                     mode = MODE_DRAG;
                     dX = v.getX() - event.getRawX();
                     dY = v.getY() - event.getRawY();
-                    v.bringToFront();
                     startPoint.set(event.getX(), event.getY());
 
                     initialX = v.getX();
@@ -229,7 +599,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
                     initialScaleY = v.getScaleY();
 
                     return true;
-
                 case MotionEvent.ACTION_POINTER_DOWN:
                     mode = MODE_ZOOM;
                     oldDist = spacing(event);
@@ -258,8 +627,7 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
                         float newDist = spacing(event);
                         if (newDist > 10f) {
                             float scale = newDist / oldDist;
-                            Matrix matrix = new Matrix();
-                            float currentScale = ((ImageView) v).getScaleX();
+                            float currentScale = v.getScaleX();
                             float newScale = currentScale * scale;
 
                             if (newScale > MIN_SCALE && newScale < MAX_SCALE) {
@@ -306,6 +674,11 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         addToUndoStack(action);
     }
 
+    private void recordDrawPathAction(DrawingPathView.DrawnPath drawnPath) {
+        CollageAction action = new CollageAction(CollageActionType.DRAW_PATH, drawnPath);
+        addToUndoStack(action);
+    }
+
     private void addToUndoStack(CollageAction action) {
         if (undoStack.size() >= MAX_STACK_SIZE) {
             undoStack.remove(0);
@@ -331,7 +704,6 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
                     activeImageView = null;
                 }
 
-
                 redoStack.push(action);
                 break;
 
@@ -345,11 +717,21 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
                 redoStack.push(redoAction);
                 break;
+
+            case DRAW_PATH:
+                drawingPathView.undoLastPath();
+                redoStack.push(action);
+                break;
         }
+
+        // Ensure z-index ordering is maintained
+        sortViewsByZIndex();
 
         updateUndoRedoButtonStates();
 
-        if (addedImagesList.isEmpty()) {
+        if (addedImagesList.isEmpty() && drawingPathView.isDrawingEnabled()) {
+            binding.btnNext.setEnabled(true);
+        } else if (addedImagesList.isEmpty()) {
             binding.btnNext.setEnabled(false);
         }
     }
@@ -363,6 +745,9 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
         switch (action.getType()) {
             case ADD_IMAGE:
+                // Add with the original z-index
+                int zIndex = viewZIndexMap.getOrDefault(action.getImageView(), zIndexCounter++);
+                viewZIndexMap.put(action.getImageView(), zIndex);
                 binding.collageArea.addView(action.getImageView());
                 addedImagesList.add(action.getImageUri());
 
@@ -381,7 +766,15 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
                 undoStack.push(undoAction);
                 break;
+
+            case DRAW_PATH:
+                drawingPathView.redoPath(action.getDrawnPath());
+                undoStack.push(action);
+                break;
         }
+
+        // Ensure z-index ordering is maintained
+        sortViewsByZIndex();
 
         updateUndoRedoButtonStates();
     }
@@ -434,6 +827,9 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
     }
 
     private Bitmap createBitmapFromCollageArea() {
+        // Temporarily disable drawing mode for the export
+        boolean wasDrawingEnabled = drawingPathView.isDrawingEnabled();
+        drawingPathView.setDrawingEnabled(false);
 
         if (activeImageView != null) {
             activeImageView.setBackgroundResource(0);
@@ -460,6 +856,9 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
             gridBackground.setVisibility(gridVisibility);
         }
 
+        // Restore drawing mode
+        drawingPathView.setDrawingEnabled(wasDrawingEnabled);
+
         return bitmap;
     }
 
@@ -485,8 +884,8 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
     }
 
     private void saveAndProceed() {
-        if (addedImagesList.isEmpty()) {
-            Toast.makeText(requireContext(), "Please add at least one image to the collage", Toast.LENGTH_SHORT).show();
+        if (addedImagesList.isEmpty() && !hasDrawings()) {
+            Toast.makeText(requireContext(), "Please add at least one image or drawing to the collage", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -500,6 +899,70 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
             }
         } else {
             Toast.makeText(requireContext(), "Failed to create collage", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Method to check if there are any drawings
+    private boolean hasDrawings() {
+        return drawingPathView != null && drawingPathView.getLastPath() != null;
+    }
+    @SuppressLint("ClickableViewAccessibility")
+    // Override onResume to handle touch events properly when switching between fragments
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Sắp xếp lại views theo z-index
+        sortViewsByZIndex();
+
+        // Cài đặt listener cho drawing paths để ghi lại các hành động undo
+        if (drawingPathView != null) {
+            drawingPathView.setOnTouchListener((v, event) -> {
+                if (!isDrawingMode) {
+                    return false;
+                }
+
+                boolean handled = drawingPathView.onTouchEvent(event);
+
+                // Ghi lại hành động vẽ khi ngón tay được nhấc lên
+                if (handled && event.getAction() == MotionEvent.ACTION_UP) {
+                    DrawingPathView.DrawnPath lastPath = drawingPathView.getLastPath();
+                    if (lastPath != null) {
+                        recordDrawPathAction(lastPath);
+                        redoStack.clear();
+                        updateUndoRedoButtonStates();
+
+                        // Enable next button since we have content
+                        binding.btnNext.setEnabled(true);
+                    }
+                }
+
+                return handled;
+            });
+        }
+    }
+    private void sortViewsByZIndex() {
+        int childCount = binding.collageArea.getChildCount();
+        ArrayList<View> sortedViews = new ArrayList<>();
+
+        // Collect all views
+        for (int i = 0; i < childCount; i++) {
+            sortedViews.add(binding.collageArea.getChildAt(i));
+        }
+
+        // Sort views by z-index
+        Collections.sort(sortedViews, (v1, v2) -> {
+            Integer z1 = viewZIndexMap.getOrDefault(v1, 0);
+            Integer z2 = viewZIndexMap.getOrDefault(v2, 0);
+            return z1.compareTo(z2);
+        });
+
+        // Clear the container
+        binding.collageArea.removeAllViews();
+
+        // Add views back in the sorted order
+        for (View view : sortedViews) {
+            binding.collageArea.addView(view);
         }
     }
 }

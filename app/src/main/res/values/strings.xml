@@ -178,4 +178,11 @@
     <string name="unknown_error">Đã có lỗi không rõ nguyên nhân</string>
     <string name="pin_deep_link_string_template" translatable="false">https://open.my.pinterest-clone/shared-pin/?pinId=%s</string>
     <string name="create_collage">Tạo ảnh ghép</string>
+    <string name="stroke_width">Độ rộng nét bút</string>
+    <string name="brush_options">Cài đặt bút vẽ</string>
+    <string name="basic_colors">Màu cơ bản</string>
+    <string name="done">Xác nhận</string>
+    <string name="custom_color">Màu tùy chỉnh</string>
+    <string name="camera">Máy ảnh</string>
+    <string name="collage_tools">Công cụ</string>
 </resources>
