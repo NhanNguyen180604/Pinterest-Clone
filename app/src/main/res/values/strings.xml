@@ -240,4 +240,5 @@
     <string name="landscape">phong cảnh</string>
     <string name="music">âm nhạc</string>
     <string name="science">khoa học</string>
+    <string name="search_pinterest_hint">Tìm kiếm trên Pinterest</string>
 </resources>

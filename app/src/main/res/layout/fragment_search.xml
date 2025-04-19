@@ -42,7 +42,7 @@
             android:id="@+id/inner_search_view_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded_text_input_background"
+            android:background="@drawable/search_input_background"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_search_cancel"
             app:layout_constraintHorizontal_bias="0.5"

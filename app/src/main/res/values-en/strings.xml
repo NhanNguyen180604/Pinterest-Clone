@@ -234,4 +234,5 @@
     <string name="landscape">landscape</string>
     <string name="music">music</string>
     <string name="science">science</string>
+    <string name="search_pinterest_hint">Search Pinterest</string>
 </resources>

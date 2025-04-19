@@ -19,9 +19,11 @@
     <color name="dark_grey">#555555</color>
     <color name="blue_facebook">#1877F2</color>
     <color name="colorRed">#E53935</color>
+    <color name="light_gray">#ADADAD</color>
     <color name="colorAccent">#E53935</color>
     <color name="gray_transparent">#aac7c7c7</color>
     <color name="colorBrown">#3B1A22</color>
     <color name="searchBoxBg">#FFF2D9</color>
     <color name="bgCream">#FFFCF5</color>
+    <color name="light_red_pinterest">#20E60023</color>
 </resources>

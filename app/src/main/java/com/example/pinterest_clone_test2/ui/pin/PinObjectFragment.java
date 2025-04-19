@@ -183,11 +183,16 @@ public class PinObjectFragment extends Fragment {
     void fetchPinsFirstTime() {
         isFetchingRelevantPinIds = true;
         isFetchingFirstTime = true;
+        binding.progressBar.setVisibility(View.VISIBLE);
         Thread thread = new Thread(() -> FirebasePinService.getRelevantPinIdsByTags(pin, pinIds -> {
             relevantPinIds = pinIds;
             page = 1;
             setTotalPageCount();
             isFetchingRelevantPinIds = false;
+            if (pinIds.isEmpty()){
+                binding.progressBar.setVisibility(View.GONE);
+                return;
+            }
             fetchRelevantPinsAsync();
         }));
         thread.start();
@@ -265,6 +270,7 @@ public class PinObjectFragment extends Fragment {
 
         isFetchingRelevantPins = false;
         isFetchingFirstTime = false;
+        binding.progressBar.setVisibility(View.GONE);
     }
 
     // use this to check if this pin is saved inside a board

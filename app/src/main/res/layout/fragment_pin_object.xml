@@ -141,7 +141,7 @@
                         android:layout_height="40dp"
                         android:layout_marginHorizontal="8dp"
                         android:background="@null"
-                        android:src="@drawable/ic_chat"
+                        android:src="@drawable/ic_speech_bubble_no_dot"
                         android:visibility="@{pinViewModel.commentVisibility}"
                         app:layout_constraintBottom_toBottomOf="@id/btn_save"
                         app:layout_constraintStart_toEndOf="@id/tv_like_count"
@@ -216,10 +216,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="@{pinViewModel.name}"
-                        android:visibility="@{pinViewModel.titleVisibility}"
                         android:textColor="@color/black"
                         android:textSize="20sp"
                         android:textStyle="bold"
+                        android:visibility="@{pinViewModel.titleVisibility}"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/iv_author_avatar" />
 
@@ -228,10 +228,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@{pinViewModel.description}"
-                        android:visibility="@{pinViewModel.descriptionVisibility}"
                         android:textColor="@color/black"
                         android:textSize="16sp"
                         android:textStyle="normal"
+                        android:visibility="@{pinViewModel.descriptionVisibility}"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tv_pin_title" />
 
@@ -249,6 +249,15 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="@style/PinterestProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_relevant"
