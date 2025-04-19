@@ -61,11 +61,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/grey_text_box"
+                    android:shadowColor="@android:color/transparent"
                     android:src="@drawable/ic_add_new_pin"
                     app:borderWidth="0dp"
+                    app:fabCustomSize="36dp"
+                    android:layout_marginBottom="4dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:maxImageSize="44dp"
                     tools:ignore="ContentDescription" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -186,6 +188,7 @@
 
             <ProgressBar
                 android:id="@+id/progress_bar"
+                style="@style/PinterestProgressBar"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 app:layout_constraintBottom_toBottomOf="parent"

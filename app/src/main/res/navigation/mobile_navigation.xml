@@ -9,4 +9,5 @@
     <include app:graph="@navigation/nav_upload_tab" />
 <!--    <include app:graph="@navigation/nav_notifications_tab" />-->
     <include app:graph="@navigation/nav_account_tab" />
+    <include app:graph="@navigation/nav_notifications_tab" />
 </navigation>

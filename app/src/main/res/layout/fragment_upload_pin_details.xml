@@ -96,7 +96,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333" />
+                android:background="@color/gray_transparent" />
 
             <!-- Description -->
             <TextView
@@ -124,8 +124,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333" />
-
+                android:background="@color/gray_transparent" />
             <!-- Link -->
             <TextView
                 android:layout_width="wrap_content"
@@ -152,7 +151,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333" />
+                android:background="@color/gray_transparent" />
 
             <!-- Choose board -->
             <LinearLayout
@@ -184,7 +183,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333" />
+                android:background="@color/gray_transparent" />
 
             <!-- Add category -->
             <LinearLayout
@@ -215,7 +214,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333" />
+                android:background="@color/gray_transparent" />
 
             <!-- Advanced settings -->
             <LinearLayout
