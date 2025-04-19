@@ -6,16 +6,17 @@ import android.util.Log;
 
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.UploadCallback;
+import com.example.pinterest_clone_test2.BuildConfig;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class CloudinaryManager {
 
-    private static final String CLOUD_NAME = "dvaaneijh";
-    private static final String API_KEY = "498715797365392";
-    private static final String API_SECRET = "OCYQgWLOvLeq3KxuYkNXQQcNjpI";
-    private static final String UPLOAD_PRESET = "test-cloud";
+    private static final String CLOUD_NAME = BuildConfig.CLOUD_NAME;
+    private static final String API_KEY = BuildConfig.API_KEY;
+    private static final String API_SECRET = BuildConfig.API_SECRET;
+    private static final String UPLOAD_PRESET = BuildConfig.UPLOAD_PRESET;
 
     private static boolean isInitialized = false;
     // Initialize Cloudinary

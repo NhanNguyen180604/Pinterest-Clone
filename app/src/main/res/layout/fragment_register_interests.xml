@@ -13,8 +13,7 @@
         android:contentDescription="@string/back_text"
         android:src="@drawable/ic_back_arrow"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/page_indicators"
@@ -24,8 +23,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:gravity="center"
-        >
+        android:gravity="center">
+
         <View
             android:id="@+id/dot1"
             android:layout_width="8dp"
@@ -52,37 +51,36 @@
             android:layout_width="8dp"
             android:layout_height="8dp"
             android:layout_margin="3dp"
-            android:background="@drawable/dot_selecting" />
+            android:background="@drawable/dot_selected" />
 
         <View
             android:id="@+id/dot5"
             android:layout_width="8dp"
             android:layout_height="8dp"
             android:layout_margin="3dp"
-            android:background="@drawable/dot_unselected" />
+            android:background="@drawable/dot_selected" />
+
         <View
             android:id="@+id/dot6"
             android:layout_width="8dp"
             android:layout_height="8dp"
             android:layout_margin="3dp"
-            android:background="@drawable/dot_unselected" />
-
+            android:background="@drawable/dot_selecting" />
     </LinearLayout>
 
-    <!--    Title-->
+    <!-- Title -->
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/birthdate_text"
+        android:text="@string/interests_title"
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/page_indicators"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/page_indicators" />
 
     <TextView
         android:id="@+id/tv_description"
@@ -91,13 +89,26 @@
         android:layout_marginHorizontal="32dp"
         android:layout_marginTop="12dp"
         android:gravity="center"
-        android:text="@string/birthdate_advice_text"
+        android:text="@string/interests_description"
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_interests"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:clipToPadding="false"
+        android:padding="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_description" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_next"
@@ -114,35 +125,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_date_display"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="@string/birthdate_sample"
-        android:textColor="@color/grey_hint"
-        android:textSize="42sp"
-        android:textStyle="bold"
-        android:clickable="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_description"
-        />
-    <!-- Note text -->
-    <TextView
-        android:id="@+id/noteText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginHorizontal="20dp"
-        android:gravity="center"
-        android:text="@string/birthdate_request_text"
-        android:textColor="@color/grey_hint"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_date_display" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

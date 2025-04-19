@@ -10,6 +10,9 @@ import androidx.databinding.Bindable;
 
 import com.example.pinterest_clone_test2.BR;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User extends BaseObservable implements Parcelable {
     @SuppressWarnings("unused")
     public enum Role {
@@ -31,8 +34,10 @@ public class User extends BaseObservable implements Parcelable {
     private Gender gender;
     private Role role;
     private String avatarUrl;
+    private List<String> interests;
 
     public User() {
+        interests = new ArrayList<>();
     }
 
     public String getId() {
@@ -107,6 +112,16 @@ public class User extends BaseObservable implements Parcelable {
         notifyPropertyChanged(BR.avatarUrl);
     }
 
+    @Bindable
+    public List<String> getInterests() {
+        return interests;
+    }
+
+    public void setInterests(List<String> interests) {
+        this.interests = interests != null ? interests : new ArrayList<>();
+        notifyPropertyChanged(BR.interests);
+    }
+
     public static boolean isValidEnum(String value) {
         try {
             Gender.valueOf(value);
@@ -125,6 +140,8 @@ public class User extends BaseObservable implements Parcelable {
         gender = (Gender) in.readSerializable();
         role = (Role) in.readSerializable();
         avatarUrl = in.readString();
+        interests = new ArrayList<>();
+        in.readStringList(interests);
     }
 
     public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<>() {
@@ -154,5 +171,6 @@ public class User extends BaseObservable implements Parcelable {
         parcel.writeSerializable(gender);
         parcel.writeSerializable(role);
         parcel.writeString(avatarUrl);
+        parcel.writeStringList(interests);
     }
 }

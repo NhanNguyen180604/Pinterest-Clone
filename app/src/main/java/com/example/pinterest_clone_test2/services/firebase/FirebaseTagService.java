@@ -34,21 +34,28 @@ public abstract class FirebaseTagService {
         if (FIXED_TAGS == null) {
             String[] tagArray = {
                     context.getString(R.string.anime).toLowerCase(),
+                    context.getString(R.string.art).toLowerCase(),
+                    context.getString(R.string.animal).toLowerCase(),
+                    context.getString(R.string.photography).toLowerCase(),
+                    context.getString(R.string.graphic_design).toLowerCase(),
+                    context.getString(R.string.quotes).toLowerCase(),
+                    context.getString(R.string.football).toLowerCase(),
+                    context.getString(R.string.cars).toLowerCase(),
+                    context.getString(R.string.illustration).toLowerCase(),
+                    context.getString(R.string.technology).toLowerCase(),
+                    context.getString(R.string.celebrity).toLowerCase(),
+                    context.getString(R.string.flowers).toLowerCase(),
                     context.getString(R.string.travel).toLowerCase(),
                     context.getString(R.string.food).toLowerCase(),
                     context.getString(R.string.fashion).toLowerCase(),
-                    context.getString(R.string.art).toLowerCase(),
-                    context.getString(R.string.photography).toLowerCase(),
                     context.getString(R.string.beauty).toLowerCase(),
-                    context.getString(R.string.technology).toLowerCase(),
-                    context.getString(R.string.animal).toLowerCase(),
                     context.getString(R.string.education).toLowerCase(),
                     context.getString(R.string.decor).toLowerCase(),
-                    context.getString(R.string.cars).toLowerCase(),
                     context.getString(R.string.wedding).toLowerCase(),
                     context.getString(R.string.landscape).toLowerCase(),
                     context.getString(R.string.music).toLowerCase(),
                     context.getString(R.string.science).toLowerCase()
+
             };
 
             FIXED_TAGS = new ArrayList<>(Arrays.asList(tagArray));

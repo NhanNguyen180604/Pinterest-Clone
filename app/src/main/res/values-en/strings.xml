@@ -211,4 +211,14 @@
     <string name="landscape">landscape</string>
     <string name="music">music</string>
     <string name="science">science</string>
+    <string name="graphic_design">graphic design</string>
+    <string name="quotes">quotes</string>
+    <string name="football">football</string>
+    <string name="illustration">illustration</string>
+    <string name="celebrity">celebrity</string>
+    <string name="flowers">flowers</string>
+    <string name="interests_title">What are you interested in?</string>
+    <string name="interests_description">Choose 5 interests to customize your home feed</string>
+    <string name="select_more_interests">Select %1$d more interests</string>
+    <string name="tag_image_description">Category image</string>
 </resources>

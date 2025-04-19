@@ -17,6 +17,7 @@
     <color name="grey_text_box">#d6d6d6</color>
     <color name="grey_hint">#888888</color>
     <color name="dark_grey">#555555</color>
+    <color name="light_grey">#E0E0E0</color>
     <color name="blue_facebook">#1877F2</color>
     <color name="colorRed">#E53935</color>
     <color name="colorAccent">#E53935</color>
