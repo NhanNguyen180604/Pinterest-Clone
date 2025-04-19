@@ -119,7 +119,7 @@ public class BoardItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             // toggle saved icon if pin is already in the board
             List<String> pinIds;
-            if (pinId != null && board.getPins() != null) {
+            if (board.getPins() != null) {
                 pinIds = board.getPins();
             } else {
                 pinIds = Collections.emptyList();
@@ -151,39 +151,44 @@ public class BoardItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             FirebasePinService.fetchPinsFromIds(pinIds.subList(0, 1), new FirebasePinService.OnPinsFetchedFromIdsCallback() {
                 @Override
                 public void onSuccess(List<Pin> pins) {
-                    Pin theOnlyPin = pins.get(0);
-                    if (theOnlyPin.getType() == Pin.PinType.VIDEO) {
-                        vh.binding.playerView.setVisibility(View.VISIBLE);
-                        vh.binding.ivBoardImage.setVisibility(View.GONE);
-                    } else {
-                        vh.binding.playerView.setVisibility(View.GONE);
-                        vh.binding.ivBoardImage.setVisibility(View.VISIBLE);
-                    }
+                    // edge case, activity is destroyed before finished loading, fuck
+                    try {
+                        Pin theOnlyPin = pins.get(0);
+                        if (theOnlyPin.getType() == Pin.PinType.VIDEO) {
+                            vh.binding.playerView.setVisibility(View.VISIBLE);
+                            vh.binding.ivBoardImage.setVisibility(View.GONE);
+                        } else {
+                            vh.binding.playerView.setVisibility(View.GONE);
+                            vh.binding.ivBoardImage.setVisibility(View.VISIBLE);
+                        }
 
-                    if (theOnlyPin.getType() == Pin.PinType.IMAGE) {
-                        Glide.with(vh.binding.ivBoardImage.getContext())
-                                .load(theOnlyPin.getThumbnailUrl())
-                                .apply(new RequestOptions()
-                                        .placeholder(R.drawable.ic_loading)
-                                        .error(R.drawable.turtle_huh)
-                                        .centerCrop())
-                                .into(vh.binding.ivBoardImage);
-                    } else if (theOnlyPin.getType() == Pin.PinType.GIF) {
-                        Glide.with(vh.binding.ivBoardImage.getContext())
-                                .asGif()
-                                .load(theOnlyPin.getThumbnailUrl())
-                                .apply(new RequestOptions()
-                                        .placeholder(R.drawable.ic_loading)
-                                        .error(R.drawable.turtle_huh)
-                                        .centerCrop())
-                                .into(vh.binding.ivBoardImage);
-                    } else {
-                        vh.exoPlayer = new ExoPlayer.Builder(vh.itemView.getContext()).build();
-                        MediaItem mediaItem = MediaItem.fromUri(Uri.parse(theOnlyPin.getThumbnailUrl()));
-                        vh.exoPlayer.setMediaItem(mediaItem);
-                        vh.binding.playerView.setPlayer(vh.exoPlayer);
-                        vh.exoPlayer.prepare();
-                        vh.exoPlayer.setPlayWhenReady(false);
+                        if (theOnlyPin.getType() == Pin.PinType.IMAGE) {
+                            Glide.with(vh.binding.ivBoardImage.getContext())
+                                    .load(theOnlyPin.getThumbnailUrl())
+                                    .apply(new RequestOptions()
+                                            .placeholder(R.drawable.ic_loading)
+                                            .error(R.drawable.turtle_huh)
+                                            .centerCrop())
+                                    .into(vh.binding.ivBoardImage);
+                        } else if (theOnlyPin.getType() == Pin.PinType.GIF) {
+                            Glide.with(vh.binding.ivBoardImage.getContext())
+                                    .asGif()
+                                    .load(theOnlyPin.getThumbnailUrl())
+                                    .apply(new RequestOptions()
+                                            .placeholder(R.drawable.ic_loading)
+                                            .error(R.drawable.turtle_huh)
+                                            .centerCrop())
+                                    .into(vh.binding.ivBoardImage);
+                        } else {
+                            vh.exoPlayer = new ExoPlayer.Builder(vh.itemView.getContext()).build();
+                            MediaItem mediaItem = MediaItem.fromUri(Uri.parse(theOnlyPin.getThumbnailUrl()));
+                            vh.exoPlayer.setMediaItem(mediaItem);
+                            vh.binding.playerView.setPlayer(vh.exoPlayer);
+                            vh.exoPlayer.prepare();
+                            vh.exoPlayer.setPlayWhenReady(false);
+                        }
+                    } catch (Exception e) {
+                        //do nothing
                     }
                 }
 

@@ -268,4 +268,6 @@
     <string name="funny_cat_image">Hình mèo vui nhộn</string>
     <string name="find_human_figure_drawings_on_pinterest">Tìm hình vẽ người trên Pinterest</string>
     <string name="you_like_anime">Bạn thích anime?</string>
+    <string name="pin_uploading">Đang đăng tải ghim</string>
+    <string name="bg_removal_failure">Đã có lỗi khi xóa nền ảnh</string>
 </resources>

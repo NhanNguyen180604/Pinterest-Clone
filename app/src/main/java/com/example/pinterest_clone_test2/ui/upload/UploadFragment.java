@@ -304,7 +304,9 @@ public class UploadFragment extends Fragment {
         }
 
         // Ẩn button container và kích hoạt nút Next khi media được chọn
-        binding.buttonContainer.setVisibility(View.GONE);
+        binding.btnCamera.setVisibility(View.GONE);
+        binding.btnLibrary.setVisibility(View.GONE);
+        binding.btnAddUrl.setVisibility(View.GONE);
         binding.btnNext.setEnabled(true);
     }
 
@@ -313,7 +315,9 @@ public class UploadFragment extends Fragment {
         selectMediaUri = null;
         binding.selectedMediaContainer.setVisibility(View.GONE);
         binding.selectedVideoView.setVisibility(View.GONE);
-        binding.buttonContainer.setVisibility(View.VISIBLE);
+        binding.btnCamera.setVisibility(View.VISIBLE);
+        binding.btnLibrary.setVisibility(View.VISIBLE);
+        binding.btnAddUrl.setVisibility(View.VISIBLE);
         binding.btnNext.setEnabled(false);
         releaseExoPlayer();
     }
