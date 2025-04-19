@@ -251,4 +251,13 @@
     <string name="desc_violence">Depicts or glorifies violence, contains extreme graphics</string>
     <string name="reason_dangerous_goods">Dangerous goods</string>
     <string name="desc_dangerous_goods">Advertising dangerous subtances, gun, ammo...</string>
+    <string name="idea_for_you">Ideas for you</string>
+    <string name="idea_title">Idea title</string>
+    <string name="popular_on_pinterest">Popular on Pinterest</string>
+    <string name="human_figure">Human figures</string>
+    <string name="cat">Cat</string>
+    <string name="you_like_cat">You like cat?</string>
+    <string name="you_like_anime">You like anime?</string>
+    <string name="funny_cat_image">Funny cat images</string>
+    <string name="find_human_figure_drawings_on_pinterest">Human figure drawings</string>
 </resources>

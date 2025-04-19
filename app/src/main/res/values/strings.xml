@@ -241,7 +241,6 @@
     <string name="music">âm nhạc</string>
     <string name="science">khoa học</string>
     <string name="search_pinterest_hint">Tìm kiếm trên Pinterest</string>
-
     <string name="reason_spam">Spam</string>
     <string name="desc_spam">Lừa gạt hoặc cố tình đăng nhiều lần</string>
     <string name="reason_nudity">Khỏa thân hoặc khiêu dâm</string>
@@ -257,5 +256,16 @@
     <string name="reason_violence">Bạo lực</string>
     <string name="desc_violence">Khoắc họa hoặc tôn vinh bạo lực, bao gồm đe dọa hoặc hình ảnh bạo lực, máu me</string>
     <string name="reason_dangerous_goods">Vật dụng nguy hiểm</string>
-    <string name="desc_dangerous_goods">Quảng cáo, kinh doanh chất cấm, súng đạn...</string>
+    <string name="desc_dangerous_goods">Quảng cáo, kinh doanh chất cấm, súng đạn…</string>
+    <string name="idea_for_you">Ý tưởng dành cho bạn</string>
+    <string name="idea_title">Tiêu đề ý tưởng</string>
+    <string name="popular_on_pinterest">Đang thịnh hành trên Pinterest</string>
+    <string name="human_figure">Hình vẽ người</string>
+    <string name="cat">Mèo</string>
+    <string name="paradise_lost" translatable="false">Paradise Lost</string>
+    <string name="gbf" translatable="false">Grand Blue Fantasy</string>
+    <string name="you_like_cat">Bạn thích mèo?</string>
+    <string name="funny_cat_image">Hình mèo vui nhộn</string>
+    <string name="find_human_figure_drawings_on_pinterest">Tìm hình vẽ người trên Pinterest</string>
+    <string name="you_like_anime">Bạn thích anime?</string>
 </resources>
