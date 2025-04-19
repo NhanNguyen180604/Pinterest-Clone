@@ -53,6 +53,11 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         _context = context;
     }
 
+    @Override
+    public int getTheme() {
+        return R.style.BottomSheetDialogTheme;
+    }
+
     // update the UI with the comments
     void initializeCommentRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(_context, LinearLayoutManager.VERTICAL, false);

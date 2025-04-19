@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.pinterest_clone_test2.EditPinActivity;
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.databinding.PinAuthorMoreActionModalBottomSheetBinding;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.ui.pin.PinObjectFragment;
@@ -39,6 +40,11 @@ public class PinAuthorMoreActionModal extends BottomSheetDialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = PinAuthorMoreActionModalBottomSheetBinding.inflate(inflater, container, false);
         return binding.getRoot();
+    }
+
+    @Override
+    public int getTheme() {
+        return R.style.BottomSheetDialogTheme;
     }
 
     @Override

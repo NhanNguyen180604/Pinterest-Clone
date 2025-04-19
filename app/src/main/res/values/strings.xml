@@ -241,4 +241,21 @@
     <string name="music">âm nhạc</string>
     <string name="science">khoa học</string>
     <string name="search_pinterest_hint">Tìm kiếm trên Pinterest</string>
+
+    <string name="reason_spam">Spam</string>
+    <string name="desc_spam">Lừa gạt hoặc cố tình đăng nhiều lần</string>
+    <string name="reason_nudity">Khỏa thân hoặc khiêu dâm</string>
+    <string name="desc_nudity">Chứa nội dung khỏa thân, khiêu dâm, tục tĩu</string>
+    <string name="reason_hate_speech">Ngôn từ gây thù ghét</string>
+    <string name="desc_hate_speech">Kêu gọi ghét bỏ cá nhân hoặc tổ chức</string>
+    <string name="reason_harassment">Quấy rối hoặc bắt nạt</string>
+    <string name="desc_harassment">Đe dọa, nhục mạ người khách</string>
+    <string name="reason_false_info">Thông tin giả</string>
+    <string name="desc_false_info">Lan truyền thông tin sai lệch</string>
+    <string name="reason_self_harm">Ngược đãi bản thân</string>
+    <string name="desc_self_harm">Xúi giục hành vi tự hại, tự sát</string>
+    <string name="reason_violence">Bạo lực</string>
+    <string name="desc_violence">Khoắc họa hoặc tôn vinh bạo lực, bao gồm đe dọa hoặc hình ảnh bạo lực, máu me</string>
+    <string name="reason_dangerous_goods">Vật dụng nguy hiểm</string>
+    <string name="desc_dangerous_goods">Quảng cáo, kinh doanh chất cấm, súng đạn...</string>
 </resources>

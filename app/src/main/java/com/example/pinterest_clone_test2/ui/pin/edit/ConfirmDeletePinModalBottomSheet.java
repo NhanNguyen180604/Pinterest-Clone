@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.databinding.ConfirmDeletePinModalBottomSheetBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
@@ -18,6 +19,11 @@ public class ConfirmDeletePinModalBottomSheet extends BottomSheetDialogFragment 
 
     public ConfirmDeletePinModalBottomSheet(ConfirmDeletePinCallback callback) {
         this.callback = callback;
+    }
+
+    @Override
+    public int getTheme() {
+        return R.style.BottomSheetDialogTheme;
     }
 
     @Nullable
