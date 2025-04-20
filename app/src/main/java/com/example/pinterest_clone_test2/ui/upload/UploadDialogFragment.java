@@ -26,6 +26,11 @@ public class UploadDialogFragment extends BottomSheetDialogFragment {
     }
 
     @Override
+    public int getTheme() {
+        return R.style.BottomSheetDialogTheme;
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 

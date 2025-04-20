@@ -34,6 +34,11 @@ public class CommentAttachmentDetailModal extends BottomSheetDialogFragment {
     }
 
     @Override
+    public int getTheme() {
+        return R.style.BottomSheetDialogTheme;
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
 

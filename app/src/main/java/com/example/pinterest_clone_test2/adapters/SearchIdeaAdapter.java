@@ -1,20 +1,21 @@
 package com.example.pinterest_clone_test2.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.interfaces.SearchIdeaClickListener;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,33 +37,37 @@ public class SearchIdeaAdapter extends RecyclerView.Adapter<SearchIdeaAdapter.Se
     }
 
     List<List<Integer>> image_groups = Arrays.asList(
-            Arrays.asList(R.drawable.karyl, R.drawable.kaeya, R.drawable.cow, R.drawable.araragi),
-            Arrays.asList(R.drawable.kaeya, R.drawable.araragi, R.drawable.conversation, R.drawable.karyl),
-            Arrays.asList(R.drawable.conversation, R.drawable.karyl, R.drawable.araragi, R.drawable.cow),
-            Arrays.asList(R.drawable.cow, R.drawable.karyl, R.drawable.conversation, R.drawable.araragi),
-            Arrays.asList(R.drawable.araragi, R.drawable.karyl, R.drawable.kaeya, R.drawable.conversation)
+            Arrays.asList(R.drawable.high_gojo, R.drawable.kaeya, R.drawable.karyl_drinks_beer, R.drawable.araragi),
+            Arrays.asList(R.drawable.cat_on_sofa, R.drawable.karyl_cat, R.drawable.serious_cat, R.drawable.mewing_cat),
+            Arrays.asList(R.drawable.siegfried, R.drawable.lucilius, R.drawable.sandalphon_burst_chain, R.drawable.id_burst_chain),
+            Arrays.asList(R.drawable.paradise_lost, R.drawable.paradise_losto, R.drawable.sandalphon_burst_chain, R.drawable.lucilius_relink),
+            Arrays.asList(R.drawable.arms_drawing_stan_prokopenko, R.drawable.figure_drawing_stan_prokopenko, R.drawable.incomplete_figure_stan_prokopenko, R.drawable.man_portrait_drawing_stan_prokopenko)
     );
 
-    List<String> idea_texts = Arrays.asList(
-            "Ideas for you",
-            "Ideas for you",
-            "Ideas for you",
-            "Popular on Pinterest",
-            "Popular on Pinterest"
-    );
-
-    List<String> idea_queries = Arrays.asList(
-            "Lmao",
-            "Gomen Amanai",
-            "What the hell",
-            "It's linking time",
-            "Paradise Lost"
-    );
-
+    Context _context;
     SearchIdeaClickListener _listener;
 
-    public SearchIdeaAdapter(SearchIdeaClickListener listener) {
+    List<String> idea_texts;
+
+    List<String> idea_queries;
+
+    public SearchIdeaAdapter(Context context, SearchIdeaClickListener listener) {
+        _context = context;
         _listener = listener;
+        idea_texts = Arrays.asList(
+                context.getResources().getString(R.string.idea_for_you),
+                context.getResources().getString(R.string.idea_for_you),
+                context.getResources().getString(R.string.idea_for_you),
+                context.getResources().getString(R.string.popular_on_pinterest),
+                context.getResources().getString(R.string.popular_on_pinterest)
+        );
+        idea_queries = Arrays.asList(
+                _context.getResources().getString(R.string.anime),
+                _context.getResources().getString(R.string.cat),
+                _context.getResources().getString(R.string.gbf),
+                _context.getResources().getString(R.string.paradise_lost),
+                _context.getResources().getString(R.string.human_figure)
+        );
     }
 
     @NonNull
@@ -74,40 +79,45 @@ public class SearchIdeaAdapter extends RecyclerView.Adapter<SearchIdeaAdapter.Se
     }
 
     @Override
+    public void onViewRecycled(@NonNull SearchIdeaViewHolder holder) {
+        super.onViewRecycled(holder);
+    }
+
+    @Override
     public void onBindViewHolder(@NonNull SearchIdeaViewHolder holder, int position) {
         holder.tv_idea_text.setText(idea_texts.get(position));
         holder.tv_idea_query.setText(idea_queries.get(position));
+        List<Integer> imageGroup = image_groups.get(position);
+
+        final int currentPosition = position;
+
+        // it was working yesterday, now it doesn't, FUCK
+        RequestOptions options = new RequestOptions()
+                .centerCrop()
+                .placeholder(R.drawable.ic_loading)
+                .error(R.drawable.ic_loading);
 
         Glide.with(holder.iv_image_1.getContext())
-                .load(image_groups.get(position).get(0))
-                .placeholder(R.drawable.ic_loading)
-                .fitCenter()
+                .load(imageGroup.get(0))
+                .apply(options)
                 .into(holder.iv_image_1);
 
         Glide.with(holder.iv_image_2.getContext())
-                .load(image_groups.get(position).get(1))
-                .placeholder(R.drawable.ic_loading)
-                .fitCenter()
+                .load(imageGroup.get(1))
+                .apply(options)
                 .into(holder.iv_image_2);
 
         Glide.with(holder.iv_image_3.getContext())
-                .load(image_groups.get(position).get(2))
-                .placeholder(R.drawable.ic_loading)
-                .fitCenter()
+                .load(imageGroup.get(2))
+                .apply(options)
                 .into(holder.iv_image_3);
 
         Glide.with(holder.iv_image_4.getContext())
-                .load(image_groups.get(position).get(3))
-                .placeholder(R.drawable.ic_loading)
-                .fitCenter()
+                .load(imageGroup.get(3))
+                .apply(options)
                 .into(holder.iv_image_4);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                _listener.OnClick(idea_queries.get(holder.getBindingAdapterPosition()));
-            }
-        });
+        holder.itemView.setOnClickListener(v -> _listener.OnClick(idea_queries.get(currentPosition)));
     }
 
     @Override

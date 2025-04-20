@@ -1,5 +1,6 @@
 package com.example.pinterest_clone_test2.adapters;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.interfaces.SearchIdeaClickListener;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,23 +39,27 @@ public class ViewPagerSearchIdeaAdapter extends RecyclerView.Adapter<ViewPagerSe
     }
 
     List<Integer> image_resources = Arrays.asList(
-            R.drawable.cow,
-            R.drawable.conversation,
-            R.drawable.kaeya,
-            R.drawable.araragi
+            R.drawable.serious_cat,
+            R.drawable.figure_drawing_stan_prokopenko,
+            R.drawable.sandalphon_burst_chain
     );
-    List<String> idea_texts = Arrays.asList(
-            "You like animals?",
-            "You like memes?",
-            "Cursed images are funny",
-            "Cool anime angles"
-    );
-    List<String> idea_queries = Arrays.asList(
-            "Animal drawn with Microsoft Paint",
-            "Memes made with Microsoft Paint",
-            "Weird cursed images",
-            "Anime head low angles"
-    );
+    List<String> idea_texts;
+    List<String> idea_queries;
+    SearchIdeaClickListener _listener;
+
+    public ViewPagerSearchIdeaAdapter(Context context, SearchIdeaClickListener listener) {
+        idea_texts = Arrays.asList(
+                context.getResources().getString(R.string.you_like_cat),
+                context.getResources().getString(R.string.find_human_figure_drawings_on_pinterest),
+                context.getResources().getString(R.string.you_like_anime)
+        );
+        idea_queries = Arrays.asList(
+                context.getResources().getString(R.string.funny_cat_image),
+                context.getResources().getString(R.string.human_figure),
+                context.getResources().getString(R.string.anime)
+        );
+        _listener = listener;
+    }
 
     @NonNull
     @Override
@@ -73,10 +79,11 @@ public class ViewPagerSearchIdeaAdapter extends RecyclerView.Adapter<ViewPagerSe
                 .into(holder.iv_idea_image);
         holder.tv_idea_text.setText(idea_texts.get(position));
         holder.tv_idea_query.setText(idea_queries.get(position));
+        holder.itemView.setOnClickListener(v -> _listener.OnClick(idea_queries.get(position)));
     }
 
     @Override
     public int getItemCount() {
-        return 4;
+        return 3;
     }
 }

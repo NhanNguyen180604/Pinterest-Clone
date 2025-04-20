@@ -73,9 +73,9 @@ public class PersonalInformationFragment extends Fragment {
             navController.navigate(R.id.action_personal_information_to_gender);
         });
         if (Objects.equals(gender, "Nam")) {
-            binding.tvYourGender.setText(getString(R.string.male_text));
+            binding.tvYourGender.setText(getResources().getString(R.string.male_text));
         } else {
-            binding.tvYourGender.setText(Objects.equals(gender, "Nữ") ? getString(R.string.female_text) : getString(R.string.other_gender_text));
+            binding.tvYourGender.setText(Objects.equals(gender, "Nữ") ? getResources().getString(R.string.female_text) : getResources().getString(R.string.other_gender_text));
         }
     }
 }

@@ -24,7 +24,7 @@ public class SearchFragment extends Fragment {
     private FragmentSearchBinding binding;
     long lastSubmitTime = 0;
 
-    public SearchFragment(){
+    public SearchFragment() {
     }
 
     @Override
@@ -38,10 +38,10 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ViewPagerSearchIdeaAdapter pager_adapter = new ViewPagerSearchIdeaAdapter();
+        ViewPagerSearchIdeaAdapter pager_adapter = new ViewPagerSearchIdeaAdapter(requireContext(), searchIdeaClickListener);
         binding.searchIdeaPager.setAdapter(pager_adapter);
 
-        SearchIdeaAdapter rv_adapter = new SearchIdeaAdapter(searchIdeaClickListener);
+        SearchIdeaAdapter rv_adapter = new SearchIdeaAdapter(requireContext(), searchIdeaClickListener);
         binding.rvIdeas.setAdapter(rv_adapter);
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 1);
         binding.rvIdeas.setLayoutManager(layoutManager);
@@ -57,7 +57,7 @@ public class SearchFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 long now = System.currentTimeMillis();
-                if (now - lastSubmitTime < 1000){
+                if (now - lastSubmitTime < 1000) {
                     return false;
                 }
 

@@ -61,12 +61,15 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHol
             holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), context.getResources().getString(R.string.pin).toLowerCase()));
         }
         int pinSize = board.getPinsObj().size();
-        if (pinSize > 0)
+        if (pinSize > 0) {
             Glide.with(context).load(board.getPinsObj().get(0).getThumbnailUrl()).into(holder.ivFirst);
-        if (pinSize > 1)
+        }
+        if (pinSize > 1) {
             Glide.with(context).load(board.getPinsObj().get(1).getThumbnailUrl()).into(holder.ivSecond);
-        if (pinSize > 2)
+        }
+        if (pinSize > 2) {
             Glide.with(context).load(board.getPinsObj().get(2).getThumbnailUrl()).into(holder.ivThird);
+        }
         holder.itemView.setOnClickListener(v -> onBoardClickListener.onBoardClick(board));
     }
 

@@ -62,7 +62,7 @@ public class SettingsDrawerFragment extends Fragment {
 
             RequestOptions glideOptions = new RequestOptions()
                     .placeholder(R.drawable.ic_loading)
-                    .error(R.drawable.turtle_huh)
+                    .error(R.drawable.ic_account_circle)
                     .centerCrop();
 
             Glide.with(binding.ivAvatar.getContext())
@@ -74,9 +74,10 @@ public class SettingsDrawerFragment extends Fragment {
                 binding.btnGoToAdmin.setOnClickListener(v -> {
                     Intent intent = new Intent(requireActivity(), AdminActivity.class);
                     startActivity(intent);
-                    requireActivity().finish();
                 });
                 binding.btnGoToAdmin.setVisibility(View.VISIBLE);
+            } else {
+                binding.btnGoToAdmin.setVisibility(View.GONE);
             }
 
             binding.btnLogout.setOnClickListener(v -> {

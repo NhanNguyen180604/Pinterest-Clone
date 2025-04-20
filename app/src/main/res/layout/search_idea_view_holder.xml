@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Ideas for you"
+        android:text="@string/idea_for_you"
         android:textColor="@color/black"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Idea title"
+        android:text="@string/idea_title"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -60,12 +60,12 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/araragi"
+                android:src="@drawable/ic_loading"
                 app:layout_constraintEnd_toStartOf="@+id/iv_image_2"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintWidth_percent="0.24" />
+                app:layout_constraintWidth_percent="0.245" />
 
             <ImageView
                 android:id="@+id/iv_image_2"
@@ -73,11 +73,11 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/araragi"
+                android:src="@drawable/ic_loading"
                 app:layout_constraintEnd_toStartOf="@+id/iv_image_3"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/iv_image_1"
-                app:layout_constraintWidth_percent="0.24" />
+                app:layout_constraintWidth_percent="0.245" />
 
             <ImageView
                 android:id="@+id/iv_image_3"
@@ -85,11 +85,11 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/araragi"
+                android:src="@drawable/ic_loading"
                 app:layout_constraintEnd_toStartOf="@+id/iv_image_4"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/iv_image_2"
-                app:layout_constraintWidth_percent="0.24" />
+                app:layout_constraintWidth_percent="0.245" />
 
             <ImageView
                 android:id="@+id/iv_image_4"
@@ -97,11 +97,11 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/araragi"
+                android:src="@drawable/ic_loading"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/iv_image_3"
-                app:layout_constraintWidth_percent="0.24" />
+                app:layout_constraintWidth_percent="0.245" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

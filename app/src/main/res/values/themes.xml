@@ -12,7 +12,9 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name = "android:windowBackground">@color/bgCream</item>
+        <item name="android:windowBackground">@color/bgCream</item>
+
+        <item name="cardViewStyle">@style/CardView.NoShadow</item>
     </style>
 
     <style name="ThemeOverlay.Pinterest_clone_test2.FullscreenContainer" parent="">
@@ -20,7 +22,7 @@
         <item name="fullscreenTextColor">@color/light_blue_A200</item>
     </style>
 
-<!--    switch button theme-->
+    <!--    switch button theme-->
     <style name="SelectableItemBackgroundBorderless">
         <item name="android:theme">@style/SelectableItemTheme</item>
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
@@ -30,5 +32,13 @@
         <item name="colorControlHighlight">@color/light_gray</item>
         <item name="colorControlActivated">@color/dark_grey</item>
         <item name="colorSwitchThumbNormal">#000000</item>
+    </style>
+
+    <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/CustomBottomSheetStyle</item>
+    </style>
+
+    <style name="CustomBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 </resources>

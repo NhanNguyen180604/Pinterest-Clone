@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.databinding.PinMoreActionModalBottomSheetBinding;
 import com.example.pinterest_clone_test2.interfaces.ReportModalCallbacks;
 import com.example.pinterest_clone_test2.models.Pin;
@@ -46,6 +47,11 @@ public class PinNormalMoreActionModal extends BottomSheetDialogFragment {
     }
 
     @Override
+    public int getTheme() {
+        return R.style.BottomSheetDialogTheme;
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -66,7 +72,7 @@ public class PinNormalMoreActionModal extends BottomSheetDialogFragment {
         });
 
         binding.tvClickableReport.setOnClickListener(v -> {
-            ReportModalBottomSheet sheet = new ReportModalBottomSheet(reportModalCallbacks);
+            ReportModalBottomSheet sheet = new ReportModalBottomSheet(context, reportModalCallbacks);
             sheet.show(requireActivity().getSupportFragmentManager(), ReportModalBottomSheet.TAG);
             dismiss();
         });

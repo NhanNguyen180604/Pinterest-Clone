@@ -256,5 +256,35 @@
     <string name="email_already_exists">Email đã tồn tại</string>
     <string name="email_check_error">Đã có lỗi trong lúc kiểm tra email, vui lòng thử lại</string>
     <string name="search_pinterest_hint">Tìm kiếm trên Pinterest</string>
+    <string name="reason_spam">Spam</string>
+    <string name="desc_spam">Lừa gạt hoặc cố tình đăng nhiều lần</string>
+    <string name="reason_nudity">Khỏa thân hoặc khiêu dâm</string>
+    <string name="desc_nudity">Chứa nội dung khỏa thân, khiêu dâm, tục tĩu</string>
+    <string name="reason_hate_speech">Ngôn từ gây thù ghét</string>
+    <string name="desc_hate_speech">Kêu gọi ghét bỏ cá nhân hoặc tổ chức</string>
+    <string name="reason_harassment">Quấy rối hoặc bắt nạt</string>
+    <string name="desc_harassment">Đe dọa, nhục mạ người khách</string>
+    <string name="reason_false_info">Thông tin giả</string>
+    <string name="desc_false_info">Lan truyền thông tin sai lệch</string>
+    <string name="reason_self_harm">Ngược đãi bản thân</string>
+    <string name="desc_self_harm">Xúi giục hành vi tự hại, tự sát</string>
+    <string name="reason_violence">Bạo lực</string>
+    <string name="desc_violence">Khoắc họa hoặc tôn vinh bạo lực, bao gồm đe dọa hoặc hình ảnh bạo lực, máu me</string>
+    <string name="reason_dangerous_goods">Vật dụng nguy hiểm</string>
+    <string name="desc_dangerous_goods">Quảng cáo, kinh doanh chất cấm, súng đạn…</string>
+    <string name="idea_for_you">Ý tưởng dành cho bạn</string>
+    <string name="idea_title">Tiêu đề ý tưởng</string>
+    <string name="popular_on_pinterest">Đang thịnh hành trên Pinterest</string>
+    <string name="human_figure">Hình vẽ người</string>
+    <string name="cat">Mèo</string>
+    <string name="paradise_lost" translatable="false">Paradise Lost</string>
+    <string name="gbf" translatable="false">Grand Blue Fantasy</string>
+    <string name="you_like_cat">Bạn thích mèo?</string>
+    <string name="funny_cat_image">Hình mèo vui nhộn</string>
+    <string name="find_human_figure_drawings_on_pinterest">Tìm hình vẽ người trên Pinterest</string>
+    <string name="you_like_anime">Bạn thích anime?</string>
+    <string name="no_board_message">Bạn không có bảng nào</string>
+    <string name="no_comment">Không có bình luận nào</string>
+    <string name="fetch_comments_failure">Đã có lỗi trong lúc tải bình luận</string>
     <string name="calendar_picker_date_format">dd \'thg\' M, yyyy</string>
 </resources>

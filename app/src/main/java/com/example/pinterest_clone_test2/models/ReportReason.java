@@ -1,8 +1,12 @@
 package com.example.pinterest_clone_test2.models;
 
+import android.content.Context;
+
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.databinding.library.baseAdapters.BR;
+
+import com.example.pinterest_clone_test2.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,14 +59,33 @@ public class ReportReason extends BaseObservable {
         notifyPropertyChanged(BR.description);
     }
 
-    public static List<ReportReason> Reasons = new ArrayList<>(Arrays.asList(
-            new ReportReason("report-reason-01", "Spam", "Lừa gạt hoặc cố tình đăng nhiều lần"),
-            new ReportReason("report-reason-02", "Khỏa thân hoặc khiêu dâm", "Chứa nội dung khỏa thân, khiêu dâm, tục tĩu"),
-            new ReportReason("report-reason-03", "Ngôn từ gây thù ghét", "Kêu gọi ghét bỏ cá nhân hoặc tổ chức"),
-            new ReportReason("report-reason-04", "Quấy rối hoặc bắt nạt", "Đe dọa, nhục mạ người khách"),
-            new ReportReason("report-reason-05", "Thông tin giả", "Lan truyền thông tin sai lệch"),
-            new ReportReason("report-reason-06", "Ngược đãi bản thân", "Xúi giục hành vi tự hại, tự sát"),
-            new ReportReason("report-reason-07", "Bạo lực", "Khoắc họa hoặc tôn vinh bạo lực, bao gồm đe dọa hoặc hình ảnh bạo lực, máu me"),
-            new ReportReason("report-reason-08", "Vật dụng nguy hiểm", "Quảng cáo, kinh doanh chất cấm, súng đạn...")
-    ));
+    public static List<ReportReason> GetReasons(Context context) {
+        return new ArrayList<>(Arrays.asList(
+                new ReportReason("report-reason-01",
+                        context.getString(R.string.reason_spam),
+                        context.getString(R.string.desc_spam)),
+                new ReportReason("report-reason-02",
+                        context.getString(R.string.reason_nudity),
+                        context.getString(R.string.desc_nudity)),
+                new ReportReason("report-reason-03",
+                        context.getString(R.string.reason_hate_speech),
+                        context.getString(R.string.desc_hate_speech)),
+                new ReportReason("report-reason-04",
+                        context.getString(R.string.reason_harassment),
+                        context.getString(R.string.desc_harassment)),
+                new ReportReason("report-reason-05",
+                        context.getString(R.string.reason_false_info),
+                        context.getString(R.string.desc_false_info)),
+                new ReportReason("report-reason-06",
+                        context.getString(R.string.reason_self_harm),
+                        context.getString(R.string.desc_self_harm)),
+                new ReportReason("report-reason-07",
+                        context.getString(R.string.reason_violence),
+                        context.getString(R.string.desc_violence)),
+                new ReportReason("report-reason-08",
+                        context.getString(R.string.reason_dangerous_goods),
+                        context.getString(R.string.desc_dangerous_goods))
+        ));
+    }
+
 }

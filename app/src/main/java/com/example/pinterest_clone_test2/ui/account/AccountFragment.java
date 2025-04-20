@@ -74,7 +74,7 @@ public class AccountFragment extends Fragment {
         if (currentUserDocument != null) {
             RequestOptions glideOptions = new RequestOptions()
                     .placeholder(R.drawable.ic_loading)
-                    .error(R.drawable.turtle_huh)
+                    .error(R.drawable.ic_account_circle)
                     .centerCrop();
 
             Glide.with(binding.btnAccount.getContext())

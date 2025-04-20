@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,7 +31,6 @@ public class BoardTabObjectFragment extends Fragment {
     private FragmentBoardTabObjectBinding binding;
     private BoardAdapter boardAdapter;
     private final List<Board> boardList = new ArrayList<>();
-    Handler handler = new Handler();
 
     public BoardTabObjectFragment() {
         // Required empty public constructor
@@ -49,6 +47,7 @@ public class BoardTabObjectFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        binding.tvMessage.setVisibility(View.GONE);
         RecyclerView recyclerView = binding.rvBoards;
         boardAdapter = new BoardAdapter(requireContext(), boardList, board -> {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
@@ -76,38 +75,36 @@ public class BoardTabObjectFragment extends Fragment {
                         FirebasePinService.fetchPinsFromIds(board.getPins(), new FirebasePinService.OnPinsFetchedFromIdsCallback() {
                             @Override
                             public void onSuccess(List<Pin> pins) {
-                                handler.post(() -> {
-                                    board.setPinsObj(pins);
-                                    boardList.add(board);
-                                    boardAdapter.notifyItemInserted(boardList.size() - 1);
-                                    binding.progressLoading.setVisibility(View.GONE);
-                                });
+                                board.setPinsObj(pins);
+                                boardList.add(board);
+                                boardAdapter.notifyItemInserted(boardList.size() - 1);
                             }
 
                             @Override
                             public void onFailure(Exception e) {
                                 Log.e("BoardFragment", "Failed to fetch pins for board: " + board.getId(), e);
-                                binding.progressLoading.setVisibility(View.GONE);
                             }
                         });
                     } else {
-                        handler.post(() -> {
-                            board.setPinsObj(new ArrayList<>());
-                            boardList.add(board);
-                            boardAdapter.notifyItemInserted(boardList.size() - 1);
-                            binding.progressLoading.setVisibility(View.GONE);
-                        });
+                        board.setPinsObj(new ArrayList<>());
+                        boardList.add(board);
+                        boardAdapter.notifyItemInserted(boardList.size() - 1);
                     }
+                }
+                binding.progressLoading.setVisibility(View.GONE);
+                if (querySnapshot.getDocuments().isEmpty()) {
+                    binding.tvMessage.setVisibility(View.VISIBLE);
+                    binding.tvMessage.setText(getResources().getString(R.string.no_board_message));
                 }
             }
 
             @Override
             public void OnFailure(Exception e) {
                 Log.e("Firebase", "Error fetching boards", e);
-                Toast.makeText(requireContext(), getResources().getString(R.string.fetch_boards_failure), Toast.LENGTH_SHORT).show();
+                binding.tvMessage.setVisibility(View.VISIBLE);
+                binding.tvMessage.setText(getResources().getString(R.string.fetch_boards_failure));
                 binding.progressLoading.setVisibility(View.GONE);
             }
         });
-
     }
 }

@@ -1,5 +1,6 @@
 package com.example.pinterest_clone_test2.ui.report;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -13,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.ReportReasonAdapter;
 import com.example.pinterest_clone_test2.databinding.ReportModalBottomSheetBinding;
 import com.example.pinterest_clone_test2.interfaces.ReportModalCallbacks;
@@ -28,18 +30,24 @@ public class ReportModalBottomSheet extends BottomSheetDialogFragment {
     ReportModalBottomSheetBinding binding;
     public static String TAG = "CommentReportModalBottomSheet";
 
-    private final List<ReportReason> _reportReasons = ReportReason.Reasons;
+    private final List<ReportReason> _reportReasons;
     private final List<Boolean> _checkedList;
 
     ReportReasonAdapter reportReasonAdapter;
     ReportModalCallbacks _callback;
 
-    public ReportModalBottomSheet(@NonNull ReportModalCallbacks callback) {
+    public ReportModalBottomSheet(@NonNull Context context, @NonNull ReportModalCallbacks callback) {
+        _reportReasons = ReportReason.GetReasons(context);
         _checkedList = new ArrayList<>(_reportReasons.size());
         for (int i = 0; i < _reportReasons.size(); i++) {
             _checkedList.add(false);
         }
         _callback = callback;
+    }
+
+    @Override
+    public int getTheme() {
+        return R.style.BottomSheetDialogTheme;
     }
 
     @Nullable
