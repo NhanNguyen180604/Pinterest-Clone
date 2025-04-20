@@ -235,11 +235,26 @@
     <string name="animal">động vật</string>
     <string name="education">giáo dục</string>
     <string name="decor">trang trí</string>
-    <string name="cars">ô tô</string>
+    <string name="cars">xe hơi</string>
     <string name="wedding">đám cưới</string>
     <string name="landscape">phong cảnh</string>
     <string name="music">âm nhạc</string>
     <string name="science">khoa học</string>
+    <string name="graphic_design">thiết kế đồ họa</string>
+    <string name="quotes">lời trích</string>
+    <string name="football">bóng đá</string>
+    <string name="illustration">hình minh họa</string>
+    <string name="celebrity">người nổi tiếng</string>
+    <string name="flowers">hoa</string>
+    <string name="interests_title">Bạn quan tâm đến những gì?</string>
+    <string name="interests_description">Chọn 5 sở thích để tùy chỉnh bảng tin nhà của bạn</string>
+    <string name="select_more_interests">Chọn thêm %1$d sở thích nữa</string>
+    <string name="tag_image_description">Hình ảnh danh mục</string>
+    <string name="birthdate_greeting">Xin chào %s! Nhập ngày sinh của bạn</string>
+    <string name="empty_error">Không nên bỏ trống!</string>
+    <string name="email_invalid_format">Định dạng email không hợp lệ</string>
+    <string name="email_already_exists">Email đã tồn tại</string>
+    <string name="email_check_error">Đã có lỗi trong lúc kiểm tra email, vui lòng thử lại</string>
     <string name="search_pinterest_hint">Tìm kiếm trên Pinterest</string>
     <string name="reason_spam">Spam</string>
     <string name="desc_spam">Lừa gạt hoặc cố tình đăng nhiều lần</string>
@@ -271,4 +286,5 @@
     <string name="no_board_message">Bạn không có bảng nào</string>
     <string name="no_comment">Không có bình luận nào</string>
     <string name="fetch_comments_failure">Đã có lỗi trong lúc tải bình luận</string>
+    <string name="calendar_picker_date_format">dd \'thg\' M, yyyy</string>
 </resources>

@@ -171,6 +171,7 @@ public class SearchResultFragment extends Fragment {
 
         // Hiển thị progress bar
         binding.progressBar.setVisibility(View.VISIBLE);
+        binding.tvEmptyResults.setVisibility(View.VISIBLE);
 
         Thread thread = new Thread(() -> {
             try {

@@ -16,6 +16,9 @@ import com.example.pinterest_clone_test2.databinding.FragmentPersonalInformation
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Objects;
 
 public class PersonalInformationFragment extends Fragment {
@@ -32,7 +35,6 @@ public class PersonalInformationFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
-        String birthdate = currentUserDocument.getString("birthdate");
         String gender = currentUserDocument.getString("gender");
         binding.btnBack.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(view);
@@ -42,7 +44,30 @@ public class PersonalInformationFragment extends Fragment {
             NavController navController = Navigation.findNavController(view);
             navController.navigate(R.id.action_personal_information_to_birthdate);
         });
-        binding.tvYourBirthdate.setText(birthdate);
+
+        Locale locale = getResources().getConfiguration().getLocales().get(0);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(getString(R.string.calendar_picker_date_format), locale);
+        // fuck
+        SimpleDateFormat viFormat = new SimpleDateFormat("dd 'thg' M, yyyy", new Locale("vi", "VN"));
+        SimpleDateFormat enFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+        String birthdate = currentUserDocument.getString("birthdate");
+
+        if (birthdate == null) {
+            birthdate = getString(R.string.birthdate_placeholder);
+        }
+        try {
+            String formattedDate = dateFormat.format(viFormat.parse(birthdate));
+            binding.tvYourBirthdate.setText(formattedDate);
+        } catch (ParseException e) {
+            try {
+                String formattedDate = dateFormat.format(enFormat.parse(birthdate));
+                binding.tvYourBirthdate.setText(formattedDate);
+            } catch (ParseException e2) {
+                // eat shit
+                // this better not happen
+            }
+        }
+
         binding.btnGender.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(view);
             navController.navigate(R.id.action_personal_information_to_gender);

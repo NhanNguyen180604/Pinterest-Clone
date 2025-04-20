@@ -47,7 +47,7 @@ public class FragmentRegisterBirthdate extends Fragment {
         calendar = Calendar.getInstance();
         btnBack = view.findViewById(R.id.btn_back);
 
-        String title = "Xin chào "+ name + "! Nhập ngày sinh của bạn";
+        String title = String.format(getString(R.string.birthdate_greeting), name);
         tvTitle.setText(title);
         dateDisplay.setOnClickListener(v -> showCustomDatePicker());
 
@@ -77,15 +77,26 @@ public class FragmentRegisterBirthdate extends Fragment {
         );
 
         // Set Vietnamese button text
-        datePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "HỦY", datePickerDialog);
-        datePickerDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", datePickerDialog);
+        datePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
+                getString(R.string.cancel), datePickerDialog);
+        datePickerDialog.setButton(DialogInterface.BUTTON_POSITIVE,
+                getString(R.string.btn_save), datePickerDialog);
 
         datePickerDialog.show();
     }
 
     private void updateDateDisplay() {
-        // Format like "21 thg 3, 2025"
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd 'thg' M, yyyy", new Locale("vi", "VN"));
+        Locale locale = getResources().getConfiguration().getLocales().get(0);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(getString(R.string.calendar_picker_date_format), locale);
+
+//        if (locale.getLanguage().equals("vi")) {
+//            // Format for Vietnamese: "21 thg 3, 2025"
+//            dateFormat = new SimpleDateFormat("dd 'thg' M, yyyy", new Locale("vi", "VN"));
+//        } else {
+//            // Format for English: "March 21, 2025"
+//            dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+//        }
+
         String formattedDate = dateFormat.format(calendar.getTime());
         dateDisplay.setText(formattedDate);
     }

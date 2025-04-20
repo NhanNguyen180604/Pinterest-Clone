@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.interfaces.SearchIdeaClickListener;
@@ -78,36 +79,45 @@ public class SearchIdeaAdapter extends RecyclerView.Adapter<SearchIdeaAdapter.Se
     }
 
     @Override
+    public void onViewRecycled(@NonNull SearchIdeaViewHolder holder) {
+        super.onViewRecycled(holder);
+    }
+
+    @Override
     public void onBindViewHolder(@NonNull SearchIdeaViewHolder holder, int position) {
         holder.tv_idea_text.setText(idea_texts.get(position));
         holder.tv_idea_query.setText(idea_queries.get(position));
+        List<Integer> imageGroup = image_groups.get(position);
 
+        final int currentPosition = position;
+
+        // it was working yesterday, now it doesn't, FUCK
         RequestOptions options = new RequestOptions()
                 .centerCrop()
                 .placeholder(R.drawable.ic_loading)
                 .error(R.drawable.ic_loading);
 
         Glide.with(holder.iv_image_1.getContext())
-                .load(image_groups.get(position).get(0))
+                .load(imageGroup.get(0))
                 .apply(options)
                 .into(holder.iv_image_1);
 
         Glide.with(holder.iv_image_2.getContext())
-                .load(image_groups.get(position).get(1))
+                .load(imageGroup.get(1))
                 .apply(options)
                 .into(holder.iv_image_2);
 
         Glide.with(holder.iv_image_3.getContext())
-                .load(image_groups.get(position).get(2))
+                .load(imageGroup.get(2))
                 .apply(options)
                 .into(holder.iv_image_3);
 
         Glide.with(holder.iv_image_4.getContext())
-                .load(image_groups.get(position).get(3))
+                .load(imageGroup.get(3))
                 .apply(options)
                 .into(holder.iv_image_4);
 
-        holder.itemView.setOnClickListener(v -> _listener.OnClick(idea_queries.get(holder.getBindingAdapterPosition())));
+        holder.itemView.setOnClickListener(v -> _listener.OnClick(idea_queries.get(currentPosition)));
     }
 
     @Override

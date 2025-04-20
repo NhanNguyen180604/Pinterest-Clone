@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +24,7 @@ import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +41,23 @@ public class MainActivity extends AppCompatActivity {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
         FirebaseTagService.initFixedTags(this);
+        FirebaseTagService.saveFixedTagsIfNeeded(this, new FirebaseTagService.SaveFixedTagsCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d("MainActivity", "Fixed tags saved successfully or already existed");
+            }
+
+            @Override
+            public void onPartialSuccess(int successCount, List<String> failedTags) {
+                Log.w("MainActivity", "Some tags failed to save: " + failedTags);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("MainActivity", "Error saving fixed tags", e);
+            }
+        });
+
         if (user == null) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
