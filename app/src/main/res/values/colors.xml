@@ -18,9 +18,10 @@
     <color name="grey_hint">#888888</color>
     <color name="dark_grey">#555555</color>
     <color name="med_grey">#898989</color>
+    <color name="light_grey">#E0E0E0</color>
     <color name="blue_facebook">#1877F2</color>
     <color name="colorRed">#E53935</color>
-    <color name="light_gray">#D0D0D0</color>
+    <color name="light_gray">#D9D9D9</color>
     <color name="colorAccent">#E53935</color>
     <color name="gray_transparent">#aac7c7c7</color>
     <color name="colorBrown">#3B1A22</color>

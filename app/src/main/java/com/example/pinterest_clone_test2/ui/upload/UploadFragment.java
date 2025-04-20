@@ -282,6 +282,9 @@ public class UploadFragment extends Fragment {
 
         releaseExoPlayer();
         binding.selectedMediaContainer.setVisibility(View.VISIBLE);
+        binding.cvBtnCamera.setVisibility(View.GONE);
+        binding.cvBtnAddUrl.setVisibility(View.GONE);
+        binding.cvBtnLibrary.setVisibility(View.GONE);
 
         if (mimeType != null && (mimeType.startsWith("image") || mimeType.contains("gif"))) {
             Glide.with(binding.selectedImageView.getContext())
@@ -304,20 +307,19 @@ public class UploadFragment extends Fragment {
         }
 
         // Ẩn button container và kích hoạt nút Next khi media được chọn
-        binding.btnCamera.setVisibility(View.GONE);
-        binding.btnLibrary.setVisibility(View.GONE);
-        binding.btnAddUrl.setVisibility(View.GONE);
+        binding.cvBtnCamera.setVisibility(View.GONE);
+        binding.cvBtnAddUrl.setVisibility(View.GONE);
+        binding.cvBtnLibrary.setVisibility(View.GONE);
         binding.btnNext.setEnabled(true);
     }
-
 
     private void resetSelectedMedia() {
         selectMediaUri = null;
         binding.selectedMediaContainer.setVisibility(View.GONE);
         binding.selectedVideoView.setVisibility(View.GONE);
-        binding.btnCamera.setVisibility(View.VISIBLE);
-        binding.btnLibrary.setVisibility(View.VISIBLE);
-        binding.btnAddUrl.setVisibility(View.VISIBLE);
+        binding.cvBtnCamera.setVisibility(View.VISIBLE);
+        binding.cvBtnAddUrl.setVisibility(View.VISIBLE);
+        binding.cvBtnLibrary.setVisibility(View.VISIBLE);
         binding.btnNext.setEnabled(false);
         releaseExoPlayer();
     }

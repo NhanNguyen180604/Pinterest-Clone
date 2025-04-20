@@ -12,7 +12,11 @@
         tools:layout="@layout/fragment_account">
         <action
             android:id="@+id/action_navigation_account_to_settingsDrawerFragment"
-            app:destination="@id/settingsDrawerFragment" />
+            app:destination="@id/settingsDrawerFragment"
+            app:enterAnim="@anim/from_bottom"
+            app:exitAnim="@anim/to_top"
+            app:popEnterAnim="@anim/from_top"
+            app:popExitAnim="@anim/to_bottom" />
         <action
             android:id="@+id/action_navigation_account_to_boardDetailFragment"
             app:destination="@id/boardDetailFragment"
@@ -35,7 +39,11 @@
         tools:layout="@layout/fragment_settings_drawer" >
         <action
             android:id="@+id/action_settingsDrawerFragment_to_account_management"
-            app:destination="@id/account_management" />
+            app:destination="@id/account_management"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
         <action
             android:id="@+id/action_settingsDrawerFragment_to_userProfileFragment3"
             app:destination="@id/userProfileFragment3"
@@ -51,13 +59,25 @@
         tools:layout="@layout/fragment_account_management" >
         <action
             android:id="@+id/action_account_management_to_personal_information"
-            app:destination="@id/personal_information" />
+            app:destination="@id/personal_information"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
         <action
             android:id="@+id/action_account_management_to_email"
-            app:destination="@id/email" />
+            app:destination="@id/email"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
         <action
             android:id="@+id/action_account_management_to_password"
-            app:destination="@id/password" />
+            app:destination="@id/password"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/personal_information"
@@ -66,10 +86,18 @@
         tools:layout="@layout/fragment_personal_information" >
         <action
             android:id="@+id/action_personal_information_to_birthdate"
-            app:destination="@id/birthdate" />
+            app:destination="@id/birthdate"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
         <action
             android:id="@+id/action_personal_information_to_gender"
-            app:destination="@id/gender" />
+            app:destination="@id/gender"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/email"

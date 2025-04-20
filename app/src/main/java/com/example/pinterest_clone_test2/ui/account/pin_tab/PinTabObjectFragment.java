@@ -66,114 +66,16 @@ public class PinTabObjectFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity().getApplication(), this)).get(PinTabObjectViewModel.class);
 
+        binding.tvMessage.setVisibility(View.GONE);
         binding.swipeContainer.setOnRefreshListener(() -> {
             if (!isRefreshing && !isLoading) {
                 refresh();
             }
-        });
-    }
-
-    void refresh() {
-        isRefreshing = true;
-        page = 1;
-        int oldSize = pins.size();
-        pins.clear();
-        adapter.notifyItemRangeRemoved(0, oldSize);
-        pinIds.clear();
-        totalPage = 0;
-        setPinIdsAndTotalPageCount();
-        fetchPinsAsync();
-    }
-
-    void fetchPinsAsync() {
-        Thread thread = new Thread(() -> {
-            if (outOfPins() || isLoading)
-                return;
-
-            Log.d("AccountPinTab", "Fetching pins");
-            isLoading = true;
-
-            try {
-                DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
-                assert currentUserDocument != null;
-                FirebasePinService.fetchPinsFromIds(pinIds.subList((page - 1) * perPage, Math.min(page * perPage, pinIds.size())), onPinsFetchedFromIdsCallback);
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (e.getMessage() != null) {
-                    Log.e("AccountPinTab", e.getMessage());
-                }
-                handler.post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.fetch_pin_failure), Toast.LENGTH_SHORT).show());
+            else {
+                handler.post(() -> binding.swipeContainer.setRefreshing(false));
             }
         });
-        thread.start();
-    }
 
-    final FirebasePinService.OnPinsFetchedFromIdsCallback onPinsFetchedFromIdsCallback = new FirebasePinService.OnPinsFetchedFromIdsCallback() {
-        @Override
-        public void onSuccess(List<Pin> newPins) {
-            long lastUpdateTime = FirebaseUserService.getLastUpdateTime();
-            handler.post(() -> {
-                updateUI(newPins, profileLastUpdated == lastUpdateTime);
-                profileLastUpdated = lastUpdateTime;
-                page++;
-            });
-        }
-
-        @Override
-        public void onFailure(Exception e) {
-            e.printStackTrace();
-            isLoading = false;
-        }
-    };
-
-    void updateUI(List<Pin> newPins, boolean append) {
-        if (binding == null) {
-            return;
-        }
-
-        binding.progressBar.setVisibility(View.GONE);
-
-        if (!append) {
-            pins.clear();
-        }
-        int startPos = pins.size();
-        pins.addAll(newPins);
-        adapter.notifyItemRangeInserted(startPos, newPins.size());
-
-        isLoading = false;
-        if (!isRefreshing) {
-            restoreScrollState();
-        }
-
-        isRefreshing = false;
-        binding.swipeContainer.setRefreshing(false);
-    }
-
-    private void restoreScrollState() {
-        if (binding == null)
-            return;
-
-        Parcelable scroll_state = viewModel.getScrollState();
-        if (scroll_state != null && binding.rvPins.getLayoutManager() != null) {
-            binding.rvPins.getLayoutManager().onRestoreInstanceState(scroll_state);
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (binding.rvPins.getLayoutManager() != null) {
-            viewModel.setScrollState(binding.rvPins.getLayoutManager().onSaveInstanceState());
-        }
-        viewModel.setPinState(pins);
-        viewModel.setLastUpdateTime(profileLastUpdated);
-        viewModel.setPinIdsState(pinIds);
-        viewModel.setPageState(page);
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
         initRecyclerView();
         binding.progressBar.setVisibility(View.VISIBLE);
 
@@ -208,7 +110,125 @@ public class PinTabObjectFragment extends Fragment {
         } else {
             restoreScrollState();
             binding.progressBar.setVisibility(View.GONE);
+            binding.tvMessage.setVisibility(View.GONE);
         }
+    }
+
+    void refresh() {
+        isRefreshing = true;
+        page = 1;
+        int oldSize = pins.size();
+        pins.clear();
+        adapter.notifyItemRangeRemoved(0, oldSize);
+        pinIds.clear();
+        totalPage = 0;
+        setPinIdsAndTotalPageCount();
+        fetchPinsAsync();
+    }
+
+    void fetchPinsAsync() {
+        Thread thread = new Thread(() -> {
+            if (outOfPins()) {
+                handler.post(() -> {
+                    binding.swipeContainer.setRefreshing(false);
+                    binding.progressBar.setVisibility(View.GONE);
+                });
+                if (!isLoading && pins.isEmpty()) {
+                    handler.post(() -> {
+                        binding.tvMessage.setVisibility(View.VISIBLE);
+                        binding.tvMessage.setText(getResources().getString(R.string.no_pin));
+                    });
+                }
+                return;
+            }
+
+            if (isLoading)
+                return;
+
+            Log.d("AccountPinTab", "Fetching pins");
+            isLoading = true;
+
+            try {
+                DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+                assert currentUserDocument != null;
+                FirebasePinService.fetchPinsFromIds(pinIds.subList((page - 1) * perPage, Math.min(page * perPage, pinIds.size())), onPinsFetchedFromIdsCallback);
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (e.getMessage() != null) {
+                    Log.e("AccountPinTab", e.getMessage());
+                }
+                handler.post(() -> {
+                    Toast.makeText(requireContext(), getResources().getString(R.string.fetch_pin_failure), Toast.LENGTH_SHORT).show();
+                    binding.progressBar.setVisibility(View.GONE);
+                });
+            }
+        });
+        thread.start();
+    }
+
+    final FirebasePinService.OnPinsFetchedFromIdsCallback onPinsFetchedFromIdsCallback = new FirebasePinService.OnPinsFetchedFromIdsCallback() {
+        @Override
+        public void onSuccess(List<Pin> newPins) {
+            long lastUpdateTime = FirebaseUserService.getLastUpdateTime();
+            updateUI(newPins, profileLastUpdated == lastUpdateTime);
+            profileLastUpdated = lastUpdateTime;
+            page++;
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            e.printStackTrace();
+            isLoading = false;
+        }
+    };
+
+    void updateUI(List<Pin> newPins, boolean append) {
+        if (binding == null) {
+            return;
+        }
+
+        binding.progressBar.setVisibility(View.GONE);
+
+        if (!append) {
+            pins.clear();
+        }
+        int startPos = pins.size();
+        pins.addAll(newPins);
+        adapter.notifyItemRangeInserted(startPos, newPins.size());
+
+        isLoading = false;
+        if (!isRefreshing) {
+            restoreScrollState();
+        }
+
+        isRefreshing = false;
+        binding.swipeContainer.setRefreshing(false);
+        if (pins.isEmpty()) {
+            binding.tvMessage.setVisibility(View.VISIBLE);
+            binding.tvMessage.setText(getResources().getString(R.string.no_pin));
+        }
+    }
+
+    private void restoreScrollState() {
+        if (binding == null)
+            return;
+
+        Parcelable scroll_state = viewModel.getScrollState();
+        if (scroll_state != null && binding.rvPins.getLayoutManager() != null) {
+            binding.rvPins.getLayoutManager().onRestoreInstanceState(scroll_state);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (binding.rvPins.getLayoutManager() != null) {
+            viewModel.setScrollState(binding.rvPins.getLayoutManager().onSaveInstanceState());
+        }
+        viewModel.setPinState(pins);
+        viewModel.setLastUpdateTime(profileLastUpdated);
+        viewModel.setPinIdsState(pinIds);
+        viewModel.setPageState(page);
     }
 
     private void setPinIdsAndTotalPageCount() {

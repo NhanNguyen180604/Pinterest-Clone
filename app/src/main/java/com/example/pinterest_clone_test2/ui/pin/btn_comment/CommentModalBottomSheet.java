@@ -139,17 +139,21 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     private final FirebaseCommentService.GetCommentServiceCallback getCommentServiceCallback = new FirebaseCommentService.GetCommentServiceCallback() {
         @Override
         public void OnSuccess(List<Comment> commentList) {
-            handler.post(() -> {
-                binding.progressBar.setVisibility(View.GONE);
-                int startPos = comments.size();
-                comments.addAll(commentList);
-                commentListAdapter.notifyItemRangeInserted(startPos, commentList.size());
-                binding.tvCount.setText(getCommentCountString());
-            });
+            binding.progressBar.setVisibility(View.GONE);
+            int startPos = comments.size();
+            comments.addAll(commentList);
+            commentListAdapter.notifyItemRangeInserted(startPos, commentList.size());
+            binding.tvCount.setText(getCommentCountString());
+
+            if (comments.isEmpty()) {
+                binding.tvMessage.setText(_context.getResources().getString(R.string.no_comment));
+                binding.tvMessage.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
         public void OnFailure(Exception e) {
+            Toast.makeText(_context, _context.getResources().getString(R.string.fetch_comments_failure), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     };
@@ -179,8 +183,10 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
     }
 
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        binding.tvMessage.setVisibility(View.GONE);
         fetchCommentsAsync();
         initializeCommentRecyclerView();
 
@@ -220,6 +226,10 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
                         binding.tvCount.setText(getCommentCountString());
                     }
                     Toast.makeText(_context, getResources().getString(R.string.create_pin_comment_failed), Toast.LENGTH_SHORT).show();
+                    if (comments.isEmpty()) {
+                        binding.tvMessage.setText(_context.getResources().getString(R.string.no_comment));
+                        binding.tvMessage.setVisibility(View.VISIBLE);
+                    }
                 });
             };
 
@@ -277,6 +287,8 @@ public class CommentModalBottomSheet extends BottomSheetDialogFragment {
         userCommentModel.setReplyToId(null);
         userCommentModel.setReplyToName(null);
         binding.tvCount.setText(getCommentCountString());
+
+        binding.tvMessage.setVisibility(View.GONE);
     }
 
     @Override

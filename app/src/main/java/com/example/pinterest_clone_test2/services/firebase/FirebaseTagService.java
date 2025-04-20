@@ -1,6 +1,7 @@
 package com.example.pinterest_clone_test2.services.firebase;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -27,32 +28,90 @@ public abstract class FirebaseTagService {
     private static ArrayList<String> FIXED_TAGS;
     private static final int MAX_TAGS_PER_PIN = 6;
 
+    private static final String PREFS_NAME = "TagServicePrefs";
+    private static final String FIXED_TAGS_SAVED_KEY = "fixed_tags_saved";
+
     // Initialize fixed tags list from resources
     public static void initFixedTags(Context context) {
         if (FIXED_TAGS == null) {
             String[] tagArray = {
                     context.getString(R.string.anime).toLowerCase(),
+                    context.getString(R.string.art).toLowerCase(),
+                    context.getString(R.string.animal).toLowerCase(),
+                    context.getString(R.string.photography).toLowerCase(),
+                    context.getString(R.string.graphic_design).toLowerCase(),
+                    context.getString(R.string.quotes).toLowerCase(),
+                    context.getString(R.string.football).toLowerCase(),
+                    context.getString(R.string.cars).toLowerCase(),
+                    context.getString(R.string.illustration).toLowerCase(),
+                    context.getString(R.string.technology).toLowerCase(),
+                    context.getString(R.string.celebrity).toLowerCase(),
+                    context.getString(R.string.flowers).toLowerCase(),
                     context.getString(R.string.travel).toLowerCase(),
                     context.getString(R.string.food).toLowerCase(),
                     context.getString(R.string.fashion).toLowerCase(),
-                    context.getString(R.string.art).toLowerCase(),
-                    context.getString(R.string.photography).toLowerCase(),
                     context.getString(R.string.beauty).toLowerCase(),
-                    context.getString(R.string.technology).toLowerCase(),
-                    context.getString(R.string.animal).toLowerCase(),
                     context.getString(R.string.education).toLowerCase(),
                     context.getString(R.string.decor).toLowerCase(),
-                    context.getString(R.string.cars).toLowerCase(),
                     context.getString(R.string.wedding).toLowerCase(),
                     context.getString(R.string.landscape).toLowerCase(),
                     context.getString(R.string.music).toLowerCase(),
                     context.getString(R.string.science).toLowerCase()
+
             };
 
             FIXED_TAGS = new ArrayList<>(Arrays.asList(tagArray));
         }
     }
 
+    public static boolean areFixedTagsSaved(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(FIXED_TAGS_SAVED_KEY, false);
+    }
+
+    public static void saveFixedTagsIfNeeded(Context context, SaveFixedTagsCallback callback) {
+        // Check if fixed tags have already been saved
+        if (areFixedTagsSaved(context)) {
+            Log.d(TAG, "Fixed tags already saved, skipping");
+            if (callback != null) {
+                callback.onSuccess();
+            }
+            return;
+        }
+
+        // If not saved yet, proceed with saving
+        saveFixedTagsToFirestore(context, new SaveFixedTagsCallback() {
+            @Override
+            public void onSuccess() {
+                // Mark as saved when successful
+                markFixedTagsAsSaved(context);
+                if (callback != null) {
+                    callback.onSuccess();
+                }
+            }
+
+            @Override
+            public void onPartialSuccess(int successCount, List<String> failedTags) {
+                if (callback != null) {
+                    callback.onPartialSuccess(successCount, failedTags);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                if (callback != null) {
+                    callback.onFailure(e);
+                }
+            }
+        });
+    }
+
+    public static void markFixedTagsAsSaved(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(FIXED_TAGS_SAVED_KEY, true);
+        editor.apply();
+    }
     //Process tags to prioritize fixed tags and limit to MAX_TAGS_PER_PIN
     public static List<String> processTags(@NonNull List<String> detectedTags) {
         if (detectedTags.isEmpty()) {
@@ -326,6 +385,117 @@ public abstract class FirebaseTagService {
     public interface UpdateTagCallback {
         void onSuccess();
 
+        void onFailure(Exception e);
+    }
+
+    public static void saveFixedTagsToFirestore(Context context, SaveFixedTagsCallback callback) {
+        // Đảm bảo rằng các tag cố định đã được khởi tạo
+        if (FIXED_TAGS == null) {
+            initFixedTags(context);
+        }
+
+        if (FIXED_TAGS == null || FIXED_TAGS.isEmpty()) {
+            if (callback != null) {
+                callback.onFailure(new Exception("Các tag cố định chưa được khởi tạo hoặc rỗng"));
+            }
+            return;
+        }
+
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        final int[] tagCount = {FIXED_TAGS.size()};
+        final int[] successCount = {0};
+        final List<String> failedTags = new ArrayList<>();
+
+        for (String tag : FIXED_TAGS) {
+            final String normalizedTag = tag.toLowerCase().trim();
+
+            firestore.collection("tags")
+                    .whereEqualTo("name", normalizedTag)
+                    .limit(1)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        List<DocumentSnapshot> documents = queryDocumentSnapshots.getDocuments();
+
+                        if (documents.isEmpty()) {
+                            // Thêm tag cố định mới
+                            Map<String, Object> tagData = new HashMap<>();
+                            tagData.put("name", normalizedTag);
+                            tagData.put("count", 0);
+                            tagData.put("createdAt", System.currentTimeMillis());
+                            tagData.put("isFixed", true);
+                            tagData.put("pinIds", new ArrayList<String>());
+
+                            firestore.collection("tags")
+                                    .add(tagData)
+                                    .addOnSuccessListener(documentReference -> {
+                                        Log.d(TAG, "Đã thêm tag cố định: " + normalizedTag);
+                                        synchronized (successCount) {
+                                            successCount[0]++;
+                                            checkCompletion(tagCount[0], successCount[0], failedTags, callback);
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e(TAG, "Lỗi khi thêm tag cố định: " + e.getMessage());
+                                        synchronized (failedTags) {
+                                            failedTags.add(normalizedTag);
+                                            checkCompletion(tagCount[0], successCount[0], failedTags, callback);
+                                        }
+                                    });
+                        } else {
+                            // Tag đã tồn tại, cập nhật nếu cần
+                            DocumentSnapshot tagDoc = documents.get(0);
+                            Boolean isFixed = tagDoc.getBoolean("isFixed");
+
+                            if (isFixed == null || !isFixed) {
+                                tagDoc.getReference()
+                                        .update("isFixed", true)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d(TAG, "Đã cập nhật tag thành cố định: " + normalizedTag);
+                                            synchronized (successCount) {
+                                                successCount[0]++;
+                                                checkCompletion(tagCount[0], successCount[0], failedTags, callback);
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e(TAG, "Lỗi khi cập nhật tag thành cố định: " + e.getMessage());
+                                            synchronized (failedTags) {
+                                                failedTags.add(normalizedTag);
+                                                checkCompletion(tagCount[0], successCount[0], failedTags, callback);
+                                            }
+                                        });
+                            } else {
+                                // Đã được đánh dấu là cố định, tính là thành công
+                                synchronized (successCount) {
+                                    successCount[0]++;
+                                    checkCompletion(tagCount[0], successCount[0], failedTags, callback);
+                                }
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Lỗi khi kiểm tra tag: " + e.getMessage());
+                        synchronized (failedTags) {
+                            failedTags.add(normalizedTag);
+                            checkCompletion(tagCount[0], successCount[0], failedTags, callback);
+                        }
+                    });
+        }
+    }
+
+    private static void checkCompletion(int totalCount, int successCount, List<String> failedTags,
+                                        SaveFixedTagsCallback callback) {
+        if (successCount + failedTags.size() >= totalCount && callback != null) {
+            if (failedTags.isEmpty()) {
+                callback.onSuccess();
+            } else {
+                callback.onPartialSuccess(successCount, failedTags);
+            }
+        }
+    }
+
+    public interface SaveFixedTagsCallback {
+        void onSuccess();
+        void onPartialSuccess(int successCount, List<String> failedTags);
         void onFailure(Exception e);
     }
 }

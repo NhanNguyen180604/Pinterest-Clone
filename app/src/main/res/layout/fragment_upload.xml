@@ -52,45 +52,77 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ImageButton
-            android:id="@+id/btnCamera"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_btn_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
-            android:contentDescription="@string/desc_open_camera"
-            android:src="@drawable/ic_camera"
+            app:cardBackgroundColor="@color/light_gray"
+            app:cardCornerRadius="100dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/btnAddUrl"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btnCamera"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@null"
+                android:contentDescription="@string/desc_open_camera"
+                android:src="@drawable/ic_camera" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_btn_add_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:contentDescription="@string/desc_add_url"
-            android:src="@drawable/ic_link"
-            app:layout_constraintStart_toEndOf="@id/btnCamera"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:cardBackgroundColor="@color/light_gray"
+            app:cardCornerRadius="100dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/cv_btn_camera"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/btnLibrary"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btnAddUrl"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@null"
+                android:contentDescription="@string/desc_add_url"
+                android:src="@drawable/ic_globe" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_btn_library"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:contentDescription="@string/desc_open_library"
-            android:src="@drawable/ic_library_add"
+            app:cardBackgroundColor="@color/light_gray"
+            app:cardCornerRadius="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btnLibrary"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@null"
+                android:contentDescription="@string/desc_open_library"
+                android:src="@drawable/ic_library_add" />
+        </androidx.cardview.widget.CardView>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <FrameLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/selectedMediaContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="20dp"
         android:visibility="gone"
+        app:cardCornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -119,6 +151,6 @@
             android:scaleType="centerInside"
             android:src="@drawable/ic_close"
             app:tint="@android:color/white" />
-    </FrameLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

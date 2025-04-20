@@ -234,6 +234,21 @@
     <string name="landscape">landscape</string>
     <string name="music">music</string>
     <string name="science">science</string>
+    <string name="graphic_design">graphic design</string>
+    <string name="quotes">quotes</string>
+    <string name="football">football</string>
+    <string name="illustration">illustration</string>
+    <string name="celebrity">celebrity</string>
+    <string name="flowers">flowers</string>
+    <string name="interests_title">What are you interested in?</string>
+    <string name="interests_description">Choose 5 interests to customize your home feed</string>
+    <string name="select_more_interests">Select %1$d more interests</string>
+    <string name="tag_image_description">Category image</string>
+    <string name="birthdate_greeting">Hello %s! Enter your birthdate</string>
+    <string name="empty_error">This should not be empty!</string>
+    <string name="email_invalid_format">Invalid email format</string>
+    <string name="email_already_exists">Email already exists</string>
+    <string name="email_check_error">Error occurred while checking email, please try again</string>
     <string name="search_pinterest_hint">Search Pinterest</string>
     <string name="reason_spam">Spam</string>
     <string name="desc_spam">Fraud or posting multiple times on purpose</string>
@@ -250,7 +265,7 @@
     <string name="reason_violence">Violence</string>
     <string name="desc_violence">Depicts or glorifies violence, contains extreme graphics</string>
     <string name="reason_dangerous_goods">Dangerous goods</string>
-    <string name="desc_dangerous_goods">Advertising dangerous subtances, gun, ammo...</string>
+    <string name="desc_dangerous_goods">Advertising dangerous substances, gun, ammo…</string>
     <string name="idea_for_you">Ideas for you</string>
     <string name="idea_title">Idea title</string>
     <string name="popular_on_pinterest">Popular on Pinterest</string>
@@ -262,4 +277,8 @@
     <string name="find_human_figure_drawings_on_pinterest">Human figure drawings</string>
     <string name="pin_uploading">Uploading pin</string>
     <string name="bg_removal_failure">Failed to remove background</string>
+    <string name="no_board_message">You have no board</string>
+    <string name="no_comment">No comment</string>
+    <string name="fetch_comments_failure">Failed to fetch comments</string>
+    <string name="calendar_picker_date_format">MMMM d, yyyy</string>
 </resources>
