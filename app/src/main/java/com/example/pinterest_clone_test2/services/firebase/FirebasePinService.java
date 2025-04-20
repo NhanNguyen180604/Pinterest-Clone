@@ -188,7 +188,7 @@ public abstract class FirebasePinService {
                         if (task.isSuccessful()) {
                             List<DocumentSnapshot> docs = task.getResult().getDocuments();
                             if (docs.isEmpty())
-                                return;
+                                continue;
 
                             Tag tag = docs.get(0).toObject(Tag.class);
                             if (tag == null)
