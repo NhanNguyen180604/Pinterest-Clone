@@ -227,4 +227,9 @@
     <string name="interests_description">Chọn 5 sở thích để tùy chỉnh bảng tin nhà của bạn</string>
     <string name="select_more_interests">Chọn thêm %1$d sở thích nữa</string>
     <string name="tag_image_description">Hình ảnh danh mục</string>
+    <string name="birthdate_greeting">Xin chào %s! Nhập ngày sinh của bạn</string>
+    <string name="empty_error">Không nên bỏ trống!</string>
+    <string name="email_invalid_format">Định dạng email không hợp lệ</string>
+    <string name="email_already_exists">Email đã tồn tại</string>
+    <string name="email_check_error">Đã có lỗi trong lúc kiểm tra email, vui lòng thử lại</string>
 </resources>

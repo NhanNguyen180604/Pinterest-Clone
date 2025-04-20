@@ -221,4 +221,9 @@
     <string name="interests_description">Choose 5 interests to customize your home feed</string>
     <string name="select_more_interests">Select %1$d more interests</string>
     <string name="tag_image_description">Category image</string>
+    <string name="birthdate_greeting">Hello %s! Enter your birthdate</string>
+    <string name="empty_error">This should not be empty!</string>
+    <string name="email_invalid_format">Invalid email format</string>
+    <string name="email_already_exists">Email already exists</string>
+    <string name="email_check_error">Error occurred while checking email, please try again</string>
 </resources>

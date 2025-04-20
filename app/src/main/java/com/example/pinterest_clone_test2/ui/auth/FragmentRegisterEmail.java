@@ -50,7 +50,7 @@ public class FragmentRegisterEmail extends Fragment {
     private void validateEmail(String email, EmailValidateCallback callback) {
         // Kiểm tra định dạng email
         if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            callback.onEmailValidate(email, false, "Định dạng email không hợp lệ");
+            callback.onEmailValidate(email, false, getString(R.string.email_invalid_format));
             return;
         }
 
@@ -60,7 +60,7 @@ public class FragmentRegisterEmail extends Fragment {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.getDocuments().isEmpty()){
-                        callback.onEmailValidate(email, false, "Email đã tồn tại");
+                        callback.onEmailValidate(email, false, getString(R.string.email_already_exists));
                     }
                     else {
                         callback.onEmailValidate(email, true, "");
@@ -68,7 +68,7 @@ public class FragmentRegisterEmail extends Fragment {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("firebase-firestore", "Could not fetch documents to check if email exists", e);
-                    callback.onEmailValidate(email, false, "Đã có lỗi trong lúc kiểm tra emai, vui lòng thử lại");
+                    callback.onEmailValidate(email, false, getString(R.string.email_check_error));
                 });
     }
 
