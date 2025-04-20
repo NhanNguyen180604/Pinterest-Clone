@@ -84,14 +84,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <TextView
         android:id="@+id/tv_empty_results"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/search_not_found"
-        android:textSize="16sp"
-        android:visibility="gone"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

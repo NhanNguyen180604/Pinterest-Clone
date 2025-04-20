@@ -260,4 +260,7 @@
     <string name="you_like_anime">You like anime?</string>
     <string name="funny_cat_image">Funny cat images</string>
     <string name="find_human_figure_drawings_on_pinterest">Human figure drawings</string>
+    <string name="no_board_message">You have no board</string>
+    <string name="no_comment">No comment</string>
+    <string name="fetch_comments_failure">Failed to fetch comments</string>
 </resources>

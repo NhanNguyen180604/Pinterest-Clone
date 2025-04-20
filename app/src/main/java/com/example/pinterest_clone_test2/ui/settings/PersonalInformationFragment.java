@@ -16,6 +16,8 @@ import com.example.pinterest_clone_test2.databinding.FragmentPersonalInformation
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.util.Objects;
+
 public class PersonalInformationFragment extends Fragment {
     FragmentPersonalInformationBinding binding;
 
@@ -45,6 +47,10 @@ public class PersonalInformationFragment extends Fragment {
             NavController navController = Navigation.findNavController(view);
             navController.navigate(R.id.action_personal_information_to_gender);
         });
-        binding.tvYourGender.setText(gender);
+        if (Objects.equals(gender, "Nam")) {
+            binding.tvYourGender.setText(getResources().getString(R.string.male_text));
+        } else {
+            binding.tvYourGender.setText(Objects.equals(gender, "Nữ") ? getResources().getString(R.string.female_text) : getResources().getString(R.string.other_gender_text));
+        }
     }
 }
