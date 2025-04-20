@@ -36,7 +36,7 @@ public class FragmentRegisterPassword extends Fragment {
         btnNext.setOnClickListener(v -> {
             String password = etPassWord.getText().toString();
             if (password.isEmpty()) {
-                etPassWord.setError("Không nên bỏ trống mật khẩu!");
+                etPassWord.setError(getString(R.string.empty_error));
             } else
                 ((LoginActivity) requireActivity()).registerPassword(password);
 

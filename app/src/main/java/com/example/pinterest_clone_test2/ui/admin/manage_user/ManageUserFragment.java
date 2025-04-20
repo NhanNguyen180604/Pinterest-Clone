@@ -147,11 +147,12 @@ public class ManageUserFragment extends Fragment {
             // Hiển thị dialog thêm người dùng
             AddUserDialogFragment dialog = new AddUserDialogFragment(
                     (password, email, name, birthDate, gender, role) -> {
-                        User newUser = new User(password, email, name, birthDate, gender, role);
-                        viewModel.addUser(newUser,
-                                () -> Toast.makeText(getContext(), "Đã thêm " + email, Toast.LENGTH_SHORT).show(),
-                                e -> Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                        );
+                        //TODO: why this thing exists?
+//                        User newUser = new User(password, email, name, birthDate, gender, role);
+//                        viewModel.addUser(newUser,
+//                                () -> Toast.makeText(getContext(), "Đã thêm " + email, Toast.LENGTH_SHORT).show(),
+//                                e -> Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+//                        );
                     }
             );
             dialog.show(getParentFragmentManager(), "add_user_dialog");

@@ -14,6 +14,7 @@ import com.example.pinterest_clone_test2.ui.auth.FragmentLogin;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterBirthdate;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterEmail;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterGender;
+import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterInterests;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterName;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterPassword;
 import com.example.pinterest_clone_test2.ui.auth.FragmentStartScreen;
@@ -25,6 +26,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
@@ -98,6 +100,14 @@ public class LoginActivity extends AppCompatActivity {
 
     public void registerGender(String gender) {
         user.setGender(gender);
+        fragmentManager.beginTransaction()
+                .replace(R.id.login_fragment_container, new FragmentRegisterInterests())
+                .addToBackStack(null)
+                .commit();
+    }
+    public void registerInterests(List<String> interests) {
+        // Convert localized tags back to English for storage
+        user.setInterests(interests);
         createUser();
     }
 
@@ -126,6 +136,7 @@ public class LoginActivity extends AppCompatActivity {
                     userInfos.put("role", "User");
                     userInfos.put("gender", user.getGender().name());
                     userInfos.put("birthdate", user.getBirthDate());
+                    userInfos.put("interests", user.getInterests());
                     userInfos.put("pins", new ArrayList<String>());
                     userInfos.put("boards", new ArrayList<String>());
                     userInfos.put("collages", new ArrayList<String>());

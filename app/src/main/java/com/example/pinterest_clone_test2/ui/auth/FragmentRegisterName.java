@@ -37,7 +37,7 @@ public class FragmentRegisterName extends Fragment {
         btnNext.setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
             if (name.isEmpty()) {
-                etName.setError("Không được để trống tên");
+                etName.setError(getString(R.string.empty_error));
             } else {
                 ((LoginActivity) requireActivity()).registerName(name);
             }
