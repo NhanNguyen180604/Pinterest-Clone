@@ -1,6 +1,5 @@
 package com.example.pinterest_clone_test2.models;
 
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -14,10 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User extends BaseObservable implements Parcelable {
-    @SuppressWarnings("unused")
     public enum Role {
-        ADMIN,
-        USER,
+        Admin,
+        User,
     }
 
     public enum Gender {
@@ -26,10 +24,9 @@ public class User extends BaseObservable implements Parcelable {
         Khác,
     }
 
-    private String id;
+    private String userId;
     private String email;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String birthDate;
     private Gender gender;
     private Role role;
@@ -40,48 +37,48 @@ public class User extends BaseObservable implements Parcelable {
         interests = new ArrayList<>();
     }
 
-    public String getId() {
-        return id;
+    // Getter, Setter
+    @Bindable
+    public String getUserId() {
+        return userId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUserId(String userId) {
+        this.userId = userId;
+        notifyPropertyChanged(BR.userId);
     }
 
+    @Bindable
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+        notifyPropertyChanged(BR.email);
     }
 
     @Bindable
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-        notifyPropertyChanged(BR.firstName);
+    public void setName(String name) {
+        this.name = name;
+        notifyPropertyChanged(BR.name);
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
+    @Bindable
     public Gender getGender() {
         return gender;
     }
 
     public void setGender(String gender) {
         this.gender = Gender.valueOf(gender);
+        notifyPropertyChanged(BR.gender);
     }
 
+    @Bindable
     public String getBirthDate() {
         return birthDate;
     }
@@ -90,16 +87,14 @@ public class User extends BaseObservable implements Parcelable {
         this.birthDate = birthDate;
     }
 
+    @Bindable
     public Role getRole() {
         return role;
     }
 
     public void setRole(Role role) {
         this.role = role;
-    }
-
-    public String getFullName() {
-        return firstName + " " + lastName;
+        notifyPropertyChanged(BR.role);
     }
 
     @Bindable
@@ -131,11 +126,15 @@ public class User extends BaseObservable implements Parcelable {
         }
     }
 
+    public boolean isBanned() {
+        return false; // Thêm logic kiểm tra trạng thái ban ở đây
+    }
+
+    // Implement Interface
     public User(Parcel in) {
-        id = in.readString();
+        userId = in.readString();
         email = in.readString();
-        firstName = in.readString();
-        lastName = in.readString();
+        name = in.readString();
         birthDate = in.readString();
         gender = (Gender) in.readSerializable();
         role = (Role) in.readSerializable();
@@ -163,10 +162,9 @@ public class User extends BaseObservable implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
-        parcel.writeString(id);
+        parcel.writeString(userId);
         parcel.writeString(email);
-        parcel.writeString(firstName);
-        parcel.writeString(lastName);
+        parcel.writeString(name);
         parcel.writeString(birthDate);
         parcel.writeSerializable(gender);
         parcel.writeSerializable(role);

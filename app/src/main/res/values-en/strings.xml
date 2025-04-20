@@ -132,6 +132,7 @@
     <string name="pins">Pins</string>
     <string name="board">Board</string>
     <string name="boards">Boards</string>
+    <string name="choose_boards">Choose board(s)</string>
     <string name="collage">Collage</string>
     <string name="collages">Collages</string>
     <string name="start_creating_now">Start creating now</string>
@@ -182,6 +183,18 @@
     <string name="pin_not_found">Pin not found</string>
     <string name="no_pin_id">Empty pin ID</string>
     <string name="unknown_error">Unknown error</string>
+    <string name="create_collage">Create collage</string>
+    <string name="stroke_width">Stroke Width</string>
+    <string name="brush_options">Brush Options</string>
+    <string name="basic_colors">Basic Colors</string>
+    <string name="done">Done</string>
+    <string name="custom_color">Custom Color</string>
+    <string name="camera">Camera</string>
+    <string name="collage_tools">Collage Tools</string>
+    <string name="enter_text">Enter text</string>
+    <string name="text_color">Text color</string>
+    <string name="text_size">Text size</string>
+    <string name="default_size">24</string>
     <string name="download_pin_finished">Finished downloading media</string>
     <string name="download_permission_denied">Permission denied, download failed</string>
     <string name="fetch_boards_failure">Failed to load boards</string>
@@ -195,6 +208,16 @@
     <string name="login_failure">Failed to login</string>
     <string name="media_upload_failure">Failed to upload media</string>
     <string name="upload_pin_failure">Failed to upload Pin</string>
+    <string name="edit">Edit</string>
+    <string name="edit_pin">Edit pin</string>
+    <string name="delete_pin">Delete pin</string>
+    <string name="delete">Delete</string>
+    <string name="allow_comments">Allow comments</string>
+    <string name="update_pin_values_failure">Failed to update pin\'s fields</string>
+    <string name="update_pin_boards_failure">Failed to update pin\'s board</string>
+    <string name="pin_delete_title">Are you sure?</string>
+    <string name="pin_delete_warning">You won\'t be able to get this Pin back if you delete it</string>
+    <string name="pin_delete_failure">Failed to delete pin</string>
     <string name="anime">anime</string>
     <string name="travel">travel</string>
     <string name="food">food</string>
@@ -226,4 +249,6 @@
     <string name="email_invalid_format">Invalid email format</string>
     <string name="email_already_exists">Email already exists</string>
     <string name="email_check_error">Error occurred while checking email, please try again</string>
+    <string name="search_pinterest_hint">Search Pinterest</string>
+    <string name="calendar_picker_date_format">MMMM d, yyyy</string>
 </resources>

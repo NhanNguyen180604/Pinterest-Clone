@@ -5,23 +5,30 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.models.Tag;
+import com.example.pinterest_clone_test2.ui.pin.edit.BoardBooleanPair;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public abstract class FirebasePinService {
     public static void getPins(@Nullable DocumentSnapshot lastVisible, int perPage, Filter filter, GetPinServiceCallback callback) {
@@ -115,51 +122,89 @@ public abstract class FirebasePinService {
         final Query finalDescriptionQuery = descriptionQuery.limit(perPage);
 
         // Thực hiện các truy vấn
-        finalNameQuery.get().addOnSuccessListener(nameResults -> {
-            finalDescriptionQuery.get().addOnSuccessListener(descriptionResults -> {
-                List<DocumentSnapshot> resultDocuments = tryFilterDocuments(nameResults, descriptionResults);
-                Map<String, DocumentSnapshot> uniqueResults = new HashMap<>();
+        finalNameQuery.get().addOnSuccessListener(nameResults -> finalDescriptionQuery.get().addOnSuccessListener(descriptionResults -> {
+            List<DocumentSnapshot> resultDocuments = tryFilterDocuments(nameResults, descriptionResults);
+            Map<String, DocumentSnapshot> uniqueResults = new HashMap<>();
 
-                for (DocumentSnapshot doc : resultDocuments) {
-                    uniqueResults.put(doc.getId(), doc);
-                }
+            for (DocumentSnapshot doc : resultDocuments) {
+                uniqueResults.put(doc.getId(), doc);
+            }
 
-                // Chuyển đổi DocumentSnapshot thành đối tượng Pin
-                List<Pin> pinResults = new ArrayList<>();
-                DocumentSnapshot lastDoc = null;
+            // Chuyển đổi DocumentSnapshot thành đối tượng Pin
+            List<Pin> pinResults = new ArrayList<>();
+            DocumentSnapshot lastDoc = null;
 
-                for (DocumentSnapshot doc : uniqueResults.values()) {
-                    Pin pin = new Pin()
-                            .setId(doc.getId())
-                            .setAllowComment(Boolean.TRUE.equals(doc.getBoolean("allowComment")))
-                            .setAuthorId(doc.getString("authorId"))
-                            .setMediaUrl(doc.getString("mediaUrl"))
-                            .setThumbnailUrl(doc.getString("thumbnailUrl"))
-                            .setType(doc.get("type", Pin.PinType.class));
+            for (DocumentSnapshot doc : uniqueResults.values()) {
+                Pin pin = new Pin()
+                        .setId(doc.getId())
+                        .setAllowComment(Boolean.TRUE.equals(doc.getBoolean("allowComment")))
+                        .setAuthorId(doc.getString("authorId"))
+                        .setMediaUrl(doc.getString("mediaUrl"))
+                        .setThumbnailUrl(doc.getString("thumbnailUrl"))
+                        .setType(doc.get("type", Pin.PinType.class));
 
-                    String description = doc.getString("description");
-                    String name = doc.getString("name");
-                    pin.setName(name != null ? name : "");
-                    pin.setDescription(description != null ? description : "");
+                String description = doc.getString("description");
+                String name = doc.getString("name");
+                pin.setName(name != null ? name : "");
+                pin.setDescription(description != null ? description : "");
 
-                    Long createdAt = doc.getLong("createdAt");
-                    Integer likeCount = doc.get("likeCount", Integer.class);
-                    pin.setCreatedAt(createdAt != null ? createdAt : 0);
-                    pin.setLikeCount(likeCount != null ? likeCount : 0);
+                Long createdAt = doc.getLong("createdAt");
+                Integer likeCount = doc.get("likeCount", Integer.class);
+                pin.setCreatedAt(createdAt != null ? createdAt : 0);
+                pin.setLikeCount(likeCount != null ? likeCount : 0);
 
-                    pinResults.add(pin);
+                pinResults.add(pin);
 
-                    // Cập nhật lastDoc cho phân trang
-                    lastDoc = doc;
-                }
+                // Cập nhật lastDoc cho phân trang
+                lastDoc = doc;
+            }
 
-                if (pinResults.size() > perPage) {
-                    pinResults = pinResults.subList(0, perPage);
-                }
+            if (pinResults.size() > perPage) {
+                pinResults = pinResults.subList(0, perPage);
+            }
 
-                callback.onSearchSuccess(pinResults, lastDoc);
-            }).addOnFailureListener(callback::onSearchFailure);
-        }).addOnFailureListener(callback::onSearchFailure);
+            callback.onSearchSuccess(pinResults, lastDoc);
+        }).addOnFailureListener(callback::onSearchFailure)).addOnFailureListener(callback::onSearchFailure);
+    }
+
+    public static void getRelevantPinIdsByTags(@NonNull Pin pin, GetRelevantPinIdsByTagCallback callback) {
+        List<Task<QuerySnapshot>> fetchTagTasks = new ArrayList<>();
+        List<String> tagNames = pin.getTags();
+        if (tagNames == null || tagNames.isEmpty()) {
+            callback.OnComplete(new ArrayList<>());
+            return;
+        }
+
+        for (String tagName : tagNames) {
+            if (tagName.isBlank())
+                continue;
+            fetchTagTasks.add(FirebaseTagService.getPinsByTagName(tagName));
+        }
+
+        Set<String> pinIdSet = new HashSet<>();
+        Tasks.whenAllComplete(fetchTagTasks)
+                .addOnCompleteListener(listTask -> {
+                    for (Task<QuerySnapshot> task : fetchTagTasks) {
+                        if (task.isSuccessful()) {
+                            List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                            if (docs.isEmpty())
+                                return;
+
+                            Tag tag = docs.get(0).toObject(Tag.class);
+                            if (tag == null)
+                                continue;
+
+                            List<String> pinIds = tag.getPinIds();
+                            if (pinIds != null && !pinIds.isEmpty()) {
+                                pinIds.remove(pin.getId());
+                                pinIdSet.addAll(pinIds);
+                            }
+                        }
+                    }
+                    List<String> result = new ArrayList<>(pinIdSet);
+                    Collections.shuffle(result);
+                    callback.OnComplete(result);
+                });
     }
 
     @NonNull
@@ -275,12 +320,91 @@ public abstract class FirebasePinService {
 
                         @Override
                         public void OnFailure(Exception e) {
-                            Log.e("FirebaseUserService", "Failed to saved pin to profile");
-                            e.printStackTrace();
+                            printExceptionMessage("Failed to saved pin to profile", e);
                         }
                     });
                 })
                 .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void updatePinWithBoards(@NonNull Pin pin, Map<String, BoardBooleanPair> boardMap, UpdatePinWithBoardsCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        Map<String, Object> pinUpdateMap = new HashMap<>();
+        pinUpdateMap.put("name", pin.getName());
+        pinUpdateMap.put("nameNormalized", pin.getNameNormalized());
+        pinUpdateMap.put("description", pin.getDescription());
+        pinUpdateMap.put("descriptionNormalized", pin.getDescriptionNormalized());
+        pinUpdateMap.put("allowComment", pin.getAllowComment());
+
+        Task<?> updatePinTask = firestore.collection("pins")
+                .document(pin.getId())
+                .update(pinUpdateMap)
+                .addOnSuccessListener(unused -> Log.d("FirebasePinService", "Updated pin values successfully"))
+                .addOnFailureListener(e -> printExceptionMessage("Failed to update pin values", e));
+
+        List<Task<?>> updateBoardTasks = new ArrayList<>();
+        for (Map.Entry<String, BoardBooleanPair> entry : boardMap.entrySet()) {
+            Board board = entry.getValue().getBoard();
+            String boardId = board.getId();
+            if (entry.getValue().isIncluded()) {
+                updateBoardTasks.add(firestore.collection("boards")
+                        .document(boardId)
+                        .update("pins", FieldValue.arrayUnion(pin.getId()))
+                        .addOnSuccessListener(unused -> Log.d("FirebasePinService", "Added pin to board " + entry.getValue().getBoard().getName()))
+                        .addOnFailureListener(e -> printExceptionMessage("Failed to add pin to board " + entry.getValue().getBoard().getName(), e))
+                );
+            } else {
+                updateBoardTasks.add(firestore.collection("boards")
+                        .document(boardId)
+                        .update("pins", FieldValue.arrayRemove(pin.getId()))
+                        .addOnSuccessListener(unused -> Log.d("FirebasePinService", "Removed pin from board " + entry.getValue().getBoard().getName()))
+                        .addOnFailureListener(e -> printExceptionMessage("Failed to remove pin from board " + entry.getValue().getBoard().getName(), e))
+                );
+            }
+        }
+
+        List<Task<?>> allTasks = new ArrayList<>();
+        allTasks.add(updatePinTask);
+        allTasks.addAll(updateBoardTasks);
+        Tasks.whenAllComplete(allTasks)
+                .addOnCompleteListener(runnable -> {
+                    boolean pinUpdateSuccess = updatePinTask.isSuccessful();
+                    boolean boardUpdateSuccess = updateBoardTasks.stream().allMatch(Task::isSuccessful);
+                    callback.Callback(pinUpdateSuccess, boardUpdateSuccess);
+                });
+    }
+
+    // there will be a rule on firebase to check if is admin or is owner
+    public static void deletePin(@NonNull String pinId, DeletePinCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("pins")
+                .document(pinId)
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    callback.OnSuccess();
+                    FirebaseUserService.removePinFromProfile(pinId);
+                    FirebaseCommentService.deleteCommentsOfPin(pinId);
+                })
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void checkPinExists(@NonNull String pinId, CheckPinExistsCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("pins")
+                .document(pinId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> callback.OnComplete(documentSnapshot.exists()))
+                .addOnFailureListener(e -> printExceptionMessage("Failed to check if pin exist", e));
+    }
+
+    private static void printExceptionMessage(String message, Exception e) {
+        Log.e("FirebasePinService", message);
+        if (e.getMessage() != null) {
+            Log.e("FirebasePinService", e.getMessage());
+        } else {
+            e.printStackTrace();
+        }
     }
 
     public interface GetPinServiceCallback {
@@ -315,5 +439,23 @@ public abstract class FirebasePinService {
         void OnSuccess(DocumentReference documentReference);
 
         void OnFailure(Exception e);
+    }
+
+    public interface UpdatePinWithBoardsCallback {
+        void Callback(boolean updatePinSuccess, boolean updateBoardSuccess);
+    }
+
+    public interface DeletePinCallback {
+        void OnSuccess();
+
+        void OnFailure(Exception e);
+    }
+
+    public interface CheckPinExistsCallback {
+        void OnComplete(boolean exist);
+    }
+
+    public interface GetRelevantPinIdsByTagCallback {
+        void OnComplete(List<String> pinIds);
     }
 }

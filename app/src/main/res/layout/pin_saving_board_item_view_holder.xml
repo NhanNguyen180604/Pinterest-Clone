@@ -21,6 +21,13 @@
             android:adjustViewBounds="true"
             android:background="@color/dark_grey"
             android:scaleType="centerCrop" />
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:resize_mode="fixed_height"
+            app:use_controller="false" />
     </androidx.cardview.widget.CardView>
 
     <TextView

@@ -132,6 +132,7 @@
     <string name="pins">Ghim</string>
     <string name="board">Bảng</string>
     <string name="boards">Bảng</string>
+    <string name="choose_boards">Chọn bảng</string>
     <string name="collage">Ghim ghép</string>
     <string name="collages">Ghim ghép</string>
     <string name="start_creating_now">Bắt đầu tạo ngay</string>
@@ -187,6 +188,18 @@
     <string name="no_pin_id">ID của ghim trống</string>
     <string name="unknown_error">Đã có lỗi không rõ nguyên nhân</string>
     <string name="pin_deep_link_string_template" translatable="false">https://open.my.pinterest-clone/shared-pin/?pinId=%s</string>
+    <string name="create_collage">Tạo ảnh ghép</string>
+    <string name="stroke_width">Độ rộng nét bút</string>
+    <string name="brush_options">Cài đặt bút vẽ</string>
+    <string name="basic_colors">Màu cơ bản</string>
+    <string name="done">Xác nhận</string>
+    <string name="custom_color">Màu tùy chỉnh</string>
+    <string name="camera">Máy ảnh</string>
+    <string name="collage_tools">Công cụ</string>
+    <string name="enter_text">Nhập điều bạn muốn thêm</string>
+    <string name="text_color">Màu chữ</string>
+    <string name="text_size">Cỡ chữ</string>
+    <string name="default_size">24</string>
     <string name="download_pin_finished">Đã tải xong ghim</string>
     <string name="video_duration_placeholder" translatable="false">00:00</string>
     <string name="download_permission_denied">Không thể tải xuống vì không đủ quyền hạn</string>
@@ -201,6 +214,16 @@
     <string name="login_failure">Đã có lỗi trong lúc đăng nhập</string>
     <string name="media_upload_failure">Đã có lỗi khi đăng tải hình ảnh/video</string>
     <string name="upload_pin_failure">Đã có lỗi khi đăng tải ghim</string>
+    <string name="edit">Chỉnh sửa</string>
+    <string name="edit_pin">Chỉnh sửa ghim</string>
+    <string name="delete_pin">Xóa ghim</string>
+    <string name="delete">Xóa</string>
+    <string name="allow_comments">Cho phép bình luận</string>
+    <string name="update_pin_values_failure">Đã có lỗi khi cập nhật các trường của ghim</string>
+    <string name="update_pin_boards_failure">Đã có lỗi khi cập nhật bảng của ghim</string>
+    <string name="pin_delete_title">Bạn có chắc chắn không?</string>
+    <string name="pin_delete_warning">Bạn sẽ không thể khôi phục lại được Ghim này nếu nó bị xóa</string>
+    <string name="pin_delete_failure">Đã có lỗi khi xóa ghim</string>
     <string name="anime">anime</string>
     <string name="travel">du lịch</string>
     <string name="food">ẩm thực</string>
@@ -232,4 +255,6 @@
     <string name="email_invalid_format">Định dạng email không hợp lệ</string>
     <string name="email_already_exists">Email đã tồn tại</string>
     <string name="email_check_error">Đã có lỗi trong lúc kiểm tra email, vui lòng thử lại</string>
+    <string name="search_pinterest_hint">Tìm kiếm trên Pinterest</string>
+    <string name="calendar_picker_date_format">dd \'thg\' M, yyyy</string>
 </resources>

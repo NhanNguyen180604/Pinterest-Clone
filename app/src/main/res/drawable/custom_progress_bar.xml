@@ -1,0 +1,30 @@
+<!-- res/drawable/pinterest_progress_bar.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape
+            android:innerRadiusRatio="3"
+            android:shape="ring"
+            android:thicknessRatio="8"
+            android:useLevel="false">
+            <solid android:color="@color/light_red_pinterest" /> <!-- Light version of Pinterest red -->
+        </shape>
+    </item>
+    <item>
+        <rotate
+            android:fromDegrees="0"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="360">
+            <shape
+                android:innerRadiusRatio="3"
+                android:shape="ring"
+                android:thicknessRatio="8"
+                android:useLevel="false">
+                <gradient
+                    android:endColor="@color/red_pinterest"
+                    android:startColor="@color/light_red_pinterest"
+                    android:type="sweep" /> <!-- Pinterest red -->
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

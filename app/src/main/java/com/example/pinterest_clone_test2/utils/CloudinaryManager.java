@@ -19,6 +19,7 @@ public class CloudinaryManager {
     private static final String UPLOAD_PRESET = BuildConfig.UPLOAD_PRESET;
 
     private static boolean isInitialized = false;
+
     // Initialize Cloudinary
     public static void initCloudinary(Context context) {
         Log.d("Cloudinary", "Initializing Cloudinary...");

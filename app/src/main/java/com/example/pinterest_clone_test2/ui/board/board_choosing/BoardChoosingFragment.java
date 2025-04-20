@@ -20,6 +20,7 @@ import com.example.pinterest_clone_test2.databinding.FragmentBoardChoosingBindin
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.board.CreateNewBoardFragment;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -167,10 +168,18 @@ public class BoardChoosingFragment extends Fragment {
                     items.add(0, new HeaderItem(getResources().getString(R.string.save_to_your_board)));
                 }
 
+                DocumentSnapshot currentUserDocument = FirebaseUserService.getCurrentUserDocument();
+                List<String> profilePins = null;
+                try {
+                    profilePins = (List<String>) currentUserDocument.get("pins");
+                } catch (Exception e) {
+                    // eat exception
+                }
                 items.add(0, new BoardItem(
                         new Board()
                                 .setId(null)
-                                .setName(getResources().getString(R.string.your_profile)),
+                                .setName(getResources().getString(R.string.your_profile))
+                                .setPins(profilePins),
                         false
                 ));
 

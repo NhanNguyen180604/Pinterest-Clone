@@ -9,9 +9,11 @@ import androidx.annotation.NonNull;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.Tag;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,7 +114,7 @@ public abstract class FirebaseTagService {
     }
     //Process tags to prioritize fixed tags and limit to MAX_TAGS_PER_PIN
     public static List<String> processTags(@NonNull List<String> detectedTags) {
-        if (detectedTags == null || detectedTags.isEmpty()) {
+        if (detectedTags.isEmpty()) {
             return new ArrayList<>();
         }
 
@@ -151,7 +153,7 @@ public abstract class FirebaseTagService {
     }
 
 
-     //Save tags to Firestore, updating count for existing tags
+    //Save tags to Firestore, updating count for existing tags
     public static void saveTagsToFirestore(@NonNull List<String> tags, String pinId) {
         if (tags.isEmpty() || pinId == null || pinId.isEmpty()) {
             return;
@@ -219,7 +221,7 @@ public abstract class FirebaseTagService {
                             }
                         }
                     })
-                    .addOnFailureListener(e ->{
+                    .addOnFailureListener(e -> {
                         Log.e(TAG, "Error checking tag: " + e.getMessage(), e); // Log stack trace đầy đủ
                         String errorMsg = e.getMessage();
                         if (errorMsg != null) {
@@ -233,7 +235,7 @@ public abstract class FirebaseTagService {
     }
 
 
-     // overloaded to calling saveTagsToFirestore with null pinId
+    // overloaded to calling saveTagsToFirestore with null pinId
 
     public static void saveTagsToFirestore(@NonNull List<String> tags) {
         saveTagsToFirestore(tags, null);
@@ -309,48 +311,12 @@ public abstract class FirebaseTagService {
                 .addOnFailureListener(callback::onFailure);
     }
 
-    public static void getPinsByTag(String tagName, GetPinsByTagCallback callback) {
-        if (tagName == null || tagName.isEmpty()) {
-            callback.onFailure(new Exception("Tag name cannot be empty"));
-            return;
-        }
-
+    public static Task<QuerySnapshot> getPinsByTagName(@NonNull String tagName) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-        firestore.collection("tags")
+        return firestore.collection("tags")
                 .whereEqualTo("name", tagName.toLowerCase().trim())
                 .limit(1)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<DocumentSnapshot> documents = queryDocumentSnapshots.getDocuments();
-
-                    if (documents.isEmpty()) {
-                        callback.onSuccess(new ArrayList<>());
-                        return;
-                    }
-
-                    DocumentSnapshot tagDoc = documents.get(0);
-                    List<String> pinIds = (List<String>) tagDoc.get("pinIds");
-
-                    if (pinIds == null || pinIds.isEmpty()) {
-                        callback.onSuccess(new ArrayList<>());
-                        return;
-                    }
-
-                    // Fetch pins by their IDs
-                    FirebasePinService.fetchPinsFromIds(pinIds, new FirebasePinService.OnPinsFetchedFromIdsCallback() {
-                        @Override
-                        public void onSuccess(List<Pin> pins) {
-                            callback.onSuccess(pins);
-                        }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            callback.onFailure(e);
-                        }
-                    });
-                })
-                .addOnFailureListener(callback::onFailure);
+                .get();
     }
 
     public static void removePinFromTag(String tagName, String pinId, UpdateTagCallback callback) {
@@ -400,21 +366,25 @@ public abstract class FirebaseTagService {
 
     public interface GetPopularTagsCallback {
         void onSuccess(List<String> tagNames, List<Tag> tags);
+
         void onFailure(Exception e);
     }
 
     public interface SearchTagsCallback {
         void onSuccess(List<Tag> tags);
+
         void onFailure(Exception e);
     }
 
     public interface GetPinsByTagCallback {
         void onSuccess(List<Pin> pins);
+
         void onFailure(Exception e);
     }
 
     public interface UpdateTagCallback {
         void onSuccess();
+
         void onFailure(Exception e);
     }
 

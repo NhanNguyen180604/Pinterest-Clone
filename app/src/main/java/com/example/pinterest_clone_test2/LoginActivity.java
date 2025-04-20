@@ -83,7 +83,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void registerName(String name) {
-        user.setFirstName(name);
+        user.setName(name);
         fragmentManager.beginTransaction()
                 .replace(R.id.login_fragment_container, new FragmentRegisterBirthdate(name))
                 .addToBackStack(null)
@@ -124,14 +124,14 @@ public class LoginActivity extends AppCompatActivity {
                     assert firebaseUser != null;
 
                     UserProfileChangeRequest request = new UserProfileChangeRequest.Builder()
-                            .setDisplayName(user.getFirstName())
+                            .setDisplayName(user.getName())
                             .build();
                     Task<Void> updateProfileTask = firebaseUser.updateProfile(request);
 
                     // initialize user info
                     Map<String, Object> userInfos = new HashMap<>();
                     userInfos.put("userId", firebaseUser.getUid());
-                    userInfos.put("name", user.getFirstName());
+                    userInfos.put("name", user.getName());
                     userInfos.put("email", firebaseUser.getEmail());
                     userInfos.put("role", "User");
                     userInfos.put("gender", user.getGender().name());

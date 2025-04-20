@@ -22,6 +22,7 @@ public class UploadPinDetailsFragment extends Fragment {
 
     private FragmentUploadPinDetailsBinding binding;
     private Uri mediaUri;
+    boolean isCollage;
     ExoPlayer exoPlayer;
 
     public UploadPinDetailsFragment() {
@@ -44,7 +45,11 @@ public class UploadPinDetailsFragment extends Fragment {
                 return;
             }
 
+            isCollage = getArguments().getBoolean("isCollage");
+
             String mimeType = requireContext().getContentResolver().getType(mediaUri);
+            if (isCollage)
+                mimeType = "image";
 
             if (mimeType != null && (mimeType.startsWith("image") || mimeType.contains("gif"))) {
                 // For images or GIFs, use Glide to load into ImageView
@@ -73,7 +78,7 @@ public class UploadPinDetailsFragment extends Fragment {
                 if (getActivity() instanceof UploadActivity) {
                     String title = binding.titleEditText.getText().toString();
                     String description = binding.descriptionEditText.getText().toString();
-                    ((UploadActivity) getActivity()).uploadMedia(mediaUri, title, description);
+                    ((UploadActivity) getActivity()).uploadMedia(mediaUri, title, description, isCollage);
                 }
             } else {
                 Toast.makeText(getContext(), getResources().getString(R.string.no_media_selected), Toast.LENGTH_SHORT).show();

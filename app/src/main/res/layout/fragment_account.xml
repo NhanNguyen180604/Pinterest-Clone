@@ -39,14 +39,17 @@
             app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget" />
 
         <androidx.appcompat.widget.SearchView
+            android:layout_marginStart="12dp"
             android:id="@+id/account_search_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginVertical="8dp"
+            android:background="@drawable/search_input_background"
             app:iconifiedByDefault="false"
             app:layout_constraintEnd_toStartOf="@+id/btn_add_new_pin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_account"
+            app:queryBackground="@null"
             app:queryHint="@string/search_your_pin" />
 
         <ImageButton

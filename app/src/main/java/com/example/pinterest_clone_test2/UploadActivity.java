@@ -14,6 +14,7 @@ import com.example.pinterest_clone_test2.databinding.ActivityUploadBinding;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseTagService;
+import com.example.pinterest_clone_test2.ui.upload.UploadCollageFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadPinDetailsFragment;
 import com.example.pinterest_clone_test2.utils.CloudinaryManager;
@@ -27,8 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class UploadActivity extends AppCompatActivity {
-
-    private FirebaseFirestore firestore;
     private ActivityUploadBinding binding;
 
     @Override
@@ -37,14 +36,23 @@ public class UploadActivity extends AppCompatActivity {
         binding = ActivityUploadBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Initialize Firestore
-        firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
+        Intent intent = getIntent();
         if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_upload_container, new UploadFragment())
-                    .commit();
+            if (intent.getBooleanExtra("isCollage", false)) {
+
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_upload_container, new UploadCollageFragment())
+                        .commit();
+            } else if (intent.getBooleanExtra("isPin", false)) {
+
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_upload_container, new UploadFragment())
+                        .commit();
+            }
         }
     }
 
@@ -56,9 +64,9 @@ public class UploadActivity extends AppCompatActivity {
         // Pass only mediaUri to UploadImageDetailsFragment
         Bundle bundle = new Bundle();
         bundle.putParcelable("mediaUri", mediaUri);
+        bundle.putBoolean("isCollage", true);
         detailsFragment.setArguments(bundle);
 
-        // Perform fragment transaction
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_upload_container, detailsFragment)
@@ -66,7 +74,7 @@ public class UploadActivity extends AppCompatActivity {
                 .commit();
     }
 
-    public void uploadMedia(Uri mediaUri, String title, String description) {
+    public void uploadMedia(Uri mediaUri, String title, String description, boolean isCollage) {
         Log.d("Cloudinary", "Attempting to upload media");
 
         if (mediaUri != null) {
@@ -75,6 +83,9 @@ public class UploadActivity extends AppCompatActivity {
             // Kiểm tra MIME type và gọi hàm upload từ CloudinaryManager
             String mimeType = getContentResolver().getType(mediaUri);
             String mediaType;
+
+            if (isCollage)
+                mimeType = "image";
 
             // Xác định loại media: "image", "video", "gif"
             if (mimeType != null) {
@@ -87,6 +98,7 @@ public class UploadActivity extends AppCompatActivity {
                 }
 
                 // Call CloudinaryManager to upload the media
+                String finalMimeType = mimeType;
                 CloudinaryManager.uploadMedia(mediaUri, mimeType, new UploadCallback() {
                     @Override
                     public void onStart(String requestId) {
@@ -102,7 +114,7 @@ public class UploadActivity extends AppCompatActivity {
                     public void onSuccess(String requestId, Map resultData) {
                         String url = (String) resultData.get("secure_url");
                         if (url == null) {
-                            if (mimeType.startsWith("image")) {
+                            if (finalMimeType.startsWith("image")) {
                                 Toast.makeText(UploadActivity.this, getResources().getString(R.string.upload_image_failure), Toast.LENGTH_SHORT).show();
                             } else {
                                 Toast.makeText(UploadActivity.this, getResources().getString(R.string.upload_video_failure), Toast.LENGTH_SHORT).show();
@@ -145,7 +157,7 @@ public class UploadActivity extends AppCompatActivity {
         }
     }
 
-    private List<String> extractTagsFromResult(Map resultData) {
+    private List<String> extractTagsFromResult(Map<String, Object> resultData) {
         List<String> tags = new ArrayList<>();
 
         try {
@@ -167,6 +179,7 @@ public class UploadActivity extends AppCompatActivity {
     public interface PinSaveCallback {
         void onPinSaved(String pinId);
     }
+
     private void savePinToFirestore(String mediaUrl, String title, String description, String mediaType, List<String> tags, PinSaveCallback callback) {
         String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
@@ -213,6 +226,7 @@ public class UploadActivity extends AppCompatActivity {
             }
         });
     }
+
     //Overload of savePinToFirestore without callback
     private void savePinToFirestore(String mediaUrl, String title, String description,
                                     String mediaType, List<String> tags) {

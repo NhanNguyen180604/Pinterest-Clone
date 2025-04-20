@@ -59,16 +59,16 @@
                 <!-- ImageView for selected image or GIF -->
                 <ImageView
                     android:id="@+id/selectedImageView"
-                    android:layout_width="180dp"
-                    android:layout_height="180dp"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
                     android:contentDescription="@string/selectedImage"
                     android:scaleType="centerCrop" />
 
                 <androidx.media3.ui.PlayerView
                     android:id="@+id/selectedVideoView"
                     android:layout_width="wrap_content"
-                    app:resize_mode="fixed_height"
-                    android:layout_height="180dp" />
+                    android:layout_height="150dp"
+                    app:resize_mode="fixed_height" />
             </androidx.cardview.widget.CardView>
 
             <!-- Title -->
@@ -83,19 +83,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:background="@android:color/transparent"
+                android:background="@drawable/rounded_text_input_background"
                 android:hint="@string/TitleInput"
                 android:importantForAutofill="no"
                 android:inputType="text"
                 android:lines="2"
                 android:maxLines="2"
                 android:minHeight="48dp"
+                android:padding="12dp"
                 android:textColorHint="#757575" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333" />
+                android:background="@color/gray_transparent" />
 
             <!-- Description -->
             <TextView
@@ -110,20 +111,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:background="@android:color/transparent"
+                android:background="@drawable/rounded_text_input_background"
                 android:gravity="top"
                 android:hint="@string/descriptionInput"
                 android:importantForAutofill="no"
                 android:inputType="textMultiLine"
                 android:lines="2"
                 android:maxLines="3"
+                android:padding="12dp"
                 android:textColorHint="#757575" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333" />
-
+                android:background="@color/gray_transparent" />
             <!-- Link -->
             <TextView
                 android:layout_width="wrap_content"
@@ -137,19 +138,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:background="@android:color/transparent"
+                android:background="@drawable/rounded_text_input_background"
                 android:hint="@string/linkInput"
                 android:importantForAutofill="no"
                 android:inputType="text"
                 android:lines="1"
                 android:maxLines="2"
                 android:minHeight="48dp"
+                android:padding="12dp"
                 android:textColorHint="#757575" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333" />
+                android:background="@color/gray_transparent" />
 
             <!-- Choose board -->
             <LinearLayout
@@ -181,7 +183,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333" />
+                android:background="@color/gray_transparent" />
 
             <!-- Add category -->
             <LinearLayout
@@ -212,7 +214,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#333" />
+                android:background="@color/gray_transparent" />
 
             <!-- Advanced settings -->
             <LinearLayout

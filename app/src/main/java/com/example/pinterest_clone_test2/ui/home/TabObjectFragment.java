@@ -149,26 +149,12 @@ public class TabObjectFragment extends Fragment {
             Log.d("HomeTabLastVisible", lastVisible.getId());
 
             // create pins from documents
-            for (DocumentSnapshot document :
-                    documents) {
-                Pin pin = new Pin()
-                        .setId(document.getId())
-                        .setAllowComment(Boolean.TRUE.equals(document.getBoolean("allowComment")))
-                        .setAuthorId(document.getString("authorId"))
-                        .setMediaUrl(document.getString("mediaUrl"))
-                        .setThumbnailUrl(document.getString("thumbnailUrl"))
-                        .setType(document.get("type", Pin.PinType.class));
+            for (DocumentSnapshot document : documents) {
+                Pin pin = document.toObject(Pin.class);
+                if (pin == null)
+                    continue;
 
-                String description = document.getString("description");
-                String name = document.getString("name");
-                pin.setDescription(description != null ? description : "")
-                        .setName(name != null ? name : "");
-
-                Long createdAt = document.getLong("createdAt");
-                Integer likeCount = document.get("likeCount", Integer.class);
-                pin.setCreatedAt(createdAt != null ? createdAt : 0);
-                pin.setLikeCount(likeCount != null ? likeCount : 0);
-
+                pin.setId(document.getId());
                 newPins.add(pin);
             }
             handler.post(() -> updateUI(newPins, true));

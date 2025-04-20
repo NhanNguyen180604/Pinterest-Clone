@@ -56,11 +56,11 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHol
 
         holder.tvTitle.setText(board.getName());
         if (board.getPins().size() > 1) {
-            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), context.getResources().getString(R.string.pins).toLowerCase()));
+            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), context.getResources().getString(R.string.pins).toLowerCase()));
         } else {
-            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), context.getResources().getString(R.string.pin).toLowerCase()));
+            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), context.getResources().getString(R.string.pin).toLowerCase()));
         }
-        int pinSize = board.getPins().size();
+        int pinSize = board.getPinsObj().size();
         if (pinSize > 0)
             Glide.with(context).load(board.getPinsObj().get(0).getThumbnailUrl()).into(holder.ivFirst);
         if (pinSize > 1)
