@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/image_detail_layout_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/rounded_modal_bottom_sheet">
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btn_close"

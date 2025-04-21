@@ -86,4 +86,20 @@ public class CloudinaryManager {
             Log.e("Cloudinary", "No media selected");
         }
     }
+
+    public static void uploadMedia(byte[] bytes, UploadCallback callback) {
+        if (!isInitialized) {
+            Log.e("Cloudinary", "Cloudinary is not initialized!");
+            return;
+        }
+        if (bytes != null) {
+            Log.d("Cloudinary", "uploading image with byte array");
+            MediaManager.get().upload(bytes)
+                    .unsigned(UPLOAD_PRESET)
+                    .callback(callback)
+                    .dispatch();
+        } else {
+            Log.e("Cloudinary", "No media selected");
+        }
+    }
 }

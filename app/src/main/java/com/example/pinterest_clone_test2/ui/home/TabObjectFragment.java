@@ -77,6 +77,22 @@ public class TabObjectFragment extends Fragment {
                 refresh();
             }
         });
+
+        initRecyclerView();
+        binding.progressBar.setVisibility(View.VISIBLE);
+
+        // restore states
+        List<Pin> oldPinState = viewModel.getPinState();
+        if (oldPinState == null || oldPinState.isEmpty()) {
+            fetchPinsAsync();
+        } else if (pins.isEmpty()) {
+            updateUI(oldPinState, false);
+        } else {
+            restoreScrollState();
+            binding.progressBar.setVisibility(View.GONE);
+        }
+
+        isOnLastPage = viewModel.isOnLastPage();
     }
 
     void refresh() {
@@ -198,27 +214,6 @@ public class TabObjectFragment extends Fragment {
         }
         viewModel.setPinState(pins);
         viewModel.setOnLastPage(isOnLastPage);
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-
-        initRecyclerView();
-        binding.progressBar.setVisibility(View.VISIBLE);
-
-        // restore states
-        List<Pin> oldPinState = viewModel.getPinState();
-        if (oldPinState == null || oldPinState.isEmpty()) {
-            fetchPinsAsync();
-        } else if (pins.isEmpty()) {
-            updateUI(oldPinState, false);
-        } else {
-            restoreScrollState();
-            binding.progressBar.setVisibility(View.GONE);
-        }
-
-        isOnLastPage = viewModel.isOnLastPage();
     }
 
     private void initRecyclerView() {

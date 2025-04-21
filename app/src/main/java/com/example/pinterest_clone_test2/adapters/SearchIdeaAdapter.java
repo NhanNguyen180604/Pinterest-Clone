@@ -91,7 +91,6 @@ public class SearchIdeaAdapter extends RecyclerView.Adapter<SearchIdeaAdapter.Se
 
         final int currentPosition = position;
 
-        // it was working yesterday, now it doesn't, FUCK
         RequestOptions options = new RequestOptions()
                 .centerCrop()
                 .placeholder(R.drawable.ic_loading)

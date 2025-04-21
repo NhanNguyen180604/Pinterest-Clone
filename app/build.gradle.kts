@@ -28,6 +28,7 @@ android {
         buildConfigField("String", "API_KEY", properties.getProperty("API_KEY"))
         buildConfigField("String", "API_SECRET", properties.getProperty("API_SECRET"))
         buildConfigField("String", "UPLOAD_PRESET", properties.getProperty("UPLOAD_PRESET"))
+        buildConfigField("String", "REMOVE_BG_API_KEY", properties.getProperty("REMOVE_BG_API_KEY"))
     }
 
     buildTypes {
@@ -89,4 +90,6 @@ dependencies {
     implementation(libs.media3.ui)
 
     implementation(libs.swiperefreshlayout)
+
+    implementation(libs.okhttp)
 }
