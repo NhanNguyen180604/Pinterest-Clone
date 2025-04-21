@@ -15,6 +15,7 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -561,7 +562,8 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         if (containerWidth <= 0) containerWidth = binding.collageArea.getMeasuredWidth();
         if (containerWidth <= 0) containerWidth = 600;
 
-        int imageSize = containerWidth / 2;
+        int imageWidth = containerWidth / 2;
+        // We'll set the height dynamically after loading the image
 
         int imageCount = 0;
         for (int i = 0; i < binding.collageArea.getChildCount(); i++) {
@@ -572,12 +574,12 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         }
         int offset = imageCount * 20;
 
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(imageSize, imageSize);
-        params.leftMargin = 40 + (offset % (containerWidth - imageSize - 40));
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(imageWidth, imageWidth);
+        params.leftMargin = 40 + (offset % (containerWidth - imageWidth - 40));
         params.topMargin = 40 + (offset / 80) * 40;
 
         imageView.setLayoutParams(params);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         imageView.setTag(imageUri);
 
         int newZIndex = zIndexCounter++;
@@ -585,7 +587,30 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
         binding.collageArea.addView(imageView);
 
-        Glide.with(requireContext()).load(imageUri).centerCrop().into(imageView);
+        // Load image and adjust height based on aspect ratio
+        Glide.with(requireContext())
+                .load(imageUri)
+                .into(new com.bumptech.glide.request.target.SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(Drawable resource, com.bumptech.glide.request.transition.Transition<? super Drawable> transition) {
+                        // Get original image dimensions
+                        int originalWidth = resource.getIntrinsicWidth();
+                        int originalHeight = resource.getIntrinsicHeight();
+
+                        // Calculate height based on original aspect ratio
+                        float aspectRatio = (float) originalHeight / originalWidth;
+                        int calculatedHeight = Math.round(imageWidth * aspectRatio);
+
+                        // Update ImageView layout params with correct height
+                        FrameLayout.LayoutParams newParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+                        newParams.height = calculatedHeight;
+                        imageView.setLayoutParams(newParams);
+
+                        // Now load the image into the properly sized view
+                        imageView.setImageDrawable(resource);
+                    }
+                });
+
         setupDraggableZoomableImage(imageView);
         setActiveImage(imageView);
 

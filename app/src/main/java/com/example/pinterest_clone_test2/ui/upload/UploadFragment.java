@@ -3,6 +3,7 @@ package com.example.pinterest_clone_test2.ui.upload;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -154,62 +155,70 @@ public class UploadFragment extends Fragment {
 
     private void loadAllMediaFromGallery() {
         ContentResolver contentResolver = requireContext().getContentResolver();
+        ArrayList<Uri> newMediaList = new ArrayList<>();
 
-        // Query images and GIFs
-        Uri imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String[] imageProjection = {MediaStore.Images.Media._ID, MediaStore.Images.Media.MIME_TYPE};
+        // Sử dụng MediaStore.Files để truy vấn cả ảnh và video
+        Uri allMediaUri = MediaStore.Files.getContentUri("external");
 
-        // Query videos
-        Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-        String[] videoProjection = {MediaStore.Video.Media._ID, MediaStore.Video.Media.MIME_TYPE};
+        String[] projection = {
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.MEDIA_TYPE,
+                MediaStore.Files.FileColumns.MIME_TYPE,
+                MediaStore.Files.FileColumns.DATE_ADDED
+        };
+
+        // Lấy cả ảnh và video
+        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
+                + " OR "
+                + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+
+        // Sắp xếp theo thời gian mới nhất
+        String sortOrder = MediaStore.Files.FileColumns.DATE_ADDED + " DESC";
 
         try {
-            ArrayList<Uri> newMediaList = new ArrayList<>();
+            Cursor cursor = contentResolver.query(
+                    allMediaUri,
+                    projection,
+                    selection,
+                    null,
+                    sortOrder
+            );
 
-            // Query for images and GIFs
-            try (Cursor cursor = contentResolver.query(imageUri, imageProjection, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                    int mimeTypeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
-                    if (columnIndex != -1 && mimeTypeIndex != -1) {
-                        do {
-                            long mediaId = cursor.getLong(columnIndex);
-                            String mimeType = cursor.getString(mimeTypeIndex);
-                            Uri mediaUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(mediaId));
+            if (cursor != null) {
+                int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID);
+                int mediaTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
+                int mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE);
 
-                            // Add image or gif
-                            if (mimeType.startsWith("image") || mimeType.equals("image/gif")) {
-                                newMediaList.add(mediaUri);
-                            }
-                        } while (cursor.moveToNext());
+                while (cursor.moveToNext()) {
+                    long id = cursor.getLong(idColumn);
+                    int mediaType = cursor.getInt(mediaTypeColumn);
+                    String mimeType = cursor.getString(mimeTypeColumn);
+
+                    Uri contentUri;
+                    if (mediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+                        contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                        // Thêm vào nếu là ảnh
+                        if (mimeType.startsWith("image")) {
+                            newMediaList.add(contentUri);
+                        }
+                    } else if (mediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+                        contentUri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
+                        // Thêm vào nếu là video
+                        if (mimeType.startsWith("video")) {
+                            newMediaList.add(contentUri);
+                        }
                     }
                 }
+                cursor.close();
             }
 
-            // Query for videos
-            try (Cursor cursor = contentResolver.query(videoUri, videoProjection, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndex(MediaStore.Video.Media._ID);
-                    int mimeTypeIndex = cursor.getColumnIndex(MediaStore.Video.Media.MIME_TYPE);
-                    if (columnIndex != -1 && mimeTypeIndex != -1) {
-                        do {
-                            long mediaId = cursor.getLong(columnIndex);
-                            String mimeType = cursor.getString(mimeTypeIndex);
-                            Uri mediaUri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(mediaId));
-
-                            // Add video
-                            if (mimeType.startsWith("video")) {
-                                newMediaList.add(mediaUri);
-                            }
-                        } while (cursor.moveToNext());
-                    }
-                }
-            }
-
-            // After collecting all the media URIs, update the media list and notify the adapter
+            // Sau khi thu thập tất cả URIs, cập nhật danh sách và thông báo adapter
             if (!newMediaList.isEmpty()) {
-                mediaList.addAll(newMediaList); // Add the new media to the list
-                mediaAdapter.notifyItemRangeInserted(mediaList.size() - newMediaList.size(), newMediaList.size());
+                mediaList.clear(); // Xóa danh sách cũ nếu cần
+                mediaList.addAll(newMediaList);
+                mediaAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
             e.printStackTrace();
