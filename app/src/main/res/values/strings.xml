@@ -287,4 +287,8 @@
     <string name="no_comment">Không có bình luận nào</string>
     <string name="fetch_comments_failure">Đã có lỗi trong lúc tải bình luận</string>
     <string name="calendar_picker_date_format">dd \'thg\' M, yyyy</string>
+    <string name="favorites">Yêu thích</string>
+    <string name="created_by_you">Tạo bởi bạn</string>
+    <string name="group">Nhóm</string>
+    <string name="archived">Lưu trữ</string>
 </resources>

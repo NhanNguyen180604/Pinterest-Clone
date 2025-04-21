@@ -279,4 +279,8 @@
     <string name="no_comment">No comment</string>
     <string name="fetch_comments_failure">Failed to fetch comments</string>
     <string name="calendar_picker_date_format">MMMM d, yyyy</string>
+    <string name="favorites">Favorites</string>
+    <string name="created_by_you">Created by you</string>
+    <string name="group">Group</string>
+    <string name="archived">Archived</string>
 </resources>

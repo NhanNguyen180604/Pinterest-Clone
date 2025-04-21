@@ -141,7 +141,9 @@ public class HomeFragment extends Fragment {
         @Override
         public void OnFailure(Exception e) {
             Log.d("HomeFragment", "Failed to fetch user boards");
-            e.printStackTrace();
+            if (e.getMessage() != null) {
+                Log.e("HomeFragment", e.getMessage());
+            }
             boards.add(new Board().setName(getResources().getString(R.string.all)));
             handler.post(() -> updateTabUI());
         }
