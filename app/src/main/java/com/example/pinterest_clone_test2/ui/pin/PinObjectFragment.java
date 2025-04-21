@@ -361,9 +361,14 @@ public class PinObjectFragment extends Fragment {
                             return;
                         }
 
+                        binding.btnSave.setText(getString(R.string.saved));
+                        binding.btnSave.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.gray_button_pinterest));
+                        binding.btnSave.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+
                         // idk if this gonna happen or not, just to make sure
                         if (pin == null) {
                             Log.e("PinObjectFragment", "pin is fucking null, at on create");
+                            Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
                             return;
                         }
 
@@ -1095,7 +1100,6 @@ public class PinObjectFragment extends Fragment {
             Log.e("Cloudinary", "Error extracting tags: " + e.getMessage());
         }
 
-        // Xử lý tags (ưu tiên fixed tags và giới hạn số lượng)
         return FirebaseTagService.processTags(tags);
     }
 }
