@@ -77,6 +77,30 @@ public class TabObjectFragment extends Fragment {
                 refresh();
             }
         });
+
+        initRecyclerView();
+        binding.progressBar.setVisibility(View.VISIBLE);
+
+        restoreStates();
+        if (pins.isEmpty()) {
+            fetchPinsAsync();
+        }
+    }
+
+    void restoreStates() {
+        DocumentSnapshot oldLastVisible = viewModel.getLastVisibleState();
+        if (oldLastVisible != null) {
+            lastVisible = oldLastVisible;
+        }
+        List<Pin> oldPinState = viewModel.getPinState();
+        if (oldPinState != null && !oldPinState.isEmpty()) {
+            if (pins.isEmpty()) {
+                updateUI(oldPinState, true);
+            }
+            restoreScrollState();
+            binding.progressBar.setVisibility(View.GONE);
+        }
+        isOnLastPage = viewModel.isOnLastPage();
     }
 
     void refresh() {
@@ -102,7 +126,7 @@ public class TabObjectFragment extends Fragment {
             try {
                 FirebasePinService.getPins(lastVisible, perPage, null, callback);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("HomeTab", "Illegal per page number");
             }
         });
         thread.start();
@@ -162,7 +186,10 @@ public class TabObjectFragment extends Fragment {
 
         @Override
         public void OnFailure(Exception e) {
-            e.printStackTrace();
+            Log.e("HomeTab", "Failed to get pins");
+            if (e.getMessage() != null) {
+                Log.e("HomeTab", e.getMessage());
+            }
             isLoading = false;
         }
     };
@@ -198,27 +225,10 @@ public class TabObjectFragment extends Fragment {
         }
         viewModel.setPinState(pins);
         viewModel.setOnLastPage(isOnLastPage);
-    }
+        viewModel.setLastVisibleState(lastVisible);
 
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-
-        initRecyclerView();
-        binding.progressBar.setVisibility(View.VISIBLE);
-
-        // restore states
-        List<Pin> oldPinState = viewModel.getPinState();
-        if (oldPinState == null || oldPinState.isEmpty()) {
-            fetchPinsAsync();
-        } else if (pins.isEmpty()) {
-            updateUI(oldPinState, false);
-        } else {
-            restoreScrollState();
-            binding.progressBar.setVisibility(View.GONE);
-        }
-
-        isOnLastPage = viewModel.isOnLastPage();
+        isLoading = false;
+        isOnLastPage = false;
     }
 
     private void initRecyclerView() {

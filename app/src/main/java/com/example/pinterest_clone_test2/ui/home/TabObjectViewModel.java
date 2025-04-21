@@ -15,6 +15,7 @@ public class TabObjectViewModel extends ViewModel {
     public static String SCROLL_STATE = "ScrollState";
     public static String PIN_STATE = "PinState";
     public static String LAST_PAGE_STATE = "OnLastPageState";
+    private DocumentSnapshot lastVisible = null;
 
     public TabObjectViewModel(SavedStateHandle savedStateHandle) {
         _savedStateHandle = savedStateHandle;
@@ -42,5 +43,13 @@ public class TabObjectViewModel extends ViewModel {
 
     public void setOnLastPage(boolean isOnLastPage) {
         _savedStateHandle.set(LAST_PAGE_STATE, isOnLastPage);
+    }
+
+    public DocumentSnapshot getLastVisibleState() {
+        return lastVisible;
+    }
+
+    public void setLastVisibleState(DocumentSnapshot lastVisible) {
+        this.lastVisible = lastVisible;
     }
 }
