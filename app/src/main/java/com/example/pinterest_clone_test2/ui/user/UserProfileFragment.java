@@ -1,6 +1,7 @@
 package com.example.pinterest_clone_test2.ui.user;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,14 +14,16 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
-import com.example.pinterest_clone_test2.adapters.PinListAdapter;
+import com.example.pinterest_clone_test2.adapters.BoardAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentUserProfileBinding;
-import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.interfaces.OnBoardClickListener;
+import com.example.pinterest_clone_test2.models.Board;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,9 +38,10 @@ import java.util.Map;
 public class UserProfileFragment extends Fragment {
     private FragmentUserProfileBinding binding;
     private UserProfileViewModel viewModel;
-    private final List<Pin> userPins = new ArrayList<>();
-    private PinListAdapter pinAdapter;
+    private final List<Board> userBoards = new ArrayList<>();
+    private BoardAdapter boardAdapter;
     private boolean isSelf = false;
+    private static final String TAG = "UserProfileFragment";
 
     // Constants for source values
     public static final String SOURCE_HOME = "home";
@@ -73,9 +77,7 @@ public class UserProfileFragment extends Fragment {
         initNavigationMappings();
     }
 
-
-     //Initialize navigation host resources and action IDs based on source
-
+    // Initialize navigation host resources and action IDs based on source
     private void initNavigationMappings() {
         // Navigation host resource IDs
         navHostResIds.put(SOURCE_HOME, R.id.nav_host_fragment_activity_main);
@@ -83,11 +85,11 @@ public class UserProfileFragment extends Fragment {
         navHostResIds.put(SOURCE_ACCOUNT, R.id.nav_host_fragment_activity_main);
         navHostResIds.put(SOURCE_PIN_DEEP_LINK, R.id.nav_host_fragment_activity_pin_deep_link);
 
-        // Navigation action IDs
-        navActionIds.put(SOURCE_HOME, R.id.action_userProfileFragment_to_pinFragment);
-        navActionIds.put(SOURCE_SEARCH, R.id.action_userProfileFragment2_to_pinFragment2);
-        navActionIds.put(SOURCE_ACCOUNT, R.id.action_userProfileFragment3_to_pinFragment3);
-        navActionIds.put(SOURCE_PIN_DEEP_LINK, R.id.action_userProfileFragmentDeepLink_to_pinFragmentDeepLink);
+        // Navigation action IDs - cập nhật với action mới cho board detail
+        navActionIds.put(SOURCE_HOME, R.id.action_userProfileFragment_to_boardDetailFragment);
+        navActionIds.put(SOURCE_SEARCH, R.id.action_userProfileFragment2_to_boardDetailFragment);
+        navActionIds.put(SOURCE_ACCOUNT, R.id.action_userProfileFragment3_to_boardDetailFragment);
+        navActionIds.put(SOURCE_PIN_DEEP_LINK, R.id.action_userProfileFragmentDeepLink_to_boardDetailFragmentDeepLink);
     }
 
     @Nullable
@@ -101,6 +103,9 @@ public class UserProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Update label text to show "Bảng" instead of "Pins"
+        binding.tvPinsLabel.setText(R.string.boards);
+
         // Check if this is the current user's profile
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null && viewModel.getUserId() != null && viewModel.getUserId().equals(currentUser.getUid())) {
@@ -108,7 +113,7 @@ public class UserProfileFragment extends Fragment {
             binding.btnFollow.setVisibility(View.GONE);
         }
 
-        // Set up the RecyclerView for pins
+        // Set up the RecyclerView for boards
         setupRecyclerView();
 
         if (viewModel.getUserId() != null) {
@@ -179,51 +184,61 @@ public class UserProfileFragment extends Fragment {
             checkFollowStatus();
         }
 
-        // Always load pins (they could change)
-        loadUserPins();
+        // Load user boards
+        loadUserBoards();
     }
 
-    /**
-     * Get the appropriate NavController based on current source
-     * @return NavController for the current source
-     */
     private NavController getNavController() {
         String source = viewModel.getSource();
         int navHostId = navHostResIds.getOrDefault(source, R.id.nav_host_fragment_activity_main);
         return Navigation.findNavController(requireActivity(), navHostId);
     }
 
-    /**
-     * Get the appropriate navigation action ID based on current source
-     * @return action ID for navigation
-     */
-    private int getNavigationActionId() {
-        String source = viewModel.getSource();
-        return navActionIds.getOrDefault(source, R.id.action_userProfileFragment_to_pinFragment);
-    }
-
     private void setupRecyclerView() {
-        // Initialize the pin adapter
-        pinAdapter = new PinListAdapter(requireContext(), userPins, (position, v) -> {
-            // Navigate to PinFragment using source-specific navigation
-            NavController navController = getNavController();
-
-            Bundle args = new Bundle();
-            args.putParcelableArrayList("pins", new ArrayList<>(userPins));
-            args.putInt("position", position);
-            args.putString("source", viewModel.getSource());
-
-            // Navigate to the appropriate pin fragment based on source
-            int action = getNavigationActionId();
-            navController.navigate(action, args);
+        // Initialize the board adapter
+        boardAdapter = new BoardAdapter(requireContext(), userBoards, new OnBoardClickListener() {
+            @Override
+            public void onBoardClick(Board board) {
+                navigateToBoardDetail(board);
+            }
         });
 
-        // Set up the RecyclerView with a StaggeredGridLayoutManager
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        // Set up the RecyclerView with a GridLayoutManager (2 columns)
+        GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 2);
         binding.rvUserPins.setLayoutManager(layoutManager);
         binding.rvUserPins.setHasFixedSize(true);
-        binding.rvUserPins.setAdapter(pinAdapter);
+        binding.rvUserPins.setAdapter(boardAdapter);
+    }
+
+    private void navigateToBoardDetail(Board board) {
+        NavController navController = getNavController();
+
+        Bundle bundle = new Bundle();
+
+        bundle.putParcelable("board", board);
+
+        bundle.putString("source", viewModel.getSource());
+
+        String source = viewModel.getSource();
+        Integer actionId = navActionIds.get(source);
+
+        if (actionId == null) {
+            Log.w(TAG, "Không tìm thấy actionId cho source: " + source + ". Sử dụng cách dự phòng.");
+            try {
+                navController.navigate(R.id.boardDetailFragment, bundle);
+            } catch (Exception e) {
+                Log.e(TAG, "Lỗi khi điều hướng: " + e.getMessage());
+                Toast.makeText(requireContext(), "Không thể mở board chi tiết", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+
+        try {
+            navController.navigate(actionId, bundle);
+        } catch (Exception e) {
+            Log.e(TAG, "Lỗi khi điều hướng với action ID " + actionId + ": " + e.getMessage());
+            Toast.makeText(requireContext(), "Không thể mở board chi tiết", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void checkFollowStatus() {
@@ -354,34 +369,90 @@ public class UserProfileFragment extends Fragment {
         });
     }
 
-    private void loadUserPins() {
+    private void loadUserBoards() {
         binding.progressLoading.setVisibility(View.VISIBLE);
         binding.tvNoPins.setVisibility(View.GONE);
 
-        FirebaseUserService.getUserPins(viewModel.getUserId(), new FirebaseUserService.GetUserPinsCallback() {
+        // Xóa boards hiện tại
+        userBoards.clear();
+        boardAdapter.notifyDataSetChanged();
+
+        // Tạo board "Tất cả Ghim"
+        FirebaseBoardService.createAllPinsBoard(viewModel.getUserId(), new FirebaseBoardService.CreateAllPinsBoardCallback() {
             @Override
-            public void OnSuccess(List<Pin> pins) {
-                binding.progressLoading.setVisibility(View.GONE);
+            public void OnSuccess(Board allPinsBoard) {
+                // Thêm board tất cả Ghim vào đầu danh sách
+                userBoards.add(allPinsBoard);
+                boardAdapter.notifyItemInserted(0);
 
-                if (pins.isEmpty()) {
-                    binding.tvNoPins.setVisibility(View.VISIBLE);
-                    return;
-                }
+                // Tải các board thông thường
+                loadRegularBoards();
+            }
 
-                int oldSize = userPins.size();
-                userPins.clear();
-                pinAdapter.notifyItemRangeRemoved(0, oldSize);
-                userPins.addAll(pins);
-                pinAdapter.notifyItemRangeInserted(0, userPins.size());
+            @Override
+            public void OnEmpty() {
+                // Không có pins nào, tải các board thông thường
+                loadRegularBoards();
             }
 
             @Override
             public void OnFailure(Exception e) {
-                binding.progressLoading.setVisibility(View.GONE);
-                binding.tvNoPins.setVisibility(View.VISIBLE);
-                Toast.makeText(requireContext(), R.string.loading_user_info_failed + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Error creating All Pins board", e);
+                // Vẫn tiếp tục tải các board thông thường
+                loadRegularBoards();
             }
         });
+    }
+
+    private void loadRegularBoards() {
+        // Lấy boards của người dùng, lọc theo isPublic nếu không phải profile của chính mình
+        FirebaseBoardService.getUserBoardsByUserId(
+                viewModel.getUserId(),
+                !isSelf, // chỉ lấy public boards nếu không phải profile của mình
+                new FirebaseBoardService.GetUserBoardsCallback() {
+                    @Override
+                    public void OnSuccess(List<Board> boards) {
+                        if (boards.isEmpty() && userBoards.isEmpty()) {
+                            // Không có boards nào
+                            binding.progressLoading.setVisibility(View.GONE);
+                            binding.tvNoPins.setText(R.string.no_board_message);
+                            binding.tvNoPins.setVisibility(View.VISIBLE);
+                            return;
+                        }
+
+                        // Tải pins cho từng board
+                        for (Board board : boards) {
+                            FirebaseBoardService.fetchPinsForBoard(board, new FirebaseBoardService.FetchPinsForBoardCallback() {
+                                @Override
+                                public void OnSuccess(Board updatedBoard) {
+                                    userBoards.add(updatedBoard);
+                                    boardAdapter.notifyItemInserted(userBoards.size() - 1);
+                                }
+
+                                @Override
+                                public void OnFailure(Exception e) {
+                                    Log.e(TAG, "Error loading pins for board: " + board.getId(), e);
+                                    // Thêm board ngay cả khi không tải được pins
+                                    userBoards.add(board);
+                                    boardAdapter.notifyItemInserted(userBoards.size() - 1);
+                                }
+                            });
+                        }
+
+                        binding.progressLoading.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void OnFailure(Exception e) {
+                        Log.e(TAG, "Error loading boards", e);
+                        binding.progressLoading.setVisibility(View.GONE);
+
+                        if (userBoards.isEmpty()) {
+                            binding.tvNoPins.setText(R.string.fetch_boards_failure);
+                            binding.tvNoPins.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
     }
 
     @Override

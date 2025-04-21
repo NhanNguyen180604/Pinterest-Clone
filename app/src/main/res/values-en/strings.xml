@@ -281,4 +281,5 @@
     <string name="no_comment">No comment</string>
     <string name="fetch_comments_failure">Failed to fetch comments</string>
     <string name="calendar_picker_date_format">MMMM d, yyyy</string>
+    <string name="error_open_pin_detail">Can not open pin detail</string>
 </resources>
