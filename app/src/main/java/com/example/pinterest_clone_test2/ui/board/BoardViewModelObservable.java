@@ -30,7 +30,6 @@ public class BoardViewModelObservable extends BaseObservable {
     public void setPin(@Nullable Pin pin) {
         this.pin = pin;
         notifyPropertyChanged(BR.pin);
-        notifyPropertyChanged(BR.previewVisibility);
     }
 
     @Bindable
@@ -42,11 +41,6 @@ public class BoardViewModelObservable extends BaseObservable {
         this.boardName = boardName;
         notifyPropertyChanged(BR.boardName);
         notifyPropertyChanged(BR.canCreate);
-    }
-
-    @Bindable
-    public int getPreviewVisibility() {
-        return pin != null ? View.VISIBLE : View.GONE;
     }
 
     @Bindable

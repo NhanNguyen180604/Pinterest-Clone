@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,8 +35,11 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.ChooseBoardActivity;
 import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.RemoveBgActivity;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinObjectBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
@@ -45,18 +49,23 @@ import com.example.pinterest_clone_test2.models.User;
 import com.example.pinterest_clone_test2.services.download.PinMediaDownloader;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseTagService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
+import com.example.pinterest_clone_test2.services.remove_image_bg.RemoveBgService;
 import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinAuthorMoreActionModal;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinNormalMoreActionModal;
+import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 public class PinObjectFragment extends Fragment {
@@ -73,6 +82,7 @@ public class PinObjectFragment extends Fragment {
     Handler handler = new Handler();
     ActivityResultLauncher<Intent> chooseBoardActivityLauncher;
     ActivityResultLauncher<Intent> editPinActivityLauncher;
+    ActivityResultLauncher<Intent> removeBgActivityLauncher;
 
     int page = 1;
     int totalPage = 0;
@@ -151,7 +161,7 @@ public class PinObjectFragment extends Fragment {
 
         @Override
         public void OnFailure(Exception e) {
-            printExceptionMessage(e);
+            printExceptionMessage("Couldn't get author info", e);
         }
     };
 
@@ -176,7 +186,7 @@ public class PinObjectFragment extends Fragment {
 
         @Override
         public void OnFailure(Exception e) {
-            printExceptionMessage(e);
+            printExceptionMessage("Couldn't fetch pin's like count", e);
         }
     };
 
@@ -189,7 +199,7 @@ public class PinObjectFragment extends Fragment {
             page = 1;
             setTotalPageCount();
             isFetchingRelevantPinIds = false;
-            if (pinIds.isEmpty()){
+            if (pinIds.isEmpty()) {
                 binding.progressBar.setVisibility(View.GONE);
                 return;
             }
@@ -240,7 +250,7 @@ public class PinObjectFragment extends Fragment {
                     newPins.removeIf(newPin -> finalBlockedUsers.contains(newPin.getAuthorId()));
                 }
             } else {
-                Toast.makeText(requireContext(), getResources().getString(R.string.pin_filter_failure), Toast.LENGTH_SHORT).show();
+                showToastMessage(getResources().getString(R.string.pin_filter_failure));
             }
 
             handler.post(() -> addRelevantPins(newPins, !isFetchingFirstTime));
@@ -249,7 +259,7 @@ public class PinObjectFragment extends Fragment {
 
         @Override
         public void onFailure(Exception e) {
-            printExceptionMessage(e);
+            printExceptionMessage("Couldn't fetch relevant pins", e);
             isFetchingRelevantPins = false;
         }
     };
@@ -259,6 +269,10 @@ public class PinObjectFragment extends Fragment {
     }
 
     void addRelevantPins(List<Pin> newPins, boolean append) {
+        if (binding == null) {
+            return;
+        }
+
         if (!append) {
             int oldSize = relevantPins.size();
             relevantPins.clear();
@@ -331,7 +345,7 @@ public class PinObjectFragment extends Fragment {
         @Override
         public void OnFailure(Exception e) {
             Log.e("PinObjectFragment", "Failed to fetch boards");
-            printExceptionMessage(e);
+            printExceptionMessage("Couldn't fetch user's boards to check if this pin belongs to any of them", e);
         }
     };
 
@@ -347,27 +361,27 @@ public class PinObjectFragment extends Fragment {
                             return;
                         }
 
-                        // seems like pinterest always saves to profile
-                        FirebaseUserService.savePinToProfile(pin.getId(), new FirebaseUserService.SavePinToProfileCallback() {
-                            @Override
-                            public void OnSuccess() {
-                                if (data.getBooleanExtra("profile", false)) {
-                                    Toast.makeText(requireContext(), getResources().getString(R.string.save_pin_to_profile_sucess), Toast.LENGTH_SHORT).show();
-                                }
-                            }
-
-                            @Override
-                            public void OnFailure(Exception e) {
-                                printExceptionMessage(e);
-                                Toast.makeText(requireContext(), getResources().getString(R.string.save_pin_to_profile_failure), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
                         // idk if this gonna happen or not, just to make sure
                         if (pin == null) {
                             Log.e("PinObjectFragment", "pin is fucking null, at on create");
                             return;
                         }
+
+                        // seems like pinterest always saves to profile
+                        FirebaseUserService.savePinToProfile(pin.getId(), new FirebaseUserService.SavePinToProfileCallback() {
+                            @Override
+                            public void OnSuccess() {
+                                if (data.getBooleanExtra("profile", false)) {
+                                    showToastMessage(getResources().getString(R.string.save_pin_to_profile_sucess));
+                                }
+                            }
+
+                            @Override
+                            public void OnFailure(Exception e) {
+                                printExceptionMessage("Couldn't save pin to profile", e);
+                                showToastMessage(getResources().getString(R.string.save_pin_to_profile_failure));
+                            }
+                        });
 
                         if (data.getBooleanExtra("profile", false)) {
                             return;
@@ -379,21 +393,13 @@ public class PinObjectFragment extends Fragment {
                             FirebaseBoardService.savePinToBoard(pin.getId(), boardId, new FirebaseBoardService.SavePinToBoardServiceCallback() {
                                 @Override
                                 public void OnSuccess() {
-                                    Toast.makeText(
-                                            requireContext(),
-                                            String.format(getResources().getString(R.string.pin_save_to_board_template), boardName),
-                                            Toast.LENGTH_SHORT
-                                    ).show();
+                                    showToastMessage(String.format(getResources().getString(R.string.pin_save_to_board_template), boardName));
                                 }
 
                                 @Override
                                 public void OnFailure(Exception e) {
-                                    printExceptionMessage(e);
-                                    Toast.makeText(
-                                            requireContext(),
-                                            String.format(getResources().getString(R.string.pin_save_to_board_failure_template), boardName),
-                                            Toast.LENGTH_SHORT
-                                    ).show();
+                                    printExceptionMessage("Couldn't save pin to chosen board", e);
+                                    showToastMessage(String.format(getResources().getString(R.string.pin_save_to_board_failure_template), boardName));
                                 }
                             });
                         }
@@ -423,6 +429,115 @@ public class PinObjectFragment extends Fragment {
                         pin.setName(updatedPin.getName());
                         pin.setDescription(updatedPin.getDescription());
                         pin.setAllowComment(updatedPin.getAllowComment());
+                    }
+                }
+        );
+
+        // domain expansion: LIMITLESS CALLBACKS
+        removeBgActivityLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data == null) {
+                            return;
+                        }
+
+                        // idk if this gonna happen or not, just to make sure
+                        if (pin == null) {
+                            Log.e("PinObjectFragment", "pin is fucking null, at on create");
+                            return;
+                        }
+
+                        String boardId = data.getStringExtra("boardId");
+                        String boardName = data.getStringExtra("boardName");
+
+                        String processedImageB64 = RemoveBgService.getProcessedImageB64();
+                        RemoveBgService.clearProcessedImageB64();
+
+                        handler.post(() -> Toast.makeText(requireContext(), getResources().getString(R.string.pin_uploading), Toast.LENGTH_SHORT).show());
+
+                        CloudinaryManager.uploadMedia(Base64.decode(processedImageB64, Base64.DEFAULT), new UploadCallback() {
+                            @Override
+                            public void onSuccess(String requestId, Map resultData) {
+                                List<String> rawTags = extractTagsFromResult(resultData);
+                                List<String> processedTags = FirebaseTagService.processTags(rawTags);
+                                Log.d("Cloudinary", "Raw detected tags: " + rawTags);
+                                Log.d("Cloudinary", "Processed tags: " + processedTags);
+
+                                String url = (String) resultData.get("secure_url");
+                                if (url == null) {
+                                    showToastMessage(getResources().getString(R.string.upload_image_failure));
+                                } else {
+                                    String thumbnailUrl = url.replace("/upload/", "/upload/w_200/");
+                                    Pin newPin = new Pin()
+                                            .setName(pin.getName())
+                                            .setDescription(pin.getDescription())
+                                            .setMediaUrl(url)
+                                            .setThumbnailUrl(thumbnailUrl)
+                                            .setType(Pin.PinType.IMAGE)
+                                            .setAllowComment(pin.getAllowComment())
+                                            .setCreatedAt(System.currentTimeMillis());
+
+                                    if (pin.getTags() != null && !pin.getTags().isEmpty()) {
+                                        newPin.setTags(new ArrayList<>(pin.getTags()));
+                                    } else {
+                                        newPin.setTags(processedTags);
+                                    }
+
+                                    FirebasePinService.uploadPin(newPin, new FirebasePinService.UploadPinServiceCallback() {
+                                        @Override
+                                        public void OnSuccess(DocumentReference documentReference) {
+                                            String newPinId = documentReference.getId();
+                                            if (boardId != null && boardName != null) {
+                                                FirebaseBoardService.savePinToBoard(newPinId, boardId, new FirebaseBoardService.SavePinToBoardServiceCallback() {
+                                                    @Override
+                                                    public void OnSuccess() {
+                                                        showToastMessage(String.format(getResources().getString(R.string.pin_save_to_board_template), boardName));
+                                                    }
+
+                                                    @Override
+                                                    public void OnFailure(Exception e) {
+                                                        printExceptionMessage("Couldn't save pin to chosen board", e);
+                                                        showToastMessage(String.format(getResources().getString(R.string.pin_save_to_board_failure_template), boardName));
+                                                    }
+                                                });
+                                            }
+                                            FirebaseTagService.saveTagsToFirestore(processedTags, newPinId);
+                                        }
+
+                                        @Override
+                                        public void OnFailure(Exception e) {
+                                            printExceptionMessage("Couldn't upload pin to firebase", e);
+                                            showToastMessage(getResources().getString(R.string.upload_pin_failure));
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onStart(String requestId) {
+                                Log.d("Cloudinary", "Upload start");
+                            }
+
+                            @Override
+                            public void onProgress(String requestId, long bytes, long totalBytes) {
+                                Log.d("Cloudinary", "Upload progress: " + bytes + "/" + totalBytes);
+                            }
+
+                            @Override
+                            public void onError(String requestId, ErrorInfo error) {
+                                showToastMessage(getResources().getString(R.string.media_upload_failure));
+                                Log.e("Cloudinary", "Error: " + error.getDescription());
+                            }
+
+                            @Override
+                            public void onReschedule(String requestId, ErrorInfo error) {
+                                Log.d("Cloudinary", "Rescheduled");
+                            }
+                        });
+                    } else {
+                        RemoveBgService.clearProcessedImageB64();
                     }
                 }
         );
@@ -470,6 +585,9 @@ public class PinObjectFragment extends Fragment {
             binding.videoView.setVisibility(View.VISIBLE);
             binding.fabBgRemoval.setVisibility(View.GONE);
         } else {
+            if (pin.getType() == Pin.PinType.GIF) {
+                binding.fabBgRemoval.setVisibility(View.GONE);
+            }
             binding.ivImage.setVisibility(View.VISIBLE);
             binding.videoView.setVisibility(View.GONE);
         }
@@ -525,7 +643,7 @@ public class PinObjectFragment extends Fragment {
                 // update like on database
                 FirebasePinService.updateLike(pin.getId(), pin.getIsLiked(), updateLikeCallback);
             } else {
-                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+                showToastMessage(getResources().getString(R.string.unknown_error));
             }
         });
 
@@ -534,7 +652,7 @@ public class PinObjectFragment extends Fragment {
                 CommentModalBottomSheet modalBottomSheet = new CommentModalBottomSheet(pin.getId(), requireContext());
                 modalBottomSheet.show(requireActivity().getSupportFragmentManager(), CommentModalBottomSheet.TAG);
             } else {
-                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+                showToastMessage(getResources().getString(R.string.unknown_error));
             }
         });
 
@@ -549,7 +667,7 @@ public class PinObjectFragment extends Fragment {
                 Intent shareIntent = Intent.createChooser(sendIntent, null);
                 startActivity(shareIntent);
             } else {
-                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+                showToastMessage(getResources().getString(R.string.unknown_error));
             }
         });
 
@@ -569,7 +687,7 @@ public class PinObjectFragment extends Fragment {
                     sheet.show(requireActivity().getSupportFragmentManager(), PinNormalMoreActionModal.TAG);
                 }
             } else {
-                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+                showToastMessage(getResources().getString(R.string.unknown_error));
             }
         });
 
@@ -585,7 +703,7 @@ public class PinObjectFragment extends Fragment {
                 intent.putExtra("suggestNewBoard", true);
                 chooseBoardActivityLauncher.launch(intent);
             } else {
-                Toast.makeText(requireContext(), getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+                showToastMessage(getResources().getString(R.string.unknown_error));
             }
         });
         binding.ivAuthorAvatar.setOnClickListener(v -> {
@@ -598,6 +716,16 @@ public class PinObjectFragment extends Fragment {
                 navigateToUserProfile(pin.getAuthorId());
             }
         });
+
+        binding.fabBgRemoval.setOnClickListener(v -> {
+            if (pin != null) {
+                Intent intent = new Intent(requireActivity(), RemoveBgActivity.class);
+                intent.putExtra("imageUrl", pin.getMediaUrl());
+                removeBgActivityLauncher.launch(intent);
+            } else {
+                showToastMessage(getResources().getString(R.string.unknown_error));
+            }
+        });
     }
 
     final FirebasePinService.UpdateLikeCallback updateLikeCallback = new FirebasePinService.UpdateLikeCallback() {
@@ -607,7 +735,7 @@ public class PinObjectFragment extends Fragment {
             pin.setIsLiked(!pin.getIsLiked());
             pin.setLikeCount(pin.getLikeCount() + (pin.getIsLiked() ? 1 : -1));
             binding.btnLove.setImageResource(pin.getIsLiked() ? R.drawable.ic_favorite_heart_filled : R.drawable.ic_favorite_heart);
-            Toast.makeText(requireContext(), getResources().getString(R.string.pin_reaction_bug), Toast.LENGTH_SHORT).show();
+            showToastMessage(getResources().getString(R.string.pin_reaction_bug));
         }
     };
 
@@ -866,7 +994,7 @@ public class PinObjectFragment extends Fragment {
                 if (isGranted) {
                     downloadMediaAsync();
                 } else {
-                    Toast.makeText(requireContext(), getResources().getString(R.string.download_permission_denied), Toast.LENGTH_SHORT).show();
+                    showToastMessage(getResources().getString(R.string.download_permission_denied));
                 }
             });
 
@@ -890,7 +1018,7 @@ public class PinObjectFragment extends Fragment {
 
     private final HidePinCallback hidePinCallback = () -> {
         if (pin == null) {
-            Toast.makeText(requireContext(), getResources().getString(R.string.pin_hide_failure), Toast.LENGTH_SHORT).show();
+            showToastMessage(getResources().getString(R.string.pin_hide_failure));
             return;
         }
 
@@ -905,7 +1033,7 @@ public class PinObjectFragment extends Fragment {
 
             @Override
             public void OnFailure(Exception e) {
-                Toast.makeText(requireContext(), getResources().getString(R.string.pin_hide_failure), Toast.LENGTH_SHORT).show();
+                showToastMessage(getResources().getString(R.string.pin_hide_failure));
                 Log.e("PinObjectFragment", "hide pin failed:\n" + e.getMessage());
             }
         });
@@ -941,9 +1069,33 @@ public class PinObjectFragment extends Fragment {
         return navController;
     }
 
-    private void printExceptionMessage(Exception e) {
+    private void printExceptionMessage(String message, Exception e) {
+        Log.e("PinObjectFragment", message);
         if (e.getMessage() != null) {
             Log.e("PinObjectFragment", e.getMessage());
         }
+    }
+
+    void showToastMessage(String message) {
+        handler.post(() -> Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show());
+    }
+
+    private List<String> extractTagsFromResult(Map<String, Object> resultData) {
+        List<String> tags = new ArrayList<>();
+
+        try {
+            if (resultData.containsKey("tags")) {
+                Object tagsObj = resultData.get("tags");
+                if (tagsObj instanceof List) {
+                    tags.addAll((List<String>) tagsObj);
+                    Log.d("Cloudinary", "Tags extracted: " + tags);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("Cloudinary", "Error extracting tags: " + e.getMessage());
+        }
+
+        // Xử lý tags (ưu tiên fixed tags và giới hạn số lượng)
+        return FirebaseTagService.processTags(tags);
     }
 }

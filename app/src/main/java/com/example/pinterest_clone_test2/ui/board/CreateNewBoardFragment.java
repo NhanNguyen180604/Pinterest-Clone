@@ -3,6 +3,7 @@ package com.example.pinterest_clone_test2.ui.board;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.example.pinterest_clone_test2.databinding.FragmentCreateNewBoardBindi
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
+import com.example.pinterest_clone_test2.services.remove_image_bg.RemoveBgService;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -28,6 +30,7 @@ import java.util.List;
 public class CreateNewBoardFragment extends BottomSheetDialogFragment {
     FragmentCreateNewBoardBinding binding;
     BoardViewModelObservable viewModel;
+    String processedImageB64;
 
     public CreateNewBoardFragment() {
         viewModel = new BoardViewModelObservable();
@@ -35,6 +38,16 @@ public class CreateNewBoardFragment extends BottomSheetDialogFragment {
 
     public CreateNewBoardFragment(@Nullable Pin pin) {
         viewModel = new BoardViewModelObservable(pin);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            if (getArguments().getBoolean("processedImageB64", false)) {
+                processedImageB64 = RemoveBgService.getProcessedImageB64();
+            }
+        }
     }
 
     @Nullable
@@ -65,6 +78,13 @@ public class CreateNewBoardFragment extends BottomSheetDialogFragment {
             binding.cvPreviewImage.setVisibility(View.VISIBLE);
             Glide.with(binding.ivPreviewImage.getContext())
                     .load(viewModel.getPin().getThumbnailUrl())
+                    .apply(options)
+                    .into(binding.ivPreviewImage);
+        } else if (processedImageB64 != null) {
+            binding.cvPreviewImage.setVisibility(View.VISIBLE);
+            Glide.with(binding.ivPreviewImage.getContext())
+                    .asBitmap()
+                    .load(Base64.decode(processedImageB64, Base64.DEFAULT))
                     .apply(options)
                     .into(binding.ivPreviewImage);
         } else {

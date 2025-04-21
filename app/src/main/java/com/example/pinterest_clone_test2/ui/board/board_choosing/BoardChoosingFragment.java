@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.pinterest_clone_test2.R;
@@ -33,6 +35,7 @@ public class BoardChoosingFragment extends Fragment {
     public static String NAME = "BoardChoosingFragment";
     FragmentBoardChoosingBinding binding;
     final Pin pin;
+    boolean processedImageB64;  // for removing bg case
     List<BaseItem> items = new ArrayList<>();
     Handler handler = new Handler();
     final boolean suggestNewBoard;
@@ -46,6 +49,15 @@ public class BoardChoosingFragment extends Fragment {
     public BoardChoosingFragment(Pin pin, boolean suggestNewBoard) {
         this.pin = pin;
         this.suggestNewBoard = suggestNewBoard;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // from remove bg fragment
+        if (getArguments() != null) {
+            processedImageB64 = getArguments().getBoolean("processedImageB64", false);
+        }
     }
 
     @Nullable
@@ -68,11 +80,24 @@ public class BoardChoosingFragment extends Fragment {
         fetchUserBoardAsync();
 
         binding.btnClose.setOnClickListener(v -> {
-            requireActivity().setResult(Activity.RESULT_CANCELED);
-            requireActivity().finish();
+            if (processedImageB64) {
+                NavController navController = getNavController();
+                navController.navigateUp();
+            } else {
+                requireActivity().setResult(Activity.RESULT_CANCELED);
+                requireActivity().finish();
+            }
         });
 
         View.OnClickListener createBoardListener = v -> {
+            // should have done this earlier, but now im lazy
+            if (processedImageB64) {
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_remove_bg);
+                Bundle args = new Bundle();
+                args.putBoolean("processedImageB64", true);
+                navController.navigate(R.id.action_boardChoosingFragment_to_createNewBoardFragment2, args);
+                return;
+            }
             FragmentManager fragmentManager = getParentFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.create_board_fragment_container, new CreateNewBoardFragment(pin))
@@ -81,6 +106,11 @@ public class BoardChoosingFragment extends Fragment {
         };
         binding.fabCreateNewBoard.setOnClickListener(createBoardListener);
         binding.tvCreateBoard.setOnClickListener(createBoardListener);
+    }
+
+    @NonNull
+    private NavController getNavController() {
+        return Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_remove_bg);
     }
 
     private void initializeBoards() {
