@@ -285,4 +285,12 @@
     <string name="created_by_you">Created by you</string>
     <string name="group">Group</string>
     <string name="archived">Archived</string>
+    <string name="copy_link">Copy link</string>
+    <string name="copied">Copied</string>
+    <string name="send">Send</string>
+    <string name="alt_text">Alt text</string>
+    <string name="et_pin_alt_text_hint">Describe your Pin\'s visual details</string>
+    <string name="pin_alt_text_reasoning">This helps people using screen readers understand what yout Pin is about</string>
+    <string name="engagement_settings">Engagement settings</string>
+    <string name="remove_pin_from_profile_failure">Failed to remove pin from your profile</string>
 </resources>

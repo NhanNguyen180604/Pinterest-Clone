@@ -327,21 +327,25 @@ public abstract class FirebasePinService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
-    public static void updatePinWithBoards(@NonNull Pin pin, Map<String, BoardBooleanPair> boardMap, UpdatePinWithBoardsCallback callback) {
+    public static void updatePinWithBoards(@NonNull Pin pin, Map<String, BoardBooleanPair> boardMap, boolean isAuthor, UpdatePinWithBoardsCallback callback) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-        Map<String, Object> pinUpdateMap = new HashMap<>();
-        pinUpdateMap.put("name", pin.getName());
-        pinUpdateMap.put("nameNormalized", pin.getNameNormalized());
-        pinUpdateMap.put("description", pin.getDescription());
-        pinUpdateMap.put("descriptionNormalized", pin.getDescriptionNormalized());
-        pinUpdateMap.put("allowComment", pin.getAllowComment());
+        List<Task<?>> allTasks = new ArrayList<>();
 
-        Task<?> updatePinTask = firestore.collection("pins")
-                .document(pin.getId())
-                .update(pinUpdateMap)
-                .addOnSuccessListener(unused -> Log.d("FirebasePinService", "Updated pin values successfully"))
-                .addOnFailureListener(e -> printExceptionMessage("Failed to update pin values", e));
+        if (isAuthor) {
+            Map<String, Object> pinUpdateMap = new HashMap<>();
+            pinUpdateMap.put("name", pin.getName());
+            pinUpdateMap.put("nameNormalized", pin.getNameNormalized());
+            pinUpdateMap.put("description", pin.getDescription());
+            pinUpdateMap.put("descriptionNormalized", pin.getDescriptionNormalized());
+            pinUpdateMap.put("allowComment", pin.getAllowComment());
+            Task<?> updatePinTask = firestore.collection("pins")
+                    .document(pin.getId())
+                    .update(pinUpdateMap)
+                    .addOnSuccessListener(unused -> Log.d("FirebasePinService", "Updated pin values successfully"))
+                    .addOnFailureListener(e -> printExceptionMessage("Failed to update pin values", e));
+            allTasks.add(updatePinTask);
+        }
 
         List<Task<?>> updateBoardTasks = new ArrayList<>();
         for (Map.Entry<String, BoardBooleanPair> entry : boardMap.entrySet()) {
@@ -364,12 +368,10 @@ public abstract class FirebasePinService {
             }
         }
 
-        List<Task<?>> allTasks = new ArrayList<>();
-        allTasks.add(updatePinTask);
         allTasks.addAll(updateBoardTasks);
         Tasks.whenAllComplete(allTasks)
                 .addOnCompleteListener(runnable -> {
-                    boolean pinUpdateSuccess = updatePinTask.isSuccessful();
+                    boolean pinUpdateSuccess = isAuthor && allTasks.get(0).isSuccessful();
                     boolean boardUpdateSuccess = updateBoardTasks.stream().allMatch(Task::isSuccessful);
                     callback.Callback(pinUpdateSuccess, boardUpdateSuccess);
                 });

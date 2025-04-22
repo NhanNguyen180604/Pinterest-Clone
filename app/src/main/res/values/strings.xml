@@ -293,4 +293,12 @@
     <string name="created_by_you">Tạo bởi bạn</string>
     <string name="group">Nhóm</string>
     <string name="archived">Lưu trữ</string>
+    <string name="copy_link">Sao chép liên kết</string>
+    <string name="copied">Đã sao chép</string>
+    <string name="send">Gửi</string>
+    <string name="alt_text">Mô tả thay thế</string>
+    <string name="et_pin_alt_text_hint">Mô tả các chi tiết hình ảnh ghim của bạn</string>
+    <string name="pin_alt_text_reasoning">Điều này giúp cho những người khiếm thị hiểu được nội dung ghim của bạn</string>
+    <string name="engagement_settings">Tùy chỉnh tương tác</string>
+    <string name="remove_pin_from_profile_failure">Đã có lỗi khi xóa ghim ra khỏi trang cá nhân</string>
 </resources>

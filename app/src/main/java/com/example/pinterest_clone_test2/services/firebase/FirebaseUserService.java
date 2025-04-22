@@ -178,6 +178,13 @@ public class FirebaseUserService {
                 });
     }
 
+    public static void removePinFromProfileAndBoards(@NonNull String pinId) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+        removePinFromProfileAndBoards(pinId, firestore, currentUser);
+    }
+
     public static void updateGender(@NonNull String gender, UpdateGenderCallback callback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         assert currentUser != null;
@@ -389,6 +396,7 @@ public class FirebaseUserService {
                     }
                 });
     }
+
 
     //================================== Admin Functions
     // 1. Lấy toàn bộ user
