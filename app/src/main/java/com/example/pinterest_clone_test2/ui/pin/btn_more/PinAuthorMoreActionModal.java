@@ -74,8 +74,8 @@ public class PinAuthorMoreActionModal extends BottomSheetDialogFragment {
 //            ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
 //            ClipData clip = ClipData.newPlainText(sharedLink, sharedLink);
 //            clipboard.setPrimaryClip(clip);
-//            dismiss();
-//            Toast.makeText(context, context.getResources().getString(R.string.copied), Toast.LENGTH_SHORT).show();
+            dismiss();
+            Toast.makeText(context, context.getResources().getString(R.string.copied), Toast.LENGTH_SHORT).show();
         });
 
         binding.btnClose.setOnClickListener(v -> dismiss());

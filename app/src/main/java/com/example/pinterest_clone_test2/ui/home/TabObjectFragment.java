@@ -19,6 +19,8 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentHomePagerItemBinding;
@@ -32,6 +34,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class TabObjectFragment extends Fragment {
     List<Pin> pins = new ArrayList<>();
@@ -80,8 +83,13 @@ public class TabObjectFragment extends Fragment {
 
         initRecyclerView();
         binding.progressBar.setVisibility(View.VISIBLE);
+        binding.tvMessage.setVisibility(View.GONE);
 
         // restore states
+        Board oldBoardState = viewModel.getBoard();
+        if (oldBoardState != null) {
+            board = oldBoardState;
+        }
         List<Pin> oldPinState = viewModel.getPinState();
         if (oldPinState == null || oldPinState.isEmpty()) {
             fetchPinsAsync();
@@ -92,6 +100,28 @@ public class TabObjectFragment extends Fragment {
             binding.progressBar.setVisibility(View.GONE);
         }
 
+        if (board != null && board.getId() != null) {
+            binding.tvBoardName.setText(board.getName());
+            if (!board.getPinsObj().isEmpty()) {
+                binding.tvBoardPinCount.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), getResources().getString(board.getPinsObj().size() > 1 ? R.string.pins : R.string.pin).toLowerCase()));
+                Glide.with(binding.ivBoardImage.getContext())
+                        .load(board.getPinsObj().get(0).getThumbnailUrl())
+                        .apply(new RequestOptions()
+                                .placeholder(R.drawable.ic_loading)
+                                .error(R.drawable.ic_loading)
+                                .centerCrop())
+                        .into(binding.ivBoardImage);
+            } else {
+                binding.tvBoardPinCount.setText(String.format(Locale.US, "%d %s", board.getPins().size(), getResources().getString(board.getPins().size() > 1 ? R.string.pins : R.string.pin).toLowerCase()));
+            }
+            binding.boardContainer.setVisibility(View.VISIBLE);
+            binding.boardContainer.setOnClickListener(v -> {
+                //TODO: go to board details
+                Log.d("HomeTab", "clicked");
+            });
+        } else {
+            binding.boardContainer.setVisibility(View.GONE);
+        }
         isOnLastPage = viewModel.isOnLastPage();
     }
 
@@ -178,8 +208,16 @@ public class TabObjectFragment extends Fragment {
 
         @Override
         public void OnFailure(Exception e) {
-            e.printStackTrace();
+            if (e.getMessage() != null) {
+                Log.e("HomeTab", e.getMessage());
+            }
             isLoading = false;
+            binding.progressBar.setVisibility(View.GONE);
+            if (pins.isEmpty()) {
+                binding.tvMessage.setVisibility(View.VISIBLE);
+            } else {
+                Toast.makeText(requireContext(), getResources().getString(R.string.fetch_pin_failure), Toast.LENGTH_SHORT).show();
+            }
         }
     };
 
@@ -189,6 +227,10 @@ public class TabObjectFragment extends Fragment {
         }
 
         binding.progressBar.setVisibility(View.GONE);
+
+        if (newPins.isEmpty()) {
+            return;
+        }
 
         if (!append) {
             pins.clear();
@@ -214,6 +256,7 @@ public class TabObjectFragment extends Fragment {
         }
         viewModel.setPinState(pins);
         viewModel.setOnLastPage(isOnLastPage);
+        viewModel.setBoardState(board);
     }
 
     private void initRecyclerView() {

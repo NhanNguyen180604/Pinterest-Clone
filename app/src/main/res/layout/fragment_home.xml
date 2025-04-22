@@ -13,11 +13,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:tabIndicatorAnimationMode="elastic"
         app:tabIndicatorColor="@color/black"
         app:tabIndicatorFullWidth="false"
         app:tabIndicatorHeight="2dp"
         app:tabMode="scrollable"
-        app:tabIndicatorAnimationMode="elastic"
         app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget" />
 
     <androidx.viewpager2.widget.ViewPager2

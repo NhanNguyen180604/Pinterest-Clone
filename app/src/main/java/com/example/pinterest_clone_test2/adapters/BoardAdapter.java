@@ -55,10 +55,10 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHol
         Board board = boardList.get(position);
 
         holder.tvTitle.setText(board.getName());
-        if (board.getPins().size() > 1) {
-            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), context.getResources().getString(R.string.pins).toLowerCase()));
+        if (!board.getPinsObj().isEmpty()) {
+            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), context.getResources().getString(board.getPinsObj().size() > 1 ? R.string.pins : R.string.pin).toLowerCase()));
         } else {
-            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), context.getResources().getString(R.string.pin).toLowerCase()));
+            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), context.getResources().getString(board.getPins().size() > 1 ? R.string.pins : R.string.pin).toLowerCase()));
         }
         int pinSize = board.getPinsObj().size();
         if (pinSize > 0) {
