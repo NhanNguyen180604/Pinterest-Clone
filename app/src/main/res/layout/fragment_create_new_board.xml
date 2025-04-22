@@ -159,14 +159,22 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/et_board_name" />
 
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/btn_add_collaborators"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@null"
-                android:src="@drawable/ic_add_person"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_add_collaborators"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="100dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_collaborators" />
+                app:layout_constraintTop_toBottomOf="@id/tv_collaborators">
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/btn_add_collaborators"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@null"
+                    android:src="@drawable/ic_add_person"
+                    app:tint="@color/black" />
+            </androidx.cardview.widget.CardView>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_collaborators"
@@ -176,7 +184,7 @@
                 android:minHeight="0dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btn_add_collaborators" />
+                app:layout_constraintTop_toBottomOf="@id/cv_add_collaborators" />
 
             <TextView
                 android:id="@+id/tv_add_collaborators"
@@ -187,9 +195,9 @@
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/btn_add_collaborators"
-                app:layout_constraintStart_toEndOf="@id/btn_add_collaborators"
-                app:layout_constraintTop_toTopOf="@id/btn_add_collaborators" />
+                app:layout_constraintBottom_toBottomOf="@id/cv_add_collaborators"
+                app:layout_constraintStart_toEndOf="@id/cv_add_collaborators"
+                app:layout_constraintTop_toTopOf="@id/cv_add_collaborators" />
 
             <TextView
                 android:id="@+id/tv_privacy"

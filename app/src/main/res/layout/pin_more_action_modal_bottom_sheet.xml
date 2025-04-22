@@ -4,17 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/rounded_modal_bottom_sheet"
-    android:paddingHorizontal="8dp"
+    android:paddingHorizontal="16dp"
     android:paddingVertical="16dp">
 
     <TextView
         android:id="@+id/tv_modal_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/comment_options_modal_title"
         android:textColor="@color/black"
         android:textSize="16sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,7 +23,7 @@
         android:id="@+id/tv_clickable_hide"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="16dp"
         android:text="@string/hide_option"
         android:textColor="@color/black"
         android:textSize="20sp"
@@ -33,11 +33,11 @@
         app:layout_constraintTop_toBottomOf="@id/tv_modal_title" />
 
     <TextView
-        android:id="@+id/tv_clickable_download"
+        android:id="@+id/tv_clickable_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/download_media_option"
+        android:layout_marginTop="16dp"
+        android:text="@string/edit_pin"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -46,10 +46,36 @@
         app:layout_constraintTop_toBottomOf="@id/tv_clickable_hide" />
 
     <TextView
+        android:id="@+id/tv_clickable_send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/send"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_clickable_edit" />
+
+    <TextView
+        android:id="@+id/tv_clickable_download"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/download_media_option"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_clickable_send" />
+
+    <TextView
         android:id="@+id/tv_clickable_add_to_collage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="16dp"
         android:text="@string/add_to_collage_option"
         android:textColor="@color/black"
         android:textSize="20sp"
@@ -59,10 +85,23 @@
         app:layout_constraintTop_toBottomOf="@id/tv_clickable_download" />
 
     <TextView
+        android:id="@+id/tv_clickable_copy_link"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/copy_link"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_clickable_add_to_collage" />
+
+    <TextView
         android:id="@+id/tv_clickable_report"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="16dp"
         android:text="@string/report_option"
         android:textColor="@color/black"
         android:textSize="20sp"
@@ -70,7 +109,7 @@
         app:layout_constraintBottom_toTopOf="@id/btn_close"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_clickable_add_to_collage" />
+        app:layout_constraintTop_toBottomOf="@id/tv_clickable_copy_link" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_close"

@@ -55,20 +55,29 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHol
         Board board = boardList.get(position);
 
         holder.tvTitle.setText(board.getName());
-        if (board.getPins().size() > 1) {
-            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), context.getResources().getString(R.string.pins).toLowerCase()));
+        if (!board.getPinsObj().isEmpty()) {
+            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), context.getResources().getString(board.getPinsObj().size() > 1 ? R.string.pins : R.string.pin).toLowerCase()));
         } else {
-            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), context.getResources().getString(R.string.pin).toLowerCase()));
+            holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), context.getResources().getString(board.getPins().size() > 1 ? R.string.pins : R.string.pin).toLowerCase()));
         }
         int pinSize = board.getPinsObj().size();
         if (pinSize > 0) {
             Glide.with(context).load(board.getPinsObj().get(0).getThumbnailUrl()).into(holder.ivFirst);
+            holder.ivFirst.setBackgroundColor(context.getColor(R.color.lighter_gray));
+        } else {
+            holder.ivFirst.setBackgroundColor(context.getColor(R.color.med_grey));
         }
         if (pinSize > 1) {
             Glide.with(context).load(board.getPinsObj().get(1).getThumbnailUrl()).into(holder.ivSecond);
+            holder.ivSecond.setBackgroundColor(context.getColor(R.color.lighter_gray));
+        } else {
+            holder.ivSecond.setBackgroundColor(context.getColor(R.color.med_grey));
         }
         if (pinSize > 2) {
             Glide.with(context).load(board.getPinsObj().get(2).getThumbnailUrl()).into(holder.ivThird);
+            holder.ivThird.setBackgroundColor(context.getColor(R.color.lighter_gray));
+        } else {
+            holder.ivThird.setBackgroundColor(context.getColor(R.color.med_grey));
         }
         holder.itemView.setOnClickListener(v -> onBoardClickListener.onBoardClick(board));
     }

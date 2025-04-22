@@ -80,6 +80,7 @@ public class CreateNewBoardFragment extends BottomSheetDialogFragment {
                     .load(viewModel.getPin().getThumbnailUrl())
                     .apply(options)
                     .into(binding.ivPreviewImage);
+            binding.ivPreviewImage.setBackgroundColor(requireContext().getColor((R.color.lighter_gray)));
         } else if (processedImageB64 != null) {
             binding.cvPreviewImage.setVisibility(View.VISIBLE);
             Glide.with(binding.ivPreviewImage.getContext())
@@ -87,6 +88,7 @@ public class CreateNewBoardFragment extends BottomSheetDialogFragment {
                     .load(Base64.decode(processedImageB64, Base64.DEFAULT))
                     .apply(options)
                     .into(binding.ivPreviewImage);
+            binding.ivPreviewImage.setBackgroundColor(requireContext().getColor((R.color.lighter_gray)));
         } else {
             binding.cvPreviewImage.setVisibility(View.GONE);
         }
