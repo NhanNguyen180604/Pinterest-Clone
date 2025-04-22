@@ -32,7 +32,7 @@ public class UserProfilePinsFragment extends Fragment {
     private FragmentUserProfilePinsBinding binding;
     private String userId;
     private String source;
-    private final List<Pin> userPins = new ArrayList<>();
+    private final ArrayList<Pin> userPins = new ArrayList<>();
     private PinListAdapter pinAdapter;
 
     // Maps to store navigation controllers and actions by source
@@ -100,13 +100,13 @@ public class UserProfilePinsFragment extends Fragment {
         binding.rvUserPins.setAdapter(pinAdapter);
     }
 
-    private void navigateToPin( List<Pin> pins, int position) {
+    private void navigateToPin( ArrayList<Pin> pins, int position) {
         NavController navController = getNavController();
 
         Bundle bundle = new Bundle();
         bundle.putString("source", source);
         bundle.putInt("position",position);
-        bundle.putParcelableArrayList("pins", new ArrayList<>(pins));
+        bundle.putParcelableArrayList("pins", pins);
 
         Integer actionId = navActionIds.get(source);
 
