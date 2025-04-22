@@ -1,13 +1,17 @@
 package com.example.pinterest_clone_test2.adapters;
 
 import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.models.User;
 
@@ -38,6 +42,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         notifyDataSetChanged();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setBannedList(boolean isBanned) {
         this.isBannedList = isBanned;
         notifyDataSetChanged();
@@ -69,11 +74,23 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         holder.name.setText(user.getName());
         holder.email.setText(user.getEmail());
 
-        // Đổi text dựa vào trạng thái banned
+        // Đổi text dựa vào trạng thái banned và đổi màu
         if (isBannedList) {
             holder.banBtn.setText("BỎ CẤM");
+            holder.banBtn.setBackgroundTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(holder.itemView.getContext(), R.color.grey)));
+            holder.banBtn.setVisibility(View.VISIBLE);
         } else {
             holder.banBtn.setText("CẤM");
+            holder.banBtn.setBackgroundTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(holder.itemView.getContext(), R.color.red_pinterest)));
+
+            // Ẩn nút cấm nếu user là Admin
+            if (user.getRole() == User.Role.Admin) {
+                holder.banBtn.setVisibility(View.GONE);
+            } else {
+                holder.banBtn.setVisibility(View.VISIBLE);
+            }
         }
 
         holder.banBtn.setOnClickListener(v -> actionListener.onBanClick(user));

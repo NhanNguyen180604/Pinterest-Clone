@@ -8,19 +8,42 @@
     <TextView
         android:text="Chọn vai trò"
         android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/black"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp" />
 
     <RadioGroup android:id="@+id/radioGroupRole"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <RadioButton android:id="@+id/radio_admin" android:text="Admin"/>
-        <RadioButton android:id="@+id/radio_user" android:text="User"/>
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp">
+
+        <RadioButton
+            android:id="@+id/radio_all"
+            android:text="Tất cả"
+            android:layout_marginBottom="8dp"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"/>
+
+        <RadioButton
+            android:id="@+id/radio_admin"
+            android:text="Admin"
+            android:layout_marginBottom="8dp"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"/>
+
+        <RadioButton
+            android:id="@+id/radio_user"
+            android:text="User"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"/>
     </RadioGroup>
 
     <Button
         android:id="@+id/btn_apply_filter"
         android:text="Áp dụng"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/red_pinterest"/>
 </LinearLayout>

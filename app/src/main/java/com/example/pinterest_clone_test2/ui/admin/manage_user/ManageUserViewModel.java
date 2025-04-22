@@ -42,20 +42,30 @@ public class ManageUserViewModel extends ViewModel {
     public LiveData<List<User>> getAllUsers() {
         return allUsers;
     }
+
     public LiveData<List<User>> getBannedUsers() {
         return bannedUsers;
     }
+
     public LiveData<List<User>> getNormalUsers() {
         return normalUsers;
     }
+
     public LiveData<List<User>> getFilteredUsers() {
         return filteredUsers;
     }
+
     public LiveData<Boolean> isLoading() {
         return isLoading;
     }
+
     public LiveData<String> getErrorMessage() {
         return errorMessage;
+    }
+
+    // Getter cho roleFilter
+    public User.Role getRoleFilter() {
+        return roleFilter;
     }
 
     public void setIsBannedSelected(boolean isBanned) {
@@ -104,7 +114,9 @@ public class ManageUserViewModel extends ViewModel {
             if (task.isSuccessful()) {
                 List<User> users = task.getResult();
                 originalBannedUsers = new ArrayList<>(users);
-                bannedUsers.setValue(users);
+
+                // Áp dụng các bộ lọc hiện tại
+                applyFilters(users, bannedUsers);
 
                 Log.d(TAG, "Fetched banned users: " + users.size());
             } else {
@@ -125,7 +137,9 @@ public class ManageUserViewModel extends ViewModel {
             if (task.isSuccessful()) {
                 List<User> users = task.getResult();
                 originalNormalUsers = new ArrayList<>(users);
-                normalUsers.setValue(users);
+
+                // Áp dụng các bộ lọc hiện tại
+                applyFilters(users, normalUsers);
 
                 Log.d(TAG, "Fetched normal users: " + users.size());
 
@@ -285,17 +299,20 @@ public class ManageUserViewModel extends ViewModel {
         // Chọn danh sách nguồn phù hợp
         if (isBannedSelected) {
             sourceList = new ArrayList<>(originalBannedUsers);
+            applyFilters(sourceList, bannedUsers);
         } else {
             sourceList = new ArrayList<>(originalNormalUsers);
+            applyFilters(sourceList, normalUsers);
         }
+    }
 
+    /**
+     * Áp dụng các bộ lọc cho danh sách người dùng và cập nhật LiveData
+     */
+    private void applyFilters(List<User> sourceList, MutableLiveData<List<User>> targetLiveData) {
         // Nếu không có filter nào được áp dụng
         if ((searchQuery == null || searchQuery.isEmpty()) && roleFilter == null) {
-            if (isBannedSelected) {
-                bannedUsers.setValue(sourceList);
-            } else {
-                normalUsers.setValue(sourceList);
-            }
+            targetLiveData.setValue(sourceList);
             return;
         }
 
@@ -304,13 +321,8 @@ public class ManageUserViewModel extends ViewModel {
                 .filter(user -> filterBySearchQuery(user) && filterByRole(user))
                 .collect(Collectors.toList());
 
-        // Cập nhật LiveData phù hợp
-        if (isBannedSelected) {
-            bannedUsers.setValue(filteredList);
-        } else {
-            normalUsers.setValue(filteredList);
-        }
-
+        // Cập nhật LiveData
+        targetLiveData.setValue(filteredList);
         Log.d(TAG, "Applied filters - Results: " + filteredList.size());
     }
 

@@ -8,15 +8,41 @@
     android:padding="10dp"
     tools:context=".ui.admin.manage_user.ManageUserFragment">
 
+    <!-- Nút quay lại User Mode -->
+    <ImageButton
+        android:id="@+id/btn_back_to_user"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Quay lại User Mode"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/red_pinterest" />
+
+    <!-- Tiêu đề quản lý -->
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quản lý người dùng"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Thanh tìm kiếm + lọc -->
     <LinearLayout
         android:id="@+id/layout_search"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/tv_title">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
@@ -47,7 +73,7 @@
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
             android:contentDescription="Lọc"
-            app:backgroundTint="@color/colorRed"
+            app:backgroundTint="@color/red_pinterest"
             app:cornerRadius="12dp"
             app:icon="@drawable/ic_filter" />
     </LinearLayout>
@@ -92,20 +118,46 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_tabs" />
 
+    <!-- Thông báo khi không có dữ liệu -->
+    <TextView
+        android:id="@+id/tv_no_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Không có người dùng nào"
+        android:textSize="16sp"
+        android:textColor="@color/grey"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/rv_users"
+        app:layout_constraintEnd_toEndOf="@id/rv_users"
+        app:layout_constraintStart_toStartOf="@id/rv_users"
+        app:layout_constraintTop_toTopOf="@id/rv_users" />
+
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminateTint="@color/red_pinterest"
+        app:layout_constraintBottom_toBottomOf="@id/rv_users"
+        app:layout_constraintEnd_toEndOf="@id/rv_users"
+        app:layout_constraintStart_toStartOf="@id/rv_users"
+        app:layout_constraintTop_toTopOf="@id/rv_users" />
+
     <!-- Nút thêm -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_add_user"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorRed"
-        android:icon="@drawable/ic_add"
+        android:backgroundTint="@color/red_pinterest"
         android:text="THÊM TÀI KHOẢN"
         android:textColor="@android:color/white"
+        android:layout_marginBottom="16dp"
         app:cornerRadius="16dp"
+        app:icon="@drawable/ic_add"
         app:iconPadding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rv_users" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
