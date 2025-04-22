@@ -282,4 +282,7 @@
     <string name="fetch_comments_failure">Failed to fetch comments</string>
     <string name="calendar_picker_date_format">MMMM d, yyyy</string>
     <string name="error_open_pin_detail">Can not open pin detail</string>
+    <string name="error_open_board_detail">Can not open board detail</string>
+    <string name="created">Created</string>
+    <string name="all_saved_pins">"All_saved_pins"</string>
 </resources>

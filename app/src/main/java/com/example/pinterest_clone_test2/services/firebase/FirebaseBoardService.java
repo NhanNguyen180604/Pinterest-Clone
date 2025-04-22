@@ -1,7 +1,12 @@
 package com.example.pinterest_clone_test2.services.firebase;
 
+import static androidx.core.content.ContextCompat.getString;
+
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
@@ -75,7 +80,7 @@ public abstract class FirebaseBoardService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
-    public static void createAllPinsBoard(String userId, CreateAllPinsBoardCallback callback) {
+    public static void createAllPinsBoard(Context context, String userId, CreateAllPinsBoardCallback callback) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
         // Lấy thông tin người dùng để lấy danh sách pins
@@ -101,8 +106,8 @@ public abstract class FirebaseBoardService {
                     // Tạo board "Tất cả Ghim"
                     Board allPinsBoard = new Board()
                             .setId("all_pins_" + userId)
-                            .setName("Tất cả Ghim")
-                            .setDescription("Tất cả các Ghim đã lưu")
+                            .setName(getString(context, R.string.all) + " " + getString(context, R.string.pins))
+                            .setDescription(getString(context, R.string.all_saved_pins))
                             .setAuthorId(userId)
                             .setPublic(true)
                             .setPins(userPinIds);

@@ -290,4 +290,7 @@
     <string name="fetch_comments_failure">Đã có lỗi trong lúc tải bình luận</string>
     <string name="calendar_picker_date_format">dd \'thg\' M, yyyy</string>
     <string name="error_open_pin_detail">Không thể mở chi tiết pin</string>
+    <string name="error_open_board_detail">Không thể mở chi tiết bảng</string>
+    <string name="created">Đã tạo</string>
+    <string name="all_saved_pins">"Tất cả các Ghim đã lưu"</string>
 </resources>
