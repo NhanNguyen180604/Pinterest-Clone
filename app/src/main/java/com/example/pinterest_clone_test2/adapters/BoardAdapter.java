@@ -55,12 +55,14 @@ public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHol
         Board board = boardList.get(position);
 
         holder.tvTitle.setText(board.getName());
+
+        int pinSize = board.getPinsObj() != null ? board.getPinsObj().size() : 0;
         if (!board.getPinsObj().isEmpty()) {
             holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPinsObj().size(), context.getResources().getString(board.getPinsObj().size() > 1 ? R.string.pins : R.string.pin).toLowerCase()));
         } else {
             holder.tvPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), context.getResources().getString(board.getPins().size() > 1 ? R.string.pins : R.string.pin).toLowerCase()));
         }
-        int pinSize = board.getPinsObj().size();
+
         if (pinSize > 0) {
             Glide.with(context).load(board.getPinsObj().get(0).getThumbnailUrl()).into(holder.ivFirst);
             holder.ivFirst.setBackgroundColor(context.getColor(R.color.lighter_gray));
