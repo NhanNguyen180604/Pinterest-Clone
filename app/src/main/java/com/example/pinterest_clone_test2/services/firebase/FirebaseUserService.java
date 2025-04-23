@@ -334,24 +334,11 @@ public class FirebaseUserService {
                                     .get()
                                     .addOnSuccessListener(queryDocumentSnapshots -> {
                                         for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
-                                            Pin pin = new Pin()
-                                                    .setId(doc.getId())
-                                                    .setAllowComment(Boolean.TRUE.equals(doc.getBoolean("allowComment")))
-                                                    .setAuthorId(doc.getString("authorId"))
-                                                    .setMediaUrl(doc.getString("mediaUrl"))
-                                                    .setThumbnailUrl(doc.getString("thumbnailUrl"))
-                                                    .setType(doc.get("type", Pin.PinType.class));
+                                            Pin pin = doc.toObject(Pin.class);
+                                            if (pin == null)
+                                                continue;
 
-                                            String description = doc.getString("description");
-                                            String name = doc.getString("name");
-                                            pin.setDescription(description != null ? description : "")
-                                                    .setName(name != null ? name : "");
-
-                                            Long createdAt = doc.getLong("createdAt");
-                                            Integer likeCount = doc.get("likeCount", Integer.class);
-                                            pin.setCreatedAt(createdAt != null ? createdAt : 0);
-                                            pin.setLikeCount(likeCount != null ? likeCount : 0);
-
+                                            pin.setId(doc.getId());
                                             allPins.add(pin);
                                         }
                                     });
