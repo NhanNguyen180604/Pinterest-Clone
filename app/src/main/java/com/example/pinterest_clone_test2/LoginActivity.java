@@ -18,6 +18,7 @@ import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterInterests;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterName;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterPassword;
 import com.example.pinterest_clone_test2.ui.auth.FragmentStartScreen;
+import com.example.pinterest_clone_test2.utils.LoadingDialog;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     FragmentManager fragmentManager;
     FirebaseAuth auth;
     FirebaseFirestore db;
+    private LoadingDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,7 @@ public class LoginActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        loadingDialog = new LoadingDialog(this);
 
         user = new User();
         fragmentManager = getSupportFragmentManager();
@@ -50,6 +53,18 @@ public class LoginActivity extends AppCompatActivity {
                 .replace(R.id.login_fragment_container, new FragmentStartScreen())
                 .addToBackStack(null)
                 .commit();
+    }
+
+    public void showLoading() {
+        if (loadingDialog != null) {
+            loadingDialog.show();
+        }
+    }
+
+    public void hideLoading() {
+        if (loadingDialog != null) {
+            loadingDialog.dismiss();
+        }
     }
 
     public void startRegisterFlow() {
@@ -105,15 +120,18 @@ public class LoginActivity extends AppCompatActivity {
                 .addToBackStack(null)
                 .commit();
     }
+
     public void registerInterests(List<String> interests) {
         // Convert localized tags back to English for storage
         user.setInterests(interests);
+        showLoading(); // Show loading dialog
         createUser();
     }
 
     public void login(String email, String password) {
         user.setEmail(email);
         currentPassword = password;
+        showLoading(); // Show loading dialog
         loginUserEmailPassword();
     }
 
@@ -148,42 +166,28 @@ public class LoginActivity extends AppCompatActivity {
                     userInfos.put("blockedCollages", new ArrayList<String>());
                     userInfos.put("website", "");
 
-//                    Task<DocumentReference> updateUserInfoTask = db.collection("users")
-//                            .add(userInfos);
-
-
-//                    Task<Void> updateUserInfoTask = db.collection("users")
-//                            .document(firebaseUser.getUid())
-//                            .set(userInfos);
-//
-//                    Tasks.whenAllSuccess(updateProfileTask, updateUserInfoTask)
-//                            .addOnSuccessListener(objects -> {
-//                                Log.d("firebase-cloud-firestore", "User profile updated & Firestore data added successfully");
-//
-//                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                                startActivity(intent);
-//                                finish();
-//                            })
-//                            .addOnFailureListener(e -> {
-//                                Log.e("firebase-cloud-firestore", "Error initializing user data", e);
-//                                Toast.makeText(LoginActivity.this, "Lỗi khi khởi tạo thông tin người dùng", Toast.LENGTH_SHORT).show();
-//                            });
                     new Handler().postDelayed(() -> db.collection("users")
                             .document(firebaseUser.getUid())
                             .set(userInfos)
                             .addOnSuccessListener(objects -> {
                                 Log.d("firebase-cloud-firestore", "User profile updated & Firestore data added successfully");
 
+                                hideLoading(); // Hide loading dialog before navigation
+
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 finish();
                             })
                             .addOnFailureListener(e -> {
+                                hideLoading(); // Hide loading dialog on failure
+
                                 Log.e("firebase-cloud-firestore", "Error initializing user data", e);
                                 Toast.makeText(LoginActivity.this, getResources().getString(R.string.user_info_init_failure), Toast.LENGTH_SHORT).show();
                             }), 1000);
                 })
                 .addOnFailureListener(this, e -> {
+                    hideLoading(); // Hide loading dialog on failure
+
                     Toast.makeText(LoginActivity.this, getResources().getString(R.string.register_failure), Toast.LENGTH_SHORT).show();
                     Log.e("firebase-auth-singup", "Error signing up", e);
                     fragmentManager.beginTransaction()
@@ -196,13 +200,23 @@ public class LoginActivity extends AppCompatActivity {
     void loginUserEmailPassword() {
         auth.signInWithEmailAndPassword(user.getEmail(), currentPassword)
                 .addOnSuccessListener(authResult -> {
+                    hideLoading(); // Hide loading dialog before navigation
+
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
                 })
                 .addOnFailureListener(e -> {
+                    hideLoading(); // Hide loading dialog on failure
+
                     Toast.makeText(LoginActivity.this, getResources().getString(R.string.login_failure), Toast.LENGTH_SHORT).show();
                     Log.e("firebase-auth-login", "Error logging in", e);
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        hideLoading(); // Ensure dialog is dismissed when activity is destroyed
     }
 }
