@@ -36,4 +36,6 @@
     <color name="item_background">#FFFFFF</color>
     <color name="item_stroke">#E0E0E0</color>
     <color name="colorGreen">#4CAF50</color>
+    <color name="colorPrimary">#E60023</color>  <!-- Màu đỏ Pinterest -->
+    <color name="colorSecondary">#0076E8</color> <!-- Màu xanh dương đậm -->
 </resources>

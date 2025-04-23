@@ -410,4 +410,81 @@
         <string name="select_date_range">Select date range</string>
     <!--========== BÊN TRÊN DÙNG CHO MANAGE COMMENT PAGE ==========-->
 
+    <!--========== BÊN DƯỚI DÙNG CHO MANAGE PIN PAGE ==========-->
+        <string name="filter_by_pin_type">Filter by pin type</string>
+        <string name="pin_type_dropdown">Select pin type</string>
+        <string name="image_pins">Image pins</string>
+        <string name="gif_pins">GIF pins</string>
+        <string name="video_pins">Video pins</string>
+        <string name="pin_details">Pin details</string>
+        <string name="pin_stats">Pin statistics</string>
+        <string name="pin_report_title">Pin report</string>
+        <string name="pin_author_info">Author information</string>
+        <string name="most_reported_pins">Most reported pins</string>
+        <string name="recent_reported_pins">Recently reported pins</string>
+        <string name="pins_by_category">Pins by category</string>
+        <string name="pins_by_date">Pins by date</string>
+        <string name="total_pins">Total pins</string>
+        <string name="active_pins">Active pins</string>
+        <string name="inactive_pins">Inactive pins</string>
+        <string name="loading_pins">Loading pins...</string>
+        <string name="process_pin_report">Process pin report</string>
+        <string name="ban_pin_author">Ban pin author</string>
+        <string name="pin_report_history">Pin report history</string>
+        <string name="first_reported_at">First reported at</string>
+        <string name="view_all_pins">View all pins</string>
+        <string name="similar_pins">Similar pins</string>
+        <string name="report_detail_title">Report details</string>
+        <string name="mark_pin_checked">Mark as checked</string>
+        <string name="delete_pin_confirm_message">Deleting this pin will permanently remove it from the system and cannot be undone.</string>
+        <string name="reporter_info">Reporter information</string>
+        <string name="multiple_reporters">Multiple reporters</string>
+        <string name="view_related_pins">View related pins</string>
+        <string name="manage_pin_title">Manage pins</string>
+        <string name="pin_status_changed">Pin status changed</string>
+        <string name="pin_report_processed">Pin report processed</string>
+        <string name="type_to_search_pin">Type to search pins...</string>
+        <string name="admin_action_required">Admin action required</string>
+        <string name="urgent_reports">Urgent reports</string>
+        <string name="not_urgent_reports">Non-urgent reports</string>
+        <string name="report_source">Report source</string>
+        <string name="export_report_data">Export report data</string>
+        <string name="priority_high">High priority</string>
+        <string name="priority_medium">Medium priority</string>
+        <string name="priority_low">Low priority</string>
+        <string name="pin_filter_summary">Pin filter summary</string>
+        <string name="reset_all_pin_filters">Reset all pin filters</string>
+        <string name="no_pin_reports_found">No pin reports found</string>
+        <string name="no_matching_pins">No pins match your filters</string>
+        <string name="processing">Processing...</string>
+        <string name="processing_complete">Processing complete</string>
+        <string name="confirm_action">Confirm action</string>
+        <string name="view_media">View media</string>
+        <string name="reported_x_days_ago">Reported %d days ago</string>
+        <string name="media_type">Media type</string>
+        <string name="pin_image_description">Reported pin image</string>
+        <string name="view_details">View details</string>
+        <string name="no_reported_pins">No reported pins</string>
+        <string name="all_pin_types">All pin types</string>
+        <string name="filter_pins">Filter pins</string>
+        <string name="search_pins_hint">Search reported pins</string>
+        <string name="pin_type_unknown">Unknown</string>
+        <string name="pin_type_image">Image</string>
+        <string name="pin_type_gif">GIF</string>
+        <string name="pin_type_video">Video</string>
+        <string name="pin_type_label">Type</string>
+        <string name="pin_title_label">Title:</string>
+        <string name="pin_description_label">Description:</string>
+        <string name="pin_time_label">Posted time:</string>
+        <string name="report_details_pin">Pin report details</string>
+        <string name="mark_as_checked_confirm_pin">Are you sure you want to mark this pin report as checked?</string>
+        <string name="delete_pin_confirm">Are you sure you want to delete this pin? This action cannot be undone.</string>
+        <string name="pin_deleted">Pin deleted</string>
+        <string name="error_deleting_pin">Error deleting pin</string>
+        <string name="total_pin_reports">Total reported pins</string>
+        <string name="pin_report_statistics">Pin report statistics</string>
+    <!--========== BÊN TRÊN DÙNG CHO MANAGE PIN PAGE ==========-->
+
+
+
 </resources>

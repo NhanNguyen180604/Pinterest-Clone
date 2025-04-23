@@ -415,5 +415,80 @@
         <string name="select_date_range">Chọn phạm vi ngày</string>
     <!--========== BÊN TRÊN DÙNG CHO MANAGE COMMENT PAGE ==========-->
 
+    <!--========== BÊN DƯỚI DÙNG CHO MANAGE PIN PAGE ==========-->
+        <string name="filter_by_pin_type">Lọc theo loại pin</string>
+        <string name="pin_type_dropdown">Chọn loại pin</string>
+        <string name="image_pins">Pin hình ảnh</string>
+        <string name="gif_pins">Pin GIF</string>
+        <string name="video_pins">Pin video</string>
+        <string name="pin_details">Chi tiết pin</string>
+        <string name="pin_stats">Thống kê pin</string>
+        <string name="pin_report_title">Báo cáo pin</string>
+        <string name="pin_author_info">Thông tin tác giả</string>
+        <string name="most_reported_pins">Pin bị báo cáo nhiều nhất</string>
+        <string name="recent_reported_pins">Pin bị báo cáo gần đây</string>
+        <string name="pins_by_category">Pin theo danh mục</string>
+        <string name="pins_by_date">Pin theo ngày</string>
+        <string name="total_pins">Tổng số pin</string>
+        <string name="active_pins">Pin đang hoạt động</string>
+        <string name="inactive_pins">Pin không hoạt động</string>
+        <string name="loading_pins">Đang tải pin...</string>
+        <string name="process_pin_report">Xử lý báo cáo pin</string>
+        <string name="ban_pin_author">Cấm tác giả pin</string>
+        <string name="pin_report_history">Lịch sử báo cáo pin</string>
+        <string name="first_reported_at">Báo cáo đầu tiên lúc</string>
+        <string name="view_all_pins">Xem tất cả pin</string>
+        <string name="similar_pins">Pin tương tự</string>
+        <string name="report_detail_title">Chi tiết báo cáo</string>
+        <string name="mark_pin_checked">Đánh dấu đã kiểm tra</string>
+        <string name="delete_pin_confirm_message">Xóa pin này sẽ xóa vĩnh viễn nó khỏi hệ thống và không thể khôi phục.</string>
+        <string name="reporter_info">Thông tin người báo cáo</string>
+        <string name="multiple_reporters">Nhiều người báo cáo</string>
+        <string name="view_related_pins">Xem pin liên quan</string>
+        <string name="manage_pin_title">Quản lý pin</string>
+        <string name="pin_status_changed">Đã thay đổi trạng thái pin</string>
+        <string name="pin_report_processed">Đã xử lý báo cáo pin</string>
+        <string name="type_to_search_pin">Nhập để tìm pin...</string>
+        <string name="admin_action_required">Yêu cầu hành động của quản trị viên</string>
+        <string name="urgent_reports">Báo cáo khẩn cấp</string>
+        <string name="not_urgent_reports">Báo cáo không khẩn cấp</string>
+        <string name="report_source">Nguồn báo cáo</string>
+        <string name="export_report_data">Xuất dữ liệu báo cáo</string>
+        <string name="priority_high">Ưu tiên cao</string>
+        <string name="priority_medium">Ưu tiên trung bình</string>
+        <string name="priority_low">Ưu tiên thấp</string>
+        <string name="pin_filter_summary">Tóm tắt bộ lọc pin</string>
+        <string name="reset_all_pin_filters">Xóa tất cả bộ lọc pin</string>
+        <string name="no_pin_reports_found">Không tìm thấy báo cáo pin nào</string>
+        <string name="no_matching_pins">Không có pin phù hợp với bộ lọc</string>
+        <string name="processing">Đang xử lý...</string>
+        <string name="processing_complete">Đã xử lý xong</string>
+        <string name="confirm_action">Xác nhận hành động</string>
+        <string name="view_media">Xem nội dung</string>
+        <string name="reported_x_days_ago">Bị báo cáo cách đây %d ngày</string>
+        <string name="media_type">Loại nội dung</string>
+        <string name="pin_image_description">Hình ảnh pin bị báo cáo</string>
+        <string name="view_details">Xem chi tiết</string>
+        <string name="no_reported_pins">Không có pin bị báo cáo</string>
+        <string name="all_pin_types">Tất cả loại pin</string>
+        <string name="filter_pins">Lọc pin</string>
+        <string name="search_pins_hint">Tìm kiếm pin bị báo cáo</string>
+        <string name="pin_type_unknown">Không xác định</string>
+        <string name="pin_type_image">Hình ảnh</string>
+        <string name="pin_type_gif">GIF</string>
+        <string name="pin_type_video">Video</string>
+        <string name="pin_type_label">Loại</string>
+        <string name="pin_title_label">Tiêu đề:</string>
+        <string name="pin_description_label">Mô tả:</string>
+        <string name="pin_time_label">Thời gian đăng:</string>
+        <string name="report_details_pin">Chi tiết báo cáo pin</string>
+        <string name="mark_as_checked_confirm_pin">Bạn có chắc chắn muốn đánh dấu báo cáo pin này là đã kiểm tra?</string>
+        <string name="delete_pin_confirm">Bạn có chắc chắn muốn xóa pin này? Hành động này không thể hoàn tác.</string>
+        <string name="pin_deleted">Đã xóa pin</string>
+        <string name="error_deleting_pin">Lỗi khi xóa pin</string>
+        <string name="total_pin_reports">Tổng số pin bị báo cáo</string>
+        <string name="pin_report_statistics">Thống kê báo cáo pin</string>
+    <!--========== BÊN TRÊN DÙNG CHO MANAGE PIN PAGE ==========-->
+
 
 </resources>

@@ -2,27 +2,35 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_pin"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:padding="16dp">
 
-        <!-- Pin Image -->
-        <ImageView
-            android:id="@+id/iv_pin_image"
+        <!-- Pin Image Section -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_pin_image"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="Ảnh pin"
+            app:cardCornerRadius="8dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_pin_placeholder" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_pin_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/pin_image_description"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/ic_pin_placeholder" />
+        </androidx.cardview.widget.CardView>
 
         <!-- Pin Info -->
         <TextView
@@ -36,9 +44,9 @@
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_pin_image"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Tiêu đề pin" />
+            app:layout_constraintStart_toEndOf="@id/card_pin_image"
+            app:layout_constraintTop_toTopOf="@id/card_pin_image"
+            tools:text="Pin Title" />
 
         <TextView
             android:id="@+id/tv_pin_description"
@@ -51,9 +59,9 @@
             android:textColor="@color/dark_grey"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_pin_image"
+            app:layout_constraintStart_toEndOf="@id/card_pin_image"
             app:layout_constraintTop_toBottomOf="@id/tv_pin_title"
-            tools:text="Mô tả pin" />
+            tools:text="Pin description" />
 
         <TextView
             android:id="@+id/tv_created_at"
@@ -63,35 +71,57 @@
             android:layout_marginTop="4dp"
             android:textColor="@color/grey"
             android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@id/iv_pin_image"
+            app:layout_constraintStart_toEndOf="@id/card_pin_image"
             app:layout_constraintTop_toBottomOf="@id/tv_pin_description"
-            tools:text="01/07/2023 13:45" />
+            tools:text="01/01/2023 12:00" />
+
+        <TextView
+            android:id="@+id/tv_pin_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/pill_background"
+            android:paddingStart="8dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="2dp"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            app:layout_constraintStart_toEndOf="@id/tv_created_at"
+            app:layout_constraintTop_toTopOf="@id/tv_created_at"
+            tools:ignore="SmallSp"
+            tools:text="IMAGE" />
 
         <!-- Author Info -->
         <LinearLayout
             android:id="@+id/layout_author"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/iv_pin_image">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/card_pin_image">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/iv_author_avatar"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="Avatar tác giả"
-                tools:src="@drawable/ic_user_placeholder" />
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_account_circle"
+                app:shapeAppearanceOverlay="@style/roundedImageView" />
 
             <TextView
                 android:id="@+id/tv_author_name"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="@color/black"
                 android:textSize="14sp"
-                tools:text="Tên tác giả" />
+                tools:text="Author Name" />
         </LinearLayout>
 
         <!-- Report Info -->
@@ -100,108 +130,111 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="12dp"
-            android:background="@color/light_gray"
+            android:background="@color/light_grey"
             app:layout_constraintTop_toBottomOf="@id/layout_author" />
 
-        <TextView
-            android:id="@+id/label_report_info"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/layout_report_info"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Thông tin báo cáo:"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/divider" />
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/divider">
 
-        <TextView
-            android:id="@+id/tv_report_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/dark_grey"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/label_report_info"
-            tools:text="5 báo cáo" />
+            <TextView
+                android:id="@+id/tv_report_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorRed"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:drawableStartCompat="@drawable/ic_error_outline"
+                tools:text="5 reports" />
 
-        <TextView
-            android:id="@+id/tv_report_reason"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/dark_grey"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_report_count"
-            tools:text="Lý do báo cáo: Nội dung không phù hợp" />
+            <TextView
+                android:id="@+id/tv_report_reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="14sp"
+                tools:text="Reason: Inappropriate content" />
 
-        <TextView
-            android:id="@+id/tv_last_report_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/dark_grey"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_report_reason"
-            tools:text="Báo cáo gần nhất: 01/07/2023 13:45" />
+            <TextView
+                android:id="@+id/tv_last_report_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="14sp"
+                tools:text="Last report: 01/01/2023 12:00" />
 
-        <TextView
-            android:id="@+id/tv_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_last_report_date"
-            tools:text="Chưa kiểm tra"
-            tools:textColor="@color/red_pinterest" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
 
-        <!-- Action Buttons -->
+                <TextView
+                    android:id="@+id/tv_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    tools:text="Unchecked"
+                    tools:textColor="@color/colorRed" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    tools:chipBackgroundColor="@color/colorRed"
+                    tools:text="Unchecked" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Buttons container -->
         <LinearLayout
+            android:id="@+id/buttons_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/tv_status">
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layout_report_info">
 
             <Button
-                android:id="@+id/btn_view_detail"
+                android:id="@+id/btn_view_details"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:text="Xem chi tiết"
-                android:textColor="@color/dark_grey"
-                android:textSize="12sp" />
+                android:text="@string/view_details"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_pin"
+                app:iconGravity="textStart" />
 
             <Button
-                android:id="@+id/btn_mark_as_checked"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:id="@+id/btn_process"
+                style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:text="@string/mark_as_checked"
-                android:textColor="@color/colorGreen"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/btn_delete"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_weight="1"
-                android:text="@string/delete"
-                android:textColor="@color/red_pinterest"
-                android:textSize="12sp" />
+                android:backgroundTint="@color/colorPrimary"
+                android:text="@string/process"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:icon="@drawable/ic_process"
+                app:iconGravity="textStart"
+                app:iconTint="@color/white" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.cardview.widget.CardView>

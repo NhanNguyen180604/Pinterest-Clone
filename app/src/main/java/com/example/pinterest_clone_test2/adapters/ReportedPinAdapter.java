@@ -1,159 +1,211 @@
 package com.example.pinterest_clone_test2.adapters;
 
 import android.content.Context;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.databinding.ItemReportedPinBinding;
+import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.models.ReportReason;
 import com.example.pinterest_clone_test2.models.ReportedPin;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
 public class ReportedPinAdapter extends RecyclerView.Adapter<ReportedPinAdapter.ReportedPinViewHolder> {
 
+    private final List<ReportedPin> pinList;
     private final Context context;
-    private final List<ReportedPin> reportedPins;
     private final OnReportedPinListener listener;
 
     public interface OnReportedPinListener {
         void onPinClick(ReportedPin pin);
-        void onMarkAsCheckedClick(ReportedPin pin);
-        void onDeleteClick(ReportedPin pin);
-        void onViewAuthorClick(ReportedPin pin);
+        void onAuthorClick(ReportedPin pin);
+        void onProcessClick(ReportedPin pin);
+        void onReportInfoClick(ReportedPin pin);
     }
 
-    public ReportedPinAdapter(Context context, List<ReportedPin> reportedPins, OnReportedPinListener listener) {
+    public ReportedPinAdapter(Context context, List<ReportedPin> pinList, OnReportedPinListener listener) {
         this.context = context;
-        this.reportedPins = reportedPins;
+        this.pinList = new ArrayList<>(pinList);
         this.listener = listener;
     }
 
     @NonNull
     @Override
     public ReportedPinViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_reported_pin, parent, false);
-        return new ReportedPinViewHolder(view);
+        ItemReportedPinBinding binding = ItemReportedPinBinding.inflate(
+                LayoutInflater.from(parent.getContext()), parent, false);
+        return new ReportedPinViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ReportedPinViewHolder holder, int position) {
-        ReportedPin reportedPin = reportedPins.get(position);
-
-        // Hiển thị thông tin pin
-        holder.tvPinTitle.setText(reportedPin.getPinTitle() != null && !reportedPin.getPinTitle().isEmpty() ?
-                reportedPin.getPinTitle() : "(Không có tiêu đề)");
-
-        String description = reportedPin.getPinDescription();
-        if (description != null && !description.isEmpty()) {
-            holder.tvPinDescription.setVisibility(View.VISIBLE);
-            holder.tvPinDescription.setText(description.length() > 100 ?
-                    description.substring(0, 97) + "..." : description);
-        } else {
-            holder.tvPinDescription.setVisibility(View.GONE);
-        }
-
-        holder.tvAuthorName.setText(reportedPin.getPinAuthorName());
-
-        // Định dạng ngày tháng
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-        holder.tvCreatedAt.setText(dateFormat.format(new Date(reportedPin.getPinCreatedAt())));
-
-        // Hiển thị thông tin báo cáo
-        holder.tvReportCount.setText(context.getString(R.string.report_count_format, reportedPin.getReportCount()));
-        holder.tvReportReason.setText(reportedPin.getMostCommonReasonTitle());
-        holder.tvLastReportDate.setText(dateFormat.format(new Date(reportedPin.getLastReportedAt())));
-
-        // Hiển thị trạng thái kiểm tra
-        if (reportedPin.isChecked()) {
-            holder.tvStatus.setText(R.string.status_checked);
-            holder.tvStatus.setTextColor(context.getResources().getColor(R.color.colorGreen, null));
-        } else {
-            holder.tvStatus.setText(R.string.status_unchecked);
-            holder.tvStatus.setTextColor(context.getResources().getColor(R.color.red_pinterest, null));
-        }
-
-        // Tải hình ảnh
-        if (reportedPin.getThumbnailUrl() != null && !reportedPin.getThumbnailUrl().isEmpty()) {
-            Glide.with(context)
-                    .load(reportedPin.getThumbnailUrl())
-                    .placeholder(R.drawable.ic_pin_placeholder)
-                    .error(R.drawable.ic_pin_placeholder)
-                    .centerCrop()
-                    .into(holder.ivPinImage);
-        } else {
-            Glide.with(context)
-                    .load(R.drawable.ic_pin_placeholder)
-                    .centerCrop()
-                    .into(holder.ivPinImage);
-        }
-
-        // Tải avatar tác giả
-        if (reportedPin.getPinAuthorAvatar() != null && !reportedPin.getPinAuthorAvatar().isEmpty()) {
-            Glide.with(context)
-                    .load(reportedPin.getPinAuthorAvatar())
-                    .placeholder(R.drawable.ic_user_placeholder)
-                    .error(R.drawable.ic_user_placeholder)
-                    .circleCrop()
-                    .into(holder.ivAuthorAvatar);
-        } else {
-            Glide.with(context)
-                    .load(R.drawable.ic_user_placeholder)
-                    .circleCrop()
-                    .into(holder.ivAuthorAvatar);
-        }
-
-        // Xử lý sự kiện click
-        holder.itemView.setOnClickListener(v -> listener.onPinClick(reportedPin));
-        holder.btnMarkAsChecked.setOnClickListener(v -> listener.onMarkAsCheckedClick(reportedPin));
-        holder.btnDelete.setOnClickListener(v -> listener.onDeleteClick(reportedPin));
-        holder.layoutAuthor.setOnClickListener(v -> listener.onViewAuthorClick(reportedPin));
+        ReportedPin pin = pinList.get(position);
+        holder.bind(pin);
     }
 
     @Override
     public int getItemCount() {
-        return reportedPins.size();
+        return pinList.size();
     }
 
-    public static class ReportedPinViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivPinImage;
-        TextView tvPinTitle;
-        TextView tvPinDescription;
-        TextView tvCreatedAt;
-        TextView tvReportCount;
-        TextView tvReportReason;
-        TextView tvLastReportDate;
-        TextView tvStatus;
-        ImageView ivAuthorAvatar;
-        TextView tvAuthorName;
-        View layoutAuthor;
-        View btnMarkAsChecked;
-        View btnDelete;
+    public void updateData(List<ReportedPin> newPins) {
+        pinList.clear();
+        pinList.addAll(newPins);
+        notifyDataSetChanged();
+    }
 
-        public ReportedPinViewHolder(@NonNull View itemView) {
-            super(itemView);
-            ivPinImage = itemView.findViewById(R.id.iv_pin_image);
-            tvPinTitle = itemView.findViewById(R.id.tv_pin_title);
-            tvPinDescription = itemView.findViewById(R.id.tv_pin_description);
-            tvCreatedAt = itemView.findViewById(R.id.tv_created_at);
-            tvReportCount = itemView.findViewById(R.id.tv_report_count);
-            tvReportReason = itemView.findViewById(R.id.tv_report_reason);
-            tvLastReportDate = itemView.findViewById(R.id.tv_last_report_date);
-            tvStatus = itemView.findViewById(R.id.tv_status);
-            ivAuthorAvatar = itemView.findViewById(R.id.iv_author_avatar);
-            tvAuthorName = itemView.findViewById(R.id.tv_author_name);
-            layoutAuthor = itemView.findViewById(R.id.layout_author);
-            btnMarkAsChecked = itemView.findViewById(R.id.btn_mark_as_checked);
-            btnDelete = itemView.findViewById(R.id.btn_delete);
+    class ReportedPinViewHolder extends RecyclerView.ViewHolder {
+        private final ItemReportedPinBinding binding;
+
+        public ReportedPinViewHolder(ItemReportedPinBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+
+        public void bind(ReportedPin pin) {
+            // Hiển thị thông tin cơ bản của pin
+            binding.tvPinTitle.setText(pin.getPinTitle() != null && !pin.getPinTitle().isEmpty() ?
+                    pin.getPinTitle() : "(Không có tiêu đề)");
+
+            String description = pin.getPinDescription();
+            if (description != null && !description.isEmpty()) {
+                binding.tvPinDescription.setVisibility(View.VISIBLE);
+                binding.tvPinDescription.setText(description.length() > 100 ?
+                        description.substring(0, 97) + "..." : description);
+            } else {
+                binding.tvPinDescription.setVisibility(View.GONE);
+            }
+
+            binding.tvAuthorName.setText(pin.getPinAuthorName());
+
+            // Định dạng ngày tháng
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(pin.getPinCreatedAt());
+            String dateFormatted = DateFormat.format("dd/MM/yyyy HH:mm", calendar).toString();
+            binding.tvCreatedAt.setText(dateFormatted);
+
+            // Hiển thị loại pin
+            binding.tvPinType.setText(getPinTypeText(pin.getPinType()));
+            binding.tvPinType.setBackgroundTintList(ContextCompat.getColorStateList(context,
+                    getPinTypeColor(pin.getPinType())));
+
+            // Hiển thị thông tin báo cáo
+            binding.tvReportCount.setText(context.getString(R.string.report_count_format, pin.getReportCount()));
+            binding.tvReportReason.setText(context.getString(R.string.reason_prefix) + " " + pin.getMostCommonReasonTitle());
+
+            // Hiển thị thời gian báo cáo gần nhất
+            Calendar reportCalendar = Calendar.getInstance();
+            reportCalendar.setTimeInMillis(pin.getLastReportedAt());
+            String reportDate = DateFormat.format("dd/MM/yyyy HH:mm", reportCalendar).toString();
+            binding.tvLastReportDate.setText(context.getString(R.string.last_report_time_label) + ": " + reportDate);
+
+            // Hiển thị trạng thái kiểm tra
+            if (pin.isChecked()) {
+                binding.chipStatus.setText(R.string.status_checked);
+                binding.chipStatus.setChipBackgroundColor(ContextCompat.getColorStateList(context, R.color.colorGreen));
+                binding.tvStatus.setText(R.string.status_checked);
+                binding.tvStatus.setTextColor(context.getResources().getColor(R.color.colorGreen, null));
+            } else {
+                binding.chipStatus.setText(R.string.status_unchecked);
+                binding.chipStatus.setChipBackgroundColor(ContextCompat.getColorStateList(context, R.color.colorRed));
+                binding.tvStatus.setText(R.string.status_unchecked);
+                binding.tvStatus.setTextColor(context.getResources().getColor(R.color.colorRed, null));
+            }
+
+            // Tải hình ảnh pin
+            if (pin.getThumbnailUrl() != null && !pin.getThumbnailUrl().isEmpty()) {
+                Glide.with(context)
+                        .load(pin.getThumbnailUrl())
+                        .placeholder(R.drawable.ic_pin_placeholder)
+                        .error(R.drawable.ic_pin_placeholder)
+                        .centerCrop()
+                        .into(binding.ivPinImage);
+            } else if (pin.getMediaUrl() != null && !pin.getMediaUrl().isEmpty()) {
+                Glide.with(context)
+                        .load(pin.getMediaUrl())
+                        .placeholder(R.drawable.ic_pin_placeholder)
+                        .error(R.drawable.ic_pin_placeholder)
+                        .centerCrop()
+                        .into(binding.ivPinImage);
+            } else {
+                Glide.with(context)
+                        .load(R.drawable.ic_pin_placeholder)
+                        .centerCrop()
+                        .into(binding.ivPinImage);
+            }
+
+            // Tải avatar tác giả
+            if (pin.getPinAuthorAvatar() != null && !pin.getPinAuthorAvatar().isEmpty()) {
+                Glide.with(context)
+                        .load(pin.getPinAuthorAvatar())
+                        .apply(new RequestOptions()
+                                .placeholder(R.drawable.ic_account_circle)
+                                .error(R.drawable.ic_account_circle)
+                                .circleCrop())
+                        .into(binding.ivAuthorAvatar);
+            } else {
+                binding.ivAuthorAvatar.setImageResource(R.drawable.ic_account_circle);
+            }
+
+            // Set click listeners
+            binding.cardPinImage.setOnClickListener(v -> listener.onPinClick(pin));
+            binding.tvPinTitle.setOnClickListener(v -> listener.onPinClick(pin));
+            binding.tvPinDescription.setOnClickListener(v -> listener.onPinClick(pin));
+
+            binding.layoutAuthor.setOnClickListener(v -> listener.onAuthorClick(pin));
+            binding.ivAuthorAvatar.setOnClickListener(v -> listener.onAuthorClick(pin));
+            binding.tvAuthorName.setOnClickListener(v -> listener.onAuthorClick(pin));
+
+            binding.layoutReportInfo.setOnClickListener(v -> listener.onReportInfoClick(pin));
+            binding.btnViewDetails.setOnClickListener(v -> listener.onPinClick(pin));
+            binding.btnProcess.setOnClickListener(v -> listener.onProcessClick(pin));
+        }
+
+        private String getPinTypeText(Pin.PinType type) {
+            if (type == null) {
+                return context.getString(R.string.pin_type_unknown);
+            }
+
+            switch (type) {
+                case IMAGE:
+                    return context.getString(R.string.pin_type_image);
+                case GIF:
+                    return context.getString(R.string.pin_type_gif);
+                case VIDEO:
+                    return context.getString(R.string.pin_type_video);
+                default:
+                    return context.getString(R.string.pin_type_unknown);
+            }
+        }
+
+        private int getPinTypeColor(Pin.PinType type) {
+            if (type == null) {
+                return R.color.grey;
+            }
+
+            switch (type) {
+                case IMAGE:
+                    return R.color.colorPrimary;
+                case GIF:
+                    return R.color.colorAccent;
+                case VIDEO:
+                    return R.color.colorSecondary;
+                default:
+                    return R.color.grey;
+            }
         }
     }
 }
