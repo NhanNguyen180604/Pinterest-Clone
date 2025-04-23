@@ -285,4 +285,42 @@
     <string name="user_state_banned">BANNED</string>
     <string name="ban_button">BAN</string>
     <string name="unban_button">UNBAN</string>
+
+    <string name="manage_comments_title">Manage Comments</string>
+    <string name="search_comments_hint">Search comments</string>
+    <string name="sort_by">Sort by</string>
+    <string name="status">Status</string>
+    <string name="report_reason">Report reason</string>
+    <string name="from_date">From date</string>
+    <string name="to_date">To date</string>
+    <string name="start_date">Start date</string>
+    <string name="end_date">End date</string>
+    <string name="select_date">Select date</string>
+    <string name="reset_filters">Reset filters</string>
+    <string name="no_reported_comments">No reported comments</string>
+    <string name="view_pin">View post</string>
+    <string name="mark_as_checked">Mark as checked</string>
+    <string name="status_checked">Checked</string>
+    <string name="status_unchecked">Unchecked</string>
+    <string name="report_count_format">%d reports</string>
+
+    <string-array name="sort_options">
+        <item>Newest reports</item>
+        <item>Oldest reports</item>
+        <item>Newest comments</item>
+        <item>Oldest comments</item>
+        <item>Most reports</item>
+        <item>Fewest reports</item>
+    </string-array>
+
+    <string-array name="status_filter_options">
+        <item>All statuses</item>
+        <item>Unchecked</item>
+        <item>Checked</item>
+    </string-array>
+
+    <string name="refresh">Refresh</string>
+    <string name="statistics">Statistics</string>
+    <string name="admin_page_title">Administrator</string>
+
 </resources>

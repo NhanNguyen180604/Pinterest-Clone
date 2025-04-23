@@ -328,4 +328,5 @@
     </string-array>
     <string name="refresh">Làm mới</string>
     <string name="statistics">Thống kê</string>
+    <string name="admin_page_title">Quản trị viên</string>
 </resources>
