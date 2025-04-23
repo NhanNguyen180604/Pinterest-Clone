@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.databinding.ItemReportedCommentBinding;
+import com.example.pinterest_clone_test2.models.ReportReason;
 import com.example.pinterest_clone_test2.models.ReportedComment;
 
 import java.util.ArrayList;
@@ -29,14 +30,14 @@ public class ReportedCommentAdapter extends RecyclerView.Adapter<ReportedComment
 
     public interface OnReportedCommentListener {
         void onCommentClick(ReportedComment comment);
-        void onMarkAsCheckedClick(ReportedComment comment);
-        void onDeleteClick(ReportedComment comment);
+        void onAuthorClick(ReportedComment comment);
+        void onProcessClick(ReportedComment comment);
         void onViewPinClick(ReportedComment comment);
     }
 
     public ReportedCommentAdapter(Context context, List<ReportedComment> commentList, OnReportedCommentListener listener) {
         this.context = context;
-        this.commentList = commentList;
+        this.commentList = new ArrayList<>(commentList);
         this.listener = listener;
     }
 
@@ -79,9 +80,10 @@ public class ReportedCommentAdapter extends RecyclerView.Adapter<ReportedComment
             binding.tvAuthorName.setText(comment.getCommentAuthorName());
             binding.tvReportCount.setText(context.getString(R.string.report_count_format, comment.getReportCount()));
 
-            // Hiển thị lý do báo cáo phổ biến nhất
+            // Hiển thị lý do báo cáo phổ biến nhất với prefix theo ngôn ngữ
             if (comment.getMostCommonReasonTitle() != null && !comment.getMostCommonReasonTitle().isEmpty()) {
-                binding.tvReportReason.setText(comment.getMostCommonReasonTitle());
+                String reasonPrefix = ReportReason.getReasonPrefix(context);
+                binding.tvReportReason.setText(reasonPrefix + " " + comment.getMostCommonReasonTitle());
                 binding.tvReportReason.setVisibility(View.VISIBLE);
             } else {
                 binding.tvReportReason.setVisibility(View.GONE);
@@ -123,18 +125,19 @@ public class ReportedCommentAdapter extends RecyclerView.Adapter<ReportedComment
             if (comment.isChecked()) {
                 binding.chipStatus.setText(R.string.status_checked);
                 binding.chipStatus.setChipBackgroundColor(ContextCompat.getColorStateList(context, R.color.colorGreen));
-                binding.btnMarkAsChecked.setVisibility(View.GONE);
             } else {
                 binding.chipStatus.setText(R.string.status_unchecked);
                 binding.chipStatus.setChipBackgroundColor(ContextCompat.getColorStateList(context, R.color.colorRed));
-                binding.btnMarkAsChecked.setVisibility(View.VISIBLE);
             }
 
             // Set click listeners
             binding.cardComment.setOnClickListener(v -> listener.onCommentClick(comment));
-            binding.btnMarkAsChecked.setOnClickListener(v -> listener.onMarkAsCheckedClick(comment));
-            binding.btnDelete.setOnClickListener(v -> listener.onDeleteClick(comment));
+            binding.btnProcess.setOnClickListener(v -> listener.onProcessClick(comment));
             binding.btnViewPin.setOnClickListener(v -> listener.onViewPinClick(comment));
+
+            // Add click listeners for author avatar and name
+            binding.ivAuthorAvatar.setOnClickListener(v -> listener.onAuthorClick(comment));
+            binding.tvAuthorName.setOnClickListener(v -> listener.onAuthorClick(comment));
         }
     }
 }

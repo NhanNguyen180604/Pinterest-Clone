@@ -135,7 +135,6 @@
     <string name="collage">Collage</string>
     <string name="collages">Collages</string>
     <string name="start_creating_now">Start creating now</string>
-    <string name="close">Close</string>
     <string name="btn_share_account">share account</string>
     <string name="follow">Follow</string>
     <string name="other_actions">other_actions</string>
@@ -284,7 +283,6 @@
 
     <string name="manage_comments_title">Manage Comments</string>
     <string name="search_comments_hint">Search comments</string>
-    <string name="sort_by">Sort by</string>
     <string name="status">Status</string>
     <string name="report_reason">Report reason</string>
     <string name="from_date">From date</string>
@@ -292,9 +290,6 @@
     <string name="start_date">Start date</string>
     <string name="end_date">End date</string>
     <string name="select_date">Select date</string>
-    <string name="reset_filters">Reset filters</string>
-    <string name="no_reported_comments">No reported comments</string>
-    <string name="view_pin">View post</string>
     <string name="mark_as_checked">Mark as checked</string>
     <string name="status_checked">Checked</string>
     <string name="status_unchecked">Unchecked</string>
@@ -319,36 +314,100 @@
     <string name="statistics">Statistics</string>
     <string name="admin_page_title">Administrator</string>
 
-    <!--========== USING FOR MANAGE USER PAGE ==========-->
-    <string name="filter_users">Filter Users</string>
-    <string name="apply">Apply</string>
-    <string name="all_users">All</string>
-    <string name="admin_users">Admin</string>
-    <string name="regular_users">User</string>
-    <string name="search_user_hint">Search user</string>
-    <string name="user_state_normal">NORMAL</string>
-    <string name="user_state_banned">BANNED</string>
-    <string name="ban_button">BAN</string>
-    <string name="unban_button">UNBAN</string>
-    <string name="no_users_found">No users found</string>
-    <string name="no_banned_users">No banned users found</string>
-    <string name="user_avatar_desc">User avatar</string>
-    <string name="placeholder_username">Username</string>
-    <string name="placeholder_email">User email</string>
-    <string name="more_options_desc">More options</string>
-    <string name="ban_user">Ban</string>
-    <string name="unban_user">Unban</string>
-    <string name="change_role">Change Role</string>
-    <string name="make_admin">Make Admin</string>
-    <string name="make_user">Make User</string>
-    <string name="cancel">Cancel</string>
-    <string name="updating_role">Updating role...</string>
-    <string name="role_updated_successfully">Role updated successfully</string>
-    <string name="failed_to_update_role">Failed to update role</string>
-    <string name="banned_user_success">%s has been banned</string>
-    <string name="unbanned_user_success">%s has been unbanned</string>
-    <string name="error_message">Error: %s</string>
+    <!--========== BÊN DƯỚI DÙNG CHO MANAGE USER PAGE ==========-->
+        <string name="filter_users">Filter Users</string>
+        <string name="apply">Apply</string>
+        <string name="all_users">All</string>
+        <string name="admin_users">Admin</string>
+        <string name="regular_users">User</string>
+        <string name="search_user_hint">Search user</string>
+        <string name="user_state_normal">NORMAL</string>
+        <string name="user_state_banned">BANNED</string>
+        <string name="ban_button">BAN</string>
+        <string name="unban_button">UNBAN</string>
+        <string name="no_users_found">No users found</string>
+        <string name="no_banned_users">No banned users found</string>
+        <string name="user_avatar_desc">User avatar</string>
+        <string name="placeholder_username">Username</string>
+        <string name="placeholder_email">User email</string>
+        <string name="more_options_desc">More options</string>
+        <string name="ban_user">Ban</string>
+        <string name="unban_user">Unban</string>
+        <string name="change_role">Change Role</string>
+        <string name="make_admin">Make Admin</string>
+        <string name="make_user">Make User</string>
+        <string name="cancel">Cancel</string>
+        <string name="updating_role">Updating role...</string>
+        <string name="role_updated_successfully">Role updated successfully</string>
+        <string name="failed_to_update_role">Failed to update role</string>
+        <string name="banned_user_success">%s has been banned</string>
+        <string name="unbanned_user_success">%s has been unbanned</string>
+        <string name="error_message">Error: %s</string>
+    <!--========== BÊN TRÊN DÙNG CHO MANAGE USER PAGE ==========-->
 
-
+    <!--========== BÊN DƯỚI DÙNG CHO MANAGE COMMENT PAGE ==========-->
+        <string name="reason_prefix">Reason:</string>
+        <string name="filter_comments">Filter comments</string>
+        <string name="process">Process</string>
+        <string name="view_pin">View post</string>
+        <string name="no_reported_comments">No reported comments</string>
+        <string name="status_all">All statuses</string>
+        <string name="all_reasons">All reasons</string>
+        <string name="date_range">Date range</string>
+        <string name="sort_by_newest">Newest first</string>
+        <string name="reset_filters">Reset filters</string>
+        <string name="filters_reset">Filters have been reset</string>
+        <string name="date_filtered">Date filtered</string>
+        <string name="filter_by_status">Filter by status</string>
+        <string name="filter_by_reason">Filter by reason</string>
+        <string name="filter_by_date">Filter by date</string>
+        <string name="today">Today</string>
+        <string name="last_week">Last 7 days</string>
+        <string name="last_month">Last 30 days</string>
+        <string name="custom_range">Custom range</string>
+        <string name="custom_date_range">Custom date range</string>
+        <string name="select_start_date">Select start date</string>
+        <string name="select_end_date">Select end date</string>
+        <string name="clear">Clear</string>
+        <string name="sort_by">Sort by</string>
+        <string name="sort_by_oldest">Oldest first</string>
+        <string name="sort_by_most_reports">Most reports</string>
+        <string name="sort_by_least_reports">Least reports</string>
+        <string name="marked_as_checked">Marked as checked</string>
+        <string name="error_occurred">An error occurred</string>
+        <string name="notification_sent">Notification sent</string>
+        <string name="delete_confirm_title">Delete confirmation</string>
+        <string name="delete_comment_confirm">Are you sure you want to delete this comment? This action cannot be undone.</string>
+        <string name="comment_deleted">Comment deleted</string>
+        <string name="error_deleting_comment">Error deleting comment</string>
+        <string name="mark_as_checked_confirm">Are you sure you want to mark this report as checked?</string>
+        <string name="confirm">Confirm</string>
+        <string name="delete_comment">Delete comment</string>
+        <string name="process_report">Process report</string>
+        <string name="post_not_found">Post not found</string>
+        <string name="error_loading_post">Error loading post</string>
+        <string name="user_not_found">User not found</string>
+        <string name="report_details">Report details</string>
+        <string name="content_label">Content</string>
+        <string name="author_label">Author</string>
+        <string name="comment_time_label">Comment time</string>
+        <string name="reports_count_label">Number of reports</string>
+        <string name="last_report_time_label">Latest report time</string>
+        <string name="report_reasons_label">Report reasons</string>
+        <string name="reports">reports</string>
+        <string name="close">Close</string>
+        <string name="status_label">Status</string>
+        <string name="reason_label">Reason</string>
+        <string name="date_label">Date</string>
+        <string name="sort_label">Sort</string>
+        <string name="from">from</string>
+        <string name="until">until</string>
+        <string name="report_statistics">Report statistics</string>
+        <string name="total_reports">Total reports</string>
+        <string name="processed">Processed</string>
+        <string name="unprocessed">Unprocessed</string>
+        <string name="filter_options">Filter options</string>
+        <string name="select_date_range">Select date range</string>
+    <!--========== BÊN TRÊN DÙNG CHO MANAGE COMMENT PAGE ==========-->
 
 </resources>

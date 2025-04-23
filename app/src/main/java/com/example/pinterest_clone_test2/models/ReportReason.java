@@ -11,6 +11,7 @@ import com.example.pinterest_clone_test2.R;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class ReportReason extends BaseObservable {
     String _id;
@@ -88,4 +89,11 @@ public class ReportReason extends BaseObservable {
         ));
     }
 
+    /**
+     * Gets the report reason prefix from resources.
+     * Uses a common string key for both languages.
+     */
+    public static String getReasonPrefix(Context context) {
+        return context.getString(R.string.reason_prefix);
+    }
 }

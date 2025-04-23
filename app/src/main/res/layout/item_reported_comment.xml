@@ -6,13 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
+    app:cardCornerRadius="12dp"
     app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:padding="16dp">
 
         <!-- Header with author info -->
         <com.google.android.material.imageview.ShapeableImageView
@@ -29,7 +29,7 @@
             android:id="@+id/tv_author_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="12dp"
             android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:maxLines="1"
@@ -45,7 +45,7 @@
             android:id="@+id/tv_report_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="12dp"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="@+id/iv_author_avatar"
             app:layout_constraintStart_toEndOf="@+id/iv_author_avatar"
@@ -67,7 +67,7 @@
             android:id="@+id/tv_comment_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -80,7 +80,7 @@
             android:id="@+id/iv_comment_attachment"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             android:visibility="gone"
@@ -95,7 +95,7 @@
             android:id="@+id/tv_report_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:drawablePadding="4dp"
             android:gravity="center_vertical"
             android:textColor="@color/colorRed"
@@ -115,42 +115,46 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_report_count"
-            tools:text="Lý do báo cáo: Nội dung nhạy cảm" />
+            tools:text="Lý do: Nội dung nhạy cảm" />
 
-        <!-- Các nút tương tác -->
-        <Button
-            android:id="@+id/btn_view_pin"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
+        <!-- Buttons container -->
+        <LinearLayout
+            android:id="@+id/buttons_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/view_pin"
-            android:textAllCaps="false"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_report_reason" />
-
-        <Button
-            android:id="@+id/btn_mark_as_checked"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/mark_as_checked"
-            android:textAllCaps="false"
-            app:layout_constraintStart_toEndOf="@+id/btn_view_pin"
-            app:layout_constraintTop_toTopOf="@+id/btn_view_pin" />
-
-        <Button
-            android:id="@+id/btn_delete"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorRed"
-            android:text="@string/delete"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/btn_view_pin" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_report_reason">
+
+            <Button
+                android:id="@+id/btn_view_pin"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="@string/view_pin"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_pin"
+                app:iconGravity="textStart" />
+
+            <Button
+                android:id="@+id/btn_process"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="@string/process"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:icon="@drawable/ic_process"
+                app:iconGravity="textStart"
+                app:iconTint="@color/white" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

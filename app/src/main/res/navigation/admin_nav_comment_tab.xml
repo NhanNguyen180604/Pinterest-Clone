@@ -17,10 +17,21 @@
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right" />
+        <action
+            android:id="@+id/action_manageCommentFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/pinFragment4"
         android:name="com.example.pinterest_clone_test2.ui.pin.PinFragment"
         android:label="fragment_pin"
         tools:layout="@layout/fragment_pin" />
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.pinterest_clone_test2.ui.user.UserProfileFragment"
+        android:label="UserProfileFragment" />
 </navigation>
