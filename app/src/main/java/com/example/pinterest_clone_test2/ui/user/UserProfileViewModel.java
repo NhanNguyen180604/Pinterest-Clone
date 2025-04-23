@@ -10,6 +10,7 @@ public class UserProfileViewModel extends ViewModel {
     private static final String KEY_SOURCE = "source";
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_NAME = "name";
+    private static final String KEY_USERNAME = "username";
     private static final String KEY_AVATAR_URL = "avatarUrl";
     private static final String KEY_IS_FOLLOWING = "isFollowing";
     private static final String KEY_FOLLOWERS_COUNT = "followersCount";
@@ -45,6 +46,14 @@ public class UserProfileViewModel extends ViewModel {
 
     public String getName() {
         return savedStateHandle.get(KEY_NAME);
+    }
+
+    public void setUserName(String name) {
+        savedStateHandle.set(KEY_USERNAME, name);
+    }
+
+    public String getUserName() {
+        return savedStateHandle.get(KEY_USERNAME);
     }
 
     // AvatarURL methods

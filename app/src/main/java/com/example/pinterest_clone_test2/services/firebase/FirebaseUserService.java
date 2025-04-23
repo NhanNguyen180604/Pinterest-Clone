@@ -366,6 +366,31 @@ public class FirebaseUserService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
+    public static void getUserCreatedPins(@NonNull String userId, GetUserPinsCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        // Query pins where authorId matches the provided userId
+        firestore.collection("pins")
+                .whereEqualTo("authorId", userId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Pin> createdPins = new ArrayList<>();
+
+                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                        Pin pin = doc.toObject(Pin.class);
+                        if (pin != null) {
+                            pin.setId(doc.getId());
+                            createdPins.add(pin);
+                        }
+                    }
+
+                    // Sort pins by creation time in descending order (newest first)
+                    createdPins.sort((p1, p2) -> Long.compare(p2.getCreatedAt(), p1.getCreatedAt()));
+                    callback.OnSuccess(createdPins);
+                })
+                .addOnFailureListener(callback::OnFailure);
+    }
+
     public static void removePinFromProfile(@NonNull String pinId) {
         assert currentUserDocument != null;
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();

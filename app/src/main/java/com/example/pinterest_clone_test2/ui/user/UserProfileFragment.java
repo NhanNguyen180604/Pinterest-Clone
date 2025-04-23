@@ -153,10 +153,12 @@ public class UserProfileFragment extends Fragment {
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
     }
 
@@ -164,13 +166,13 @@ public class UserProfileFragment extends Fragment {
     private void restoreUiState() {
         // Restore name if available
         String name = viewModel.getName();
-        if(name != null){
+        if (name != null) {
             binding.tvName.setText(name);
         }
 
         // Restore avatar url if available
         String avatarUrl = viewModel.getAvatarUrl();
-        if(avatarUrl !=null ){
+        if (avatarUrl != null) {
             Glide.with(binding.ivUserAvatar.getContext())
                     .load(avatarUrl)
                     .apply(new RequestOptions()
@@ -325,7 +327,12 @@ public class UserProfileFragment extends Fragment {
                                     .error(R.drawable.turtle_huh))
                             .into(binding.ivUserAvatar);
                 }
-
+                String email = documentSnapshot.getString("email");
+                if (email != null && email.contains("@")) {
+                    String username = email.substring(0, email.indexOf('@'));
+                    binding.tvUsername.setText(username);
+                    viewModel.setName(username);
+                }
                 List<String> followers = (List<String>) documentSnapshot.get("followers");
                 int followersCount = followers != null ? followers.size() : 0;
                 viewModel.setFollowersCount(followersCount);
