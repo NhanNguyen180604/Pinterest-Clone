@@ -15,8 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.pinterest_clone_test2.R;
@@ -172,10 +170,7 @@ public class ManageUserFragment extends Fragment {
     }
 
     private void setupListeners() {
-        // Nút quay lại User Mode
-        binding.btnBackToUser.setOnClickListener(v -> {
-            requireActivity().finish();
-        });
+        // Đã xóa nút quay lại vì đã có header chung trong AdminActivity
 
         binding.etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
