@@ -18,18 +18,17 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.ReportedCommentAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentManageCommentBinding;
+import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.ReportReason;
 import com.example.pinterest_clone_test2.models.ReportedComment;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -398,21 +397,27 @@ public class ManageCommentFragment extends Fragment {
             return;
         }
 
-        // Bundle để truyền dữ liệu
-        Bundle args = new Bundle();
-        args.putString("pinId", pinId);
-        args.putString("source", "admin");
+        FirebasePinService.fetchPinsFromIds(List.of(pinId), new FirebasePinService.OnPinsFetchedFromIdsCallback() {
+            @Override
+            public void onSuccess(List<Pin> pins) {
+                if (pins.isEmpty()) {
+                    Toast.makeText(requireContext(), "Không tìm thấy thông tin bài đăng", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // Bundle để truyền dữ liệu
+                Bundle args = new Bundle();
+                args.putParcelableArrayList("pins", new ArrayList<>(pins));
+                args.putString("source", "admin");
+                args.putInt("initial_position", 0);
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_admin);
+                navController.navigate(R.id.action_manageCommentFragment_to_pinFragment4, args);
+            }
 
-        // Chuyển đến màn hình pin detail
-        Fragment pinFragment = new com.example.pinterest_clone_test2.ui.pin.PinFragment();
-        pinFragment.setArguments(args);
+            @Override
+            public void onFailure(Exception e) {
 
-        // Thay thế fragment hiện tại
-        getParentFragmentManager()
-                .beginTransaction()
-                .replace(R.id.nav_host_fragment_activity_admin, pinFragment)
-                .addToBackStack(null)
-                .commit();
+            }
+        });
     }
 
     @Override

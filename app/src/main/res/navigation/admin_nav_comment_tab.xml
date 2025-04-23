@@ -9,5 +9,18 @@
         android:id="@+id/manageCommentFragment"
         android:name="com.example.pinterest_clone_test2.ui.admin.manage_comment.ManageCommentFragment"
         android:label="fragment_manage_comment"
-        tools:layout="@layout/fragment_manage_comment" />
+        tools:layout="@layout/fragment_manage_comment" >
+        <action
+            android:id="@+id/action_manageCommentFragment_to_pinFragment4"
+            app:destination="@id/pinFragment4"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/pinFragment4"
+        android:name="com.example.pinterest_clone_test2.ui.pin.PinFragment"
+        android:label="fragment_pin"
+        tools:layout="@layout/fragment_pin" />
 </navigation>

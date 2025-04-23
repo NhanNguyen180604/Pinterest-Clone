@@ -15,8 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.pinterest_clone_test2.AdminActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.UserListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentManageUserBinding;
@@ -117,16 +120,8 @@ public class ManageUserFragment extends Fragment {
         args.putString("userId", user.getUserId());
         args.putString("source", "admin"); // Đánh dấu nguồn là từ trang admin
 
-        // Tạo UserProfileFragment và truyền dữ liệu
-        Fragment userProfileFragment = new com.example.pinterest_clone_test2.ui.user.UserProfileFragment();
-        userProfileFragment.setArguments(args);
-
-        // Sử dụng FragmentTransaction để thay thế fragment hiện tại
-        getParentFragmentManager()
-                .beginTransaction()
-                .replace(R.id.nav_host_fragment_activity_admin, userProfileFragment)
-                .addToBackStack(null)
-                .commit();
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_admin);
+        navController.navigate(R.id.action_manageUserFragment_to_userProfileFragment4, args);
     }
 
     private void setupObservers() {
