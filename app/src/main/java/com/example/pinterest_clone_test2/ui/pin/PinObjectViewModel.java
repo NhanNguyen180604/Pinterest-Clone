@@ -20,6 +20,7 @@ public class PinObjectViewModel extends ViewModel {
     public static String SOURCE_STATE_KEY = "source_state";
     public static String VIDEO_POSITION_STATE = "video_position_state";
     public static String PAGE_STATE_KEY = "page_state";
+    public static String SAVED_STATE_KEY = "saved_state";
 
     public PinObjectViewModel(SavedStateHandle savedStateHandle) {
         _savedStateHandle = savedStateHandle;
@@ -89,5 +90,14 @@ public class PinObjectViewModel extends ViewModel {
 
     public void setRelevantPinIdsState(List<String> relevantPinIdsState) {
         _savedStateHandle.set(RELEVANT_PIN_IDS_STATE_KEY, relevantPinIdsState);
+    }
+
+    public boolean getBoardSavedState() {
+        Boolean saved = _savedStateHandle.get(SAVED_STATE_KEY);
+        return saved != null ? saved : false;
+    }
+
+    public void setBoardSavedState(boolean boardSaved) {
+        _savedStateHandle.set(SAVED_STATE_KEY, boardSaved);
     }
 }

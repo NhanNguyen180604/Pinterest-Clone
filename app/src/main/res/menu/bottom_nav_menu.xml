@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/nav_home_tab"
-        android:icon="@drawable/ic_home"
+        android:icon="@drawable/ic_home_filled"
         android:title="@string/title_home" />
 
     <item
@@ -16,11 +16,11 @@
         android:title="@string/title_upload" />
     <item
         android:id="@+id/nav_notifications_tab"
-        android:icon="@drawable/ic_speech_bubble"
+        android:icon="@drawable/ic_speech_bubble_filled"
         android:title="@string/title_notifications" />
 
     <item
         android:id="@+id/nav_account_tab"
-        android:icon="@drawable/ic_account_circle"
+        android:icon="@drawable/ic_person_filled"
         android:title="@string/title_account" />
 </menu>

@@ -6,8 +6,8 @@
     android:layout_marginVertical="8dp">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cv_board_image"
-        android:layout_width="75dp"
+        android:id="@+id/cv_image"
+        android:layout_width="60dp"
         android:layout_height="75dp"
         app:cardCornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -15,44 +15,46 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/iv_board_image"
+            android:id="@+id/iv_notification_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:background="@color/dark_grey"
-            android:scaleType="centerCrop" />
-
-        <androidx.media3.ui.PlayerView
-            android:id="@+id/player_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:resize_mode="fixed_height"
-            app:use_controller="false" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_loading" />
     </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/tv_board_title"
+        android:id="@+id/tv_notification_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="@string/board_name_placeholder"
+        android:layout_marginStart="12dp"
+        android:text="@string/notification_title"
         android:textColor="@color/black"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/cv_board_image"
-        app:layout_constraintEnd_toStartOf="@id/iv_saved_icon"
-        app:layout_constraintStart_toEndOf="@id/cv_board_image"
-        app:layout_constraintTop_toTopOf="@id/cv_board_image" />
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_more"
+        app:layout_constraintStart_toEndOf="@id/cv_image"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/iv_saved_icon"
+    <ImageButton
+        android:id="@+id/btn_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_check_circle"
+        android:background="@null"
+        android:src="@drawable/ic_more_horiz"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/tv_board_title"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/black" />
+
+    <TextView
+        android:id="@+id/tv_timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/notification_time_stamp_1"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@id/btn_more"
+        app:layout_constraintEnd_toEndOf="@id/btn_more"
+        app:layout_constraintStart_toStartOf="@id/btn_more"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

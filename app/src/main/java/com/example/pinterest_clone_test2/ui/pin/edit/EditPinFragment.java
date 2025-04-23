@@ -30,6 +30,7 @@ import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -41,6 +42,7 @@ import java.util.Map;
 public class EditPinFragment extends Fragment {
     FragmentEditPinBinding binding;
     Pin pin;
+    boolean isAuthor;
     EditPinFragmentViewModel viewModel;
     ExoPlayer mainExoPlayer;
     ExoPlayer boardExoPlayer;
@@ -55,6 +57,9 @@ public class EditPinFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Intent intent = requireActivity().getIntent();
         pin = intent.getParcelableExtra("pin");
+        DocumentSnapshot currentUserDoc = FirebaseUserService.getCurrentUserDocument();
+        assert currentUserDoc != null;
+        isAuthor = currentUserDoc.getId().equals(pin.getAuthorId());
     }
 
     @Override
@@ -94,14 +99,6 @@ public class EditPinFragment extends Fragment {
         binding.btnSave.setOnClickListener(v -> {
             updatePin();
             binding.btnSave.setEnabled(false);
-        });
-
-        binding.tvClickableDelete.setOnClickListener(v -> {
-            ConfirmDeletePinModalBottomSheet sheet = new ConfirmDeletePinModalBottomSheet(() -> {
-                deletePin();
-                binding.btnSave.setEnabled(false);
-            });
-            sheet.show(requireActivity().getSupportFragmentManager(), ConfirmDeletePinModalBottomSheet.TAG);
         });
 
         // set board image or video thumbnail
@@ -168,9 +165,38 @@ public class EditPinFragment extends Fragment {
             boardExoPlayer.setPlayWhenReady(false);
         }
 
-        binding.etPinTitle.setText(pin.getName());
-        binding.etPinDescription.setText(pin.getDescription());
-        binding.switchAllowComments.setChecked(pin.getAllowComment());
+        if (isAuthor) {
+            binding.etPinTitle.setText(pin.getName());
+            binding.etPinDescription.setText(pin.getDescription());
+            binding.switchAllowComments.setChecked(pin.getAllowComment());
+            binding.tvClickableDelete.setOnClickListener(v -> {
+                ConfirmDeletePinModalBottomSheet sheet = new ConfirmDeletePinModalBottomSheet(() -> {
+                    deletePin();
+                    binding.btnSave.setEnabled(false);
+                });
+                sheet.show(requireActivity().getSupportFragmentManager(), ConfirmDeletePinModalBottomSheet.TAG);
+            });
+        } else {
+            binding.tvPinTitle.setVisibility(View.GONE);
+            binding.etPinTitle.setVisibility(View.GONE);
+            binding.tvPinDescription.setVisibility(View.GONE);
+            binding.etPinDescription.setVisibility(View.GONE);
+            binding.tvPinWebsite.setVisibility(View.GONE);
+            binding.etPinWebsite.setVisibility(View.GONE);
+            binding.tvPinAltText.setVisibility(View.GONE);
+            binding.etPinAltText.setVisibility(View.GONE);
+            binding.tvAltTextDescription.setVisibility(View.GONE);
+            binding.tvEngagementSettings.setVisibility(View.GONE);
+            binding.tvAllowComments.setVisibility(View.GONE);
+            binding.switchAllowComments.setVisibility(View.GONE);
+            binding.tvClickableDelete.setOnClickListener(v -> {
+                ConfirmDeletePinModalBottomSheet sheet = new ConfirmDeletePinModalBottomSheet(() -> {
+                    deletePinFromProfile();
+                    binding.btnSave.setEnabled(false);
+                });
+                sheet.show(requireActivity().getSupportFragmentManager(), ConfirmDeletePinModalBottomSheet.TAG);
+            });
+        }
 
         binding.cvBoardImage.setOnClickListener(v -> navigateToPickBoards());
         binding.tvBoardName.setOnClickListener(v -> navigateToPickBoards());
@@ -234,8 +260,6 @@ public class EditPinFragment extends Fragment {
             Log.e("EditPinFragment", "Failed to fetch boards");
             if (e.getMessage() != null) {
                 Log.e("EditPinFragment", e.getMessage());
-            } else {
-                e.printStackTrace();
             }
         }
     };
@@ -244,6 +268,10 @@ public class EditPinFragment extends Fragment {
         Pin oldPinState = viewModel.getPinState();
         if (oldPinState != null) {
             pin = oldPinState;
+        }
+        boolean oldIsAuthor = viewModel.getIsAuthor();
+        if (!isAuthor) {
+            isAuthor = oldIsAuthor;
         }
     }
 
@@ -269,6 +297,7 @@ public class EditPinFragment extends Fragment {
             boardExoPlayer.release();
             boardExoPlayer = null;
         }
+        viewModel.setIsAuthor(isAuthor);
     }
 
     private void updatePinFromInput() {
@@ -282,12 +311,14 @@ public class EditPinFragment extends Fragment {
     }
 
     void updatePin() {
-        updatePinFromInput();
+        if (isAuthor) {
+            updatePinFromInput();
+        }
         MutableLiveData<Map<String, BoardBooleanPair>> boardMapLiveData = viewModel.getBoardMap();
         Map<String, BoardBooleanPair> boardMap = boardMapLiveData.getValue();
         assert boardMap != null;
-        FirebasePinService.updatePinWithBoards(pin, boardMap, (updatePinSuccess, updateBoardSuccess) -> {
-            if (updatePinSuccess && updateBoardSuccess) {
+        FirebasePinService.updatePinWithBoards(pin, boardMap, isAuthor, (updatePinSuccess, updateBoardSuccess) -> {
+            if ((isAuthor && updatePinSuccess) && updateBoardSuccess) {
                 Intent data = new Intent();
                 data.putExtra("pin", pin);
                 requireActivity().setResult(Activity.RESULT_OK, data);
@@ -297,7 +328,7 @@ public class EditPinFragment extends Fragment {
 
             binding.btnSave.setEnabled(true);
 
-            if (!updateBoardSuccess) {
+            if (!updateBoardSuccess && isAuthor) {
                 Toast.makeText(requireContext(), getResources().getString(R.string.update_pin_values_failure), Toast.LENGTH_SHORT).show();
             }
             if (!updateBoardSuccess) {
@@ -327,6 +358,17 @@ public class EditPinFragment extends Fragment {
                 binding.btnSave.setEnabled(true);
             }
         });
+    }
+
+    // used for non-author
+    void deletePinFromProfile() {
+        DocumentSnapshot currentUserDoc = FirebaseUserService.getCurrentUserDocument();
+        assert currentUserDoc != null;
+        FirebaseUserService.removePinFromProfileAndBoards(pin.getId());
+        Intent data = new Intent();
+        data.putExtra("nonAuthorDelete", true);
+        requireActivity().setResult(Activity.RESULT_OK, data);
+        requireActivity().finish();
     }
 
     void showUnknownErrorToast() {
