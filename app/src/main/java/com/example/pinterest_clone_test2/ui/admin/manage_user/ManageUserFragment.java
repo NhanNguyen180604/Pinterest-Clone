@@ -23,7 +23,6 @@ import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.UserListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentManageUserBinding;
 import com.example.pinterest_clone_test2.models.User;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 
@@ -34,7 +33,6 @@ public class ManageUserFragment extends Fragment {
     private UserListAdapter adapter;
 
     // UI
-    private TextInputEditText et_search;
     private boolean isBannedSelected = false;
 
     public ManageUserFragment() {}
@@ -55,12 +53,21 @@ public class ManageUserFragment extends Fragment {
         setupObservers();
         setupListeners();
 
+        // Tạo Drawable cho tab buttons
+        setupTabButtonsStyle();
+
         viewModel.fetchNormalUsers(); // Load mặc định
     }
 
     private void setupUI() {
-        et_search = binding.etSearch;
         binding.layoutTabs.check(R.id.btn_normal); // Chọn tab bình thường mặc định
+    }
+
+    private void setupTabButtonsStyle() {
+        // Set selected state for normal button (initially selected)
+        Button normalButton = binding.btnNormal;
+        normalButton.setBackgroundTintList(getResources().getColorStateList(R.color.tab_selected_background, null));
+        normalButton.setTextColor(getResources().getColor(R.color.tab_selected_text, null));
     }
 
     private void setupRecyclerView() {
@@ -97,17 +104,31 @@ public class ManageUserFragment extends Fragment {
 
             @Override
             public void onItemClick(User user) {
-                // Chuyển đến fragment chi tiết người dùng
-                UserDetailFragment detailFragment = UserDetailFragment.newInstance(user);
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.nav_host_fragment_activity_admin, detailFragment)
-                        .addToBackStack(null)
-                        .commit();
+                // Chuyển đến trang profile người dùng
+                navigateToUserProfile(user);
             }
         });
 
         binding.rvUsers.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvUsers.setAdapter(adapter);
+    }
+
+    private void navigateToUserProfile(User user) {
+        // Tạo Bundle để truyền thông tin
+        Bundle args = new Bundle();
+        args.putString("userId", user.getUserId());
+        args.putString("source", "admin"); // Đánh dấu nguồn là từ trang admin
+
+        // Tạo UserProfileFragment và truyền dữ liệu
+        Fragment userProfileFragment = new com.example.pinterest_clone_test2.ui.user.UserProfileFragment();
+        userProfileFragment.setArguments(args);
+
+        // Sử dụng FragmentTransaction để thay thế fragment hiện tại
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.nav_host_fragment_activity_admin, userProfileFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void setupObservers() {
@@ -156,7 +177,7 @@ public class ManageUserFragment extends Fragment {
             requireActivity().finish();
         });
 
-        et_search.addTextChangedListener(new TextWatcher() {
+        binding.etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
 
@@ -169,43 +190,27 @@ public class ManageUserFragment extends Fragment {
         binding.layoutTabs.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (isChecked) {
                 if (checkedId == R.id.btn_banned) {
+                    // Đổi màu cho tab đang chọn và tab không chọn
+                    binding.btnBanned.setBackgroundTintList(getResources().getColorStateList(R.color.tab_selected_background, null));
+                    binding.btnBanned.setTextColor(getResources().getColor(R.color.tab_selected_text, null));
+                    binding.btnNormal.setBackgroundTintList(getResources().getColorStateList(R.color.tab_unselected_background, null));
+                    binding.btnNormal.setTextColor(getResources().getColor(R.color.tab_unselected_text, null));
+
                     isBannedSelected = true;
                     viewModel.setIsBannedSelected(true);
                     viewModel.fetchBannedUsers();
                 } else if (checkedId == R.id.btn_normal) {
+                    // Đổi màu cho tab đang chọn và tab không chọn
+                    binding.btnNormal.setBackgroundTintList(getResources().getColorStateList(R.color.tab_selected_background, null));
+                    binding.btnNormal.setTextColor(getResources().getColor(R.color.tab_selected_text, null));
+                    binding.btnBanned.setBackgroundTintList(getResources().getColorStateList(R.color.tab_unselected_background, null));
+                    binding.btnBanned.setTextColor(getResources().getColor(R.color.tab_unselected_text, null));
+
                     isBannedSelected = false;
                     viewModel.setIsBannedSelected(false);
                     viewModel.fetchNormalUsers();
                 }
             }
-        });
-
-        binding.btnAddUser.setOnClickListener(v -> {
-            // Hiển thị dialog thêm người dùng
-            AddUserDialogFragment dialog = new AddUserDialogFragment(
-                    (password, email, name, birthDate, gender, role) -> {
-                        // Tạo user mới
-                        User newUser = new User();
-                        newUser.setEmail(email);
-                        newUser.setName(name);
-                        newUser.setBirthDate(birthDate);
-                        newUser.setGender(gender.name());
-                        newUser.setRole(role);
-
-                        showLoading(true);
-                        viewModel.addUser(newUser,
-                                () -> {
-                                    showLoading(false);
-                                    Toast.makeText(getContext(), "Đã thêm " + email, Toast.LENGTH_SHORT).show();
-                                },
-                                e -> {
-                                    showLoading(false);
-                                    Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                        );
-                    }
-            );
-            dialog.show(getParentFragmentManager(), "add_user_dialog");
         });
 
         binding.btnFilter.setOnClickListener(v -> {

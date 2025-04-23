@@ -6,12 +6,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.models.User;
 
@@ -58,12 +61,14 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
     // ViewHolder cho mỗi item trong RecyclerView
     static class UserViewHolder extends RecyclerView.ViewHolder {
         TextView name, email;
+        ImageView avatar;
         Button banBtn;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.tv_user_name);
             email = itemView.findViewById(R.id.tv_user_email);
+            avatar = itemView.findViewById(R.id.iv_user_avatar);
             banBtn = itemView.findViewById(R.id.btn_ban);
         }
     }
@@ -74,14 +79,27 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         holder.name.setText(user.getName());
         holder.email.setText(user.getEmail());
 
+        // Load avatar nếu có
+        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(user.getAvatarUrl())
+                    .apply(new RequestOptions()
+                            .placeholder(R.drawable.ic_account_circle)
+                            .error(R.drawable.ic_account_circle)
+                            .centerCrop())
+                    .into(holder.avatar);
+        } else {
+            holder.avatar.setImageResource(R.drawable.ic_account_circle);
+        }
+
         // Đổi text dựa vào trạng thái banned và đổi màu
         if (isBannedList) {
-            holder.banBtn.setText("BỎ CẤM");
+            holder.banBtn.setText("@string/user_state_bnoee");
             holder.banBtn.setBackgroundTintList(ColorStateList.valueOf(
                     ContextCompat.getColor(holder.itemView.getContext(), R.color.grey)));
             holder.banBtn.setVisibility(View.VISIBLE);
         } else {
-            holder.banBtn.setText("CẤM");
+            holder.banBtn.setText("@string/user_state_banned");
             holder.banBtn.setBackgroundTintList(ColorStateList.valueOf(
                     ContextCompat.getColor(holder.itemView.getContext(), R.color.red_pinterest)));
 
