@@ -92,14 +92,13 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
             holder.avatar.setImageResource(R.drawable.ic_account_circle);
         }
 
-        // Đổi text dựa vào trạng thái banned và đổi màu
         if (isBannedList) {
-            holder.banBtn.setText("@string/user_state_bnoee");
+            holder.banBtn.setText(holder.itemView.getContext().getString(R.string.unban_button));
             holder.banBtn.setBackgroundTintList(ColorStateList.valueOf(
                     ContextCompat.getColor(holder.itemView.getContext(), R.color.grey)));
             holder.banBtn.setVisibility(View.VISIBLE);
         } else {
-            holder.banBtn.setText("@string/user_state_banned");
+            holder.banBtn.setText(holder.itemView.getContext().getString(R.string.ban_button));
             holder.banBtn.setBackgroundTintList(ColorStateList.valueOf(
                     ContextCompat.getColor(holder.itemView.getContext(), R.color.red_pinterest)));
 
