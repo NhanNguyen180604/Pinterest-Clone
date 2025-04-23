@@ -43,7 +43,6 @@
     <string name="report_description_placeholder">Report description</string>
     <string name="report_title_placeholder">Report title</string>
     <string name="comment_report_modal_title">Issue a report</string>
-    <string name="cancel">Cancel</string>
     <string name="report_option">Report</string>
     <string name="block_user_option">Block user</string>
     <string name="close_string">Close</string>
@@ -281,10 +280,7 @@
     <string name="no_comment">No comment</string>
     <string name="fetch_comments_failure">Failed to fetch comments</string>
     <string name="calendar_picker_date_format">MMMM d, yyyy</string>
-    <string name="user_state_normal">NORMAL</string>
-    <string name="user_state_banned">BANNED</string>
-    <string name="ban_button">BAN</string>
-    <string name="unban_button">UNBAN</string>
+
 
     <string name="manage_comments_title">Manage Comments</string>
     <string name="search_comments_hint">Search comments</string>
@@ -322,5 +318,37 @@
     <string name="refresh">Refresh</string>
     <string name="statistics">Statistics</string>
     <string name="admin_page_title">Administrator</string>
+
+    <!--========== USING FOR MANAGE USER PAGE ==========-->
+    <string name="filter_users">Filter Users</string>
+    <string name="apply">Apply</string>
+    <string name="all_users">All</string>
+    <string name="admin_users">Admin</string>
+    <string name="regular_users">User</string>
+    <string name="search_user_hint">Search user</string>
+    <string name="user_state_normal">NORMAL</string>
+    <string name="user_state_banned">BANNED</string>
+    <string name="ban_button">BAN</string>
+    <string name="unban_button">UNBAN</string>
+    <string name="no_users_found">No users found</string>
+    <string name="no_banned_users">No banned users found</string>
+    <string name="user_avatar_desc">User avatar</string>
+    <string name="placeholder_username">Username</string>
+    <string name="placeholder_email">User email</string>
+    <string name="more_options_desc">More options</string>
+    <string name="ban_user">Ban</string>
+    <string name="unban_user">Unban</string>
+    <string name="change_role">Change Role</string>
+    <string name="make_admin">Make Admin</string>
+    <string name="make_user">Make User</string>
+    <string name="cancel">Cancel</string>
+    <string name="updating_role">Updating role...</string>
+    <string name="role_updated_successfully">Role updated successfully</string>
+    <string name="failed_to_update_role">Failed to update role</string>
+    <string name="banned_user_success">%s has been banned</string>
+    <string name="unbanned_user_success">%s has been unbanned</string>
+    <string name="error_message">Error: %s</string>
+
+
 
 </resources>

@@ -60,7 +60,6 @@
     <string name="report_description_placeholder">Mô tả báo cáo</string>
     <string name="report_title_placeholder">Tiêu đề báo cáo</string>
     <string name="comment_report_modal_title">Tạo một bảng báo cáo</string>
-    <string name="cancel">Hủy</string>
     <string name="report_option">Báo cáo</string>
     <string name="block_user_option">Chặn người dùng</string>
     <string name="close_string">Đóng</string>
@@ -149,7 +148,6 @@
     <string name="follow_failed">Theo dõi thất bại: </string>
     <string name="update">Cập nhật</string>
     <string name="email" translatable="false">Email</string>
-    <string name="placeholder_email" translatable="false">placeholder@gmail.com</string>
     <string name="old_password">Mật khẩu cũ</string>
     <string name="enter_old_password">Nhập mật khẩu cũ</string>
     <string name="new_password">Mật khẩu mới</string>
@@ -289,10 +287,6 @@
     <string name="no_comment">Không có bình luận nào</string>
     <string name="fetch_comments_failure">Đã có lỗi trong lúc tải bình luận</string>
     <string name="calendar_picker_date_format">dd \'thg\' M, yyyy</string>
-    <string name="user_state_normal">BÌNH THƯỜNG</string>
-    <string name="user_state_banned">BỊ CẤM</string>
-    <string name="ban_button">CẤM</string>
-    <string name="unban_button">BỎ CẤM</string>
 
     <string name="manage_comments_title">Quản lý bình luận</string>
     <string name="search_comments_hint">Tìm kiếm bình luận</string>
@@ -329,4 +323,35 @@
     <string name="refresh">Làm mới</string>
     <string name="statistics">Thống kê</string>
     <string name="admin_page_title">Quản trị viên</string>
+
+    <!--========== DÙNG CHO MANAGE USER PAGE ==========-->
+    <string name="filter_users">Lọc người dùng</string>
+    <string name="apply">Áp dụng</string>
+    <string name="all_users">Tất cả</string>
+    <string name="admin_users">Quản trị viên</string>
+    <string name="regular_users">Người dùng</string>
+    <string name="search_user_hint">Tìm kiếm người dùng</string>
+    <string name="user_state_normal">BÌNH THƯỜNG</string>
+    <string name="user_state_banned">BỊ CẤM</string>
+    <string name="ban_button">CẤM</string>
+    <string name="unban_button">BỎ CẤM</string>
+    <string name="no_users_found">Không có người dùng nào</string>
+    <string name="no_banned_users">Không có người dùng nào bị cấm</string>
+    <string name="user_avatar_desc">Ảnh đại diện người dùng</string>
+    <string name="placeholder_username">Tên người dùng</string>
+    <string name="placeholder_email">Email người dùng</string>
+    <string name="more_options_desc">Thêm tùy chọn</string>
+    <string name="ban_user">Cấm</string>
+    <string name="unban_user">Bỏ cấm</string>
+    <string name="change_role">Thay đổi vai trò</string>
+    <string name="make_admin">Đặt làm Admin</string>
+    <string name="make_user">Đặt làm Người dùng</string>
+    <string name="cancel">Hủy</string>
+    <string name="updating_role">Đang cập nhật vai trò...</string>
+    <string name="role_updated_successfully">Đã cập nhật vai trò thành công</string>
+    <string name="failed_to_update_role">Không thể cập nhật vai trò</string>
+    <string name="banned_user_success">Đã chặn %s</string>
+    <string name="unbanned_user_success">Đã bỏ chặn %s</string>
+    <string name="error_message">Lỗi: %s</string>
+
 </resources>

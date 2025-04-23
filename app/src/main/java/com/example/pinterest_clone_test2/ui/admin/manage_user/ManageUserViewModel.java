@@ -42,23 +42,18 @@ public class ManageUserViewModel extends ViewModel {
     public LiveData<List<User>> getAllUsers() {
         return allUsers;
     }
-
     public LiveData<List<User>> getBannedUsers() {
         return bannedUsers;
     }
-
     public LiveData<List<User>> getNormalUsers() {
         return normalUsers;
     }
-
     public LiveData<List<User>> getFilteredUsers() {
         return filteredUsers;
     }
-
     public LiveData<Boolean> isLoading() {
         return isLoading;
     }
-
     public LiveData<String> getErrorMessage() {
         return errorMessage;
     }

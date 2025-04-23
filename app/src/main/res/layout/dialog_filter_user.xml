@@ -1,49 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="20dp"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <TextView
-        android:text="Chọn vai trò"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp" />
-
-    <RadioGroup android:id="@+id/radioGroupRole"
+    <RadioGroup
+        android:id="@+id/radioGroupRole"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp">
+        android:orientation="vertical">
 
         <RadioButton
             android:id="@+id/radio_all"
-            android:text="Tất cả"
-            android:layout_marginBottom="8dp"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/all_users" />
 
         <RadioButton
             android:id="@+id/radio_admin"
-            android:text="Admin"
-            android:layout_marginBottom="8dp"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/admin_users" />
 
         <RadioButton
             android:id="@+id/radio_user"
-            android:text="User"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/regular_users" />
     </RadioGroup>
 
     <Button
         android:id="@+id/btn_apply_filter"
-        android:text="Áp dụng"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/red_pinterest"/>
+        android:layout_marginTop="16dp"
+        android:text="@string/apply" />
 </LinearLayout>

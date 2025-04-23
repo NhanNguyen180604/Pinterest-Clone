@@ -2,11 +2,14 @@ package com.example.pinterest_clone_test2.ui.admin.manage_user;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
+
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.LayoutInflater;
+
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -19,7 +22,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.pinterest_clone_test2.AdminActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.UserListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentManageUserBinding;
@@ -28,7 +30,6 @@ import com.example.pinterest_clone_test2.models.User;
 import java.util.ArrayList;
 
 public class ManageUserFragment extends Fragment {
-
     private FragmentManageUserBinding binding;
     private ManageUserViewModel viewModel;
     private UserListAdapter adapter;
@@ -54,18 +55,18 @@ public class ManageUserFragment extends Fragment {
         setupObservers();
         setupListeners();
 
-        // Tạo Drawable cho tab buttons
+        // Set default tab button style
         setupTabButtonsStyle();
 
-        viewModel.fetchNormalUsers(); // Load mặc định
+        viewModel.fetchNormalUsers(); // Load default
     }
 
     private void setupUI() {
-        binding.layoutTabs.check(R.id.btn_normal); // Chọn tab bình thường mặc định
+        binding.layoutTabs.check(R.id.btn_normal); // Select normal tab by default
     }
 
     private void setupTabButtonsStyle() {
-        // Set selected state for normal button (initially selected)
+        // Select NORMAL button first
         Button normalButton = binding.btnNormal;
         normalButton.setBackgroundTintList(getResources().getColorStateList(R.color.tab_selected_background, null));
         normalButton.setTextColor(getResources().getColor(R.color.tab_selected_text, null));
@@ -77,27 +78,35 @@ public class ManageUserFragment extends Fragment {
             public void onBanClick(User user) {
                 showLoading(true);
                 if (!isBannedSelected) {
-                    // Nếu đang ở tab người thường → chặn user
+                    // If on NORMAL tab → ban user
                     viewModel.banUser(user.getUserId(),
                             () -> {
                                 showLoading(false);
-                                Toast.makeText(getContext(), "Đã chặn " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(),
+                                        getString(R.string.banned_user_success, user.getEmail()),
+                                        Toast.LENGTH_SHORT).show();
                             },
                             e -> {
                                 showLoading(false);
-                                Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(),
+                                        getString(R.string.error_message, e.getMessage()),
+                                        Toast.LENGTH_SHORT).show();
                             }
                     );
                 } else {
-                    // Nếu đang ở tab bị chặn → bỏ chặn user
+                    // If on BANNED tab → unban user
                     viewModel.unbanUser(user.getUserId(),
                             () -> {
                                 showLoading(false);
-                                Toast.makeText(getContext(), "Đã bỏ chặn " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(),
+                                        getString(R.string.unbanned_user_success, user.getEmail()),
+                                        Toast.LENGTH_SHORT).show();
                             },
                             e -> {
                                 showLoading(false);
-                                Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(),
+                                        getString(R.string.error_message, e.getMessage()),
+                                        Toast.LENGTH_SHORT).show();
                             }
                     );
                 }
@@ -105,8 +114,18 @@ public class ManageUserFragment extends Fragment {
 
             @Override
             public void onItemClick(User user) {
-                // Chuyển đến trang profile người dùng
+                // Navigate to user profile
                 navigateToUserProfile(user);
+            }
+
+            @Override
+            public void onRoleChanged(User user, User.Role newRole) {
+                // Refresh data after role change
+                if (isBannedSelected) {
+                    viewModel.fetchBannedUsers();
+                } else {
+                    viewModel.fetchNormalUsers();
+                }
             }
         });
 
@@ -115,10 +134,10 @@ public class ManageUserFragment extends Fragment {
     }
 
     private void navigateToUserProfile(User user) {
-        // Tạo Bundle để truyền thông tin
+        // Create Bundle to pass information
         Bundle args = new Bundle();
         args.putString("userId", user.getUserId());
-        args.putString("source", "admin"); // Đánh dấu nguồn là từ trang admin
+        args.putString("source", "admin"); // Mark source as admin
 
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_admin);
         navController.navigate(R.id.action_manageUserFragment_to_userProfileFragment4, args);
@@ -130,10 +149,10 @@ public class ManageUserFragment extends Fragment {
                 adapter.updateData(users);
                 adapter.setBannedList(false);
 
-                // Hiển thị thông báo nếu không có dữ liệu
+                // Show notification if no data
                 if (users.isEmpty()) {
                     binding.tvNoData.setVisibility(View.VISIBLE);
-                    binding.tvNoData.setText("Không có người dùng nào");
+                    binding.tvNoData.setText(getString(R.string.no_users_found));
                 } else {
                     binding.tvNoData.setVisibility(View.GONE);
                 }
@@ -145,10 +164,10 @@ public class ManageUserFragment extends Fragment {
                 adapter.updateData(users);
                 adapter.setBannedList(true);
 
-                // Hiển thị thông báo nếu không có dữ liệu
+                // Show notification if no data
                 if (users.isEmpty()) {
                     binding.tvNoData.setVisibility(View.VISIBLE);
-                    binding.tvNoData.setText("Không có người dùng nào bị cấm");
+                    binding.tvNoData.setText(getString(R.string.no_banned_users));
                 } else {
                     binding.tvNoData.setVisibility(View.GONE);
                 }
@@ -165,8 +184,7 @@ public class ManageUserFragment extends Fragment {
     }
 
     private void setupListeners() {
-        // Đã xóa nút quay lại vì đã có header chung trong AdminActivity
-
+        // Search event listener
         binding.etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
@@ -177,10 +195,11 @@ public class ManageUserFragment extends Fragment {
             }
         });
 
+        // Tab change event listener
         binding.layoutTabs.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (isChecked) {
                 if (checkedId == R.id.btn_banned) {
-                    // Đổi màu cho tab đang chọn và tab không chọn
+                    // Change color for selected tab and unselected tab
                     binding.btnBanned.setBackgroundTintList(getResources().getColorStateList(R.color.tab_selected_background, null));
                     binding.btnBanned.setTextColor(getResources().getColor(R.color.tab_selected_text, null));
                     binding.btnNormal.setBackgroundTintList(getResources().getColorStateList(R.color.tab_unselected_background, null));
@@ -190,7 +209,7 @@ public class ManageUserFragment extends Fragment {
                     viewModel.setIsBannedSelected(true);
                     viewModel.fetchBannedUsers();
                 } else if (checkedId == R.id.btn_normal) {
-                    // Đổi màu cho tab đang chọn và tab không chọn
+                    // Change color for selected tab and unselected tab
                     binding.btnNormal.setBackgroundTintList(getResources().getColorStateList(R.color.tab_selected_background, null));
                     binding.btnNormal.setTextColor(getResources().getColor(R.color.tab_selected_text, null));
                     binding.btnBanned.setBackgroundTintList(getResources().getColorStateList(R.color.tab_unselected_background, null));
@@ -203,6 +222,7 @@ public class ManageUserFragment extends Fragment {
             }
         });
 
+        // Filter button click listener
         binding.btnFilter.setOnClickListener(v -> {
             showFilterDialog();
         });
@@ -211,14 +231,14 @@ public class ManageUserFragment extends Fragment {
     private void showFilterDialog() {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_filter_user, null);
         AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setTitle("Lọc người dùng")
+                .setTitle(getString(R.string.filter_users))
                 .setView(dialogView)
                 .create();
 
         RadioGroup radioGroupRole = dialogView.findViewById(R.id.radioGroupRole);
         Button btnApply = dialogView.findViewById(R.id.btn_apply_filter);
 
-        // Đặt trạng thái checked ban đầu dựa vào filter hiện tại
+        // Set initial checked state based on current filter
         User.Role currentFilter = viewModel.getRoleFilter();
         if (currentFilter == null) {
             radioGroupRole.check(R.id.radio_all);
@@ -228,6 +248,7 @@ public class ManageUserFragment extends Fragment {
             radioGroupRole.check(R.id.radio_user);
         }
 
+        // Apply filter
         btnApply.setOnClickListener(v -> {
             int selectedId = radioGroupRole.getCheckedRadioButtonId();
             User.Role role = null;
@@ -237,7 +258,7 @@ public class ManageUserFragment extends Fragment {
             } else if (selectedId == R.id.radio_user) {
                 role = User.Role.User;
             }
-            // Nếu chọn "Tất cả", role sẽ là null
+            // If "All" is selected, role will be null
 
             viewModel.setRoleFilter(role);
             dialog.dismiss();

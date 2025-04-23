@@ -35,7 +35,7 @@
                 android:layout_height="40dp"
                 android:layout_marginEnd="12dp"
                 android:src="@drawable/ic_account_circle"
-                android:contentDescription="User avatar" />
+                android:contentDescription="@string/user_avatar_desc"/>
 
             <!-- User text info -->
             <LinearLayout
@@ -47,7 +47,7 @@
                     android:id="@+id/tv_user_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tên người dùng"
+                    android:text="@string/placeholder_username"
                     android:textStyle="bold"
                     android:textSize="16sp"
                     android:textColor="#000000" />
@@ -56,7 +56,7 @@
                     android:id="@+id/tv_user_email"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Email người dùng"
+                    android:text="@string/placeholder_email"
                     android:textColor="#757575"
                     android:textSize="14sp" />
             </LinearLayout>
@@ -65,12 +65,18 @@
         <!-- Action buttons -->
         <Button
             android:id="@+id/btn_ban"
-            android:layout_width="wrap_content"
+            android:layout_width="80dp"
             android:layout_height="36dp"
-            android:layout_marginStart="8dp"
             android:background="@drawable/red_button_pinterest"
-            android:text="@string/ban_button"
             android:textSize="12sp"
             android:textColor="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btn_more_options"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_vert"
+            android:contentDescription="@string/more_options_desc" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
