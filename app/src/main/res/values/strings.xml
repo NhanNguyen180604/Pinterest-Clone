@@ -293,4 +293,39 @@
     <string name="user_state_banned">BỊ CẤM</string>
     <string name="ban_button">CẤM</string>
     <string name="unban_button">BỎ CẤM</string>
+
+    <string name="manage_comments_title">Quản lý bình luận</string>
+    <string name="search_comments_hint">Tìm kiếm bình luận</string>
+    <string name="sort_by">Sắp xếp theo</string>
+    <string name="status">Trạng thái</string>
+    <string name="report_reason">Lý do báo cáo</string>
+    <string name="from_date">Từ ngày</string>
+    <string name="to_date">Đến ngày</string>
+    <string name="start_date">Ngày bắt đầu</string>
+    <string name="end_date">Ngày kết thúc</string>
+    <string name="select_date">Chọn ngày</string>
+    <string name="reset_filters">Xóa bộ lọc</string>
+    <string name="no_reported_comments">Không có bình luận bị báo cáo</string>
+    <string name="view_pin">Xem bài đăng</string>
+    <string name="mark_as_checked">Đánh dấu đã kiểm tra</string>
+    <string name="status_checked">Đã kiểm tra</string>
+    <string name="status_unchecked">Chưa kiểm tra</string>
+    <string name="report_count_format">%d báo cáo</string>
+
+    <string-array name="sort_options">
+        <item>Báo cáo mới nhất</item>
+        <item>Báo cáo cũ nhất</item>
+        <item>Bình luận mới nhất</item>
+        <item>Bình luận cũ nhất</item>
+        <item>Số báo cáo giảm dần</item>
+        <item>Số báo cáo tăng dần</item>
+    </string-array>
+
+    <string-array name="status_filter_options">
+        <item>Tất cả trạng thái</item>
+        <item>Chưa kiểm tra</item>
+        <item>Đã kiểm tra</item>
+    </string-array>
+    <string name="refresh">Làm mới</string>
+    <string name="statistics">Thống kê</string>
 </resources>

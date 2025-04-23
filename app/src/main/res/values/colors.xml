@@ -28,15 +28,12 @@
     <color name="searchBoxBg">#FFF2D9</color>
     <color name="bgCream">#FFFCF5</color>
     <color name="light_red_pinterest">#20E60023</color>
-
-    <!-- Màu mới cho các tab -->
     <color name="tab_selected_background">@color/red_pinterest</color>
     <color name="tab_selected_text">#FFFFFF</color>
     <color name="tab_unselected_background">#FFFFFF</color>
     <color name="tab_unselected_text">#333333</color>
     <color name="tab_unselected_stroke">@color/red_pinterest</color>
-
-    <!-- Màu dùng cho item user -->
     <color name="item_background">#FFFFFF</color>
     <color name="item_stroke">#E0E0E0</color>
+    <color name="colorGreen">#4CAF50</color>
 </resources>
