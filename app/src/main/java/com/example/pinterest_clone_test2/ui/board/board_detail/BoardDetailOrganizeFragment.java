@@ -6,6 +6,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -68,6 +71,36 @@ public class BoardDetailOrganizeFragment extends Fragment {
             resetInactivityTimer();
             return false;
         });
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP | ItemTouchHelper.DOWN |
+                        ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
+
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                int fromPos = viewHolder.getBindingAdapterPosition();
+                int toPos = target.getBindingAdapterPosition();
+                adapter.moveItem(fromPos, toPos);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                // We don't want swipe-to-dismiss
+            }
+
+            @Override
+            public boolean isLongPressDragEnabled() {
+                return true;
+            }
+        };
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(rvBoardPins);
+        binding.btnClose.setOnClickListener(v->{
+            NavController navController = Navigation.findNavController(view);
+            navController.navigateUp();
+        });
         binding.progressLoading.setVisibility(View.GONE);
         bottomBar = binding.llOrganizeBoardOptions;
         showBarRunnable = () -> {
@@ -89,6 +122,7 @@ public class BoardDetailOrganizeFragment extends Fragment {
             binding.btnSelectAll.setText(allSelected ? R.string.deselect_all : R.string.select_all);
             updateButtonsState();
         });
+
     }
 
     @Override

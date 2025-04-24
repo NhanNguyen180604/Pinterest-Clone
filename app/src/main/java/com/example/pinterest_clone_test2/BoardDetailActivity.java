@@ -48,9 +48,6 @@ public class BoardDetailActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         binding = ActivityBoardDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        binding.btnBack.setOnClickListener(v -> {
-            finish();
-        });
         String boardId = getIntent().getStringExtra("boardId");
         if (boardId == null) {
             Toast.makeText(this, "No board ID passed", Toast.LENGTH_SHORT).show();
@@ -60,6 +57,19 @@ public class BoardDetailActivity extends AppCompatActivity {
             public void OnSuccess(Board board) {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("board", board);
+                binding.btnBack.setOnClickListener(v -> {
+                    FirebaseBoardService.updatePinOrder(boardId, board.getPinsObj(), new FirebaseBoardService.UpdatePinOrderCallback() {
+                        @Override
+                        public void OnSuccess() {
+                            finish();
+                        }
+
+                        @Override
+                        public void OnFailure(Exception e) {
+                            finish();
+                        }
+                    });
+                });
 
                 NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.nav_host_fragment_activity_board_detail);

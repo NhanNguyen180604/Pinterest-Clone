@@ -97,6 +97,24 @@ public abstract class FirebaseBoardService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
+    public static void updatePinOrder(String boardId, List<Pin> orderedPins, UpdatePinOrderCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        // Extract only pin IDs
+        List<String> pinIds = new ArrayList<>();
+        for (Pin pin : orderedPins) {
+            pinIds.add(pin.getId());
+        }
+
+        firestore.collection("boards")
+                .document(boardId)
+                .update("pins", pinIds)
+                .addOnSuccessListener(unused -> {
+                    callback.OnSuccess();
+                })
+                .addOnFailureListener(callback::OnFailure);
+    }
+
     public static void deletePinsFromBoard(String boardId, List<String> pinIds, DeletePinsCallback callback) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         DocumentReference boardRef = firestore.collection("boards").document(boardId);
@@ -235,6 +253,11 @@ public abstract class FirebaseBoardService {
     }
 
     public interface DeletePinsCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface UpdatePinOrderCallback {
         void OnSuccess();
         void OnFailure(Exception e);
     }

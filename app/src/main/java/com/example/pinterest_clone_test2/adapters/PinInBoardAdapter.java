@@ -123,4 +123,11 @@ public class PinInBoardAdapter extends RecyclerView.Adapter<PinInBoardAdapter.Bo
         return pinList != null ? pinList.size() : 0;
     }
 
+    public void moveItem(int fromPosition, int toPosition) {
+        Pin fromPin = pinList.get(fromPosition);
+        pinList.remove(fromPosition);
+        pinList.add(toPosition, fromPin);
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
 }

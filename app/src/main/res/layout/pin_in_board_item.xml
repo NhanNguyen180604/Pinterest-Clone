@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/frame_pin_item"
-    android:background="@null">
+    android:background="@null"
+    android:longClickable="true">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
