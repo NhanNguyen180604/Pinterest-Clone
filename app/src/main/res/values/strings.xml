@@ -292,7 +292,7 @@
     <string name="image_from_website">Ảnh trong website</string>
     <string name="loading">Đang tải…</string>
     <string name="example_url">https://example.com</string>
-    <string name="validating_video">Đang kiểm duyệt video…</string>
+    <string name="validating">Đang kiểm duyệt…</string>
     <string name="loading_message">Đang tải...</string>
     <string name="select_image_website">Chọn ảnh từ website</string>
     <string name="enter_url">Nhập địa chỉ web</string>
@@ -300,4 +300,17 @@
     <string name="no_title_message">Bắt buộc phải có tiêu đề</string>
     <string name="discard_collage">Hủy ảnh ghép?</string>
     <string name="discard_collage_question">Bạn có chắc chắn muốn thoát không? Ảnh ghép của bạn sẽ bị xóa.</string>
+    <string name="extract_images_title">Trích xuất hình ảnh từ trang web…</string>
+    <string name="blocked_url_message">Trang web này đã chặn quyền truy cập vào hình ảnh của nó. Vui lòng thử một trang web khác hoặc tải hình ảnh xuống theo cách thủ công.</string>
+    <string name="webpage_access_failed">Không thể truy cập trang web: %1$d</string>
+    <string name="valid_url_message">Vui lòng nhập một đường dẫn hợp lệ</string>
+    <string name="video_valid_fail_message">Đã hết thời gian xác thực video. URL có thể không hợp lệ.</string>
+    <string name="no_images_found">Không tìm thấy hình ảnh nào trên trang web này</string>
+    <string name="error_extracting_images">Lỗi khi trích xuất hình ảnh: %1$s</string>
+    <string name="loading_selected_image">Đang tải hình ảnh đã chọn…</string>
+    <string name="failed_load_image">Không thể tải hình ảnh: %1$s</string>
+    <string name="error_saving_image">Lỗi khi lưu hình ảnh: %1$s</string>
+    <string name="invalid_video_content">URL không chứa nội dung video hợp lệ</string>
+    <string name="failed_validate_video">Không thể xác thực video: %1$s</string>
+    <string name="error_video_validator">Lỗi khởi tạo trình xác thực video</string>
 </resources>

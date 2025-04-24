@@ -68,6 +68,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.HashMap;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
@@ -332,7 +333,7 @@ public class UploadFragment extends Fragment {
                 validateAndLoadMediaFromUrl(url);
                 bottomSheetDialog.dismiss();
             } else {
-                Toast.makeText(getContext(), "Please enter a valid URL", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.valid_url_message, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -355,7 +356,7 @@ public class UploadFragment extends Fragment {
     private void validateAndLoadMediaFromUrl(String url) {
         // Show loading dialog
         LoadingDialog loadingDialog = new LoadingDialog(requireContext());
-        loadingDialog.setMessage("Validating media...");
+        loadingDialog.setMessage(getString(R.string.validating));
         loadingDialog.show();
 
         // Check if URL is a direct media file or a webpage
@@ -377,7 +378,7 @@ public class UploadFragment extends Fragment {
     }
 
     private void extractImagesFromWebpage(String urlParam, LoadingDialog loadingDialog) {
-        loadingDialog.setMessage("Extracting images from webpage...");
+        loadingDialog.setMessage(getString(R.string.extract_images_title));
 
         new Thread(() -> {
             try {
@@ -404,9 +405,9 @@ public class UploadFragment extends Fragment {
                     requireActivity().runOnUiThread(() -> {
                         loadingDialog.dismiss();
                         if (response.statusCode() == 403) {
-                            Toast.makeText(getContext(), "This website has blocked access to its images. Please try a different website or download images manually.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), R.string.blocked_url_message, Toast.LENGTH_LONG).show();
                         } else {
-                            Toast.makeText(getContext(), "Failed to access webpage: " + response.statusCode(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), getString(R.string.webpage_access_failed, response.statusCode()), Toast.LENGTH_SHORT).show();
                         }
                     });
                     return;
@@ -514,7 +515,7 @@ public class UploadFragment extends Fragment {
                 if (finalImageUrls.isEmpty()) {
                     requireActivity().runOnUiThread(() -> {
                         loadingDialog.dismiss();
-                        Toast.makeText(getContext(), "No images found on this webpage", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.no_images_found, Toast.LENGTH_SHORT).show();
                     });
                     return;
                 }
@@ -528,11 +529,11 @@ public class UploadFragment extends Fragment {
             } catch (Exception e) {
                 requireActivity().runOnUiThread(() -> {
                     loadingDialog.dismiss();
-                    if (e instanceof org.jsoup.HttpStatusException &&
-                            ((org.jsoup.HttpStatusException)e).getStatusCode() == 403) {
-                        Toast.makeText(getContext(), "This website restricts automated access to its images. Please try another website or method.", Toast.LENGTH_LONG).show();
+                    if (e instanceof HttpStatusException &&
+                            ((HttpStatusException)e).getStatusCode() == 403) {
+                        Toast.makeText(getContext(), R.string.blocked_url_message, Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(getContext(), "Error extracting images: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.error_extracting_images, e.getMessage()), Toast.LENGTH_SHORT).show();
                     }
                     Log.e("WebImageExtractor", "Error extracting images", e);
                 });
@@ -650,7 +651,7 @@ public class UploadFragment extends Fragment {
     private void loadSelectedWebImage(String url) {
         // Show loading dialog
         LoadingDialog loadingDialog = new LoadingDialog(requireContext());
-        loadingDialog.setMessage("Loading selected image...");
+        loadingDialog.setMessage(getString(R.string.loading_selected_image));
         loadingDialog.show();
 
         // Using Glide to fetch and process the image
@@ -661,7 +662,7 @@ public class UploadFragment extends Fragment {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                         loadingDialog.dismiss();
-                        Toast.makeText(getContext(), "Failed to load image: " + (e != null ? e.getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.failed_load_image, (e != null ? e.getMessage() : "Unknown error")), Toast.LENGTH_SHORT).show();
                         return false;
                     }
 
@@ -670,21 +671,33 @@ public class UploadFragment extends Fragment {
                         // Save bitmap to file in background
                         new Thread(() -> {
                             try {
-                                File imageFile = createImageFileFromBitmap(resource);
-                                Uri localUri = FileProvider.getUriForFile(
-                                        requireContext(),
-                                        "com.example.pinterest_clone_test2.fileprovider",
-                                        imageFile);
+                                File imageFile = createImageFile();
+                                if (imageFile != null) {
+                                    try (FileOutputStream outputStream = new FileOutputStream(imageFile)) {
+                                        resource.compress(Bitmap.CompressFormat.JPEG, 95, outputStream);
+                                        outputStream.flush();
+                                    }
 
-                                // Update UI on main thread
-                                requireActivity().runOnUiThread(() -> {
-                                    loadingDialog.dismiss();
-                                    onMediaSelected(localUri);
-                                });
+                                    Uri localUri = FileProvider.getUriForFile(
+                                            requireContext(),
+                                            "com.example.pinterest_clone_test2.fileprovider",
+                                            imageFile);
+
+                                    // Update UI on main thread
+                                    requireActivity().runOnUiThread(() -> {
+                                        loadingDialog.dismiss();
+                                        onMediaSelected(localUri);
+                                    });
+                                } else {
+                                    requireActivity().runOnUiThread(() -> {
+                                        loadingDialog.dismiss();
+                                        Toast.makeText(getContext(), "Failed to create image file", Toast.LENGTH_SHORT).show();
+                                    });
+                                }
                             } catch (Exception e) {
                                 requireActivity().runOnUiThread(() -> {
                                     loadingDialog.dismiss();
-                                    Toast.makeText(getContext(), "Error saving image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), getString(R.string.error_saving_image, e.getMessage()), Toast.LENGTH_SHORT).show();
                                     Log.e("WebImageExtractor", "Error saving image", e);
                                 });
                             }
@@ -715,17 +728,29 @@ public class UploadFragment extends Fragment {
                         // Save bitmap to file in background
                         new Thread(() -> {
                             try {
-                                File imageFile = createImageFileFromBitmap(resource);
-                                Uri localUri = FileProvider.getUriForFile(
-                                        requireContext(),
-                                        "com.example.pinterest_clone_test2.fileprovider",
-                                        imageFile);
+                                File imageFile = createImageFile();
+                                if (imageFile != null) {
+                                    try (FileOutputStream outputStream = new FileOutputStream(imageFile)) {
+                                        resource.compress(Bitmap.CompressFormat.JPEG, 95, outputStream);
+                                        outputStream.flush();
+                                    }
 
-                                // Update UI on main thread
-                                requireActivity().runOnUiThread(() -> {
-                                    loadingDialog.dismiss();
-                                    onMediaSelected(localUri);
-                                });
+                                    Uri localUri = FileProvider.getUriForFile(
+                                            requireContext(),
+                                            "com.example.pinterest_clone_test2.fileprovider",
+                                            imageFile);
+
+                                    // Update UI on main thread
+                                    requireActivity().runOnUiThread(() -> {
+                                        loadingDialog.dismiss();
+                                        onMediaSelected(localUri);
+                                    });
+                                } else {
+                                    requireActivity().runOnUiThread(() -> {
+                                        loadingDialog.dismiss();
+                                        Toast.makeText(getContext(), "Failed to create image file", Toast.LENGTH_SHORT).show();
+                                    });
+                                }
                             } catch (Exception e) {
                                 requireActivity().runOnUiThread(() -> {
                                     loadingDialog.dismiss();
@@ -740,7 +765,7 @@ public class UploadFragment extends Fragment {
                 .submit();
     }
     private void processVideoUrl(String url, LoadingDialog loadingDialog) {
-        loadingDialog.setMessage("Validating video...");
+        loadingDialog.setMessage(getString(R.string.validating));
 
         // Create a handler to manage timeout
         Handler handler = new Handler(Looper.getMainLooper());
@@ -749,7 +774,7 @@ public class UploadFragment extends Fragment {
         try (MediaMetadataRetriever retriever = new MediaMetadataRetriever()) {
             // Create a runnable to handle timeout
             Runnable timeoutRunnable = () -> {
-                Toast.makeText(getContext(), "Video validation timed out. URL may not be valid.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.video_valid_fail_message, Toast.LENGTH_SHORT).show();
                 loadingDialog.dismiss();
                 try {
                     retriever.release();
@@ -784,7 +809,7 @@ public class UploadFragment extends Fragment {
                         handler.removeCallbacks(timeoutRunnable);
                         requireActivity().runOnUiThread(() -> {
                             loadingDialog.dismiss();
-                            Toast.makeText(getContext(), "URL does not contain valid video content", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), R.string.invalid_video_content, Toast.LENGTH_SHORT).show();
                         });
                     }
                 } catch (Exception e) {
@@ -792,31 +817,18 @@ public class UploadFragment extends Fragment {
                     handler.removeCallbacks(timeoutRunnable);
                     requireActivity().runOnUiThread(() -> {
                         loadingDialog.dismiss();
-                        Toast.makeText(getContext(), "Failed to validate video: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.failed_validate_video, e.getMessage()), Toast.LENGTH_SHORT).show();
                         Log.e("WebImageExtractor", "Video validation failed", e);
                     });
                 }
             }).start();
         } catch (Exception e) {
             loadingDialog.dismiss();
-            Toast.makeText(getContext(), "Error initializing video validator", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.error_video_validator, Toast.LENGTH_SHORT).show();
             Log.e("WebImageExtractor", "Error with media retriever", e);
         }
     }
 
-    private File createImageFileFromBitmap(Bitmap bitmap) throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String fileName = "URL_IMG_" + timeStamp + ".jpg";
-        File storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File imageFile = new File(storageDir, fileName);
-
-        try (FileOutputStream outputStream = new FileOutputStream(imageFile)) {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 95, outputStream);
-            outputStream.flush();
-        }
-
-        return imageFile;
-    }
 
     private void proceedToNextStep() {
         if (getActivity() instanceof UploadActivity) {
