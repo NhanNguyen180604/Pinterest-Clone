@@ -92,4 +92,5 @@ dependencies {
     implementation(libs.swiperefreshlayout)
 
     implementation(libs.okhttp)
+    implementation(libs.jsoup)
 }

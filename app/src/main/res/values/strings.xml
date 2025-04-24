@@ -289,4 +289,9 @@
     <string name="no_comment">Không có bình luận nào</string>
     <string name="fetch_comments_failure">Đã có lỗi trong lúc tải bình luận</string>
     <string name="calendar_picker_date_format">dd \'thg\' M, yyyy</string>
+    <string name="image_from_website">Ảnh trong website</string>
+    <string name="loading">Đang tải…</string>
+    <string name="enter_website_url">Nhập đường dẫn</string>
+    <string name="example_url">https://example.com</string>
+    <string name="validating_video">Đang kiểm duyệt video…</string>
 </resources>
