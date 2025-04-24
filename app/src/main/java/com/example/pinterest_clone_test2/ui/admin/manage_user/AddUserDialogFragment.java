@@ -1,15 +1,18 @@
 package com.example.pinterest_clone_test2.ui.admin.manage_user;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.models.User;
 
@@ -28,11 +31,14 @@ public class AddUserDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        var view = getLayoutInflater().inflate(R.layout.dialog_add_user, null);
-        // TẠI SAO KHÔNG XÀI???
-        var nameInput = view.findViewById(R.id.edit_name);
-        // TẠI SAO KHÔNG XÀI???
-        var emailInput = view.findViewById(R.id.edit_email);
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        var view = inflater.inflate(R.layout.dialog_add_user, null);
+
+        // Khởi tạo các EditText
+        EditText nameInput = view.findViewById(R.id.edit_name);
+        EditText emailInput = view.findViewById(R.id.edit_email);
+        EditText passwordInput = view.findViewById(R.id.edit_password);
+        EditText birthDateInput = view.findViewById(R.id.edit_birth_date);
 
         // Khởi tạo Spinner
         Spinner genderSpinner = view.findViewById(R.id.spinner_gender);
@@ -60,17 +66,39 @@ public class AddUserDialogFragment extends DialogFragment {
                 .setTitle("Thêm tài khoản")
                 .setView(view)
                 .setPositiveButton("Thêm", (dialog, which) -> {
-                    String name = ((EditText) view.findViewById(R.id.edit_name)).getText().toString().trim();
-                    String email = ((EditText) view.findViewById(R.id.edit_email)).getText().toString().trim();
-                    String password = ((EditText) view.findViewById(R.id.edit_password)).getText().toString().trim();
-                    String birthDate = ((EditText) view.findViewById(R.id.edit_birth_date)).getText().toString().trim();
+                    // Lấy dữ liệu từ form
+                    String name = nameInput.getText().toString().trim();
+                    String email = emailInput.getText().toString().trim();
+                    String password = passwordInput.getText().toString().trim();
+                    String birthDate = birthDateInput.getText().toString().trim();
 
+                    // Kiểm tra dữ liệu
+                    if (TextUtils.isEmpty(name)) {
+                        Toast.makeText(getContext(), "Vui lòng nhập tên", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (TextUtils.isEmpty(email)) {
+                        Toast.makeText(getContext(), "Vui lòng nhập email", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (TextUtils.isEmpty(password)) {
+                        Toast.makeText(getContext(), "Vui lòng nhập mật khẩu", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (TextUtils.isEmpty(birthDate)) {
+                        Toast.makeText(getContext(), "Vui lòng nhập ngày sinh", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Lấy giá trị từ spinner
                     User.Gender gender = User.Gender.valueOf(genderSpinner.getSelectedItem().toString());
                     User.Role role = User.Role.valueOf(roleSpinner.getSelectedItem().toString());
 
-                    if (!email.isEmpty() && !password.isEmpty()) {
-                        callback.onAdd(password, email, name, birthDate, gender, role);
-                    }
+                    // Gọi callback
+                    callback.onAdd(password, email, name, birthDate, gender, role);
                 })
                 .setNegativeButton("Hủy", null)
                 .create();
