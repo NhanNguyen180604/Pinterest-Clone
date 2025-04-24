@@ -286,4 +286,5 @@
     <string name="enter_website_url">Enter website URL</string>
     <string name="example_url">https://example.com</string>
     <string name="validating_video">Validating video...</string>
+    <string name="loading_message">Loading...</string>
 </resources>

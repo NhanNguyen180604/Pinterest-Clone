@@ -62,7 +62,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.example.pinterest_clone_test2.utils.LoadingDialog;
 
 import java.util.HashMap;
 
@@ -342,15 +342,10 @@ public class UploadFragment extends Fragment {
     }
 
     private void validateAndLoadMediaFromUrl(String url) {
-        // Show loading indicator with Material Design progress indicator
-        MaterialAlertDialogBuilder progressBuilder = new MaterialAlertDialogBuilder(requireContext());
-        View progressView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_loading, null);
-        TextView messageText = progressView.findViewById(R.id.loading_message);
-        messageText.setText("Validating media...");
-        progressBuilder.setView(progressView);
-        progressBuilder.setCancelable(false);
-        AlertDialog progressDialog = progressBuilder.create();
-        progressDialog.show();
+        // Show loading dialog
+        LoadingDialog loadingDialog = new LoadingDialog(requireContext());
+        loadingDialog.setMessage("Validating media...");
+        loadingDialog.show();
 
         // Check if URL is a direct media file or a webpage
         String lowerCaseUrl = url.toLowerCase();
@@ -361,17 +356,17 @@ public class UploadFragment extends Fragment {
                 lowerCaseUrl.endsWith(".webm") || lowerCaseUrl.endsWith(".avi");
 
         if (hasImageExtension) {
-            processImageUrl(url, progressDialog, messageText);
+            processImageUrl(url, loadingDialog);
         } else if (hasVideoExtension) {
-            processVideoUrl(url, progressDialog, messageText);
+            processVideoUrl(url, loadingDialog);
         } else {
             // Likely a webpage URL, extract images
-            extractImagesFromWebpage(url, progressDialog, messageText);
+            extractImagesFromWebpage(url, loadingDialog);
         }
     }
 
-    private void extractImagesFromWebpage(String urlParam, AlertDialog progressDialog, TextView messageView) {
-        messageView.setText("Extracting images from webpage...");
+    private void extractImagesFromWebpage(String urlParam, LoadingDialog loadingDialog) {
+        loadingDialog.setMessage("Extracting images from webpage...");
 
         new Thread(() -> {
             try {
@@ -383,18 +378,6 @@ public class UploadFragment extends Fragment {
                     finalUrl = "https://" + finalUrl;
                 }
 
-                // Parse domain for potential specific handling
-                URL url = new URL(finalUrl);
-                String domain = url.getHost().toLowerCase();
-
-                // Special handling for known problematic sites
-                if (domain.contains("pixabay.com")) {
-                    requireActivity().runOnUiThread(() -> {
-                        progressDialog.dismiss();
-                        Toast.makeText(getContext(), "This website doesn't allow direct image extraction. Please try downloading an image and uploading it directly.", Toast.LENGTH_LONG).show();
-                    });
-                    return;
-                }
 
                 // Connect to the website with more browser-like headers
                 Connection.Response response = Jsoup.connect(finalUrl)
@@ -408,7 +391,7 @@ public class UploadFragment extends Fragment {
 
                 if (response.statusCode() != 200) {
                     requireActivity().runOnUiThread(() -> {
-                        progressDialog.dismiss();
+                        loadingDialog.dismiss();
                         if (response.statusCode() == 403) {
                             Toast.makeText(getContext(), "This website has blocked access to its images. Please try a different website or download images manually.", Toast.LENGTH_LONG).show();
                         } else {
@@ -519,7 +502,7 @@ public class UploadFragment extends Fragment {
                 final ArrayList<String> finalImageUrls = new ArrayList<>(imageUrls.keySet());
                 if (finalImageUrls.isEmpty()) {
                     requireActivity().runOnUiThread(() -> {
-                        progressDialog.dismiss();
+                        loadingDialog.dismiss();
                         Toast.makeText(getContext(), "No images found on this webpage", Toast.LENGTH_SHORT).show();
                     });
                     return;
@@ -527,13 +510,13 @@ public class UploadFragment extends Fragment {
 
                 // Show image selection dialog
                 requireActivity().runOnUiThread(() -> {
-                    progressDialog.dismiss();
+                    loadingDialog.dismiss();
                     showImageSelectionDialog(finalImageUrls);
                 });
 
             } catch (Exception e) {
                 requireActivity().runOnUiThread(() -> {
-                    progressDialog.dismiss();
+                    loadingDialog.dismiss();
                     if (e instanceof org.jsoup.HttpStatusException &&
                             ((org.jsoup.HttpStatusException)e).getStatusCode() == 403) {
                         Toast.makeText(getContext(), "This website restricts automated access to its images. Please try another website or method.", Toast.LENGTH_LONG).show();
@@ -654,15 +637,10 @@ public class UploadFragment extends Fragment {
     }
 
     private void loadSelectedWebImage(String url) {
-        // Show loading indicator with Material Design
-        MaterialAlertDialogBuilder progressBuilder = new MaterialAlertDialogBuilder(requireContext());
-        View progressView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_loading, null);
-        TextView messageText = progressView.findViewById(R.id.loading_message);
-        messageText.setText("Loading selected image...");
-        progressBuilder.setView(progressView);
-        progressBuilder.setCancelable(false);
-        AlertDialog progressDialog = progressBuilder.create();
-        progressDialog.show();
+        // Show loading dialog
+        LoadingDialog loadingDialog = new LoadingDialog(requireContext());
+        loadingDialog.setMessage("Loading selected image...");
+        loadingDialog.show();
 
         // Using Glide to fetch and process the image
         Glide.with(requireContext())
@@ -671,7 +649,7 @@ public class UploadFragment extends Fragment {
                 .listener(new RequestListener<>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                        progressDialog.dismiss();
+                        loadingDialog.dismiss();
                         Toast.makeText(getContext(), "Failed to load image: " + (e != null ? e.getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -689,12 +667,12 @@ public class UploadFragment extends Fragment {
 
                                 // Update UI on main thread
                                 requireActivity().runOnUiThread(() -> {
-                                    progressDialog.dismiss();
+                                    loadingDialog.dismiss();
                                     onMediaSelected(localUri);
                                 });
                             } catch (Exception e) {
                                 requireActivity().runOnUiThread(() -> {
-                                    progressDialog.dismiss();
+                                    loadingDialog.dismiss();
                                     Toast.makeText(getContext(), "Error saving image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     Log.e("WebImageExtractor", "Error saving image", e);
                                 });
@@ -705,9 +683,8 @@ public class UploadFragment extends Fragment {
                 })
                 .submit();
     }
-
-    private void processImageUrl(String url, AlertDialog progressDialog, TextView messageView) {
-        messageView.setText(R.string.loading);
+    private void processImageUrl(String url, LoadingDialog loadingDialog) {
+        loadingDialog.setMessage("Loading image...");
 
         // Using Glide to fetch and process the image
         Glide.with(requireContext())
@@ -716,7 +693,7 @@ public class UploadFragment extends Fragment {
                 .listener(new RequestListener<>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                        progressDialog.dismiss();
+                        loadingDialog.dismiss();
                         Toast.makeText(getContext(), "Failed to load image: " + (e != null ? e.getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
                         Log.e("WebImageExtractor", "Image load failed", e);
                         return false;
@@ -735,12 +712,12 @@ public class UploadFragment extends Fragment {
 
                                 // Update UI on main thread
                                 requireActivity().runOnUiThread(() -> {
-                                    progressDialog.dismiss();
+                                    loadingDialog.dismiss();
                                     onMediaSelected(localUri);
                                 });
                             } catch (Exception e) {
                                 requireActivity().runOnUiThread(() -> {
-                                    progressDialog.dismiss();
+                                    loadingDialog.dismiss();
                                     Toast.makeText(getContext(), "Error saving image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     Log.e("WebImageExtractor", "Error saving image file", e);
                                 });
@@ -751,9 +728,8 @@ public class UploadFragment extends Fragment {
                 })
                 .submit();
     }
-
-    private void processVideoUrl(String url, AlertDialog progressDialog, TextView messageView) {
-        messageView.setText(R.string.validating_video);
+    private void processVideoUrl(String url, LoadingDialog loadingDialog) {
+        loadingDialog.setMessage("Validating video...");
 
         // Create a handler to manage timeout
         Handler handler = new Handler(Looper.getMainLooper());
@@ -763,15 +739,14 @@ public class UploadFragment extends Fragment {
             // Create a runnable to handle timeout
             Runnable timeoutRunnable = () -> {
                 Toast.makeText(getContext(), "Video validation timed out. URL may not be valid.", Toast.LENGTH_SHORT).show();
-                progressDialog.dismiss();
+                loadingDialog.dismiss();
                 try {
                     retriever.release();
-                } catch (Exception ignored) {
-                    Log.d("WebImageExtractor", "Error releasing retriever", ignored);
+                } catch (Exception e) {
+                    Log.d("WebImageExtractor", "Error releasing retriever", e);
                 }
             };
 
-            // Set a timeout for validation (5 seconds)
             handler.postDelayed(timeoutRunnable, 5000);
 
             // Run validation in background
@@ -790,14 +765,14 @@ public class UploadFragment extends Fragment {
                         // Video is valid, create URI and continue
                         Uri videoUri = Uri.parse(url);
                         requireActivity().runOnUiThread(() -> {
-                            progressDialog.dismiss();
+                            loadingDialog.dismiss();
                             onMediaSelected(videoUri);
                         });
                     } else {
                         // No frames could be retrieved, likely not a valid video
                         handler.removeCallbacks(timeoutRunnable);
                         requireActivity().runOnUiThread(() -> {
-                            progressDialog.dismiss();
+                            loadingDialog.dismiss();
                             Toast.makeText(getContext(), "URL does not contain valid video content", Toast.LENGTH_SHORT).show();
                         });
                     }
@@ -805,14 +780,14 @@ public class UploadFragment extends Fragment {
                     // Remove the timeout handler
                     handler.removeCallbacks(timeoutRunnable);
                     requireActivity().runOnUiThread(() -> {
-                        progressDialog.dismiss();
+                        loadingDialog.dismiss();
                         Toast.makeText(getContext(), "Failed to validate video: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         Log.e("WebImageExtractor", "Video validation failed", e);
                     });
                 }
             }).start();
         } catch (Exception e) {
-            progressDialog.dismiss();
+            loadingDialog.dismiss();
             Toast.makeText(getContext(), "Error initializing video validator", Toast.LENGTH_SHORT).show();
             Log.e("WebImageExtractor", "Error with media retriever", e);
         }

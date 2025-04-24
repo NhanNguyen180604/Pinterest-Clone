@@ -294,4 +294,5 @@
     <string name="enter_website_url">Nhập đường dẫn</string>
     <string name="example_url">https://example.com</string>
     <string name="validating_video">Đang kiểm duyệt video…</string>
+    <string name="loading_message">Đang tải...</string>
 </resources>
