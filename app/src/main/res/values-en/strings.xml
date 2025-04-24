@@ -300,4 +300,11 @@
     <string name="has_invited_you">has invited you to join this board!</string>
     <string name="deny">Deny</string>
     <string name="accept">Accept</string>
+    <string name="select_or_reorder">Select or reorder</string>
+    <string name="select_all">Select all</string>
+    <string name="move_to">Move to</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="delete_board_pin_caption">If you delete this Pin, it\'ll be gone for good. You won\'t ve able to get it back.</string>
+    <string name="deselect_all">Deselect all</string>
+    <string name="section">Section</string>
 </resources>

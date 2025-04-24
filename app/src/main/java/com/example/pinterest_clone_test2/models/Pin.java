@@ -61,6 +61,18 @@ public class Pin extends BaseObservable implements Parcelable {
         return this;
     }
 
+    private boolean selected;
+
+    @Bindable
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+        notifyPropertyChanged(BR.selected);
+    }
+
     @Bindable
     public String getThumbnailUrl() {
         return thumbnailUrl;

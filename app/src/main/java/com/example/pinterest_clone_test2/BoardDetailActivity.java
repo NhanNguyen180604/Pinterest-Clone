@@ -69,7 +69,7 @@ public class BoardDetailActivity extends AppCompatActivity {
                     navController.navigate(R.id.boardDetailFragment2, bundle);
 
                     navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-                        if (destination.getId() == R.id.pinFragment4) {
+                        if (destination.getId() == R.id.pinFragment4 || destination.getId() == R.id.boardDetailOrganizeFragment) {
                             binding.btnBack.setVisibility(View.GONE);
                             binding.btnMore.setVisibility(View.GONE);
                             binding.btnShare.setVisibility(View.GONE);

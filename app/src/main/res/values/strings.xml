@@ -308,4 +308,11 @@
     <string name="has_invited_you">đã mời bạn tham gia bảng này!</string>
     <string name="deny">Từ chối</string>
     <string name="accept">Chấp nhận</string>
+    <string name="select_or_reorder">Chọn hoặc sắp xếp lại</string>
+    <string name="select_all">Chọn tất cả</string>
+    <string name="section">Phần</string>
+    <string name="move_to">Di chuyển tới</string>
+    <string name="are_you_sure">Bạn có chắc không?</string>
+    <string name="delete_board_pin_caption">Nếu bạn xoá Ghim này, nó sẽ biến mất mãi mãi. Bạn sẽ không thể lấy lại được nó.</string>
+    <string name="deselect_all">Hủy chọn tất cả</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.pinterest_clone_test2.ui.account.board_tab;
+package com.example.pinterest_clone_test2.ui.board.board_detail;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
+import com.example.pinterest_clone_test2.adapters.PinInBoardAdapter;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentBoardDetailBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
@@ -32,6 +33,7 @@ import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
+import com.example.pinterest_clone_test2.ui.account.board_tab.AddCollaboratorBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin.PinFragment;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -39,7 +41,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BoardDetailFragment extends Fragment {
@@ -165,7 +166,7 @@ public class BoardDetailFragment extends Fragment {
             }
         });
         pins = board.getPinsObj();
-        PinListAdapter adapter = getPinListAdapter();
+        PinInBoardAdapter adapter = getPinListAdapter();
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         RecyclerView rvBoardPins = binding.rvBoardPins;
@@ -187,6 +188,12 @@ public class BoardDetailFragment extends Fragment {
                 bottomBar.startAnimation(AnimationUtils.loadAnimation(requireContext() ,R.anim.slide_up));
             }
         };
+        binding.btnOrganize.setOnClickListener(v->{
+            Bundle args = new Bundle();
+            args.putParcelable("board", board);
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_board_detail);
+            navController.navigate(R.id.action_boardDetailFragment2_to_boardDetailOrganizeFragment, args, null, null);
+        });
     }
 
     @Override
@@ -196,7 +203,7 @@ public class BoardDetailFragment extends Fragment {
     }
 
     @NonNull
-    private PinListAdapter getPinListAdapter() {
+    private PinInBoardAdapter getPinListAdapter() {
         PinClickListener pinClickListener = (position, clickedView) -> {
             try {
                 Bundle args = new Bundle();
@@ -212,7 +219,7 @@ public class BoardDetailFragment extends Fragment {
             }
         };
 
-        return new PinListAdapter(requireContext(), pins, pinClickListener);
+        return new PinInBoardAdapter(requireContext(), pins, pinClickListener);
     }
 
     private void resetInactivityTimer() {
