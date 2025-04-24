@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +64,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.pinterest_clone_test2.utils.LoadingDialog;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.HashMap;
 
@@ -309,38 +311,47 @@ public class UploadFragment extends Fragment {
         }
     }
     private void openUrlInput() {
+        // Tạo bottom sheet dialog
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialog);
+
         // Inflate custom layout
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_url_input, null);
+
         EditText urlInput = dialogView.findViewById(R.id.url_input);
+        ImageView btnClose = dialogView.findViewById(R.id.btn_close_dialog);
+        Button btnSearch = dialogView.findViewById(R.id.btn_search);
 
-        // Create AlertDialog with the custom layout
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setView(dialogView);
-
-        AlertDialog dialog = builder.create();
+        // Set content view cho bottom sheet
+        bottomSheetDialog.setContentView(dialogView);
 
         // Set button click listeners
-        dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
-        dialogView.findViewById(R.id.btn_add).setOnClickListener(v -> {
+        btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        btnSearch.setOnClickListener(v -> {
             String url = urlInput.getText().toString().trim();
             if (!url.isEmpty()) {
                 validateAndLoadMediaFromUrl(url);
-                dialog.dismiss();
+                bottomSheetDialog.dismiss();
             } else {
                 Toast.makeText(getContext(), "Please enter a valid URL", Toast.LENGTH_SHORT).show();
             }
         });
 
-        dialog.show();
 
-        // Show keyboard after dialog appears
-        urlInput.postDelayed(() -> {
+
+        bottomSheetDialog.setOnDismissListener(dialog -> {
+            // Code xử lý khi dialog đóng (nếu cần
+        });
+
+        // Hiển thị bottom sheet
+        bottomSheetDialog.show();
+
+        // Hiển thị bàn phím sau khi dialog xuất hiện
+        urlInput.post(() -> {
             urlInput.requestFocus();
             InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(urlInput, InputMethodManager.SHOW_IMPLICIT);
-        }, 200);
+        });
     }
-
     private void validateAndLoadMediaFromUrl(String url) {
         // Show loading dialog
         LoadingDialog loadingDialog = new LoadingDialog(requireContext());

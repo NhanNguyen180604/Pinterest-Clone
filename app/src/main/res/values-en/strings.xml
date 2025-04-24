@@ -283,8 +283,10 @@
     <string name="calendar_picker_date_format">MMMM d, yyyy</string>
     <string name="image_from_website">Image from website</string>
     <string name="loading">Loading…</string>
-    <string name="enter_website_url">Enter website URL</string>
     <string name="example_url">https://example.com</string>
     <string name="validating_video">Validating video...</string>
     <string name="loading_message">Loading...</string>
+    <string name="select_image_website">Select an image from this website</string>
+    <string name="enter_url">Enter website URL</string>
+    <string name="search_on_url">Find on website</string>
 </resources>

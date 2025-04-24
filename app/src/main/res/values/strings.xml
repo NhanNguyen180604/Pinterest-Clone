@@ -291,8 +291,10 @@
     <string name="calendar_picker_date_format">dd \'thg\' M, yyyy</string>
     <string name="image_from_website">Ảnh trong website</string>
     <string name="loading">Đang tải…</string>
-    <string name="enter_website_url">Nhập đường dẫn</string>
     <string name="example_url">https://example.com</string>
     <string name="validating_video">Đang kiểm duyệt video…</string>
     <string name="loading_message">Đang tải...</string>
+    <string name="select_image_website">Chọn ảnh từ website</string>
+    <string name="enter_url">Nhập địa chỉ web</string>
+    <string name="search_on_url">Tìm trên web</string>
 </resources>
