@@ -1,20 +1,15 @@
 package com.example.pinterest_clone_test2.ui.admin.manage_pin;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.pinterest_clone_test2.models.Pin;
-import com.example.pinterest_clone_test2.models.ReportReason;
 import com.example.pinterest_clone_test2.models.ReportedPin;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;

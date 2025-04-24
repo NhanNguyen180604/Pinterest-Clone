@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 import com.example.pinterest_clone_test2.models.Comment;
-import com.example.pinterest_clone_test2.utils.CloudinaryManager;
+import com.example.pinterest_clone_test2.services.cloudinary.CloudinaryManager;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;

@@ -45,7 +45,7 @@ public class ManagePinFragment extends Fragment implements ReportedPinAdapter.On
     private FragmentManagePinBinding binding;
     private ManagePinViewModel viewModel;
     private ReportedPinAdapter adapter;
-    private List<ReportedPin> reportedPins = new ArrayList<>();
+    private final List<ReportedPin> reportedPins = new ArrayList<>();
 
     // Danh sách lý do báo cáo cho filter
     private List<ReportReason> reportReasons;
@@ -97,10 +97,12 @@ public class ManagePinFragment extends Fragment implements ReportedPinAdapter.On
     private void setupSearchBar() {
         binding.etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -319,9 +321,7 @@ public class ManagePinFragment extends Fragment implements ReportedPinAdapter.On
         });
 
         // Setup custom date range
-        chipCustom.setOnClickListener(v -> {
-            customDateLayout.setVisibility(View.VISIBLE);
-        });
+        chipCustom.setOnClickListener(v -> customDateLayout.setVisibility(View.VISIBLE));
 
         // Setup date pickers for custom range
         btnStartDate.setOnClickListener(v -> showDatePicker(date -> {
@@ -620,9 +620,7 @@ public class ManagePinFragment extends Fragment implements ReportedPinAdapter.On
         });
 
         // Observe trạng thái loading
-        viewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        });
+        viewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE));
 
         // Observe thông báo lỗi
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), message -> {
@@ -729,21 +727,19 @@ public class ManagePinFragment extends Fragment implements ReportedPinAdapter.On
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.confirm)
                 .setMessage(R.string.mark_as_checked_confirm_pin)
-                .setPositiveButton(R.string.confirm, (dialog, which) -> {
-                    viewModel.markReportAsChecked(pin.getReportId(), success -> {
-                        if (success) {
-                            Toast.makeText(requireContext(), R.string.marked_as_checked, Toast.LENGTH_SHORT).show();
-                            // Gửi thông báo cho người dùng
-                            viewModel.sendNotifications(pin, false, sent -> {
-                                if (sent) {
-                                    Toast.makeText(requireContext(), R.string.notification_sent, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        } else {
-                            Toast.makeText(requireContext(), R.string.error_occurred, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                })
+                .setPositiveButton(R.string.confirm, (dialog, which) -> viewModel.markReportAsChecked(pin.getReportId(), success -> {
+                    if (success) {
+                        Toast.makeText(requireContext(), R.string.marked_as_checked, Toast.LENGTH_SHORT).show();
+                        // Gửi thông báo cho người dùng
+                        viewModel.sendNotifications(pin, false, sent -> {
+                            if (sent) {
+                                Toast.makeText(requireContext(), R.string.notification_sent, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        Toast.makeText(requireContext(), R.string.error_occurred, Toast.LENGTH_SHORT).show();
+                    }
+                }))
                 .setNegativeButton(R.string.cancel, null)
                 .show();
     }
@@ -752,21 +748,19 @@ public class ManagePinFragment extends Fragment implements ReportedPinAdapter.On
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.delete_confirm_title)
                 .setMessage(R.string.delete_pin_confirm)
-                .setPositiveButton(R.string.delete, (dialog, which) -> {
-                    viewModel.deletePin(pin.getPinId(), success -> {
-                        if (success) {
-                            Toast.makeText(requireContext(), R.string.pin_deleted, Toast.LENGTH_SHORT).show();
-                            // Gửi thông báo cho người dùng
-                            viewModel.sendNotifications(pin, true, sent -> {
-                                if (sent) {
-                                    Toast.makeText(requireContext(), R.string.notification_sent, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        } else {
-                            Toast.makeText(requireContext(), R.string.error_deleting_pin, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                })
+                .setPositiveButton(R.string.delete, (dialog, which) -> viewModel.deletePin(pin.getPinId(), success -> {
+                    if (success) {
+                        Toast.makeText(requireContext(), R.string.pin_deleted, Toast.LENGTH_SHORT).show();
+                        // Gửi thông báo cho người dùng
+                        viewModel.sendNotifications(pin, true, sent -> {
+                            if (sent) {
+                                Toast.makeText(requireContext(), R.string.notification_sent, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        Toast.makeText(requireContext(), R.string.error_deleting_pin, Toast.LENGTH_SHORT).show();
+                    }
+                }))
                 .setNegativeButton(R.string.cancel, null)
                 .show();
     }
@@ -784,10 +778,12 @@ public class ManagePinFragment extends Fragment implements ReportedPinAdapter.On
                     Toast.makeText(requireContext(), R.string.pin_not_found, Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                pins.get(0).setTags(new ArrayList<>());
                 // Bundle để truyền dữ liệu
                 Bundle args = new Bundle();
                 args.putParcelableArrayList("pins", new ArrayList<>(pins));
-                args.putString("source", "admin"); // Mark source as admin
+                args.putString("source", "admin_pin"); // Mark source as admin
                 args.putInt("initial_position", 0);
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_admin);
                 navController.navigate(R.id.action_managePinFragment_to_pinFragment, args);

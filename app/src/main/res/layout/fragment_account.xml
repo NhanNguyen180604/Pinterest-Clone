@@ -55,7 +55,7 @@
             app:layout_constraintStart_toStartOf="@id/btn_account"
             app:layout_constraintTop_toBottomOf="@+id/tab_layout"
             app:queryBackground="@null"
-            app:queryHint="@string/search_your_pin" />
+            app:queryHint="@string/search_your_saved_ideas" />
 
         <ImageButton
             android:id="@+id/btn_add_new_pin"

@@ -13,7 +13,9 @@ import com.example.pinterest_clone_test2.adapters.ViewPagerPinAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentPinBinding;
 import com.example.pinterest_clone_test2.models.Pin;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class PinFragment extends Fragment {
 

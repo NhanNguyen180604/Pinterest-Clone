@@ -46,6 +46,7 @@ import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
+import com.example.pinterest_clone_test2.services.cloudinary.CloudinaryManager;
 import com.example.pinterest_clone_test2.services.download.PinMediaDownloader;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
@@ -55,7 +56,6 @@ import com.example.pinterest_clone_test2.services.remove_image_bg.RemoveBgServic
 import com.example.pinterest_clone_test2.ui.pin.btn_comment.CommentModalBottomSheet;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinAuthorMoreActionModal;
 import com.example.pinterest_clone_test2.ui.pin.btn_more.PinNormalMoreActionModal;
-import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -643,10 +643,10 @@ public class PinObjectFragment extends Fragment {
         fetchPinLikesAsync();
         binding.setPinViewModel(pin);
 
-        initButtonInteractions(view);
+        initButtonInteractions();
     }
 
-    private void initButtonInteractions(@NonNull View view) {
+    private void initButtonInteractions() {
         binding.btnLove.setOnClickListener(v -> {
             if (pin != null) {
                 pin.setIsLiked(!pin.getIsLiked());
@@ -683,28 +683,43 @@ public class PinObjectFragment extends Fragment {
             }
         });
 
-        binding.btnMore.setOnClickListener(v -> {
-            if (pin != null) {
-                DocumentSnapshot currentUserDoc = FirebaseUserService.getCurrentUserDocument();
-                assert currentUserDoc != null;
+        if (source.startsWith("admin")) {
+            binding.btnMore.setOnClickListener(v -> {
+                if (pin != null) {
+                    DocumentSnapshot currentUserDoc = FirebaseUserService.getCurrentUserDocument();
+                    assert currentUserDoc != null;
 
-                // display author's exclusive dialog to manage pin
-                if (currentUserDoc.getId().equals(pin.getAuthorId())) {
-                    PinAuthorMoreActionModal sheet = new PinAuthorMoreActionModal(pin, requireContext(), downloadPinMediaCallback, editPinActivityLauncher);
-                    sheet.show(requireActivity().getSupportFragmentManager(), PinAuthorMoreActionModal.TAG);
+                    // display author's exclusive dialog to manage pin
+                    if (currentUserDoc.getId().equals(pin.getAuthorId())) {
+                        PinAuthorMoreActionModal sheet = new PinAuthorMoreActionModal(pin, requireContext(), downloadPinMediaCallback, editPinActivityLauncher);
+                        sheet.show(requireActivity().getSupportFragmentManager(), PinAuthorMoreActionModal.TAG);
+                    }
+                    // display normal dialog for viewers
+                    else {
+                        PinNormalMoreActionModal sheet = new PinNormalMoreActionModal(pin, requireContext(), savedToBoard, editPinActivityLauncher, downloadPinMediaCallback, hidePinCallback);
+                        sheet.show(requireActivity().getSupportFragmentManager(), PinNormalMoreActionModal.TAG);
+                    }
+                } else {
+                    showToastMessage(getResources().getString(R.string.unknown_error));
                 }
-                // display normal dialog for viewers
-                else {
-                    PinNormalMoreActionModal sheet = new PinNormalMoreActionModal(pin, requireContext(), savedToBoard, editPinActivityLauncher, downloadPinMediaCallback, hidePinCallback);
-                    sheet.show(requireActivity().getSupportFragmentManager(), PinNormalMoreActionModal.TAG);
+            });
+
+            binding.fabBgRemoval.setOnClickListener(v -> {
+                if (pin != null) {
+                    Intent intent = new Intent(requireActivity(), RemoveBgActivity.class);
+                    intent.putExtra("imageUrl", pin.getMediaUrl());
+                    removeBgActivityLauncher.launch(intent);
+                } else {
+                    showToastMessage(getResources().getString(R.string.unknown_error));
                 }
-            } else {
-                showToastMessage(getResources().getString(R.string.unknown_error));
-            }
-        });
+            });
+        } else {
+            binding.btnMore.setVisibility(View.GONE);
+            binding.fabBgRemoval.setVisibility(View.GONE);
+        }
 
         binding.fabBack.setOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(view);
+            NavController navController = getNavController();
             navController.navigateUp();
         });
 
@@ -726,16 +741,6 @@ public class PinObjectFragment extends Fragment {
         binding.tvAuthor.setOnClickListener(v -> {
             if (pin != null && pin.getAuthorId() != null) {
                 navigateToUserProfile(pin.getAuthorId());
-            }
-        });
-
-        binding.fabBgRemoval.setOnClickListener(v -> {
-            if (pin != null) {
-                Intent intent = new Intent(requireActivity(), RemoveBgActivity.class);
-                intent.putExtra("imageUrl", pin.getMediaUrl());
-                removeBgActivityLauncher.launch(intent);
-            } else {
-                showToastMessage(getResources().getString(R.string.unknown_error));
             }
         });
     }
@@ -1071,6 +1076,10 @@ public class PinObjectFragment extends Fragment {
             action = R.id.action_pinFragment3_to_userProfileFragment;
         } else if (Objects.equals(source, "pinDeepLink")) {
             action = R.id.action_pinFragmentDeepLink_to_userProfileFragmentDeepLink;
+        } else if (source.startsWith("admin")) {
+            if (source.equals("admin_pin")){
+                action = R.id.action_pinFragment_to_userProfileFragment2;
+            }
         }
 
         navController.navigate(action, args, null, null);
@@ -1081,6 +1090,8 @@ public class PinObjectFragment extends Fragment {
         NavController navController;
         if (Objects.equals(source, "pinDeepLink")) {
             navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+        } else if (source.startsWith("admin")) {
+            navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_admin);
         } else {
             navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
         }

@@ -20,7 +20,7 @@ import com.example.pinterest_clone_test2.services.download.PinMediaDownloader;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseTagService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.upload.UploadDialogFragment;
-import com.example.pinterest_clone_test2.utils.CloudinaryManager;
+import com.example.pinterest_clone_test2.services.cloudinary.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 

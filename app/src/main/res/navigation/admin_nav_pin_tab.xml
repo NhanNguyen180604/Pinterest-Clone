@@ -30,7 +30,15 @@
         android:id="@+id/pinFragment"
         android:name="com.example.pinterest_clone_test2.ui.pin.PinFragment"
         android:label="fragment_pin"
-        tools:layout="@layout/fragment_pin" />
+        tools:layout="@layout/fragment_pin" >
+        <action
+            android:id="@+id/action_pinFragment_to_userProfileFragment2"
+            app:destination="@id/userProfileFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/userProfileFragment"

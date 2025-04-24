@@ -17,7 +17,7 @@ import com.example.pinterest_clone_test2.services.firebase.FirebaseTagService;
 import com.example.pinterest_clone_test2.ui.upload.UploadCollageFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadPinDetailsFragment;
-import com.example.pinterest_clone_test2.utils.CloudinaryManager;
+import com.example.pinterest_clone_test2.services.cloudinary.CloudinaryManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;

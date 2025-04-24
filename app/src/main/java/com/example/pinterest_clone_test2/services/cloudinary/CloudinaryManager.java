@@ -1,4 +1,4 @@
-package com.example.pinterest_clone_test2.utils;
+package com.example.pinterest_clone_test2.services.cloudinary;
 
 import android.content.Context;
 import android.net.Uri;
