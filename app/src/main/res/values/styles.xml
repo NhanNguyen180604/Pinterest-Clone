@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="roundedImageView">
         <item name="cornerFamily">rounded</item>
@@ -75,5 +75,23 @@
     <style name="CardView.NoShadow" parent="Widget.MaterialComponents.CardView">
         <item name="cardElevation">0dp</item>
         <item name="cardBackgroundColor">@color/lighter_gray</item>
+    </style>
+
+    <!-- Style cho hình ảnh bo tròn -->
+    <style name="RoundedImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <!-- Style cho chip filter -->
+    <style name="ChipFilterStyle" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_background_color</item>
+        <item name="chipIconVisible">true</item>
+        <item name="chipIconTint">@color/chip_icon_color</item>
+        <item name="checkedIconVisible">true</item>
+        <item name="checkedIconTint">@color/white</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipStrokeColor">@color/chip_stroke_color</item>
+        <item name="rippleColor">@color/red_pinterest_light</item>
     </style>
 </resources>

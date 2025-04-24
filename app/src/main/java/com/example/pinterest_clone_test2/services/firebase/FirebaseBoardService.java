@@ -3,6 +3,7 @@ package com.example.pinterest_clone_test2.services.firebase;
 import static androidx.core.content.ContextCompat.getString;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -192,6 +193,17 @@ public abstract class FirebaseBoardService {
                             .addOnSuccessListener(documentReference -> {
                                 currentUserBoardListUpdated = true;
                                 callback.OnSuccess(documentReference);
+
+                                firestore.collection("users")
+                                        .document(currentUser.getUid())
+                                        .update("boards", FieldValue.arrayUnion(documentReference.getId()))
+                                        .addOnSuccessListener(unused -> Log.d("FirebaseBoardService", "Added board " + documentReference.getId() + " to profile"))
+                                        .addOnFailureListener(e -> {
+                                            Log.e("FirebaseBoardService", "Failed to add board " + documentReference.getId() + " to profile");
+                                            if (e.getMessage() != null) {
+                                                Log.e("FirebaseBoardService", e.getMessage());
+                                            }
+                                        });
                             })
                             .addOnFailureListener(callback::OnFailure);
                 })

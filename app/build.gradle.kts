@@ -92,4 +92,7 @@ dependencies {
     implementation(libs.swiperefreshlayout)
 
     implementation(libs.okhttp)
+
+    // MPAndroidChart library cho Dashboard báo cáo
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }
