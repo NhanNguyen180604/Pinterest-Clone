@@ -297,4 +297,7 @@
     <string name="select_image_website">Chọn ảnh từ website</string>
     <string name="enter_url">Nhập địa chỉ web</string>
     <string name="search_on_url">Tìm trên web</string>
+    <string name="no_title_message">Bắt buộc phải có tiêu đề</string>
+    <string name="discard_collage">Hủy ảnh ghép?</string>
+    <string name="discard_collage_question">Bạn có chắc chắn muốn thoát không? Ảnh ghép của bạn sẽ bị xóa.</string>
 </resources>

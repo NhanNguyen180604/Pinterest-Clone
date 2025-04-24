@@ -289,4 +289,7 @@
     <string name="select_image_website">Select an image from this website</string>
     <string name="enter_url">Enter website URL</string>
     <string name="search_on_url">Find on website</string>
+    <string name="no_title_message">Title is required</string>
+    <string name="discard_collage">Discard collage?</string>
+    <string name="discard_collage_question">Are you sure you want to exit? Your collage will be discarded.</string>
 </resources>

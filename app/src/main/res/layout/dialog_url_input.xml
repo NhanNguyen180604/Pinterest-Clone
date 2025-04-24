@@ -41,7 +41,7 @@
                 android:textStyle="bold"
                 android:gravity="center" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_search"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"

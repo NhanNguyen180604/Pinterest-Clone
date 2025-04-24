@@ -43,6 +43,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -216,7 +217,16 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         binding.collageArea.addView(drawingPathView);
     }
     private void setupButtonListeners() {
-        binding.btnExit.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
+        binding.btnExit.setOnClickListener(v -> {
+            // Check if there are unsaved changes
+            if (!addedImagesList.isEmpty() || hasDrawings() || activeTextView != null) {
+                // Show confirmation dialog
+                showExitConfirmationDialog();
+            } else {
+                // No changes to lose, just go back
+                requireActivity().getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
         binding.btnNext.setOnClickListener(v -> saveAndProceed());
 
         binding.btnAddImage.setOnClickListener(v -> openPhotos());
@@ -234,7 +244,31 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         binding.btnRedo.setAlpha(0.5f);
         binding.btnRedo.setEnabled(false);
     }
+    private void showExitConfirmationDialog() {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_confirm_exit);
 
+        // Make the dialog width match the screen width with padding
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.copyFrom(dialog.getWindow().getAttributes());
+        layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.getWindow().setAttributes(layoutParams);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        Button btnCancelExit = dialog.findViewById(R.id.btnCancelExit);
+        Button btnConfirmExit = dialog.findViewById(R.id.btnConfirmExit);
+
+        btnCancelExit.setOnClickListener(v -> dialog.dismiss());
+
+        btnConfirmExit.setOnClickListener(v -> {
+            dialog.dismiss();
+            requireActivity().getOnBackPressedDispatcher().onBackPressed();
+        });
+
+        dialog.show();
+    }
     private void toggleDrawingMode() {
         isDrawingMode = !isDrawingMode;
         drawingPathView.setDrawingEnabled(isDrawingMode);
