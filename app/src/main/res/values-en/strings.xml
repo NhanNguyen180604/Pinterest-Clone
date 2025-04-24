@@ -250,6 +250,22 @@
     <string name="email_already_exists">Email already exists</string>
     <string name="email_check_error">Error occurred while checking email, please try again</string>
     <string name="search_pinterest_hint">Search Pinterest</string>
+    <string name="invite_collaborators">Invite collaborators</string>
+    <string name="collab_can">Collaborators can...</string>
+    <string name="do_most">Do (almost) everything</string>
+    <string name="do_most_caption">Add, move, or delete Pins, comment and react</string>
+    <string name="share_invite_link">Share an invite link</string>
+    <string name="copy_link">Copy link</string>
+    <string name="permission">Permission</string>
+    <string name="save_and_comment">Save and comment</string>
+    <string name="save_and_comment_caption">Save Pins, organize them, comment and react</string>
+    <string name="invitations">Invitations</string>
+    <string name="invite_other_people">Invite other people</string>
+    <string name="invite_other_people_caption">Collaborators can invite other people to this board</string>
+    <string name="add">Add</string>
+    <string name="more_ideas">More ideas</string>
+    <string name="shop">Shop</string>
+    <string name="organize">Organize</string>
     <string name="reason_spam">Spam</string>
     <string name="desc_spam">Fraud or posting multiple times on purpose</string>
     <string name="reason_nudity">Nudity or pornography</string>
@@ -281,4 +297,7 @@
     <string name="no_comment">No comment</string>
     <string name="fetch_comments_failure">Failed to fetch comments</string>
     <string name="calendar_picker_date_format">MMMM d, yyyy</string>
+    <string name="has_invited_you">has invited you to join this board!</string>
+    <string name="deny">Deny</string>
+    <string name="accept">Accept</string>
 </resources>

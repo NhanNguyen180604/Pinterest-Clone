@@ -1,34 +1,58 @@
 package com.example.pinterest_clone_test2.ui.account.board_tab;
 
+import android.annotation.SuppressLint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentBoardDetailBinding;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.pin.PinFragment;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.shape.ShapeAppearanceModel;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BoardDetailFragment extends Fragment {
     private Board board;
     private List<Pin> pins;
     FragmentBoardDetailBinding binding;
+    private Handler inactivityHandler = new Handler();
+    private Runnable showBarRunnable;
+    LinearLayout bottomBar;
+    LinearLayout layoutCollaborators;
 
     public BoardDetailFragment() {
         // Required empty constructor
@@ -41,6 +65,7 @@ public class BoardDetailFragment extends Fragment {
         return binding.getRoot();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -53,38 +78,153 @@ public class BoardDetailFragment extends Fragment {
         } else {
             binding.tvNumberOfPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), getResources().getString(R.string.pin).toLowerCase()));
         }
-        binding.btnBack.setOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(view);
-            navController.navigateUp();
-        });
-        pins = board.getPinsObj();
+        int overlapMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -10, getResources().getDisplayMetrics());
+        layoutCollaborators = view.findViewById(R.id.layout_collaborators);
+        layoutCollaborators.removeAllViews();
 
+        List<String> collaboratorIds = board.getCollaborators();
+        Log.d("collabs", "dfssfdfsđfs:"+collaboratorIds);
+
+        AtomicInteger avatarsAdded = new AtomicInteger(0);
+        int totalAvatars = collaboratorIds.size();
+        for (int i = 0; i < collaboratorIds.size(); i++) {
+            String userId = collaboratorIds.get(i);
+            int finalI = i;
+
+            FirebaseUserService.getUserAvatarUrl(userId, new FirebaseUserService.OnUserAvatarFetchedCallback() {
+                @Override
+                public void onSuccess(String avatarUrl) {
+                    Log.d("avtsuccess", "fdslfjdslk:"+ avatarUrl);
+                    ShapeableImageView imageView = new ShapeableImageView(new ContextThemeWrapper(requireContext(), R.style.roundedImageView));
+                    int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, getResources().getDisplayMetrics());
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+                    imageView.setLayoutParams(params);
+
+                    if (finalI != 0) {
+                        params.setMarginStart(overlapMargin); // overlap effect
+                    }
+                    imageView.setLayoutParams(params);
+                    imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    imageView.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.bg_circle_white));
+                    imageView.setClickable(true);
+                    imageView.setImageResource(R.drawable.ic_account_circle);
+                    imageView.setOnClickListener(v->{
+                        showAddCollabBottomSheet();
+                    });
+
+                    RequestOptions glideOptions = new RequestOptions()
+                            .placeholder(R.drawable.ic_loading)
+                            .error(R.drawable.ic_account_circle)
+                            .centerCrop();
+
+                    Glide.with(requireContext())
+                            .load(avatarUrl)
+                            .apply(glideOptions)
+                            .into(imageView);
+
+                    layoutCollaborators.addView(imageView);
+                    if (avatarsAdded.incrementAndGet() == totalAvatars) {
+                        addAddCollaboratorIcon();
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e("FirebaseUserService", "Failed to fetch user avatar", e);
+                    if (avatarsAdded.incrementAndGet() == totalAvatars) {
+                        addAddCollaboratorIcon();
+                    }
+                }
+            });
+        }
+        pins = board.getPinsObj();
         PinListAdapter adapter = getPinListAdapter();
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-        binding.rvBoardPins.setHasFixedSize(true);
-        binding.rvBoardPins.setLayoutManager(layoutManager);
-        binding.rvBoardPins.setAdapter(adapter);
+        RecyclerView rvBoardPins = binding.rvBoardPins;
+        rvBoardPins.setHasFixedSize(true);
+        rvBoardPins.setLayoutManager(layoutManager);
+        rvBoardPins.setAdapter(adapter);
+        rvBoardPins.setOnTouchListener((v, e)->{
+            resetInactivityTimer();
+            return false;
+        });
         binding.progressLoading.setVisibility(View.GONE);
+        binding.btnAddCollaborators.setOnClickListener(v->{
+            showAddCollabBottomSheet();
+        });
+        bottomBar = binding.llEditBoardOptions;
+        showBarRunnable = () -> {
+            if (bottomBar.getVisibility() != View.VISIBLE) {
+                bottomBar.setVisibility(View.VISIBLE);
+                bottomBar.startAnimation(AnimationUtils.loadAnimation(requireContext() ,R.anim.slide_up));
+            }
+        };
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        inactivityHandler.removeCallbacks(showBarRunnable);
     }
 
     @NonNull
     private PinListAdapter getPinListAdapter() {
         PinClickListener pinClickListener = (position, clickedView) -> {
             try {
-                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
                 Bundle args = new Bundle();
                 args.putParcelableArrayList("pins", new ArrayList<>(pins));
                 args.putInt("position", position);
                 args.putString("source", "account");
                 PinFragment fragment = new PinFragment();
                 fragment.setArguments(args);
-                navController.navigate(R.id.action_boardDetailFragment_to_pinFragment3, args, null, null);
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_board_detail);
+                navController.navigate(R.id.action_boardDetailFragment2_to_pinFragment42, args, null, null);
             } catch (Exception e) {
                 Log.e("BoardDetailFragment", "Error while opening PinFragment", e);
             }
         };
 
         return new PinListAdapter(requireContext(), pins, pinClickListener);
+    }
+
+    private void resetInactivityTimer() {
+        inactivityHandler.removeCallbacks(showBarRunnable);
+        inactivityHandler.postDelayed(showBarRunnable, 2000);
+
+        if (bottomBar.getVisibility() == View.VISIBLE) {
+            bottomBar.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down));;
+            bottomBar.setVisibility(View.GONE);
+        }
+    }
+
+    private void addAddCollaboratorIcon() {
+        ImageView addIcon = new ImageView(requireContext());
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, getResources().getDisplayMetrics()),
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, getResources().getDisplayMetrics())
+        );
+        iconParams.setMarginStart((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -10, getResources().getDisplayMetrics()));
+        addIcon.setLayoutParams(iconParams);
+        addIcon.setBackgroundResource(R.drawable.bg_circle_gray);
+        addIcon.setImageResource(R.drawable.ic_add_person);
+        addIcon.setClickable(true);
+        addIcon.setOnClickListener(v->{
+            showAddCollabBottomSheet();
+        });
+        addIcon.setPadding(
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()),
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()),
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()),
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics())
+        );
+
+        layoutCollaborators.addView(addIcon);
+    }
+
+    private void showAddCollabBottomSheet(){
+        AddCollaboratorBottomSheet bottomSheet = AddCollaboratorBottomSheet.newInstance(board.getId());
+        Log.d("BoardDetailFragment", "Board ID: " + board.getId());
+        bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
     }
 }

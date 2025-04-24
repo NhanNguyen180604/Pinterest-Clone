@@ -256,6 +256,22 @@
     <string name="email_already_exists">Email đã tồn tại</string>
     <string name="email_check_error">Đã có lỗi trong lúc kiểm tra email, vui lòng thử lại</string>
     <string name="search_pinterest_hint">Tìm kiếm trên Pinterest</string>
+    <string name="invite_collaborators">Mời cộng tác viên</string>
+    <string name="collab_can">Cộng tác viên có thể...</string>
+    <string name="do_most">Làm (gần như) tất cả mọi thứ</string>
+    <string name="do_most_caption">Thêm, di chuyển hay xoá Ghim, bình luận và biểu cảm</string>
+    <string name="share_invite_link">Chia sẻ liên kết mời</string>
+    <string name="copy_link">Sao chép liên kết</string>
+    <string name="permission">Quyền</string>
+    <string name="save_and_comment">Lưu và bình luận</string>
+    <string name="save_and_comment_caption">Lưu Ghim, tổ chức ghim, bình luận và biểu cảm</string>
+    <string name="invitations">Lời mời</string>
+    <string name="invite_other_people">Mời người khác</string>
+    <string name="invite_other_people_caption">Cộng tác viên có thể mời người khác vào bảng này</string>
+    <string name="add">Thêm</string>
+    <string name="more_ideas">Thêm ý tưởng</string>
+    <string name="shop">Cửa hàng</string>
+    <string name="organize">Sắp xếp</string>
     <string name="reason_spam">Spam</string>
     <string name="desc_spam">Lừa gạt hoặc cố tình đăng nhiều lần</string>
     <string name="reason_nudity">Khỏa thân hoặc khiêu dâm</string>
@@ -289,4 +305,7 @@
     <string name="no_comment">Không có bình luận nào</string>
     <string name="fetch_comments_failure">Đã có lỗi trong lúc tải bình luận</string>
     <string name="calendar_picker_date_format">dd \'thg\' M, yyyy</string>
+    <string name="has_invited_you">đã mời bạn tham gia bảng này!</string>
+    <string name="deny">Từ chối</string>
+    <string name="accept">Chấp nhận</string>
 </resources>

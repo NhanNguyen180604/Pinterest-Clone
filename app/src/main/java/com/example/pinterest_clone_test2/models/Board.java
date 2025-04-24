@@ -17,7 +17,7 @@ public class Board implements Parcelable {
     String description;
     String authorId;
     boolean isPublic;
-    List<User> collaborators;
+    List<String> collaborators;
     List<String> pins;
     @Exclude
     List<Pin> pinsObj;
@@ -88,11 +88,11 @@ public class Board implements Parcelable {
         return this;
     }
 
-    public List<User> getCollaborators() {
+    public List<String> getCollaborators() {
         return collaborators;
     }
 
-    public Board setCollaborators(List<User> collaborators) {
+    public Board setCollaborators(List<String> collaborators) {
         this.collaborators = collaborators;
         return this;
     }

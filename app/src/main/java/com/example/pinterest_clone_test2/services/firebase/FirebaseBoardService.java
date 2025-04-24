@@ -3,11 +3,13 @@ package com.example.pinterest_clone_test2.services.firebase;
 import androidx.annotation.NonNull;
 
 import com.example.pinterest_clone_test2.models.Board;
+import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -36,13 +38,94 @@ public abstract class FirebaseBoardService {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         assert currentUser != null;
 
-        firestore.collection("boards")
-                .whereEqualTo("userId", currentUser.getUid())
+        firestore.collection("users")
+                .document(currentUser.getUid())
                 .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    callback.OnSuccess(querySnapshot);
-                    currentUserBoardSnapshot = querySnapshot;
-                    currentUserBoardListUpdated = false;
+                .addOnSuccessListener(userSnapshot -> {
+                    if (!userSnapshot.exists()) {
+                        callback.OnFailure(new Exception("User document does not exist"));
+                        return;
+                    }
+
+                    List<String> boardIds = (List<String>) userSnapshot.get("boards");
+                    if (boardIds == null || boardIds.isEmpty()) {
+                        firestore.collection("boards")
+                                .whereEqualTo("name", currentUser.getUid())
+                                .get()
+                                .addOnSuccessListener(querySnapshot -> {
+                                    callback.OnSuccess(querySnapshot);
+                                    currentUserBoardSnapshot = querySnapshot;
+                                    currentUserBoardListUpdated = false;
+                                }).addOnFailureListener(callback::OnFailure);
+                        return;
+                    }
+                    firestore.collection("boards")
+                            .whereIn(FieldPath.documentId(), boardIds)
+                            .get()
+                            .addOnSuccessListener(querySnapshot -> {
+                                callback.OnSuccess(querySnapshot);
+                                currentUserBoardSnapshot = querySnapshot;
+                                currentUserBoardListUpdated = false;
+                            })
+                            .addOnFailureListener(callback::OnFailure);
+                })
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void addCurrentUserToCollaborators(String boardId, AddCollaboratorServiceCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+
+        firestore.collection("boards")
+                .document(boardId)
+                .update("collaborators", FieldValue.arrayUnion(currentUser.getUid()))
+                .addOnSuccessListener(unused -> {
+                    FirebaseUserService.updateUserBoards(boardId, new FirebaseUserService.UpdateUserBoardsCallback() {
+                        @Override
+                        public void OnSuccess() {
+                            callback.OnSuccess();
+                        }
+
+                        @Override
+                        public void OnFailure(Exception e) {
+                            callback.OnFailure(e);
+                        }
+                    });
+                })
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void getBoardByIdWithPins(String boardId, GetSingleBoardWithPinsCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("boards").document(boardId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Board board = documentSnapshot.toObject(Board.class);
+                        assert board != null;
+                        board.setId(documentSnapshot.getId());
+
+                        List<String> pinIds = board.getPins();
+                        if (pinIds != null && !pinIds.isEmpty()) {
+                            FirebasePinService.fetchPinsFromIds(pinIds, new FirebasePinService.OnPinsFetchedFromIdsCallback() {
+                                @Override
+                                public void onSuccess(List<Pin> pins) {
+                                    board.setPinsObj(pins);
+                                    callback.OnSuccess(board);
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    callback.OnFailure(e);
+                                }
+                            });
+                        } else {
+                            board.setPinsObj(new ArrayList<>());
+                            callback.OnSuccess(board);
+                        }
+                    } else {
+                        callback.OnFailure(new Exception("Board not found"));
+                    }
                 })
                 .addOnFailureListener(callback::OnFailure);
     }
@@ -72,10 +155,7 @@ public abstract class FirebaseBoardService {
                         boardData.put("pins", new ArrayList<String>());
                     }
                     if (board.getCollaborators() != null && !board.getCollaborators().isEmpty()) {
-                        boardData.put("collaborators", board.getCollaborators()
-                                .stream()
-                                .map(User::getUserId)
-                                .collect(Collectors.toList())
+                        boardData.put("collaborators", new ArrayList<>(board.getCollaborators())
                         );
                     } else {
                         boardData.put("collaborators", new ArrayList<String>());
@@ -105,6 +185,12 @@ public abstract class FirebaseBoardService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
+    public interface InviteLinkCallback {
+        void OnSuccess(String inviteLink);
+
+        void OnFailure(Exception e);
+    }
+
     public interface GetBoardServiceCallback {
         void OnSuccess(QuerySnapshot querySnapshot);
 
@@ -119,6 +205,18 @@ public abstract class FirebaseBoardService {
 
     public interface SavePinToBoardServiceCallback {
         void OnSuccess();
+
+        void OnFailure(Exception e);
+    }
+
+    public interface AddCollaboratorServiceCallback {
+        void OnSuccess();
+
+        void OnFailure(Exception e);
+    }
+
+    public interface GetSingleBoardWithPinsCallback {
+        void OnSuccess(Board board);
 
         void OnFailure(Exception e);
     }

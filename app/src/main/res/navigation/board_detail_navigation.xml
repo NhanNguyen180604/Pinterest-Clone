@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/board_detail_navigation"
+    app:startDestination="@id/boardDetailFragment2">
+    <fragment
+        android:id="@+id/boardDetailFragment2"
+        android:name="com.example.pinterest_clone_test2.ui.account.board_tab.BoardDetailFragment"
+        android:label="fragment_board_detail"
+        tools:layout="@layout/fragment_board_detail" >
+        <action
+            android:id="@+id/action_boardDetailFragment2_to_pinFragment42"
+            app:destination="@id/pinFragment4" />
+    </fragment>
+    <fragment
+        android:id="@+id/pinFragment4"
+        android:name="com.example.pinterest_clone_test2.ui.pin.PinFragment"
+        android:label="fragment_pin"
+        tools:layout="@layout/fragment_pin" />
+</navigation>
