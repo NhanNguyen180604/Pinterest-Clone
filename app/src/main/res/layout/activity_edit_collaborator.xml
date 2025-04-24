@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,178 +7,186 @@
     android:layout_height="match_parent"
     android:padding="8dp"
     tools:context=".EditCollaboratorActivity">
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_back"
-        android:src="@drawable/ic_chevron_left"
-        android:background="@null"
-        android:padding="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_collab_can"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/btn_back"
-        app:layout_constraintTop_toTopOf="parent"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        style="@style/TextAppearance.AppCompat.Medium"
-        android:text="@string/collab_can"
-        android:padding="8dp"/>
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:layout_marginVertical="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:text="@string/done"
-        android:background="@drawable/red_button_pinterest"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/tv_collab_can"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <TextView
-        android:id="@+id/tv_permission"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/TextAppearance.AppCompat.Medium"
-        android:text="@string/permission"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_collab_can"
-        android:layout_marginVertical="15dp"/>
-
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_edit_board_permission_most"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingVertical="15dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_permission">
-
-        <ImageView
-            android:id="@+id/iv_edit_board_permission"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="40dp">
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/gray_button_pinterest"
+            android:id="@+id/btn_back"
+            android:src="@drawable/ic_chevron_left"
+            android:background="@null"
             android:padding="8dp"
-            android:src="@drawable/ic_draw"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_do_most"
+            android:id="@+id/tv_collab_can"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="8dp"
-            android:text="@string/do_most"
+            app:layout_constraintStart_toEndOf="@id/btn_back"
+            app:layout_constraintTop_toTopOf="parent"
             android:textColor="@color/black"
-            app:layout_constraintStart_toEndOf="@id/iv_edit_board_permission"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textStyle="bold"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:text="@string/collab_can"
+            android:padding="8dp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_marginVertical="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:text="@string/done"
+            android:background="@drawable/red_button_pinterest"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/tv_collab_can"
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
-            android:id="@+id/tv_do_most_caption"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="8dp"
-            android:text="@string/do_most_caption"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="@id/tv_do_most"
-            app:layout_constraintStart_toEndOf="@id/iv_edit_board_permission"
-            app:layout_constraintTop_toBottomOf="@id/tv_do_most" />
-
-        <ImageView
-            android:id="@+id/iv_check_most"
+            android:id="@+id/tv_permission"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_check"
-            android:background="@null"
-            android:padding="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:paddingVertical="15dp"
-        android:id="@+id/cl_edit_board_permission_save_and_comment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cl_edit_board_permission_most">
-        <ImageView
-            android:id="@+id/iv_edit_board_permission_save_and_comment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_chat"
-            android:padding="8dp"
-            android:background="@drawable/gray_button_pinterest"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:text="@string/permission"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_collab_can"
+            android:layout_marginVertical="15dp"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_edit_board_permission_most"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="15dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_permission">
+
+            <ImageView
+                android:id="@+id/iv_edit_board_permission"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/gray_button_pinterest"
+                android:padding="8dp"
+                android:src="@drawable/ic_draw"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_do_most"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:text="@string/do_most"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toEndOf="@id/iv_edit_board_permission"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_do_most_caption"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:text="@string/do_most_caption"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="@id/tv_do_most"
+                app:layout_constraintStart_toEndOf="@id/iv_edit_board_permission"
+                app:layout_constraintTop_toBottomOf="@id/tv_do_most" />
+
+            <ImageView
+                android:id="@+id/iv_check_most"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_check"
+                android:background="@null"
+                android:padding="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:paddingVertical="15dp"
+            android:id="@+id/cl_edit_board_permission_save_and_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_edit_board_permission_most">
+            <ImageView
+                android:id="@+id/iv_edit_board_permission_save_and_comment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_chat"
+                android:padding="8dp"
+                android:background="@drawable/gray_button_pinterest"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@+id/tv_save_and_comment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:text="@string/save_and_comment"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toEndOf="@id/iv_edit_board_permission_save_and_comment"
+                app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@+id/tv_save_and_comment_caption"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:text="@string/save_and_comment_caption"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@id/iv_edit_board_permission_save_and_comment"
+                app:layout_constraintEnd_toEndOf="@id/tv_save_and_comment"
+                app:layout_constraintTop_toBottomOf="@id/tv_save_and_comment" />
+            <ImageView
+                android:id="@+id/iv_check_save_and_comment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_check"
+                android:background="@null"
+                android:padding="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:visibility="gone"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <TextView
-            android:id="@+id/tv_save_and_comment"
+            android:id="@+id/tv_invitations"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="8dp"
-            android:text="@string/save_and_comment"
-            android:textColor="@color/black"
-            app:layout_constraintStart_toEndOf="@id/iv_edit_board_permission_save_and_comment"
-            app:layout_constraintTop_toTopOf="parent"/>
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:text="@string/invitations"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_edit_board_permission_save_and_comment"
+            android:layout_marginVertical="15dp"/>
+
         <TextView
-            android:id="@+id/tv_save_and_comment_caption"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="8dp"
-            android:text="@string/save_and_comment_caption"
-            android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@id/iv_edit_board_permission_save_and_comment"
-            app:layout_constraintEnd_toEndOf="@id/tv_save_and_comment"
-            app:layout_constraintTop_toBottomOf="@id/tv_save_and_comment" />
-        <ImageView
-            android:id="@+id/iv_check_save_and_comment"
+            android:id="@+id/tv_invite_other_people"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_check"
-            android:background="@null"
-            android:padding="8dp"
+            android:text="@string/invite_other_people"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_invitations"
+            android:textStyle="bold"
+            android:textColor="@color/black"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/invite_other_people_caption"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_invite_other_people"
+            style="@style/TextAppearance.AppCompat.Caption"/>
+        <androidx.appcompat.widget.SwitchCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/switch_invite_other_people"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toTopOf="@id/tv_invite_other_people"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:id="@+id/tv_invitations"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/TextAppearance.AppCompat.Medium"
-        android:text="@string/invitations"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cl_edit_board_permission_save_and_comment"
-        android:layout_marginVertical="15dp"/>
 
-    <TextView
-        android:id="@+id/tv_invite_other_people"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/invite_other_people"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_invitations"
-        android:textStyle="bold"
-        android:textColor="@color/black"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/invite_other_people_caption"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_invite_other_people"
-        style="@style/TextAppearance.AppCompat.Caption"/>
-    <androidx.appcompat.widget.SwitchCompat
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/switch_invite_other_people"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_invite_other_people"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

@@ -1,7 +1,6 @@
 package com.example.pinterest_clone_test2.ui.account.board_tab;
 
 import android.annotation.SuppressLint;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -12,7 +11,6 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,13 +34,12 @@ import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.pin.PinFragment;
 import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BoardDetailFragment extends Fragment {
@@ -81,28 +78,18 @@ public class BoardDetailFragment extends Fragment {
         int overlapMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -10, getResources().getDisplayMetrics());
         layoutCollaborators = view.findViewById(R.id.layout_collaborators);
         layoutCollaborators.removeAllViews();
-
         List<String> collaboratorIds = board.getCollaborators();
-        Log.d("collabs", "dfssfdfsđfs:"+collaboratorIds);
-
         AtomicInteger avatarsAdded = new AtomicInteger(0);
-        int totalAvatars = collaboratorIds.size();
-        for (int i = 0; i < collaboratorIds.size(); i++) {
-            String userId = collaboratorIds.get(i);
-            int finalI = i;
-
-            FirebaseUserService.getUserAvatarUrl(userId, new FirebaseUserService.OnUserAvatarFetchedCallback() {
-                @Override
-                public void onSuccess(String avatarUrl) {
-                    Log.d("avtsuccess", "fdslfjdslk:"+ avatarUrl);
+        int totalAvatars = collaboratorIds.size() + 1;
+        DocumentSnapshot currentUserBoardDocument = FirebaseBoardService.getCurrentUserBoardDocument();
+        FirebaseUserService.getUserById(currentUserBoardDocument.getString("userId"),task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
                     ShapeableImageView imageView = new ShapeableImageView(new ContextThemeWrapper(requireContext(), R.style.roundedImageView));
                     int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, getResources().getDisplayMetrics());
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
                     imageView.setLayoutParams(params);
-
-                    if (finalI != 0) {
-                        params.setMarginStart(overlapMargin); // overlap effect
-                    }
                     imageView.setLayoutParams(params);
                     imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     imageView.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.bg_circle_white));
@@ -118,7 +105,7 @@ public class BoardDetailFragment extends Fragment {
                             .centerCrop();
 
                     Glide.with(requireContext())
-                            .load(avatarUrl)
+                            .load(document.getString("avatarUrl"))
                             .apply(glideOptions)
                             .into(imageView);
 
@@ -126,17 +113,57 @@ public class BoardDetailFragment extends Fragment {
                     if (avatarsAdded.incrementAndGet() == totalAvatars) {
                         addAddCollaboratorIcon();
                     }
-                }
+                    for (int i = 0; i < collaboratorIds.size(); i++) {
+                        String userId = collaboratorIds.get(i);
+                        FirebaseUserService.getUserAvatarUrl(userId, new FirebaseUserService.OnUserAvatarFetchedCallback() {
+                            @Override
+                            public void onSuccess(String avatarUrl) {
+                                ShapeableImageView imageView = new ShapeableImageView(new ContextThemeWrapper(requireContext(), R.style.roundedImageView));
+                                int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, getResources().getDisplayMetrics());
+                                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+                                imageView.setLayoutParams(params);
+                                params.setMarginStart(overlapMargin);
+                                imageView.setLayoutParams(params);
+                                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                imageView.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.bg_circle_white));
+                                imageView.setClickable(true);
+                                imageView.setImageResource(R.drawable.ic_account_circle);
+                                imageView.setOnClickListener(v->{
+                                    showAddCollabBottomSheet();
+                                });
 
-                @Override
-                public void onFailure(Exception e) {
-                    Log.e("FirebaseUserService", "Failed to fetch user avatar", e);
-                    if (avatarsAdded.incrementAndGet() == totalAvatars) {
-                        addAddCollaboratorIcon();
+                                RequestOptions glideOptions = new RequestOptions()
+                                        .placeholder(R.drawable.ic_loading)
+                                        .error(R.drawable.ic_account_circle)
+                                        .centerCrop();
+
+                                Glide.with(requireContext())
+                                        .load(avatarUrl)
+                                        .apply(glideOptions)
+                                        .into(imageView);
+
+                                layoutCollaborators.addView(imageView);
+                                if (avatarsAdded.incrementAndGet() == totalAvatars) {
+                                    addAddCollaboratorIcon();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Log.e("FirebaseUserService", "Failed to fetch user avatar", e);
+                                if (avatarsAdded.incrementAndGet() == totalAvatars) {
+                                    addAddCollaboratorIcon();
+                                }
+                            }
+                        });
                     }
+                } else {
+                    Log.d("Firestore", "No such user");
                 }
-            });
-        }
+            } else {
+                Log.e("Firestore", "Error fetching user", task.getException());
+            }
+        });
         pins = board.getPinsObj();
         PinListAdapter adapter = getPinListAdapter();
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);

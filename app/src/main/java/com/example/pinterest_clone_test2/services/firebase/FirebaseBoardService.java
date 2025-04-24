@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
-import com.example.pinterest_clone_test2.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class FirebaseBoardService {
     private static QuerySnapshot currentUserBoardSnapshot;
@@ -32,6 +30,9 @@ public abstract class FirebaseBoardService {
     public static boolean isCurrentUserBoardListUpdated() {
         return currentUserBoardListUpdated;
     }
+
+    private static DocumentSnapshot currentUserBoard;
+    public static DocumentSnapshot getCurrentUserBoardDocument() { return currentUserBoard; }
 
     public static void getUserBoards(GetBoardServiceCallback callback) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -111,6 +112,7 @@ public abstract class FirebaseBoardService {
                                 @Override
                                 public void onSuccess(List<Pin> pins) {
                                     board.setPinsObj(pins);
+                                    currentUserBoard = documentSnapshot;
                                     callback.OnSuccess(board);
                                 }
 
