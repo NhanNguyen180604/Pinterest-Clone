@@ -159,7 +159,7 @@ public class UserProfilePinsFragment extends Fragment {
         binding.progressLoading.setVisibility(View.VISIBLE);
         binding.tvNoPins.setVisibility(View.GONE);
 
-        FirebaseUserService.getUserPins(userId, new FirebaseUserService.GetUserPinsCallback() {
+        FirebaseUserService.getUserCreatedPins(userId, new FirebaseUserService.GetUserPinsCallback() {
             @Override
             public void OnSuccess(List<Pin> pins) {
                 binding.progressLoading.setVisibility(View.GONE);

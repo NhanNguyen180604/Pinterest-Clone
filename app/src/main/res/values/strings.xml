@@ -331,6 +331,8 @@
     <string name="security">Bảo mật</string>
     <string name="be_a_beta_tester">Làm người thử nghiệm beta</string>
     <string name="help_center">Trung tâm Trợ giúp</string>
+    <string name="message">Tin nhắn</string>
+    <string name="loading_message">Đang tải...</string>
     <string name="manage_comments_title">Quản lý bình luận</string>
     <string name="search_comments_hint">Tìm kiếm bình luận</string>
     <string name="status">Trạng thái</string>
