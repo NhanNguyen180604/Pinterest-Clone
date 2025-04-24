@@ -1,6 +1,7 @@
 package com.example.pinterest_clone_test2.ui.user;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,20 +14,19 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.pinterest_clone_test2.R;
-import com.example.pinterest_clone_test2.adapters.PinListAdapter;
+import com.example.pinterest_clone_test2.adapters.UserProfileTabAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentUserProfileBinding;
-import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -35,9 +35,9 @@ import java.util.Map;
 public class UserProfileFragment extends Fragment {
     private FragmentUserProfileBinding binding;
     private UserProfileViewModel viewModel;
-    private final List<Pin> userPins = new ArrayList<>();
-    private PinListAdapter pinAdapter;
     private boolean isSelf = false;
+    private static final String TAG = "UserProfileFragment";
+    private UserProfileTabAdapter tabAdapter;
 
     // Constants for source values
     public static final String SOURCE_HOME = "home";
@@ -47,7 +47,6 @@ public class UserProfileFragment extends Fragment {
 
     // Maps to store navigation controllers and actions by source
     private final Map<String, Integer> navHostResIds = new HashMap<>();
-    private final Map<String, Integer> navActionIds = new HashMap<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,21 +72,13 @@ public class UserProfileFragment extends Fragment {
         initNavigationMappings();
     }
 
-
-     //Initialize navigation host resources and action IDs based on source
-
+    // Initialize navigation host resources based on source
     private void initNavigationMappings() {
         // Navigation host resource IDs
         navHostResIds.put(SOURCE_HOME, R.id.nav_host_fragment_activity_main);
         navHostResIds.put(SOURCE_SEARCH, R.id.nav_host_fragment_activity_main);
         navHostResIds.put(SOURCE_ACCOUNT, R.id.nav_host_fragment_activity_main);
         navHostResIds.put(SOURCE_PIN_DEEP_LINK, R.id.nav_host_fragment_activity_pin_deep_link);
-
-        // Navigation action IDs
-        navActionIds.put(SOURCE_HOME, R.id.action_userProfileFragment_to_pinFragment);
-        navActionIds.put(SOURCE_SEARCH, R.id.action_userProfileFragment2_to_pinFragment2);
-        navActionIds.put(SOURCE_ACCOUNT, R.id.action_userProfileFragment3_to_pinFragment3);
-        navActionIds.put(SOURCE_PIN_DEEP_LINK, R.id.action_userProfileFragmentDeepLink_to_pinFragmentDeepLink);
     }
 
     @Nullable
@@ -108,15 +99,15 @@ public class UserProfileFragment extends Fragment {
             binding.btnFollow.setVisibility(View.GONE);
         }
 
-        // Set up the RecyclerView for pins
-        setupRecyclerView();
-
         if (viewModel.getUserId() != null) {
             // Restore UI state from ViewModel if available
             restoreUiState();
 
             // Load data if needed
             loadUserData();
+
+            // Setup tabs
+            setupTabs();
         }
 
         binding.btnBack.setOnClickListener(v -> {
@@ -125,6 +116,48 @@ public class UserProfileFragment extends Fragment {
         });
 
         binding.btnFollow.setOnClickListener(v -> toggleFollow());
+    }
+
+    private void setupTabs() {
+        // Initialize tab adapter
+        tabAdapter = new UserProfileTabAdapter(
+                requireActivity(),
+                viewModel.getUserId(),
+                viewModel.getSource(),
+                isSelf
+        );
+
+        // Set adapter to ViewPager
+        binding.viewPager.setAdapter(tabAdapter);
+
+        // Connect TabLayout with ViewPager
+        new TabLayoutMediator(binding.tabLayout, binding.viewPager,
+                (tab, position) -> {
+                    if (position == UserProfileTabAdapter.PINS_TAB) {
+                        tab.setText(getString(R.string.created));
+                    } else {
+                        tab.setText(getString(R.string.saved));
+                    }
+                }).attach();
+
+        // Set default tab
+        if (viewModel.getSelectedTab() != null) {
+            binding.viewPager.setCurrentItem(viewModel.getSelectedTab(), false);
+        }
+
+        // Listen for tab changes to save in ViewModel
+        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewModel.setSelectedTab(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
     }
 
     //Restore UI state from ViewModel
@@ -178,52 +211,12 @@ public class UserProfileFragment extends Fragment {
         if (viewModel.getIsFollowing() == null && !isSelf) {
             checkFollowStatus();
         }
-
-        // Always load pins (they could change)
-        loadUserPins();
     }
 
-    /**
-     * Get the appropriate NavController based on current source
-     * @return NavController for the current source
-     */
     private NavController getNavController() {
         String source = viewModel.getSource();
         int navHostId = navHostResIds.getOrDefault(source, R.id.nav_host_fragment_activity_main);
         return Navigation.findNavController(requireActivity(), navHostId);
-    }
-
-    /**
-     * Get the appropriate navigation action ID based on current source
-     * @return action ID for navigation
-     */
-    private int getNavigationActionId() {
-        String source = viewModel.getSource();
-        return navActionIds.getOrDefault(source, R.id.action_userProfileFragment_to_pinFragment);
-    }
-
-    private void setupRecyclerView() {
-        // Initialize the pin adapter
-        pinAdapter = new PinListAdapter(requireContext(), userPins, (position, v) -> {
-            // Navigate to PinFragment using source-specific navigation
-            NavController navController = getNavController();
-
-            Bundle args = new Bundle();
-            args.putParcelableArrayList("pins", new ArrayList<>(userPins));
-            args.putInt("position", position);
-            args.putString("source", viewModel.getSource());
-
-            // Navigate to the appropriate pin fragment based on source
-            int action = getNavigationActionId();
-            navController.navigate(action, args);
-        });
-
-        // Set up the RecyclerView with a StaggeredGridLayoutManager
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-        binding.rvUserPins.setLayoutManager(layoutManager);
-        binding.rvUserPins.setHasFixedSize(true);
-        binding.rvUserPins.setAdapter(pinAdapter);
     }
 
     private void checkFollowStatus() {
@@ -313,8 +306,6 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void loadUserInfo() {
-        binding.progressLoading.setVisibility(View.VISIBLE);
-
         FirebaseUserService.getUserInfos(viewModel.getUserId(), new FirebaseUserService.GetUserInfoCallback() {
             @Override
             public void OnSuccess(DocumentSnapshot documentSnapshot) {
@@ -348,38 +339,7 @@ public class UserProfileFragment extends Fragment {
 
             @Override
             public void OnFailure(Exception e) {
-                binding.progressLoading.setVisibility(View.GONE);
                 Toast.makeText(requireContext(), R.string.loading_user_info_failed, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void loadUserPins() {
-        binding.progressLoading.setVisibility(View.VISIBLE);
-        binding.tvNoPins.setVisibility(View.GONE);
-
-        FirebaseUserService.getUserPins(viewModel.getUserId(), new FirebaseUserService.GetUserPinsCallback() {
-            @Override
-            public void OnSuccess(List<Pin> pins) {
-                binding.progressLoading.setVisibility(View.GONE);
-
-                if (pins.isEmpty()) {
-                    binding.tvNoPins.setVisibility(View.VISIBLE);
-                    return;
-                }
-
-                int oldSize = userPins.size();
-                userPins.clear();
-                pinAdapter.notifyItemRangeRemoved(0, oldSize);
-                userPins.addAll(pins);
-                pinAdapter.notifyItemRangeInserted(0, userPins.size());
-            }
-
-            @Override
-            public void OnFailure(Exception e) {
-                binding.progressLoading.setVisibility(View.GONE);
-                binding.tvNoPins.setVisibility(View.VISIBLE);
-                Toast.makeText(requireContext(), R.string.loading_user_info_failed + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

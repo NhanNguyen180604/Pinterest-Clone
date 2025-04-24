@@ -74,7 +74,7 @@
 
     <style name="CardView.NoShadow" parent="Widget.MaterialComponents.CardView">
         <item name="cardElevation">0dp</item>
-        <item name="cardBackgroundColor">@android:color/transparent</item>
+        <item name="cardBackgroundColor">@color/lighter_gray</item>
     </style>
 
     <!-- Style cho hình ảnh bo tròn -->
