@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -36,6 +37,14 @@ public class PinInBoardAdapter extends RecyclerView.Adapter<PinInBoardAdapter.Bo
     private final Context context;
     private final List<Pin> pinList;
     private final PinClickListener onPinClickListener;
+    private int viewMode = 2;
+    public void setViewMode(int ViewMode){
+        viewMode = ViewMode;
+        notifyDataSetChanged();
+    }
+    public int getViewMode(){
+        return viewMode;
+    }
 
     public PinInBoardAdapter(Context context, List<Pin> pinList, PinClickListener listener) {
         this.context = context;
@@ -50,6 +59,7 @@ public class PinInBoardAdapter extends RecyclerView.Adapter<PinInBoardAdapter.Bo
         CardView cvPinItem;
         FrameLayout framePinItem;
         CheckBox checkboxSelect;
+        ImageButton ic_star;
 
         public BoardViewHolder(View itemView) {
             super(itemView);
@@ -59,6 +69,7 @@ public class PinInBoardAdapter extends RecyclerView.Adapter<PinInBoardAdapter.Bo
             cvPinItem = itemView.findViewById(R.id.cv_pin_item);
             framePinItem = itemView.findViewById(R.id.frame_pin_item);
             checkboxSelect = itemView.findViewById(R.id.checkbox_select);
+            ic_star = itemView.findViewById(R.id.ic_star);
         }
 
         public void bind(Pin pin, boolean isSelected) {
@@ -116,6 +127,16 @@ public class PinInBoardAdapter extends RecyclerView.Adapter<PinInBoardAdapter.Bo
         holder.itemView.setOnClickListener(v -> {
             onPinClickListener.OnClick(position, holder.itemView);
         });
+
+        if(viewMode == 3){
+            holder.tvAccountName.setVisibility(View.GONE);
+            holder.btnAccount.setVisibility(View.GONE);
+            holder.ic_star.setVisibility(View.GONE);
+        }else{
+            holder.tvAccountName.setVisibility(View.VISIBLE);
+            holder.btnAccount.setVisibility(View.VISIBLE);
+            holder.ic_star.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

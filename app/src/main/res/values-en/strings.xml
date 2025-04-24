@@ -307,4 +307,16 @@
     <string name="delete_board_pin_caption">If you delete this Pin, it\'ll be gone for good. You won\'t ve able to get it back.</string>
     <string name="deselect_all">Deselect all</string>
     <string name="section">Section</string>
+    <string name="set_view_as">Set view as</string>
+    <string name="wide">Wide</string>
+    <string name="Default">Default</string>
+    <string name="Compact">Compact</string>
+    <string name="Group">Group</string>
+    <string name="sort_by">Sort bt</string>
+    <string name="a_to_z">A to Z</string>
+    <string name="reorder">Reorder</string>
+    <string name="reorder_caption">Drag and drop to reorder boards</string>
+    <string name="last_saved_to">Last_saved_to</string>
+    <string name="newest">Newest</string>
+    <string name="oldest">Oldest</string>
 </resources>

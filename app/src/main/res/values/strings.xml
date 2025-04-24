@@ -315,4 +315,16 @@
     <string name="are_you_sure">Bạn có chắc không?</string>
     <string name="delete_board_pin_caption">Nếu bạn xoá Ghim này, nó sẽ biến mất mãi mãi. Bạn sẽ không thể lấy lại được nó.</string>
     <string name="deselect_all">Hủy chọn tất cả</string>
+    <string name="set_view_as">Chế độ xem</string>
+    <string name="wide">Rộng</string>
+    <string name="Default">Mặc định</string>
+    <string name="Compact">Hẹp</string>
+    <string name="Group">Nhóm</string>
+    <string name="sort_by">Sắp xếp theo</string>
+    <string name="a_to_z">A tới Z</string>
+    <string name="reorder">Sắp xếp lại</string>
+    <string name="reorder_caption">Kéo thả để sắp xếp lại bảng</string>
+    <string name="last_saved_to">Lưu gần nhất</string>
+    <string name="newest">Mới nhất</string>
+    <string name="oldest">Cũ nhất</string>
 </resources>

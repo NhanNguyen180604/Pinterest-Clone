@@ -9,8 +9,11 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -58,17 +61,13 @@ public class BoardDetailActivity extends AppCompatActivity {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("board", board);
                 binding.btnBack.setOnClickListener(v -> {
-                    FirebaseBoardService.updatePinOrder(boardId, board.getPinsObj(), new FirebaseBoardService.UpdatePinOrderCallback() {
-                        @Override
-                        public void OnSuccess() {
-                            finish();
-                        }
-
-                        @Override
-                        public void OnFailure(Exception e) {
-                            finish();
-                        }
-                    });
+                    updatePinOrder(board);
+                });
+                getOnBackPressedDispatcher().addCallback( BoardDetailActivity.this, new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        updatePinOrder(board);
+                    }
                 });
 
                 NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
@@ -98,8 +97,21 @@ public class BoardDetailActivity extends AppCompatActivity {
                 Toast.makeText(BoardDetailActivity.this, "Failed to load board: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 finish();
             }
-        });
 
+            private void updatePinOrder(Board board) {
+                FirebaseBoardService.updatePinOrder(boardId, board.getPinsObj(), new FirebaseBoardService.UpdatePinOrderCallback() {
+                    @Override
+                    public void OnSuccess() {
+                        finish();
+                    }
+
+                    @Override
+                    public void OnFailure(Exception e) {
+                        finish();
+                    }
+                });
+            }
+        });
     }
 
 }

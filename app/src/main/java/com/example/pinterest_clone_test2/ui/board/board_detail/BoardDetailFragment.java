@@ -28,6 +28,7 @@ import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinInBoardAdapter;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentBoardDetailBinding;
+import com.example.pinterest_clone_test2.interfaces.OnViewModeSelectedListener;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
@@ -177,6 +178,14 @@ public class BoardDetailFragment extends Fragment {
             resetInactivityTimer();
             return false;
         });
+        binding.btnTune.setOnClickListener(v->{
+            BoardDetailSetViewBottomSheet bottomSheet = BoardDetailSetViewBottomSheet.newInstance(adapter.getViewMode());
+            bottomSheet.setOnViewModeSelectedListener(selectedViewMode -> {
+                adapter.setViewMode(selectedViewMode);
+                applyChanges(selectedViewMode);
+            });
+            bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
+        });
         binding.progressLoading.setVisibility(View.GONE);
         binding.btnAddCollaborators.setOnClickListener(v->{
             showAddCollabBottomSheet();
@@ -260,5 +269,13 @@ public class BoardDetailFragment extends Fragment {
         AddCollaboratorBottomSheet bottomSheet = AddCollaboratorBottomSheet.newInstance(board.getId());
         Log.d("BoardDetailFragment", "Board ID: " + board.getId());
         bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
+    }
+
+    private void applyChanges(int viewMode){
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(viewMode, StaggeredGridLayoutManager.VERTICAL);
+        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        RecyclerView rvBoardPins = binding.rvBoardPins;
+        rvBoardPins.setLayoutManager(layoutManager);
+        rvBoardPins.getAdapter().notifyDataSetChanged();
     }
 }
