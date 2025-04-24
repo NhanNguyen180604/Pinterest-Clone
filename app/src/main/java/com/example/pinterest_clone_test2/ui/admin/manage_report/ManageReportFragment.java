@@ -18,12 +18,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.pinterest_clone_test2.R;
-import com.example.pinterest_clone_test2.adapters.LatestReportAdapter;
+import com.example.pinterest_clone_test2.adapters.PriorityReportAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentManageReportBinding;
-import com.example.pinterest_clone_test2.models.LatestReport;
+import com.example.pinterest_clone_test2.models.PriorityReport;
 import com.example.pinterest_clone_test2.models.ReportReason;
 import com.example.pinterest_clone_test2.models.ReportSummary;
 import com.example.pinterest_clone_test2.services.firebase.ReportDashboardService;
+import com.example.pinterest_clone_test2.ui.admin.views.ReportHeatmapView;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
@@ -52,9 +53,9 @@ import java.util.stream.Collectors;
 public class ManageReportFragment extends Fragment {
 
     private FragmentManageReportBinding binding;
-    private ManageReportViewModel viewModel;
-    private LatestReportAdapter adapter;
-    private List<LatestReport> latestReports = new ArrayList<>();
+    private ManageReportViewModelEnhanced viewModel;
+    private PriorityReportAdapter adapter;
+    private List<PriorityReport> priorityReports = new ArrayList<>();
     private List<ReportReason> reportReasons;
 
     @Override
@@ -69,7 +70,7 @@ public class ManageReportFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Khởi tạo ViewModel
-        viewModel = new ViewModelProvider(this).get(ManageReportViewModel.class);
+        viewModel = new ViewModelProvider(this).get(ManageReportViewModelEnhanced.class);
 
         // Lấy danh sách lý do báo cáo
         reportReasons = ReportReason.GetReasons(requireContext());
@@ -88,8 +89,14 @@ public class ManageReportFragment extends Fragment {
         // Thiết lập Spinner khoảng thời gian
         setupTimeRangeSpinner();
 
-        // Thiết lập RecyclerView báo cáo mới nhất
-        setupLatestReportsRecyclerView();
+        // Thiết lập chip filter cho mức độ nghiêm trọng
+        setupSeverityFilterChips();
+
+        // Thiết lập RecyclerView báo cáo ưu tiên
+        setupPriorityReportsRecyclerView();
+
+        // Khởi tạo biểu đồ nhiệt
+        setupHeatmapView();
 
         // Thiết lập sự kiện nút làm mới
         binding.btnRefreshData.setOnClickListener(v -> viewModel.loadDashboardData());
@@ -103,7 +110,14 @@ public class ManageReportFragment extends Fragment {
 
     private void setupTimeRangeSpinner() {
         // Tạo adapter cho spinner khoảng thời gian
-        String[] timeRangeOptions = {"Hôm nay", "7 ngày qua", "30 ngày qua", "3 tháng qua", "Năm nay"};
+        String[] timeRangeOptions = {
+                getString(R.string.time_range_today),
+                getString(R.string.time_range_week),
+                getString(R.string.time_range_month),
+                getString(R.string.time_range_quarter),
+                getString(R.string.time_range_year)
+        };
+
         ArrayAdapter<String> timeRangeAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_item,
@@ -148,43 +162,74 @@ public class ManageReportFragment extends Fragment {
         });
     }
 
-    private void setupLatestReportsRecyclerView() {
+    private void setupSeverityFilterChips() {
+        // TODO: Thiết lập các chip filter khi chúng ta có ViewModel cần thiết
+    }
+
+    private void setupHeatmapView() {
+        if (binding.heatmapContainer != null) {
+            ReportHeatmapView heatmapView = new ReportHeatmapView(requireContext());
+            binding.heatmapContainer.addView(heatmapView);
+
+            // Observe dữ liệu heatmap
+            viewModel.getHeatmapData().observe(getViewLifecycleOwner(), heatmapData -> {
+                if (heatmapData != null) {
+                    heatmapView.setHeatmapData(heatmapData);
+                }
+            });
+        }
+    }
+
+    private void setupPriorityReportsRecyclerView() {
         // Khởi tạo adapter
-        adapter = new LatestReportAdapter(requireContext(), latestReports, new LatestReportAdapter.OnReportClickListener() {
+        adapter = new PriorityReportAdapter(requireContext(), priorityReports, new PriorityReportAdapter.OnPriorityReportClickListener() {
             @Override
-            public void onViewDetailClick(LatestReport report) {
+            public void onReportClick(PriorityReport report) {
                 // Chuyển đến màn hình chi tiết báo cáo
                 navigateToReportDetail(report);
             }
 
             @Override
-            public void onHandleReportClick(LatestReport report) {
+            public void onTakeActionClick(PriorityReport report) {
                 // Chuyển đến màn hình xử lý báo cáo
                 navigateToHandleReport(report);
             }
         });
 
         // Thiết lập RecyclerView
-        binding.rvLatestReports.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.rvLatestReports.setAdapter(adapter);
+        if (binding.rvPriorityReports != null) {
+            binding.rvPriorityReports.setLayoutManager(new LinearLayoutManager(requireContext()));
+            binding.rvPriorityReports.setAdapter(adapter);
+        }
     }
 
     private void setupObservers() {
         // Observe thông tin tổng hợp báo cáo
         viewModel.getReportSummary().observe(getViewLifecycleOwner(), this::updateSummaryUI);
 
-        // Observe danh sách báo cáo mới nhất
-        viewModel.getLatestReports().observe(getViewLifecycleOwner(), reports -> {
-            latestReports.clear();
+        // Observe danh sách báo cáo ưu tiên
+        viewModel.getPriorityReports().observe(getViewLifecycleOwner(), reports -> {
+            priorityReports.clear();
             if (reports != null) {
-                latestReports.addAll(reports);
+                priorityReports.addAll(reports);
             }
             adapter.notifyDataSetChanged();
+
+            // Hiển thị hoặc ẩn thông báo "không có báo cáo"
+            if (binding.tvNoPriorityReports != null) {
+                binding.tvNoPriorityReports.setVisibility(reports == null || reports.isEmpty() ? View.VISIBLE : View.GONE);
+            }
         });
 
         // Observe trạng thái loading
         viewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            if (binding.progressBar != null) {
+                binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            }
+
+            if (binding.loadingOverlay != null) {
+                binding.loadingOverlay.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            }
         });
 
         // Observe thông báo lỗi
@@ -205,26 +250,28 @@ public class ManageReportFragment extends Fragment {
 
         // Cập nhật phần trăm thay đổi
         String totalChange = viewModel.formatChangePercent(summary.getTotalReportsChangePercent());
-        binding.tvTotalReportsChange.setText(totalChange + " từ kỳ trước");
+        binding.tvTotalReportsChange.setText(String.format(getString(R.string.from_previous_period), totalChange));
 
         String avgTimeChange = viewModel.formatChangePercent(summary.getAverageProcessingTimeChangePercent());
-        binding.tvAvgProcessingTimeChange.setText(avgTimeChange + " từ kỳ trước");
+        binding.tvAvgProcessingTimeChange.setText(String.format(getString(R.string.from_previous_period), avgTimeChange));
 
         // Cập nhật phần trăm báo cáo chưa xử lý
         int pendingPercent = viewModel.calculatePercentage(summary.getTotalPendingReports(), summary.getTotalReports());
-        binding.tvPendingReportsPercent.setText(pendingPercent + "% tổng số");
+        binding.tvPendingReportsPercent.setText(String.format(getString(R.string.of_total), pendingPercent));
 
         // Cập nhật biểu đồ
         updateChartsUI(summary);
     }
 
     private void updateChartsUI(ReportSummary summary) {
-        setupTrendChart(summary);
-        setupReportTypeChart(summary);
-        setupReportReasonsChart(summary);
+        updateTrendChart(summary);
+        updateReportTypeChart(summary);
+        updateReportReasonsChart(summary);
     }
 
-    private void setupTrendChart(ReportSummary summary) {
+    private void updateTrendChart(ReportSummary summary) {
+        if (binding.chartReportsTrend == null) return;
+
         LineChart chart = binding.chartReportsTrend;
         chart.clear();
 
@@ -275,7 +322,9 @@ public class ManageReportFragment extends Fragment {
         chart.invalidate();
     }
 
-    private void setupReportTypeChart(ReportSummary summary) {
+    private void updateReportTypeChart(ReportSummary summary) {
+        if (binding.chartReportsByType == null) return;
+
         PieChart chart = binding.chartReportsByType;
         chart.clear();
 
@@ -314,12 +363,14 @@ public class ManageReportFragment extends Fragment {
         chart.getLegend().setEnabled(false);
 
         // Tạo legend tùy chỉnh
-        LinearLayout legendLayout = binding.layoutReportsByTypeLegend;
-        legendLayout.removeAllViews();
+        if (binding.layoutReportsByTypeLegend != null) {
+            LinearLayout legendLayout = binding.layoutReportsByTypeLegend;
+            legendLayout.removeAllViews();
 
-        // Thêm legend items
-        addLegendItem(legendLayout, "Pin", R.color.red_pinterest, summary.getPinReports());
-        addLegendItem(legendLayout, "Bình luận", R.color.light_blue_600, summary.getCommentReports());
+            // Thêm legend items
+            addLegendItem(legendLayout, "Pin", R.color.red_pinterest, summary.getPinReports());
+            addLegendItem(legendLayout, "Bình luận", R.color.light_blue_600, summary.getCommentReports());
+        }
 
         chart.animateY(1000);
         chart.invalidate();
@@ -339,7 +390,9 @@ public class ManageReportFragment extends Fragment {
         container.addView(legendItem);
     }
 
-    private void setupReportReasonsChart(ReportSummary summary) {
+    private void updateReportReasonsChart(ReportSummary summary) {
+        if (binding.chartReportReasons == null) return;
+
         HorizontalBarChart chart = binding.chartReportReasons;
         chart.clear();
 
@@ -407,9 +460,9 @@ public class ManageReportFragment extends Fragment {
         chart.invalidate();
     }
 
-    private void navigateToReportDetail(LatestReport report) {
+    private void navigateToReportDetail(PriorityReport report) {
         // TODO: Chuyển đến màn hình chi tiết báo cáo dựa vào loại báo cáo
-        if (report.getReportType() == LatestReport.ReportType.PIN) {
+        if (report.getReportType() == PriorityReport.ReportType.PIN) {
             // Chuyển đến màn hình chi tiết báo cáo pin
             Toast.makeText(requireContext(), "Xem chi tiết báo cáo PIN " + report.getContentId(), Toast.LENGTH_SHORT).show();
         } else {
@@ -418,9 +471,9 @@ public class ManageReportFragment extends Fragment {
         }
     }
 
-    private void navigateToHandleReport(LatestReport report) {
+    private void navigateToHandleReport(PriorityReport report) {
         // TODO: Chuyển đến màn hình xử lý báo cáo
-        if (report.getReportType() == LatestReport.ReportType.PIN) {
+        if (report.getReportType() == PriorityReport.ReportType.PIN) {
             // Chuyển đến ManagePinFragment và truyền ID của pin
             Toast.makeText(requireContext(), "Xử lý báo cáo PIN " + report.getContentId(), Toast.LENGTH_SHORT).show();
         } else {

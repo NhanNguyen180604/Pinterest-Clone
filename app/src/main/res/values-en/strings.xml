@@ -487,4 +487,67 @@
 
 
 
+    <!-- Report Management Dashboard Strings -->
+    <string name="report_dashboard_title">Report Control Center</string>
+    <string name="report_dashboard_subtitle">Insight and management of user reports</string>
+    <string name="time_range_label">Time Range:</string>
+    <string name="refresh_button">Refresh</string>
+
+    <!-- Time Range Options -->
+    <string name="time_range_today">Today</string>
+    <string name="time_range_week">Last 7 days</string>
+    <string name="time_range_month">Last 30 days</string>
+    <string name="time_range_quarter">Last 3 months</string>
+    <string name="time_range_year">This year</string>
+
+    <!-- Summary Cards -->
+    <string name="pending_reports">Pending</string>
+    <string name="processing_time">Time Process</string>
+    <string name="from_previous_period">%s from previous</string>
+    <string name="of_total">%d%% of total</string>
+
+    <!-- Filter Chips -->
+    <string name="filter_all_reports">All Reports</string>
+    <string name="filter_urgent">Urgent</string>
+    <string name="filter_harmful">Harmful Content</string>
+    <string name="filter_spam">Spam</string>
+    <string name="filter_ip">IP Violations</string>
+
+    <!-- Charts and Data Visualization -->
+    <string name="report_trends">Report Trends</string>
+    <string name="report_trends_subtitle">Number of reports received over time</string>
+    <string name="activity_heatmap">Activity Heatmap</string>
+    <string name="heatmap_subtitle">Distribution of reports by day of week and hour</string>
+    <string name="report_types">Report Types</string>
+    <string name="top_reasons">Top Reasons</string>
+    <string name="details_button">Details</string>
+    <string name="heatmap_low">Low</string>
+    <string name="heatmap_medium">Medium</string>
+    <string name="heatmap_high">High</string>
+
+    <!-- Days of Week (Short) -->
+    <string name="day_sun">Sun</string>
+    <string name="day_mon">Mon</string>
+    <string name="day_tue">Tue</string>
+    <string name="day_wed">Wed</string>
+    <string name="day_thu">Thu</string>
+    <string name="day_fri">Fri</string>
+    <string name="day_sat">Sat</string>
+
+    <!-- Priority Reports Section -->
+    <string name="priority_reports_title">Reports Requiring Action</string>
+    <string name="view_all_button">View All</string>
+    <string name="no_priority_reports">No urgent reports requiring immediate action</string>
+    <string name="take_action_button">Take Action</string>
+    <string name="waiting_time_format_days">%dd %dh waiting</string>
+    <string name="waiting_time_format_hours">%dh %dm waiting</string>
+    <string name="waiting_time_format_minutes">%dm waiting</string>
+
+    <!-- Severity Levels -->
+    <string name="severity_urgent">URGENT</string>
+    <string name="severity_high">HIGH</string>
+    <string name="severity_medium">MEDIUM</string>
+    <string name="severity_low">LOW</string>
+
+
 </resources>

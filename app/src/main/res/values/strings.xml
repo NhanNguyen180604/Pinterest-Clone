@@ -408,7 +408,7 @@
         <string name="from">từ</string>
         <string name="until">đến</string>
         <string name="report_statistics">Thống kê báo cáo</string>
-        <string name="total_reports">Tổng số báo cáo</string>
+        <string name="total_reports">Tổng báo cáo</string>
         <string name="processed">Đã xử lý</string>
         <string name="unprocessed">Chưa xử lý</string>
         <string name="filter_options">Tùy chọn lọc</string>
@@ -490,5 +490,67 @@
         <string name="pin_report_statistics">Thống kê báo cáo pin</string>
     <!--========== BÊN TRÊN DÙNG CHO MANAGE PIN PAGE ==========-->
 
+
+    <!-- Report Management Dashboard Strings -->
+    <string name="report_dashboard_title">Trung tâm Quản lý Báo cáo</string>
+    <string name="report_dashboard_subtitle">Phân tích và quản lý báo cáo người dùng</string>
+    <string name="time_range_label">Khoảng thời gian:</string>
+    <string name="refresh_button">Làm mới</string>
+
+    <!-- Time Range Options -->
+    <string name="time_range_today">Hôm nay</string>
+    <string name="time_range_week">7 ngày qua</string>
+    <string name="time_range_month">30 ngày qua</string>
+    <string name="time_range_quarter">3 tháng qua</string>
+    <string name="time_range_year">Năm nay</string>
+
+    <!-- Summary Cards -->
+    <string name="pending_reports">Chưa xử lý</string>
+    <string name="processing_time">Thời gian xử lý</string>
+    <string name="from_previous_period">%s từ kỳ trước</string>
+    <string name="of_total">%d%% tổng số</string>
+
+    <!-- Filter Chips -->
+    <string name="filter_all_reports">Tất cả</string>
+    <string name="filter_urgent">Khẩn cấp</string>
+    <string name="filter_harmful">Nội dung độc hại</string>
+    <string name="filter_spam">Spam</string>
+    <string name="filter_ip">Vi phạm IP</string>
+
+    <!-- Charts and Data Visualization -->
+    <string name="report_trends">Xu hướng báo cáo</string>
+    <string name="report_trends_subtitle">Số lượng báo cáo nhận được theo thời gian</string>
+    <string name="activity_heatmap">Biểu đồ nhiệt</string>
+    <string name="heatmap_subtitle">Phân bố báo cáo theo ngày và giờ</string>
+    <string name="report_types">Loại báo cáo</string>
+    <string name="top_reasons">Lý do phổ biến</string>
+    <string name="details_button">Chi tiết</string>
+    <string name="heatmap_low">Thấp</string>
+    <string name="heatmap_medium">Trung bình</string>
+    <string name="heatmap_high">Cao</string>
+
+    <!-- Days of Week (Short) -->
+    <string name="day_sun">CN</string>
+    <string name="day_mon">T2</string>
+    <string name="day_tue">T3</string>
+    <string name="day_wed">T4</string>
+    <string name="day_thu">T5</string>
+    <string name="day_fri">T6</string>
+    <string name="day_sat">T7</string>
+
+    <!-- Priority Reports Section -->
+    <string name="priority_reports_title">Báo cáo cần xử lý</string>
+    <string name="view_all_button">Xem tất cả</string>
+    <string name="no_priority_reports">Không có báo cáo khẩn cấp nào cần xử lý ngay</string>
+    <string name="take_action_button">Xử lý</string>
+    <string name="waiting_time_format_days">Chờ %d ngày %d giờ</string>
+    <string name="waiting_time_format_hours">Chờ %d giờ %d phút</string>
+    <string name="waiting_time_format_minutes">Chờ %d phút</string>
+
+    <!-- Severity Levels -->
+    <string name="severity_urgent">KHẨN CẤP</string>
+    <string name="severity_high">CAO</string>
+    <string name="severity_medium">TRUNG BÌNH</string>
+    <string name="severity_low">THẤP</string>
 
 </resources>
