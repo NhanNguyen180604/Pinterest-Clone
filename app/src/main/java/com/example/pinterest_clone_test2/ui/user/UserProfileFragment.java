@@ -96,7 +96,7 @@ public class UserProfileFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null && viewModel.getUserId() != null && viewModel.getUserId().equals(currentUser.getUid())) {
             isSelf = true;
-            binding.btnFollow.setVisibility(View.GONE);
+            binding.linearLayout2.setVisibility(View.GONE);
         }
 
         if (viewModel.getUserId() != null) {

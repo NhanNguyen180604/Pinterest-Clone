@@ -372,6 +372,7 @@
     <string name="unban_button">UNBAN</string>
     <string name="no_users_found">No users found</string>
     <string name="no_banned_users">No banned users found</string>
+    <string name="user_banned">Your account has been banned</string>
     <string name="user_avatar_desc">User avatar</string>
     <string name="placeholder_username">Username</string>
     <string name="placeholder_email">User email</string>
