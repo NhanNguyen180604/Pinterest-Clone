@@ -60,7 +60,6 @@
     <string name="report_description_placeholder">Mô tả báo cáo</string>
     <string name="report_title_placeholder">Tiêu đề báo cáo</string>
     <string name="comment_report_modal_title">Tạo một bảng báo cáo</string>
-    <string name="cancel">Hủy</string>
     <string name="report_option">Báo cáo</string>
     <string name="block_user_option">Chặn người dùng</string>
     <string name="close_string">Đóng</string>
@@ -84,7 +83,7 @@
     <string name="collaborators">Người cộng tác</string>
     <string name="board_name">Tên bảng</string>
     <string name="add_collaborators">Thêm người cộng tác</string>
-    <string name="privacy">Quyền riêng tư</string>
+    <string name="privacy">Quyền riêng tư và dữ liệu</string>
     <string name="make_this_board_secret">Bật chế độ riêng tư cho bảng này</string>
     <string name="board_privacy_description">Chỉ có bạn và những người cộng tác mới có thể xem được bảng này</string>
     <string name="title_activity_admin">Trang admin</string>
@@ -136,7 +135,6 @@
     <string name="collage">Ghim ghép</string>
     <string name="collages">Ghim ghép</string>
     <string name="start_creating_now">Bắt đầu tạo ngay</string>
-    <string name="close">Đóng</string>
     <string name="btn_share_account">Chia sẻ tài khoản</string>
     <string name="follow">Theo dõi</string>
     <string name="other_actions">thao tác khác</string>
@@ -149,7 +147,6 @@
     <string name="follow_failed">Theo dõi thất bại: </string>
     <string name="update">Cập nhật</string>
     <string name="email" translatable="false">Email</string>
-    <string name="placeholder_email" translatable="false">placeholder@gmail.com</string>
     <string name="old_password">Mật khẩu cũ</string>
     <string name="enter_old_password">Nhập mật khẩu cũ</string>
     <string name="new_password">Mật khẩu mới</string>
@@ -313,4 +310,302 @@
     <string name="invalid_video_content">URL không chứa nội dung video hợp lệ</string>
     <string name="failed_validate_video">Không thể xác thực video: %1$s</string>
     <string name="error_video_validator">Lỗi khởi tạo trình xác thực video</string>
+    <string name="error_open_pin_detail">Không thể mở chi tiết pin</string>
+    <string name="error_open_board_detail">Không thể mở chi tiết bảng</string>
+    <string name="created">Đã tạo</string>
+    <string name="all_saved_pins">"Tất cả các Ghim đã lưu"</string>
+    <string name="favorites">Yêu thích</string>
+    <string name="created_by_you">Tạo bởi bạn</string>
+    <string name="group">Nhóm</string>
+    <string name="archived">Lưu trữ</string>
+    <string name="copy_link">Sao chép liên kết</string>
+    <string name="copied">Đã sao chép</string>
+    <string name="send">Gửi</string>
+    <string name="alt_text">Mô tả thay thế</string>
+    <string name="et_pin_alt_text_hint">Mô tả các chi tiết hình ảnh ghim của bạn</string>
+    <string name="pin_alt_text_reasoning">Điều này giúp cho những người khiếm thị hiểu được nội dung ghim của bạn</string>
+    <string name="engagement_settings">Tùy chỉnh tương tác</string>
+    <string name="remove_pin_from_profile_failure">Đã có lỗi khi xóa ghim ra khỏi trang cá nhân</string>
+    <string name="zero_pin">0 ghim</string>
+    <string name="updates">Cập nhật mới</string>
+    <string name="messages">Tin nhắn mới</string>
+    <string name="notification_time_stamp_1">1 giờ</string>
+    <string name="notification_time_stamp_2">1 ngày</string>
+    <string name="notification_time_stamp_3">1 tuần</string>
+    <string name="notification_title_1">Đây có thể là cảm giác của bạn</string>
+    <string name="notification_title_2">Giống như phong cách của bạn</string>
+    <string name="notification_title_3">Bạn sẽ thích những ghim này</string>
+    <string name="notification_title_4">Lấy cảm hứng từ bạn</string>
+    <string name="notification_title_5">Các ý tưởng này quá hợp với bạn</string>
+    <string name="notification_title_6">Bạn tinh mắt đấy</string>
+    <string name="notification_title">Tiêu đề thông báo</string>
+    <string name="new_message">Tạo tin nhắn mới</string>
+    <string name="contact">Liên hệ</string>
+    <string name="invite_your_friends">Mời bạn bè của bạn</string>
+    <string name="invite_friend_description">Kết nối để bắt đầu trò chuyện</string>
+    <string name="privacy_policy">Chính sách quyền riêng tư</string>
+    <string name="terms_of_service">Điều khoản dịch vụ</string>
+    <string name="support">Hỗ trợ</string>
+    <string name="profile_visibility">Chế độ hiển thị hồ sơ</string>
+    <string name="home_feed_tuner">Bộ điều chỉnh bảng tin nhà</string>
+    <string name="claimed_accounts">Tài khoản bên ngoài đã xác nhận</string>
+    <string name="social_permissions">Quyền và hoạt động mạng xã hội</string>
+    <string name="report_and_violations_center">Cổng thông tin báo cáo vi phạm</string>
+    <string name="add_account">Thêm tài khoản</string>
+    <string name="security">Bảo mật</string>
+    <string name="be_a_beta_tester">Làm người thử nghiệm beta</string>
+    <string name="help_center">Trung tâm Trợ giúp</string>
+    <string name="message">Tin nhắn</string>
+    <string name="manage_comments_title">Quản lý bình luận</string>
+    <string name="search_comments_hint">Tìm kiếm bình luận</string>
+    <string name="status">Trạng thái</string>
+    <string name="report_reason">Lý do báo cáo</string>
+    <string name="from_date">Từ ngày</string>
+    <string name="to_date">Đến ngày</string>
+    <string name="start_date">Ngày bắt đầu</string>
+    <string name="end_date">Ngày kết thúc</string>
+    <string name="select_date">Chọn ngày</string>
+    <string name="mark_as_checked">Đánh dấu đã kiểm tra</string>
+    <string name="status_checked">Đã kiểm tra</string>
+    <string name="status_unchecked">Chưa kiểm tra</string>
+    <string name="report_count_format">%d báo cáo</string>
+
+    <string-array name="sort_options">
+        <item>Báo cáo mới nhất</item>
+        <item>Báo cáo cũ nhất</item>
+        <item>Bình luận mới nhất</item>
+        <item>Bình luận cũ nhất</item>
+        <item>Số báo cáo giảm dần</item>
+        <item>Số báo cáo tăng dần</item>
+    </string-array>
+
+    <string-array name="status_filter_options">
+        <item>Tất cả trạng thái</item>
+        <item>Chưa kiểm tra</item>
+        <item>Đã kiểm tra</item>
+    </string-array>
+    <string name="refresh">Làm mới</string>
+    <string name="statistics">Thống kê</string>
+    <string name="admin_page_title">Quản trị viên</string>
+
+    <!--========== BÊN DƯỚI DÙNG CHO MANAGE USER PAGE ==========-->
+    <string name="filter_users">Lọc người dùng</string>
+    <string name="apply">Áp dụng</string>
+    <string name="all_users">Tất cả</string>
+    <string name="admin_users">Quản trị viên</string>
+    <string name="regular_users">Người dùng</string>
+    <string name="search_user_hint">Tìm kiếm người dùng</string>
+    <string name="user_state_normal">BÌNH THƯỜNG</string>
+    <string name="user_state_banned">BỊ CẤM</string>
+    <string name="ban_button">CẤM</string>
+    <string name="unban_button">BỎ CẤM</string>
+    <string name="no_users_found">Không có người dùng nào</string>
+    <string name="no_banned_users">Không có người dùng nào bị cấm</string>
+    <string name="user_banned">Tài khoản của bạn đã bị cấm</string>
+    <string name="user_avatar_desc">Ảnh đại diện người dùng</string>
+    <string name="placeholder_username">Tên người dùng</string>
+    <string name="placeholder_email">Email người dùng</string>
+    <string name="more_options_desc">Thêm tùy chọn</string>
+    <string name="ban_user">Cấm</string>
+    <string name="unban_user">Bỏ cấm</string>
+    <string name="change_role">Thay đổi vai trò</string>
+    <string name="make_admin">Đặt làm Admin</string>
+    <string name="make_user">Đặt làm Người dùng</string>
+    <string name="cancel">Hủy</string>
+    <string name="updating_role">Đang cập nhật vai trò...</string>
+    <string name="role_updated_successfully">Đã cập nhật vai trò thành công</string>
+    <string name="failed_to_update_role">Không thể cập nhật vai trò</string>
+    <string name="banned_user_success">Đã chặn %s</string>
+    <string name="unbanned_user_success">Đã bỏ chặn %s</string>
+    <string name="error_message">Lỗi: %s</string>
+    <!--========== BÊN TRÊN DÙNG CHO MANAGE USER PAGE ==========-->
+
+    <!--========== BÊN DƯỚI DÙNG CHO MANAGE COMMENT PAGE ==========-->
+    <string name="reason_prefix">Lý do:</string>
+    <string name="filter_comments">Lọc bình luận</string>
+    <string name="process">Xử lý</string>
+    <string name="view_pin">Xem bài đăng</string>
+    <string name="no_reported_comments">Không có bình luận bị báo cáo</string>
+    <string name="status_all">Tất cả trạng thái</string>
+    <string name="all_reasons">Tất cả lý do</string>
+    <string name="date_range">Phạm vi ngày</string>
+    <string name="sort_by_newest">Mới nhất trước</string>
+    <string name="reset_filters">Xóa bộ lọc</string>
+    <string name="filters_reset">Đã xóa bộ lọc</string>
+    <string name="date_filtered">Đã lọc theo ngày</string>
+    <string name="filter_by_status">Lọc theo trạng thái</string>
+    <string name="filter_by_reason">Lọc theo lý do</string>
+    <string name="filter_by_date">Lọc theo ngày</string>
+    <string name="today">Hôm nay</string>
+    <string name="last_week">7 ngày qua</string>
+    <string name="last_month">30 ngày qua</string>
+    <string name="custom_range">Tùy chỉnh</string>
+    <string name="custom_date_range">Phạm vi ngày tùy chỉnh</string>
+    <string name="select_start_date">Chọn ngày bắt đầu</string>
+    <string name="select_end_date">Chọn ngày kết thúc</string>
+    <string name="clear">Xóa</string>
+    <string name="sort_by">Sắp xếp theo</string>
+    <string name="sort_by_oldest">Cũ nhất trước</string>
+    <string name="sort_by_most_reports">Nhiều báo cáo nhất</string>
+    <string name="sort_by_least_reports">Ít báo cáo nhất</string>
+    <string name="marked_as_checked">Đã đánh dấu đã kiểm tra</string>
+    <string name="error_occurred">Đã xảy ra lỗi</string>
+    <string name="notification_sent">Đã gửi thông báo</string>
+    <string name="delete_confirm_title">Xác nhận xóa</string>
+    <string name="delete_comment_confirm">Bạn có chắc chắn muốn xóa bình luận này? Hành động này không thể hoàn tác.</string>
+    <string name="comment_deleted">Đã xóa bình luận</string>
+    <string name="error_deleting_comment">Lỗi khi xóa bình luận</string>
+    <string name="mark_as_checked_confirm">Bạn có chắc chắn muốn đánh dấu báo cáo này là đã kiểm tra?</string>
+    <string name="confirm">Xác nhận</string>
+    <string name="delete_comment">Xóa bình luận</string>
+    <string name="process_report">Xử lý báo cáo</string>
+    <string name="post_not_found">Không tìm thấy bài đăng</string>
+    <string name="error_loading_post">Lỗi khi tải bài đăng</string>
+    <string name="user_not_found">Không tìm thấy người dùng</string>
+    <string name="report_details">Chi tiết báo cáo</string>
+    <string name="content_label">Nội dung</string>
+    <string name="author_label">Tác giả</string>
+    <string name="comment_time_label">Thời gian bình luận</string>
+    <string name="reports_count_label">Số lượng báo cáo</string>
+    <string name="last_report_time_label">Thời gian báo cáo gần nhất</string>
+    <string name="report_reasons_label">Lý do báo cáo</string>
+    <string name="reports">báo cáo</string>
+    <string name="close">Đóng</string>
+    <string name="status_label">Trạng thái</string>
+    <string name="reason_label">Lý do</string>
+    <string name="date_label">Ngày</string>
+    <string name="sort_label">Sắp xếp</string>
+    <string name="from">từ</string>
+    <string name="until">đến</string>
+    <string name="report_statistics">Thống kê báo cáo</string>
+    <string name="total_reports">Tổng báo cáo</string>
+    <string name="processed">Đã xử lý</string>
+    <string name="unprocessed">Chưa xử lý</string>
+    <string name="filter_options">Tùy chọn lọc</string>
+    <string name="select_date_range">Chọn phạm vi ngày</string>
+    <!--========== BÊN TRÊN DÙNG CHO MANAGE COMMENT PAGE ==========-->
+
+    <!--========== BÊN DƯỚI DÙNG CHO MANAGE PIN PAGE ==========-->
+    <string name="filter_by_pin_type">Lọc theo loại pin</string>
+    <string name="pin_type_dropdown">Chọn loại pin</string>
+    <string name="image_pins">Pin hình ảnh</string>
+    <string name="gif_pins">Pin GIF</string>
+    <string name="video_pins">Pin video</string>
+    <string name="pin_details">Chi tiết pin</string>
+    <string name="pin_stats">Thống kê pin</string>
+    <string name="pin_report_title">Báo cáo pin</string>
+    <string name="pin_author_info">Thông tin tác giả</string>
+    <string name="most_reported_pins">Pin bị báo cáo nhiều nhất</string>
+    <string name="recent_reported_pins">Pin bị báo cáo gần đây</string>
+    <string name="pins_by_category">Pin theo danh mục</string>
+    <string name="pins_by_date">Pin theo ngày</string>
+    <string name="total_pins">Tổng số pin</string>
+    <string name="active_pins">Pin đang hoạt động</string>
+    <string name="inactive_pins">Pin không hoạt động</string>
+    <string name="loading_pins">Đang tải pin...</string>
+    <string name="process_pin_report">Xử lý báo cáo pin</string>
+    <string name="ban_pin_author">Cấm tác giả pin</string>
+    <string name="pin_report_history">Lịch sử báo cáo pin</string>
+    <string name="first_reported_at">Báo cáo đầu tiên lúc</string>
+    <string name="view_all_pins">Xem tất cả pin</string>
+    <string name="similar_pins">Pin tương tự</string>
+    <string name="report_detail_title">Chi tiết báo cáo</string>
+    <string name="mark_pin_checked">Đánh dấu đã kiểm tra</string>
+    <string name="delete_pin_confirm_message">Xóa pin này sẽ xóa vĩnh viễn nó khỏi hệ thống và không thể khôi phục.</string>
+    <string name="reporter_info">Thông tin người báo cáo</string>
+    <string name="multiple_reporters">Nhiều người báo cáo</string>
+    <string name="view_related_pins">Xem pin liên quan</string>
+    <string name="manage_pin_title">Quản lý pin</string>
+    <string name="pin_status_changed">Đã thay đổi trạng thái pin</string>
+    <string name="pin_report_processed">Đã xử lý báo cáo pin</string>
+    <string name="type_to_search_pin">Nhập để tìm pin...</string>
+    <string name="admin_action_required">Yêu cầu hành động của quản trị viên</string>
+    <string name="urgent_reports">Báo cáo khẩn cấp</string>
+    <string name="not_urgent_reports">Báo cáo không khẩn cấp</string>
+    <string name="report_source">Nguồn báo cáo</string>
+    <string name="export_report_data">Xuất dữ liệu báo cáo</string>
+    <string name="priority_high">Ưu tiên cao</string>
+    <string name="priority_medium">Ưu tiên trung bình</string>
+    <string name="priority_low">Ưu tiên thấp</string>
+    <string name="pin_filter_summary">Tóm tắt bộ lọc pin</string>
+    <string name="reset_all_pin_filters">Xóa tất cả bộ lọc pin</string>
+    <string name="no_pin_reports_found">Không tìm thấy báo cáo pin nào</string>
+    <string name="no_matching_pins">Không có pin phù hợp với bộ lọc</string>
+    <string name="processing">Đang xử lý...</string>
+    <string name="processing_complete">Đã xử lý xong</string>
+    <string name="confirm_action">Xác nhận hành động</string>
+    <string name="view_media">Xem nội dung</string>
+    <string name="reported_x_days_ago">Bị báo cáo cách đây %d ngày</string>
+    <string name="media_type">Loại nội dung</string>
+    <string name="pin_image_description">Hình ảnh pin bị báo cáo</string>
+    <string name="view_details">Xem chi tiết</string>
+    <string name="no_reported_pins">Không có pin bị báo cáo</string>
+    <string name="all_pin_types">Tất cả loại pin</string>
+    <string name="filter_pins">Lọc pin</string>
+    <string name="search_pins_hint">Tìm kiếm pin bị báo cáo</string>
+    <string name="pin_type_unknown">Không xác định</string>
+    <string name="pin_type_image">Hình ảnh</string>
+    <string name="pin_type_gif">GIF</string>
+    <string name="pin_type_video">Video</string>
+    <string name="pin_type_label">Loại</string>
+    <string name="pin_title_label">Tiêu đề:</string>
+    <string name="pin_description_label">Mô tả:</string>
+    <string name="pin_time_label">Thời gian đăng:</string>
+    <string name="report_details_pin">Chi tiết báo cáo pin</string>
+    <string name="mark_as_checked_confirm_pin">Bạn có chắc chắn muốn đánh dấu báo cáo pin này là đã kiểm tra?</string>
+    <string name="delete_pin_confirm">Bạn có chắc chắn muốn xóa pin này? Hành động này không thể hoàn tác.</string>
+    <string name="pin_deleted">Đã xóa pin</string>
+    <string name="error_deleting_pin">Lỗi khi xóa pin</string>
+    <string name="total_pin_reports">Tổng số pin bị báo cáo</string>
+    <string name="pin_report_statistics">Thống kê báo cáo pin</string>
+    <!--========== BÊN TRÊN DÙNG CHO MANAGE PIN PAGE ==========-->
+
+    <!--========== BÊN DƯỚI DÙNG CHO MANAGE REPORT PAGE ==========-->
+    <string name="report_dashboard_title">Trung tâm Quản lý Báo cáo</string>
+    <string name="report_dashboard_subtitle">Phân tích và quản lý báo cáo người dùng</string>
+    <string name="time_range_label">Khoảng thời gian:</string>
+    <string name="refresh_button">Làm mới</string>
+    <string name="time_range_today">Hôm nay</string>
+    <string name="time_range_week">7 ngày qua</string>
+    <string name="time_range_month">30 ngày qua</string>
+    <string name="time_range_quarter">3 tháng qua</string>
+    <string name="time_range_year">Năm nay</string>
+    <string name="pending_reports">Chưa xử lý</string>
+    <string name="processing_time">Thời gian xử lý</string>
+    <string name="from_previous_period">%s từ kỳ trước</string>
+    <string name="of_total">%d%% tổng số</string>
+    <string name="filter_all_reports">Tất cả</string>
+    <string name="filter_urgent">Khẩn cấp</string>
+    <string name="filter_harmful">Nội dung độc hại</string>
+    <string name="filter_spam">Spam</string>
+    <string name="filter_ip">Vi phạm IP</string>
+    <string name="report_trends">Xu hướng báo cáo</string>
+    <string name="report_trends_subtitle">Số lượng báo cáo nhận được theo thời gian</string>
+    <string name="activity_heatmap">Biểu đồ nhiệt</string>
+    <string name="heatmap_subtitle">Phân bố báo cáo theo ngày và giờ</string>
+    <string name="report_types">Loại báo cáo</string>
+    <string name="top_reasons">Lý do phổ biến</string>
+    <string name="details_button">Chi tiết</string>
+    <string name="heatmap_low">Thấp</string>
+    <string name="heatmap_medium">Trung bình</string>
+    <string name="heatmap_high">Cao</string>
+    <string name="day_sun">CN</string>
+    <string name="day_mon">T2</string>
+    <string name="day_tue">T3</string>
+    <string name="day_wed">T4</string>
+    <string name="day_thu">T5</string>
+    <string name="day_fri">T6</string>
+    <string name="day_sat">T7</string>
+    <string name="priority_reports_title">Báo cáo cần xử lý</string>
+    <string name="view_all_button">Xem tất cả</string>
+    <string name="no_priority_reports">Không có báo cáo khẩn cấp nào cần xử lý ngay</string>
+    <string name="take_action_button">Xử lý</string>
+    <string name="waiting_time_format_days">Chờ %d ngày %d giờ</string>
+    <string name="waiting_time_format_hours">Chờ %d giờ %d phút</string>
+    <string name="waiting_time_format_minutes">Chờ %d phút</string>
+    <string name="severity_urgent">KHẨN CẤP</string>
+    <string name="severity_high">CAO</string>
+    <string name="severity_medium">TRUNG BÌNH</string>
+    <string name="severity_low">THẤP</string>
+    <!--========== BÊN TRÊN DÙNG CHO MANAGE REPORT PAGE ==========-->
 </resources>

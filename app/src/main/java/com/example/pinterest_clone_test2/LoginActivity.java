@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.pinterest_clone_test2.models.User;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.auth.FragmentLogin;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterBirthdate;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterEmail;
@@ -18,11 +19,13 @@ import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterInterests;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterName;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterPassword;
 import com.example.pinterest_clone_test2.ui.auth.FragmentStartScreen;
+import com.example.pinterest_clone_test2.utils.LoadingDialog;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     FragmentManager fragmentManager;
     FirebaseAuth auth;
     FirebaseFirestore db;
+    private LoadingDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        loadingDialog = new LoadingDialog(this);
 
         user = new User();
         fragmentManager = getSupportFragmentManager();
@@ -50,6 +55,18 @@ public class LoginActivity extends AppCompatActivity {
                 .replace(R.id.login_fragment_container, new FragmentStartScreen())
                 .addToBackStack(null)
                 .commit();
+    }
+
+    public void showLoading() {
+        if (loadingDialog != null) {
+            loadingDialog.show();
+        }
+    }
+
+    public void hideLoading() {
+        if (loadingDialog != null) {
+            loadingDialog.dismiss();
+        }
     }
 
     public void startRegisterFlow() {
@@ -105,6 +122,7 @@ public class LoginActivity extends AppCompatActivity {
                 .addToBackStack(null)
                 .commit();
     }
+
     public void registerInterests(List<String> interests) {
         // Convert localized tags back to English for storage
         user.setInterests(interests);
@@ -114,6 +132,7 @@ public class LoginActivity extends AppCompatActivity {
     public void login(String email, String password) {
         user.setEmail(email);
         currentPassword = password;
+        showLoading(); // Show loading dialog
         loginUserEmailPassword();
     }
 
@@ -148,42 +167,28 @@ public class LoginActivity extends AppCompatActivity {
                     userInfos.put("blockedCollages", new ArrayList<String>());
                     userInfos.put("website", "");
 
-//                    Task<DocumentReference> updateUserInfoTask = db.collection("users")
-//                            .add(userInfos);
-
-
-//                    Task<Void> updateUserInfoTask = db.collection("users")
-//                            .document(firebaseUser.getUid())
-//                            .set(userInfos);
-//
-//                    Tasks.whenAllSuccess(updateProfileTask, updateUserInfoTask)
-//                            .addOnSuccessListener(objects -> {
-//                                Log.d("firebase-cloud-firestore", "User profile updated & Firestore data added successfully");
-//
-//                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                                startActivity(intent);
-//                                finish();
-//                            })
-//                            .addOnFailureListener(e -> {
-//                                Log.e("firebase-cloud-firestore", "Error initializing user data", e);
-//                                Toast.makeText(LoginActivity.this, "Lỗi khi khởi tạo thông tin người dùng", Toast.LENGTH_SHORT).show();
-//                            });
                     new Handler().postDelayed(() -> db.collection("users")
                             .document(firebaseUser.getUid())
                             .set(userInfos)
                             .addOnSuccessListener(objects -> {
                                 Log.d("firebase-cloud-firestore", "User profile updated & Firestore data added successfully");
 
+                                hideLoading(); // Hide loading dialog before navigation
+
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 finish();
                             })
                             .addOnFailureListener(e -> {
+                                hideLoading(); // Hide loading dialog on failure
+
                                 Log.e("firebase-cloud-firestore", "Error initializing user data", e);
                                 Toast.makeText(LoginActivity.this, getResources().getString(R.string.user_info_init_failure), Toast.LENGTH_SHORT).show();
                             }), 1000);
                 })
                 .addOnFailureListener(this, e -> {
+                    hideLoading(); // Hide loading dialog on failure
+
                     Toast.makeText(LoginActivity.this, getResources().getString(R.string.register_failure), Toast.LENGTH_SHORT).show();
                     Log.e("firebase-auth-singup", "Error signing up", e);
                     fragmentManager.beginTransaction()
@@ -194,15 +199,60 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     void loginUserEmailPassword() {
+        showLoading();
+
         auth.signInWithEmailAndPassword(user.getEmail(), currentPassword)
                 .addOnSuccessListener(authResult -> {
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    // Get the current user ID
+                    FirebaseUser firebaseUser = auth.getCurrentUser();
+                    assert firebaseUser != null;
+                    String userId = firebaseUser.getUid();
+
+                    Log.d("LoginActivity", "Login successful for userId: " + userId);
+
+                    // Directly check if this specific user is banned
+                    db.collection("bannedUsers")
+                            .whereEqualTo("userId", userId)
+                            .get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    Log.d("LoginActivity", "Ban check query successful. Results: " + task.getResult().size());
+
+                                    if (!task.getResult().isEmpty()) {
+                                        // User is banned
+                                        Log.d("LoginActivity", "User is BANNED - signing out");
+                                        Toast.makeText(LoginActivity.this, getResources().getString(R.string.user_banned), Toast.LENGTH_LONG).show();
+
+                                        // Sign out the user
+                                        auth.signOut();
+                                        hideLoading();
+                                    } else {
+                                        // User is not banned, proceed to MainActivity
+                                        Log.d("LoginActivity", "User is not banned - proceeding to MainActivity");
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                } else {
+                                    // Error checking banned status, log it
+                                    Log.e("LoginActivity", "Error checking banned status", task.getException());
+
+                                    // For security reasons, if we can't determine ban status,
+                                    // we should sign the user out rather than proceeding
+                                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+                                    auth.signOut();
+                                }
+                            });
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(LoginActivity.this, getResources().getString(R.string.login_failure), Toast.LENGTH_SHORT).show();
-                    Log.e("firebase-auth-login", "Error logging in", e);
+                    Log.e("LoginActivity", "Error logging in", e);
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        hideLoading(); // Ensure dialog is dismissed when activity is destroyed
     }
 }

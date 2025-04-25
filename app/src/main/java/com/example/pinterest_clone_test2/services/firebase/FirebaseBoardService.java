@@ -1,8 +1,15 @@
 package com.example.pinterest_clone_test2.services.firebase;
 
+import static androidx.core.content.ContextCompat.getString;
+
+import android.content.Context;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.models.Board;
+import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -10,6 +17,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -45,6 +53,104 @@ public abstract class FirebaseBoardService {
                     currentUserBoardListUpdated = false;
                 })
                 .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void getUserBoardsByUserId(String userId, boolean publicOnly, GetUserBoardsCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        // Tạo truy vấn cơ bản
+        Query query = firestore.collection("boards")
+                .whereEqualTo("userId", userId);
+
+        if (publicOnly) {
+            query = query.whereEqualTo("isPublic", true);
+        }
+
+        query.get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Board> boards = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Board board = doc.toObject(Board.class);
+                        if (board != null) {
+                            board.setId(doc.getId());
+                            boards.add(board);
+                        }
+                    }
+                    callback.OnSuccess(boards);
+                })
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void createAllPinsBoard(Context context, String userId, CreateAllPinsBoardCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        // Lấy thông tin người dùng để lấy danh sách pins
+        firestore.collection("users")
+                .whereEqualTo("userId", userId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<DocumentSnapshot> documents = queryDocumentSnapshots.getDocuments();
+                    if (documents.isEmpty()) {
+                        callback.OnFailure(new Exception("User not found"));
+                        return;
+                    }
+
+                    DocumentSnapshot userDoc = documents.get(0);
+                    List<String> userPinIds = (List<String>) userDoc.get("pins");
+
+                    if (userPinIds == null || userPinIds.isEmpty()) {
+                        callback.OnEmpty();
+                        return;
+                    }
+
+                    // Tạo board "Tất cả Ghim"
+                    Board allPinsBoard = new Board()
+                            .setId("all_pins_" + userId)
+                            .setName(getString(context, R.string.all) + " " + getString(context, R.string.pins))
+                            .setDescription(getString(context, R.string.all_saved_pins))
+                            .setAuthorId(userId)
+                            .setPublic(true)
+                            .setPins(userPinIds);
+
+                    // Tải pins cho board này
+                    FirebasePinService.fetchPinsFromIds(userPinIds, new FirebasePinService.OnPinsFetchedFromIdsCallback() {
+                        @Override
+                        public void onSuccess(List<Pin> pins) {
+                            allPinsBoard.setPinsObj(pins);
+                            callback.OnSuccess(allPinsBoard);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            // Vẫn trả về board nếu không tải được pins
+                            allPinsBoard.setPinsObj(new ArrayList<>());
+                            callback.OnSuccess(allPinsBoard);
+                        }
+                    });
+                })
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void fetchPinsForBoard(Board board, FetchPinsForBoardCallback callback) {
+        if (board.getPins() != null && !board.getPins().isEmpty()) {
+            FirebasePinService.fetchPinsFromIds(board.getPins(), new FirebasePinService.OnPinsFetchedFromIdsCallback() {
+                @Override
+                public void onSuccess(List<Pin> pins) {
+                    board.setPinsObj(pins);
+                    callback.OnSuccess(board);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    board.setPinsObj(new ArrayList<>());
+                    callback.OnFailure(e);
+                }
+            });
+        } else {
+            board.setPinsObj(new ArrayList<>());
+            callback.OnSuccess(board);
+        }
     }
 
     public static void createNewBoard(@NonNull Board board, CreateBoardServiceCallback callback) {
@@ -87,6 +193,17 @@ public abstract class FirebaseBoardService {
                             .addOnSuccessListener(documentReference -> {
                                 currentUserBoardListUpdated = true;
                                 callback.OnSuccess(documentReference);
+
+                                firestore.collection("users")
+                                        .document(currentUser.getUid())
+                                        .update("boards", FieldValue.arrayUnion(documentReference.getId()))
+                                        .addOnSuccessListener(unused -> Log.d("FirebaseBoardService", "Added board " + documentReference.getId() + " to profile"))
+                                        .addOnFailureListener(e -> {
+                                            Log.e("FirebaseBoardService", "Failed to add board " + documentReference.getId() + " to profile");
+                                            if (e.getMessage() != null) {
+                                                Log.e("FirebaseBoardService", e.getMessage());
+                                            }
+                                        });
                             })
                             .addOnFailureListener(callback::OnFailure);
                 })
@@ -119,6 +236,26 @@ public abstract class FirebaseBoardService {
 
     public interface SavePinToBoardServiceCallback {
         void OnSuccess();
+
+        void OnFailure(Exception e);
+    }
+
+    public interface GetUserBoardsCallback {
+        void OnSuccess(List<Board> boards);
+
+        void OnFailure(Exception e);
+    }
+
+    public interface CreateAllPinsBoardCallback {
+        void OnSuccess(Board allPinsBoard);
+
+        void OnEmpty();
+
+        void OnFailure(Exception e);
+    }
+
+    public interface FetchPinsForBoardCallback {
+        void OnSuccess(Board board);
 
         void OnFailure(Exception e);
     }

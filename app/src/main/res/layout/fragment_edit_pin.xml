@@ -86,7 +86,6 @@
                 android:id="@+id/tv_pin_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
                 android:layout_marginTop="28dp"
                 android:text="@string/titleView"
                 android:textColor="@color/black"
@@ -110,7 +109,6 @@
                 android:id="@+id/tv_pin_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
                 android:layout_marginTop="12dp"
                 android:text="@string/descriptionView"
                 android:textColor="@color/black"
@@ -194,19 +192,90 @@
                 app:layout_constraintTop_toTopOf="@id/cv_board_image" />
 
             <TextView
-                android:id="@+id/tv_allow_comments"
+                android:id="@+id/tv_pin_website"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="Website"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cv_board_image" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/et_pin_website"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rounded_text_input_background"
+                android:padding="12dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/tv_pin_website" />
+
+            <TextView
+                android:id="@+id/tv_pin_alt_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="@string/alt_text"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/et_pin_website" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/et_pin_alt_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rounded_text_input_background"
+                android:hint="@string/et_pin_alt_text_hint"
+                android:padding="12dp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/tv_pin_alt_text" />
+
+            <TextView
+                android:id="@+id/tv_alt_text_description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/allow_comments"
+                android:layout_marginTop="12dp"
+                android:text="@string/pin_alt_text_reasoning"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toStartOf="@id/switch_allow_comments"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/cv_board_image" />
+                app:layout_constraintTop_toBottomOf="@id/et_pin_alt_text" />
+
+            <TextView
+                android:id="@+id/tv_engagement_settings"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/engagement_settings"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@id/switch_allow_comments"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_alt_text_description" />
+
+            <TextView
+                android:id="@+id/tv_allow_comments"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/allow_comments"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@id/switch_allow_comments"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_engagement_settings" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_allow_comments"
+                style="@style/SelectableItemBackgroundBorderless"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="@id/tv_allow_comments"

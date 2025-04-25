@@ -93,4 +93,7 @@ dependencies {
 
     implementation(libs.okhttp)
     implementation(libs.jsoup)
+
+    // MPAndroidChart library cho Dashboard báo cáo
+    implementation(libs.mpandroidchart)
 }

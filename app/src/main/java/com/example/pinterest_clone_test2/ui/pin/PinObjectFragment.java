@@ -76,6 +76,7 @@ public class PinObjectFragment extends Fragment {
     PinObjectViewModel viewModel;
     private Pin pin;
     boolean isBlocked = false;
+    boolean savedToBoard = false;
     User author = new User();
     FragmentPinObjectBinding binding;
     String source;
@@ -300,6 +301,7 @@ public class PinObjectFragment extends Fragment {
                 //eat exception
             }
             if (pinIds != null && !pinIds.isEmpty() && pinIds.contains(pin.getId())) {
+                savedToBoard = true;
                 handler.post(() -> {
                     binding.btnSave.setText(getString(R.string.saved));
                     binding.btnSave.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.gray_button_pinterest));
@@ -331,6 +333,7 @@ public class PinObjectFragment extends Fragment {
                 board.setId(document.getId());
                 if (pin != null && board.getPins() != null && board.getPins().contains(pin.getId())) {
                     handler.post(() -> {
+                        savedToBoard = true;
                         binding.btnSave.setText(getString(R.string.saved));
                         binding.btnSave.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.gray_button_pinterest));
                         binding.btnSave.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
@@ -361,11 +364,17 @@ public class PinObjectFragment extends Fragment {
                             return;
                         }
 
+                        savedToBoard = true;
+
                         // idk if this gonna happen or not, just to make sure
                         if (pin == null) {
                             Log.e("PinObjectFragment", "pin is fucking null, at on create");
                             return;
                         }
+
+                        binding.btnSave.setText(getString(R.string.saved));
+                        binding.btnSave.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.gray_button_pinterest));
+                        binding.btnSave.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
 
                         // seems like pinterest always saves to profile
                         FirebaseUserService.savePinToProfile(pin.getId(), new FirebaseUserService.SavePinToProfileCallback() {
@@ -418,6 +427,13 @@ public class PinObjectFragment extends Fragment {
 
                         if (data.getBooleanExtra("delete", false)) {
                             getNavController().navigateUp();
+                            return;
+                        }
+
+                        if (data.getBooleanExtra("nonAuthorDelete", false)) {
+                            binding.btnSave.setText(getString(R.string.btn_save));
+                            binding.btnSave.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.red_button_pinterest));
+                            binding.btnSave.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
                             return;
                         }
 
@@ -683,7 +699,7 @@ public class PinObjectFragment extends Fragment {
                 }
                 // display normal dialog for viewers
                 else {
-                    PinNormalMoreActionModal sheet = new PinNormalMoreActionModal(pin, requireContext(), downloadPinMediaCallback, hidePinCallback);
+                    PinNormalMoreActionModal sheet = new PinNormalMoreActionModal(pin, requireContext(), savedToBoard, editPinActivityLauncher, downloadPinMediaCallback, hidePinCallback);
                     sheet.show(requireActivity().getSupportFragmentManager(), PinNormalMoreActionModal.TAG);
                 }
             } else {
@@ -757,6 +773,11 @@ public class PinObjectFragment extends Fragment {
             binding.setAuthorViewModel(author);
         }
 
+        boolean oldBoardSaved = viewModel.getBoardSavedState();
+        if (!savedToBoard) {
+            savedToBoard = oldBoardSaved;
+        }
+
         int oldPageState = viewModel.getPageState();
         if (oldPageState > 0) {
             page = oldPageState;
@@ -799,6 +820,7 @@ public class PinObjectFragment extends Fragment {
         viewModel.setRelevantPinState(relevantPins);
         viewModel.setPageState(page);
         viewModel.setRelevantPinIdsState(relevantPinIds);
+        viewModel.setBoardSavedState(savedToBoard);
 
         stopAndStoreVideoState();
         stopCheckingPinDeleted();

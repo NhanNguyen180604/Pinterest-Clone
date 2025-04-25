@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- Top Row: Severity Chip, Report Type, and Waiting Time -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_severity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="URGENT"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:chipBackgroundColor="@color/severity_urgent"
+            app:chipIcon="@drawable/ic_warning"
+            app:chipIconTint="@color/white"
+            app:chipMinHeight="28dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:textEndPadding="8dp"
+            app:textStartPadding="8dp" />
+
+        <TextView
+            android:id="@+id/tv_report_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/badge_type_background"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:text="PIN"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/chip_severity"
+            app:layout_constraintStart_toEndOf="@id/chip_severity"
+            app:layout_constraintTop_toTopOf="@id/chip_severity" />
+
+        <TextView
+            android:id="@+id/tv_waiting_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="4dp"
+            android:text="3d 5h waiting"
+            android:textColor="@color/severity_high"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            app:drawableStartCompat="@drawable/ic_time"
+            app:drawableTint="@color/severity_high"
+            app:layout_constraintBottom_toBottomOf="@id/chip_severity"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/chip_severity" />
+
+        <!-- Content Preview -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/content_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/chip_severity">
+
+            <!-- Content Thumbnail -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_content_thumbnail"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="centerCrop"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/RoundedImageView"
+                tools:src="@drawable/ic_pin_placeholder" />
+
+            <!-- Content Info -->
+            <TextView
+                android:id="@+id/tv_content_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="Content title with a potentially long name that needs to be truncated"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_content_thumbnail"
+                app:layout_constraintTop_toTopOf="@id/iv_content_thumbnail" />
+
+            <!-- Report Stats -->
+            <TextView
+                android:id="@+id/tv_report_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:drawablePadding="4dp"
+                android:text="12 reports"
+                android:textColor="@color/dark_grey"
+                android:textSize="13sp"
+                app:drawableStartCompat="@drawable/ic_flag_small"
+                app:drawableTint="@color/dark_grey"
+                app:layout_constraintStart_toStartOf="@id/tv_content_title"
+                app:layout_constraintTop_toBottomOf="@id/tv_content_title" />
+
+            <TextView
+                android:id="@+id/tv_report_reason"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:drawablePadding="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Nudity or sexual content"
+                android:textColor="@color/dark_grey"
+                android:textSize="13sp"
+                app:drawableStartCompat="@drawable/ic_reason"
+                app:drawableTint="@color/dark_grey"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tv_report_count"
+                app:layout_constraintTop_toBottomOf="@id/tv_report_count" />
+
+            <!-- Author Info -->
+            <LinearLayout
+                android:id="@+id/author_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="@id/tv_report_reason"
+                app:layout_constraintTop_toBottomOf="@id/tv_report_reason">
+
+                <ImageView
+                    android:id="@+id/iv_author_avatar"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Author avatar"
+                    app:srcCompat="@drawable/ic_user_placeholder" />
+
+                <TextView
+                    android:id="@+id/tv_author_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="Author Name"
+                    android:textColor="@color/blue_info"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Action Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_take_action"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:text="Take Action"
+            android:textAllCaps="false"
+            android:textSize="12sp"
+            app:backgroundTint="@color/red_pinterest"
+            app:cornerRadius="20dp"
+            app:icon="@drawable/ic_arrow_right"
+            app:iconGravity="end"
+            app:iconSize="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/content_preview" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

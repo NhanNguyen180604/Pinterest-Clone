@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    tools:context=".ui.notifications.MessagesListFragment">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_new_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        app:cardBackgroundColor="@color/red_pinterest"
+        app:cardCornerRadius="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn_new_message"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@null"
+            android:src="@drawable/ic_pen"
+            app:tint="@color/white" />
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/tv_new_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12sp"
+        android:text="@string/new_message"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/cv_new_message"
+        app:layout_constraintStart_toEndOf="@id/cv_new_message"
+        app:layout_constraintTop_toTopOf="@id/cv_new_message" />
+
+    <TextView
+        android:id="@+id/tv_contacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20sp"
+        android:text="@string/contact"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/cv_new_message"
+        app:layout_constraintTop_toBottomOf="@id/cv_new_message" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_add_collaborators"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12sp"
+        app:cardBackgroundColor="@color/black"
+        app:cardCornerRadius="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_contacts">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn_add_collaborators"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@null"
+            android:src="@drawable/ic_add_person"
+            app:tint="@color/white" />
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/tv_invite_your_friends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:text="@string/invite_your_friends"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/cv_add_collaborators"
+        app:layout_constraintTop_toTopOf="@id/cv_add_collaborators" />
+
+    <TextView
+        android:id="@+id/tv_invite_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:text="@string/invite_friend_description"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/cv_add_collaborators"
+        app:layout_constraintTop_toBottomOf="@id/tv_invite_your_friends" />
+</androidx.constraintlayout.widget.ConstraintLayout>

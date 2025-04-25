@@ -9,12 +9,13 @@ public class UserProfileViewModel extends ViewModel {
     // Keys for saved state
     private static final String KEY_SOURCE = "source";
     private static final String KEY_USER_ID = "userId";
-
     private static final String KEY_NAME = "name";
+    private static final String KEY_USERNAME = "username";
     private static final String KEY_AVATAR_URL = "avatarUrl";
     private static final String KEY_IS_FOLLOWING = "isFollowing";
     private static final String KEY_FOLLOWERS_COUNT = "followersCount";
     private static final String KEY_FOLLOWING_COUNT = "followingCount";
+    private static final String KEY_SELECTED_TAB = "selectedTab";
 
     public UserProfileViewModel(SavedStateHandle savedStateHandle) {
         this.savedStateHandle = savedStateHandle;
@@ -38,7 +39,7 @@ public class UserProfileViewModel extends ViewModel {
         return savedStateHandle.get(KEY_USER_ID);
     }
 
-    // UserId methods
+    // Name methods
     public void setName(String name) {
         savedStateHandle.set(KEY_NAME, name);
     }
@@ -47,7 +48,15 @@ public class UserProfileViewModel extends ViewModel {
         return savedStateHandle.get(KEY_NAME);
     }
 
-    // avatarURL methods
+    public void setUserName(String name) {
+        savedStateHandle.set(KEY_USERNAME, name);
+    }
+
+    public String getUserName() {
+        return savedStateHandle.get(KEY_USERNAME);
+    }
+
+    // AvatarURL methods
     public void setAvatarUrl(String avatarUrl) {
         savedStateHandle.set(KEY_AVATAR_URL, avatarUrl);
     }
@@ -81,5 +90,14 @@ public class UserProfileViewModel extends ViewModel {
 
     public Integer getFollowingCount() {
         return savedStateHandle.get(KEY_FOLLOWING_COUNT);
+    }
+
+    // Selected tab methods
+    public void setSelectedTab(int tabPosition) {
+        savedStateHandle.set(KEY_SELECTED_TAB, tabPosition);
+    }
+
+    public Integer getSelectedTab() {
+        return savedStateHandle.get(KEY_SELECTED_TAB);
     }
 }

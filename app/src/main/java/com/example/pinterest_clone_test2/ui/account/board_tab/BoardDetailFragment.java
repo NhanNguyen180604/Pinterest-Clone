@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,20 +21,46 @@ import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.ui.pin.PinFragment;
+import com.example.pinterest_clone_test2.ui.user.UserProfileFragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class BoardDetailFragment extends Fragment {
     private Board board;
     private List<Pin> pins;
     FragmentBoardDetailBinding binding;
+    private String source = UserProfileFragment.SOURCE_ACCOUNT;
+    private static final String TAG = "BoardDetailFragment";
+
+    private final Map<String, Integer> navHostResIds = new HashMap<>();
+    private final Map<String, Integer> navActionIds = new HashMap<>();
 
     public BoardDetailFragment() {
         // Required empty constructor
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Khởi tạo navigation mappings
+        initNavigationMappings();
+    }
+    private void initNavigationMappings() {
+        navHostResIds.put(UserProfileFragment.SOURCE_HOME, R.id.nav_host_fragment_activity_main);
+        navHostResIds.put(UserProfileFragment.SOURCE_SEARCH, R.id.nav_host_fragment_activity_main);
+        navHostResIds.put(UserProfileFragment.SOURCE_ACCOUNT, R.id.nav_host_fragment_activity_main);
+        navHostResIds.put(UserProfileFragment.SOURCE_PIN_DEEP_LINK, R.id.nav_host_fragment_activity_pin_deep_link);
+
+        navActionIds.put(UserProfileFragment.SOURCE_HOME, R.id.action_boardDetailFragment_to_pinFragment);
+        navActionIds.put(UserProfileFragment.SOURCE_SEARCH, R.id.action_boardDetailFragment_to_pinFragment2);
+        navActionIds.put(UserProfileFragment.SOURCE_ACCOUNT, R.id.action_boardDetailFragment_to_pinFragment3);
+        navActionIds.put(UserProfileFragment.SOURCE_PIN_DEEP_LINK, R.id.action_boardDetailFragmentDeepLink_to_pinFragmentDeepLink);
+    }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,8 +71,12 @@ public class BoardDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Get board object
-        board = getArguments() != null ? getArguments().getParcelable("board") : null;
+        if (getArguments() != null) {
+            board = getArguments().getParcelable("board");
+            if (getArguments().containsKey("source")) {
+                source = getArguments().getString("source", UserProfileFragment.SOURCE_ACCOUNT);
+            }
+        }
         if (board == null) return;
         binding.tvBoardTitle.setText(board.getName());
         if (board.getPins().size() > 1) {
@@ -68,20 +99,51 @@ public class BoardDetailFragment extends Fragment {
         binding.progressLoading.setVisibility(View.GONE);
     }
 
+    private NavController getNavController() {
+        int navHostId = navHostResIds.getOrDefault(source, R.id.nav_host_fragment_activity_main);
+        return Navigation.findNavController(requireActivity(), navHostId);
+    }
     @NonNull
     private PinListAdapter getPinListAdapter() {
         PinClickListener pinClickListener = (position, clickedView) -> {
             try {
-                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+                NavController navController = getNavController();
                 Bundle args = new Bundle();
                 args.putParcelableArrayList("pins", new ArrayList<>(pins));
                 args.putInt("position", position);
-                args.putString("source", "account");
-                PinFragment fragment = new PinFragment();
-                fragment.setArguments(args);
-                navController.navigate(R.id.action_boardDetailFragment_to_pinFragment3, args, null, null);
+                args.putString("source", source);
+
+                Integer actionId = navActionIds.get(source);
+
+                if (actionId == null) {
+                    Log.w(TAG, "Không tìm thấy actionId cho source: " + source + ". Sử dụng cách dự phòng.");
+                    try {
+                        int pinFragmentId;
+                        switch (source) {
+                            case UserProfileFragment.SOURCE_HOME:
+                                pinFragmentId = R.id.pinFragment;
+                                break;
+                            case UserProfileFragment.SOURCE_SEARCH:
+                                pinFragmentId = R.id.pinFragment2;
+                                break;
+                            case UserProfileFragment.SOURCE_PIN_DEEP_LINK:
+                                pinFragmentId = R.id.pinFragmentDeepLink;
+                                break;
+                            default:
+                                pinFragmentId = R.id.pinFragment3;
+                                break;
+                        }
+                        navController.navigate(pinFragmentId, args);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Lỗi khi điều hướng: " + e.getMessage());
+                        Toast.makeText(requireContext(), getString(R.string.error_open_pin_detail), Toast.LENGTH_SHORT).show();
+                    }
+                    return;
+                }
+                navController.navigate(actionId, args);
             } catch (Exception e) {
-                Log.e("BoardDetailFragment", "Error while opening PinFragment", e);
+                Log.e(TAG, "Error while opening PinFragment", e);
+                Toast.makeText(requireContext(), getString(R.string.error_open_pin_detail), Toast.LENGTH_SHORT).show();
             }
         };
 
