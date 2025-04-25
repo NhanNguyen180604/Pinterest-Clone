@@ -9,5 +9,17 @@
         android:id="@+id/manageUserFragment"
         android:name="com.example.pinterest_clone_test2.ui.admin.manage_user.ManageUserFragment"
         android:label="fragment_manage_user"
-        tools:layout="@layout/fragment_manage_user" />
+        tools:layout="@layout/fragment_manage_user" >
+        <action
+            android:id="@+id/action_manageUserFragment_to_userProfileFragment4"
+            app:destination="@id/userProfileFragment4"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/userProfileFragment4"
+        android:name="com.example.pinterest_clone_test2.ui.user.UserProfileFragment"
+        android:label="UserProfileFragment" />
 </navigation>

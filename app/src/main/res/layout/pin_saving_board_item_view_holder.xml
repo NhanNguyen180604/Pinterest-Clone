@@ -53,6 +53,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/tv_board_title"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@android:color/holo_green_dark" />
+        app:tint="@color/black" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

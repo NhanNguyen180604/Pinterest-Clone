@@ -55,5 +55,25 @@
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right" />
+        <action
+            android:id="@+id/action_userProfileFragmentDeepLink_to_boardDetailFragmentDeepLink"
+            app:destination="@id/boardDetailFragmentDeepLink"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/boardDetailFragmentDeepLink"
+        android:name="com.example.pinterest_clone_test2.ui.account.board_tab.BoardDetailFragment"
+        android:label="fragment_board_detail"
+        tools:layout="@layout/fragment_board_detail">
+        <action
+            android:id="@+id/action_boardDetailFragmentDeepLink_to_pinFragmentDeepLink"
+            app:destination="@id/pinFragmentDeepLink"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
 </navigation>

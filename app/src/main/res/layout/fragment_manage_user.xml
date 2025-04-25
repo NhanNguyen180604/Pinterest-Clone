@@ -4,11 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="45dp"
     android:padding="10dp"
     tools:context=".ui.admin.manage_user.ManageUserFragment">
 
-    <!-- Thanh tìm kiếm + lọc -->
+    <FrameLayout
+        android:id="@+id/skeleton_loading"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_tabs">
+
+        <!-- Repeat this 5-6 times for skeleton effect -->
+        <include layout="@layout/item_skeleton_user" />
+        <include layout="@layout/item_skeleton_user" />
+        <include layout="@layout/item_skeleton_user" />
+        <include layout="@layout/item_skeleton_user" />
+        <include layout="@layout/item_skeleton_user" />
+    </FrameLayout>
+
+    <!-- Search bar and filter button -->
     <LinearLayout
         android:id="@+id/layout_search"
         android:layout_width="0dp"
@@ -36,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:background="@null"
-                android:hint="       Tìm kiếm người dùng"
+                android:hint="@string/search_user_hint"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -46,18 +63,18 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-            android:contentDescription="Lọc"
-            app:backgroundTint="@color/colorRed"
+            android:contentDescription="@string/filter_users"
+            app:backgroundTint="@color/red_pinterest"
             app:cornerRadius="12dp"
             app:icon="@drawable/ic_filter" />
     </LinearLayout>
 
-    <!-- Tabs: Bình thường | Bị cấm -->
+    <!-- Tabs: Normal | Banned with custom styling -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/layout_tabs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_search"
@@ -68,15 +85,23 @@
             android:id="@+id/btn_normal"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:text="BÌNH THƯỜNG"
-            app:cornerRadius="16dp" />
+            android:text="@string/user_state_normal"
+            android:textColor="@color/tab_unselected_text"
+            app:backgroundTint="@color/tab_unselected_background"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/tab_unselected_stroke"
+            app:strokeWidth="1dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_banned"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:text="BỊ CẤM"
-            app:cornerRadius="16dp" />
+            android:text="@string/user_state_banned"
+            android:textColor="@color/tab_unselected_text"
+            app:backgroundTint="@color/tab_unselected_background"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/tab_unselected_stroke"
+            app:strokeWidth="1dp" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- RecyclerView -->
@@ -84,28 +109,37 @@
         android:id="@+id/rv_users"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="5dp"
         android:clipToPadding="false"
-        android:padding="4dp"
-        app:layout_constraintBottom_toTopOf="@id/btn_add_user"
+        android:padding="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_tabs" />
 
-    <!-- Nút thêm -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_add_user"
+    <!-- Thông báo khi không có dữ liệu -->
+    <TextView
+        android:id="@+id/tv_no_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorRed"
-        android:icon="@drawable/ic_add"
-        android:text="THÊM TÀI KHOẢN"
-        android:textColor="@android:color/white"
-        app:cornerRadius="16dp"
-        app:iconPadding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rv_users" />
+        android:textSize="16sp"
+        android:textColor="@color/grey"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/rv_users"
+        app:layout_constraintEnd_toEndOf="@id/rv_users"
+        app:layout_constraintStart_toStartOf="@id/rv_users"
+        app:layout_constraintTop_toTopOf="@id/rv_users" />
+
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminateTint="@color/red_pinterest"
+        app:layout_constraintBottom_toBottomOf="@id/rv_users"
+        app:layout_constraintEnd_toEndOf="@id/rv_users"
+        app:layout_constraintStart_toStartOf="@id/rv_users"
+        app:layout_constraintTop_toTopOf="@id/rv_users" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -19,5 +19,14 @@ dependencyResolutionManagement {
     }
 }
 
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") } // Thêm JitPack repository
+    }
+}
+
 rootProject.name = "pinterest_clone_test2"
 include(":app")

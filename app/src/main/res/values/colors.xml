@@ -8,6 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#808080</color>
+    <color name="grey_button">#dfe1d6</color>
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>
     <color name="light_blue_A200">#FF40C4FF</color>
@@ -22,10 +23,48 @@
     <color name="blue_facebook">#1877F2</color>
     <color name="colorRed">#E53935</color>
     <color name="light_gray">#D9D9D9</color>
+    <color name="lighter_gray">#EBEBEB</color>
     <color name="colorAccent">#E53935</color>
     <color name="gray_transparent">#aac7c7c7</color>
     <color name="colorBrown">#3B1A22</color>
     <color name="searchBoxBg">#FFF2D9</color>
     <color name="bgCream">#FFFCF5</color>
     <color name="light_red_pinterest">#20E60023</color>
+    <color name="tab_selected_background">@color/red_pinterest</color>
+    <color name="tab_selected_text">#FFFFFF</color>
+    <color name="tab_unselected_background">#FFFFFF</color>
+    <color name="tab_unselected_text">#333333</color>
+    <color name="tab_unselected_stroke">@color/red_pinterest</color>
+    <color name="item_background">#FFFFFF</color>
+    <color name="item_stroke">#E0E0E0</color>
+    <color name="colorGreen">#4CAF50</color>
+    <color name="colorPrimary">#E60023</color>  <!-- Màu đỏ Pinterest -->
+    <color name="colorSecondary">#0076E8</color> <!-- Màu xanh dương đậm -->
+
+    <!-- Màu nền -->
+    <color name="light_background">#F9F9F9</color>
+    <color name="semi_transparent_background">#80FFFFFF</color>
+
+    <!-- Màu chip -->
+    <color name="chip_background_color">#F2F2F2</color>
+    <color name="chip_icon_color">#757575</color>
+    <color name="chip_stroke_color">#E0E0E0</color>
+
+    <!-- Màu severity -->
+    <color name="severity_urgent">#E53935</color>
+    <color name="severity_high">#FF9800</color>
+    <color name="severity_medium">#4CAF50</color>
+    <color name="severity_low">#9E9E9E</color>
+
+    <!-- Màu trạng thái -->
+    <color name="green_success">#4CAF50</color>
+    <color name="blue_info">#2196F3</color>
+    <color name="red_pinterest_light">#FFCDD2</color>
+
+    <!-- Màu heatmap -->
+    <color name="heatmap_background">#F5F5F5</color>
+    <color name="heatmap_very_low">#C8E6C9</color>
+    <color name="heatmap_low">#A5D6A7</color>
+    <color name="heatmap_medium">#66BB6A</color>
+    <color name="heatmap_high">#43A047</color>
 </resources>
