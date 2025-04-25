@@ -152,6 +152,7 @@ public abstract class FirebaseBoardService {
                             });
                         } else {
                             board.setPinsObj(new ArrayList<>());
+                            currentUserBoard = documentSnapshot;
                             callback.OnSuccess(board);
                         }
                     } else {

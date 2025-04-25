@@ -42,10 +42,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BoardDetailFragment extends Fragment {
     private Board board;
+    private String source = "haha";
     private List<Pin> pins;
     FragmentBoardDetailBinding binding;
     private Handler inactivityHandler = new Handler();
@@ -68,8 +70,8 @@ public class BoardDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Get board object
         board = getArguments() != null ? getArguments().getParcelable("board") : null;
+        source = getArguments()!= null ? getArguments().getString("source") : null;
         if (board == null) return;
         binding.tvBoardTitle.setText(board.getName());
         if (board.getPins().size() > 1) {
@@ -174,10 +176,7 @@ public class BoardDetailFragment extends Fragment {
         rvBoardPins.setHasFixedSize(true);
         rvBoardPins.setLayoutManager(layoutManager);
         rvBoardPins.setAdapter(adapter);
-        rvBoardPins.setOnTouchListener((v, e)->{
-            resetInactivityTimer();
-            return false;
-        });
+        Log.d("BoardDetailFragment", "Source: " + source);
         binding.btnTune.setOnClickListener(v->{
             BoardDetailSetViewBottomSheet bottomSheet = BoardDetailSetViewBottomSheet.newInstance(adapter.getViewMode());
             bottomSheet.setOnViewModeSelectedListener(selectedViewMode -> {
@@ -203,6 +202,15 @@ public class BoardDetailFragment extends Fragment {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_board_detail);
             navController.navigate(R.id.action_boardDetailFragment2_to_boardDetailOrganizeFragment, args, null, null);
         });
+        if(!Objects.equals(source, "DeepLink")) {
+            rvBoardPins.setOnTouchListener((v, e) -> {
+                resetInactivityTimer();
+                return false;
+            });
+        }
+        else {
+            binding.llEditBoardOptions.setVisibility(View.GONE);
+        }
     }
 
     @Override
