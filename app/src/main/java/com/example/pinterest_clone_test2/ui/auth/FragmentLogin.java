@@ -2,6 +2,7 @@ package com.example.pinterest_clone_test2.ui.auth;
 
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +53,12 @@ public class FragmentLogin extends Fragment {
             String email = Objects.requireNonNull(etEmail.getText()).toString();
             String password = Objects.requireNonNull(etPassword.getText()).toString();
             // TODO: validate email, password here
-            if (true){
+            if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                etEmail.setError(getString(R.string.email_invalid_format));
+                return;
+            }else if(password.isEmpty()){
+                etPassword.setError(getString(R.string.empty_error));
+            }else{
                 ((LoginActivity) requireActivity()).login(email, password);
             }
         });

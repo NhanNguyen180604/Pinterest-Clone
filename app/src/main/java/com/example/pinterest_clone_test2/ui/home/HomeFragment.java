@@ -17,7 +17,9 @@ import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.ViewPagerHomeAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentHomeBinding;
 import com.example.pinterest_clone_test2.models.Board;
+import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
+import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -100,48 +102,67 @@ public class HomeFragment extends Fragment {
         binding.homePager.setAdapter(adapter);
 
         new TabLayoutMediator(binding.homeTabPager, binding.homePager,
-                (tab, position) -> tab.setText(boards.get(position).getName())).attach();
+                (tab, position) -> tab.setText(boards.get(position).getName()))
+                .attach();
     }
 
     private final FirebaseBoardService.GetBoardServiceCallback callback = new FirebaseBoardService.GetBoardServiceCallback() {
         @Override
         public void OnSuccess(QuerySnapshot querySnapshot) {
-            if (!addOnlyNewBoards) {
-                boards.add(new Board().setName(getResources().getString(R.string.all)));
-                List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
-                for (DocumentSnapshot document :
-                        documentSnapshots) {
-                    boards.add(new Board()
-                            .setId(document.getId())
-                            .setName(document.getString("name"))
-                            .setDescription(document.getString("description"))
-                            .setAuthorId(document.getString("authorId"))
-                            .setPublic(Boolean.TRUE.equals(document.getBoolean("isPublic")))
-                    );
-                }
-            } else {
-                List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
-                for (DocumentSnapshot document :
-                        documentSnapshots) {
-                    if (boards.stream().noneMatch(b -> Objects.equals(b.getId(), document.getId()))) {
-                        boards.add(new Board()
-                                .setId(document.getId())
-                                .setName(document.getString("name"))
-                                .setDescription(document.getString("description"))
-                                .setAuthorId(document.getString("authorId"))
-                                .setPublic(Boolean.TRUE.equals(document.getBoolean("isPublic")))
-                        );
+            Thread thread = new Thread(() -> {
+                if (!addOnlyNewBoards) {
+                    boards.add(new Board().setName(getResources().getString(R.string.all)));
+                    List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
+                    for (DocumentSnapshot document :
+                            documentSnapshots) {
+                        Board newBoard = document.toObject(Board.class);
+                        if (newBoard == null)
+                            continue;
+
+                        newBoard.setId(document.getId());
+                        boards.add(newBoard);
                     }
+                } else {
+                    List<DocumentSnapshot> documentSnapshots = querySnapshot.getDocuments();
+                    for (DocumentSnapshot document :
+                            documentSnapshots) {
+                        if (boards.stream().noneMatch(b -> Objects.equals(b.getId(), document.getId()))) {
+                            Board newBoard = document.toObject(Board.class);
+                            if (newBoard == null)
+                                continue;
+
+                            newBoard.setId(document.getId());
+                            boards.add(newBoard);
+                        }
+                    }
+                    addOnlyNewBoards = false;
                 }
-                addOnlyNewBoards = false;
-            }
-            handler.post(() -> updateTabUI());
+
+                for (Board board : boards) {
+                    FirebasePinService.fetchPinsFromIds(board.getPins(), new FirebasePinService.OnPinsFetchedFromIdsCallback() {
+                        @Override
+                        public void onSuccess(List<Pin> pins) {
+                            board.setPinsObj(pins);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e("HomeTab", "Fetch pins from id for board " + board.getName() + " failed");
+                        }
+                    });
+                }
+
+                handler.post(() -> updateTabUI());
+            });
+            thread.start();
         }
 
         @Override
         public void OnFailure(Exception e) {
             Log.d("HomeFragment", "Failed to fetch user boards");
-            e.printStackTrace();
+            if (e.getMessage() != null) {
+                Log.e("HomeFragment", e.getMessage());
+            }
             boards.add(new Board().setName(getResources().getString(R.string.all)));
             handler.post(() -> updateTabUI());
         }

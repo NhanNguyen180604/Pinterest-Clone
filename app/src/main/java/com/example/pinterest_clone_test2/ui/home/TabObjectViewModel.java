@@ -5,8 +5,8 @@ import android.os.Parcelable;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
+import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
-import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.List;
 
@@ -15,6 +15,7 @@ public class TabObjectViewModel extends ViewModel {
     public static String SCROLL_STATE = "ScrollState";
     public static String PIN_STATE = "PinState";
     public static String LAST_PAGE_STATE = "OnLastPageState";
+    public static String BOARD_STATE = "BoardState";
 
     public TabObjectViewModel(SavedStateHandle savedStateHandle) {
         _savedStateHandle = savedStateHandle;
@@ -42,5 +43,13 @@ public class TabObjectViewModel extends ViewModel {
 
     public void setOnLastPage(boolean isOnLastPage) {
         _savedStateHandle.set(LAST_PAGE_STATE, isOnLastPage);
+    }
+
+    public Board getBoard() {
+        return _savedStateHandle.get(BOARD_STATE);
+    }
+
+    public void setBoardState(Board board) {
+        _savedStateHandle.set(BOARD_STATE, board);
     }
 }

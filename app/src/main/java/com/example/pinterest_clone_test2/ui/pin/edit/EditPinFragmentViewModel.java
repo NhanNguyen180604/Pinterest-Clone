@@ -13,6 +13,7 @@ public class EditPinFragmentViewModel extends ViewModel {
     SavedStateHandle savedStateHandle;
     MutableLiveData<Map<String, BoardBooleanPair>> boardMap;
     public static String PIN_STATE_KEY = "PinState";
+    public static String IS_AUTHOR_STATE_KEY = "IsAuthorState";
 
     public EditPinFragmentViewModel(SavedStateHandle savedStateHandle) {
         this.savedStateHandle = savedStateHandle;
@@ -30,5 +31,14 @@ public class EditPinFragmentViewModel extends ViewModel {
 
     public MutableLiveData<Map<String, BoardBooleanPair>> getBoardMap() {
         return boardMap;
+    }
+
+    public boolean getIsAuthor() {
+        Boolean isAuthor = savedStateHandle.get(IS_AUTHOR_STATE_KEY);
+        return isAuthor != null ? isAuthor : false;
+    }
+
+    public void setIsAuthor(boolean isAuthor) {
+        savedStateHandle.set(IS_AUTHOR_STATE_KEY, isAuthor);
     }
 }

@@ -2,17 +2,29 @@ package com.example.pinterest_clone_test2.ui.upload;
 
 import android.Manifest;
 import android.app.Activity;
+import androidx.appcompat.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -31,14 +43,40 @@ import com.bumptech.glide.Glide;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.UploadActivity;
 import com.example.pinterest_clone_test2.adapters.MediaAdapter;
+import com.example.pinterest_clone_test2.adapters.WebsiteImagesAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentUploadBinding;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+
+import android.os.Handler;
+import android.os.Looper;
+
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.example.pinterest_clone_test2.utils.LoadingDialog;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
+import java.util.HashMap;
+
+import org.jsoup.HttpStatusException;
+import org.jsoup.Jsoup;
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UploadFragment extends Fragment {
     private int requestingCode;
@@ -154,62 +192,70 @@ public class UploadFragment extends Fragment {
 
     private void loadAllMediaFromGallery() {
         ContentResolver contentResolver = requireContext().getContentResolver();
+        ArrayList<Uri> newMediaList = new ArrayList<>();
 
-        // Query images and GIFs
-        Uri imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String[] imageProjection = {MediaStore.Images.Media._ID, MediaStore.Images.Media.MIME_TYPE};
+        // Sử dụng MediaStore.Files để truy vấn cả ảnh và video
+        Uri allMediaUri = MediaStore.Files.getContentUri("external");
 
-        // Query videos
-        Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-        String[] videoProjection = {MediaStore.Video.Media._ID, MediaStore.Video.Media.MIME_TYPE};
+        String[] projection = {
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.MEDIA_TYPE,
+                MediaStore.Files.FileColumns.MIME_TYPE,
+                MediaStore.Files.FileColumns.DATE_ADDED
+        };
+
+        // Lấy cả ảnh và video
+        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
+                + " OR "
+                + MediaStore.Files.FileColumns.MEDIA_TYPE + "="
+                + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+
+        // Sắp xếp theo thời gian mới nhất
+        String sortOrder = MediaStore.Files.FileColumns.DATE_ADDED + " DESC";
 
         try {
-            ArrayList<Uri> newMediaList = new ArrayList<>();
+            Cursor cursor = contentResolver.query(
+                    allMediaUri,
+                    projection,
+                    selection,
+                    null,
+                    sortOrder
+            );
 
-            // Query for images and GIFs
-            try (Cursor cursor = contentResolver.query(imageUri, imageProjection, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                    int mimeTypeIndex = cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE);
-                    if (columnIndex != -1 && mimeTypeIndex != -1) {
-                        do {
-                            long mediaId = cursor.getLong(columnIndex);
-                            String mimeType = cursor.getString(mimeTypeIndex);
-                            Uri mediaUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(mediaId));
+            if (cursor != null) {
+                int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID);
+                int mediaTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
+                int mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE);
 
-                            // Add image or gif
-                            if (mimeType.startsWith("image") || mimeType.equals("image/gif")) {
-                                newMediaList.add(mediaUri);
-                            }
-                        } while (cursor.moveToNext());
+                while (cursor.moveToNext()) {
+                    long id = cursor.getLong(idColumn);
+                    int mediaType = cursor.getInt(mediaTypeColumn);
+                    String mimeType = cursor.getString(mimeTypeColumn);
+
+                    Uri contentUri;
+                    if (mediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+                        contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                        // Thêm vào nếu là ảnh
+                        if (mimeType.startsWith("image")) {
+                            newMediaList.add(contentUri);
+                        }
+                    } else if (mediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
+                        contentUri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
+                        // Thêm vào nếu là video
+                        if (mimeType.startsWith("video")) {
+                            newMediaList.add(contentUri);
+                        }
                     }
                 }
+                cursor.close();
             }
 
-            // Query for videos
-            try (Cursor cursor = contentResolver.query(videoUri, videoProjection, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndex(MediaStore.Video.Media._ID);
-                    int mimeTypeIndex = cursor.getColumnIndex(MediaStore.Video.Media.MIME_TYPE);
-                    if (columnIndex != -1 && mimeTypeIndex != -1) {
-                        do {
-                            long mediaId = cursor.getLong(columnIndex);
-                            String mimeType = cursor.getString(mimeTypeIndex);
-                            Uri mediaUri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, String.valueOf(mediaId));
-
-                            // Add video
-                            if (mimeType.startsWith("video")) {
-                                newMediaList.add(mediaUri);
-                            }
-                        } while (cursor.moveToNext());
-                    }
-                }
-            }
-
-            // After collecting all the media URIs, update the media list and notify the adapter
+            // Sau khi thu thập tất cả URIs, cập nhật danh sách và thông báo adapter
             if (!newMediaList.isEmpty()) {
-                mediaList.addAll(newMediaList); // Add the new media to the list
-                mediaAdapter.notifyItemRangeInserted(mediaList.size() - newMediaList.size(), newMediaList.size());
+                mediaList.clear(); // Xóa danh sách cũ nếu cần
+                mediaList.addAll(newMediaList);
+                mediaAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -265,10 +311,524 @@ public class UploadFragment extends Fragment {
             return null;
         }
     }
-
     private void openUrlInput() {
-        Toast.makeText(getActivity(), "Input URL logic here", Toast.LENGTH_SHORT).show();
+        // Tạo bottom sheet dialog
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialog);
+
+        // Inflate custom layout
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_url_input, null);
+
+        EditText urlInput = dialogView.findViewById(R.id.url_input);
+        ImageView btnClose = dialogView.findViewById(R.id.btn_close_dialog);
+        Button btnSearch = dialogView.findViewById(R.id.btn_search);
+
+        // Set content view cho bottom sheet
+        bottomSheetDialog.setContentView(dialogView);
+
+        // Set button click listeners
+        btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        btnSearch.setOnClickListener(v -> {
+            String url = urlInput.getText().toString().trim();
+            if (!url.isEmpty()) {
+                validateAndLoadMediaFromUrl(url);
+                bottomSheetDialog.dismiss();
+            } else {
+                Toast.makeText(getContext(), R.string.valid_url_message, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+        bottomSheetDialog.setOnDismissListener(dialog -> {
+            // Code xử lý khi dialog đóng (nếu cần
+        });
+
+        // Hiển thị bottom sheet
+        bottomSheetDialog.show();
+
+        // Hiển thị bàn phím sau khi dialog xuất hiện
+        urlInput.post(() -> {
+            urlInput.requestFocus();
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(urlInput, InputMethodManager.SHOW_IMPLICIT);
+        });
     }
+    private void validateAndLoadMediaFromUrl(String url) {
+        // Show loading dialog
+        LoadingDialog loadingDialog = new LoadingDialog(requireContext());
+        loadingDialog.setMessage(getString(R.string.validating));
+        loadingDialog.show();
+
+        // Check if URL is a direct media file or a webpage
+        String lowerCaseUrl = url.toLowerCase();
+        boolean hasImageExtension = lowerCaseUrl.endsWith(".jpg") || lowerCaseUrl.endsWith(".jpeg") ||
+                lowerCaseUrl.endsWith(".png") || lowerCaseUrl.endsWith(".gif") ||
+                lowerCaseUrl.endsWith(".webp");
+        boolean hasVideoExtension = lowerCaseUrl.endsWith(".mp4") || lowerCaseUrl.endsWith(".mov") ||
+                lowerCaseUrl.endsWith(".webm") || lowerCaseUrl.endsWith(".avi");
+
+        if (hasImageExtension) {
+            processImageUrl(url, loadingDialog);
+        } else if (hasVideoExtension) {
+            processVideoUrl(url, loadingDialog);
+        } else {
+            // Likely a webpage URL, extract images
+            extractImagesFromWebpage(url, loadingDialog);
+        }
+    }
+
+    private void extractImagesFromWebpage(String urlParam, LoadingDialog loadingDialog) {
+        loadingDialog.setMessage(getString(R.string.extract_images_title));
+
+        new Thread(() -> {
+            try {
+                // Create a new local variable to hold the potentially modified URL
+                String finalUrl = urlParam;
+
+                // Add http:// prefix if missing
+                if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
+                    finalUrl = "https://" + finalUrl;
+                }
+
+
+                // Connect to the website with more browser-like headers
+                Connection.Response response = Jsoup.connect(finalUrl)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36")
+                        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+                        .header("Accept-Language", "en-US,en;q=0.5")
+                        .referrer("https://www.google.com/")
+                        .timeout(15000)
+                        .followRedirects(true)
+                        .execute();
+
+                if (response.statusCode() != 200) {
+                    requireActivity().runOnUiThread(() -> {
+                        loadingDialog.dismiss();
+                        if (response.statusCode() == 403) {
+                            Toast.makeText(getContext(), R.string.blocked_url_message, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), getString(R.string.webpage_access_failed, response.statusCode()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                }
+
+                Document doc = response.parse();
+                String baseUri = doc.baseUri();
+
+                // Extract image URLs from the page
+                HashMap<String, String> imageUrls = new HashMap<>(); // Using HashMap to avoid duplicates while keeping track of dimensions
+
+                // 1. Get images from <img> tags
+                Elements imgElements = doc.select("img");
+                for (Element img : imgElements) {
+                    String imgUrl = img.absUrl("src");
+                    // Skip data URIs, tiny images, and empty URLs
+                    if (!imgUrl.isEmpty() && !imgUrl.startsWith("data:") && isValidImageUrl(imgUrl)) {
+                        // Get image dimensions from attributes if available
+                        String width = img.attr("width");
+                        String height = img.attr("height");
+
+                        // Skip very small icons
+                        if (!width.isEmpty() && !height.isEmpty()) {
+                            try {
+                                int w = Integer.parseInt(width);
+                                int h = Integer.parseInt(height);
+                                if (w < 100 || h < 100) continue; // Skip small icons
+                            } catch (NumberFormatException e) {
+                                // Ignore parsing errors and include the image
+                                Log.d("WebImageExtractor", "Error parsing image dimensions", e);
+                            }
+                        }
+
+                        imageUrls.put(imgUrl, width + "x" + height);
+                    }
+                }
+
+                // 2. Get Open Graph image tags (used by social media)
+                Elements metaOgImage = doc.select("meta[property=og:image]");
+                for (Element meta : metaOgImage) {
+                    String imgUrl = meta.attr("content");
+                    if (!imgUrl.isEmpty() && isValidImageUrl(imgUrl)) {
+                        if (!imgUrl.startsWith("http")) {
+                            imgUrl = new URL(new URL(baseUri), imgUrl).toString();
+                        }
+                        imageUrls.put(imgUrl, "og"); // Priority for OG images
+                    }
+                }
+
+                // 3. Get Twitter card images
+                Elements metaTwitterImage = doc.select("meta[name=twitter:image]");
+                for (Element meta : metaTwitterImage) {
+                    String imgUrl = meta.attr("content");
+                    if (!imgUrl.isEmpty() && isValidImageUrl(imgUrl)) {
+                        if (!imgUrl.startsWith("http")) {
+                            imgUrl = new URL(new URL(baseUri), imgUrl).toString();
+                        }
+                        imageUrls.put(imgUrl, "twitter"); // Priority for Twitter images
+                    }
+                }
+
+                // 4. Get background images from style attributes
+                Elements elementsWithStyle = doc.select("[style]");
+                for (Element element : elementsWithStyle) {
+                    String style = element.attr("style");
+                    if (style.contains("background-image")) {
+                        // Extract URL from background-image: url('...')
+                        extractBackgroundImageUrl(style, baseUri, imageUrls);
+                    }
+                }
+
+                // 5. Get CSS background images
+                Elements styleElements = doc.select("style");
+                for (Element style : styleElements) {
+                    String cssContent = style.html();
+                    // Find all background-image: url patterns in CSS
+                    extractBackgroundImagesFromCss(cssContent, baseUri, imageUrls);
+                }
+
+                // 6. Get external CSS files and parse them
+                Elements linkElements = doc.select("link[rel=stylesheet]");
+                for (Element link : linkElements) {
+                    String cssUrl = link.absUrl("href");
+                    if (!cssUrl.isEmpty()) {
+                        try {
+                            Connection.Response cssResponse = Jsoup.connect(cssUrl)
+                                    .userAgent("Mozilla/5.0")
+                                    .timeout(5000)
+                                    .ignoreContentType(true)
+                                    .execute();
+
+                            if (cssResponse.statusCode() == 200) {
+                                String cssContent = cssResponse.body();
+                                extractBackgroundImagesFromCss(cssContent, baseUri, imageUrls);
+                            }
+                        } catch (Exception e) {
+                            // Skip this CSS file if there's an error
+                            Log.e("WebImageExtractor", "Error loading CSS: " + e.getMessage(), e);
+                        }
+                    }
+                }
+
+                // If no images found
+                final ArrayList<String> finalImageUrls = new ArrayList<>(imageUrls.keySet());
+                if (finalImageUrls.isEmpty()) {
+                    requireActivity().runOnUiThread(() -> {
+                        loadingDialog.dismiss();
+                        Toast.makeText(getContext(), R.string.no_images_found, Toast.LENGTH_SHORT).show();
+                    });
+                    return;
+                }
+
+                // Show image selection dialog
+                requireActivity().runOnUiThread(() -> {
+                    loadingDialog.dismiss();
+                    showImageSelectionDialog(finalImageUrls);
+                });
+
+            } catch (Exception e) {
+                requireActivity().runOnUiThread(() -> {
+                    loadingDialog.dismiss();
+                    if (e instanceof HttpStatusException &&
+                            ((HttpStatusException)e).getStatusCode() == 403) {
+                        Toast.makeText(getContext(), R.string.blocked_url_message, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getContext(), getString(R.string.error_extracting_images, e.getMessage()), Toast.LENGTH_SHORT).show();
+                    }
+                    Log.e("WebImageExtractor", "Error extracting images", e);
+                });
+            }
+        }).start();
+    }
+
+    private void extractBackgroundImageUrl(String style, String baseUri, HashMap<String, String> imageUrls) {
+        try {
+            int startIndex = style.indexOf("url(");
+            if (startIndex >= 0) {
+                int endIndex = style.indexOf(")", startIndex);
+                if (endIndex > startIndex) {
+                    String imgUrl = style.substring(startIndex + 4, endIndex).trim();
+                    // Remove quotes if present
+                    if ((imgUrl.startsWith("'") && imgUrl.endsWith("'")) ||
+                            (imgUrl.startsWith("\"") && imgUrl.endsWith("\""))) {
+                        imgUrl = imgUrl.substring(1, imgUrl.length() - 1);
+                    }
+
+                    // Convert to absolute URL if needed
+                    if (!imgUrl.startsWith("http")) {
+                        try {
+                            imgUrl = new URL(new URL(baseUri), imgUrl).toString();
+                        } catch (Exception e) {
+                            Log.d("WebImageExtractor", "Malformed URL", e);
+                            return; // Skip if URL is malformed
+                        }
+                    }
+
+                    if (isValidImageUrl(imgUrl) && !imgUrl.contains("data:")) {
+                        imageUrls.put(imgUrl, "bg"); // Add with a background tag
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e("WebImageExtractor", "Error extracting background image", e);
+        }
+    }
+
+    private void extractBackgroundImagesFromCss(String cssContent, String baseUri, HashMap<String, String> imageUrls) {
+        try {
+            // Simple regex pattern to find background-image: url(...) in CSS
+            Pattern pattern = Pattern.compile("background(-image)?\\s*:\\s*url\\(['\"]?(.*?)['\"]?\\)");
+            Matcher matcher = pattern.matcher(cssContent);
+
+            while (matcher.find()) {
+                String imgUrl = matcher.group(2);
+                if (imgUrl != null && !imgUrl.isEmpty() && !imgUrl.startsWith("data:")) {
+                    // Convert to absolute URL if needed
+                    if (!imgUrl.startsWith("http")) {
+                        try {
+                            imgUrl = new URL(new URL(baseUri), imgUrl).toString();
+                        } catch (Exception e) {
+                            Log.d("WebImageExtractor", "Malformed URL in CSS", e);
+                            continue; // Skip if URL is malformed
+                        }
+                    }
+
+                    if (isValidImageUrl(imgUrl)) {
+                        imageUrls.put(imgUrl, "css"); // Add with a CSS tag
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e("WebImageExtractor", "Error extracting CSS background images", e);
+        }
+    }
+
+    private boolean isValidImageUrl(String url) {
+        if (url == null) return false;
+
+        String lowerCaseUrl = url.toLowerCase();
+        return !url.isEmpty() &&
+                (lowerCaseUrl.contains(".jpg") ||
+                        lowerCaseUrl.contains(".jpeg") ||
+                        lowerCaseUrl.contains(".png") ||
+                        lowerCaseUrl.contains(".gif") ||
+                        lowerCaseUrl.contains(".webp"));
+    }
+
+    private void showImageSelectionDialog(ArrayList<String> imageUrls) {
+        // Create a custom dialog to show images
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_website_images, null);
+        builder.setView(dialogView);
+
+        RecyclerView imageRecyclerView = dialogView.findViewById(R.id.website_images_recyclerview);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel_selection);
+        TextView dialogTitle = dialogView.findViewById(R.id.dialog_title);
+
+        dialogTitle.setText(String.format(Locale.getDefault(), "Found %d images", imageUrls.size()));
+
+        // Set up RecyclerView with grid layout
+        int spanCount = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 4 : 2;
+        imageRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), spanCount));
+
+        // Create the dialog before referencing it in the adapter
+        final AlertDialog dialog = builder.create();
+
+        // Create adapter for website images - now the dialog variable is defined before being used
+        WebsiteImagesAdapter adapter = new WebsiteImagesAdapter(imageUrls, getContext(), url -> {
+            // Handle image selection
+            loadSelectedWebImage(url);
+            dialog.dismiss();
+        });
+
+        imageRecyclerView.setAdapter(adapter);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void loadSelectedWebImage(String url) {
+        // Show loading dialog
+        LoadingDialog loadingDialog = new LoadingDialog(requireContext());
+        loadingDialog.setMessage(getString(R.string.loading_selected_image));
+        loadingDialog.show();
+
+        // Using Glide to fetch and process the image
+        Glide.with(requireContext())
+                .asBitmap()
+                .load(url)
+                .listener(new RequestListener<>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                        loadingDialog.dismiss();
+                        Toast.makeText(getContext(), getString(R.string.failed_load_image, (e != null ? e.getMessage() : "Unknown error")), Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(@NonNull Bitmap resource, @NonNull Object model, @NonNull Target<Bitmap> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                        // Save bitmap to file in background
+                        new Thread(() -> {
+                            try {
+                                File imageFile = createImageFile();
+                                if (imageFile != null) {
+                                    try (FileOutputStream outputStream = new FileOutputStream(imageFile)) {
+                                        resource.compress(Bitmap.CompressFormat.JPEG, 95, outputStream);
+                                        outputStream.flush();
+                                    }
+
+                                    Uri localUri = FileProvider.getUriForFile(
+                                            requireContext(),
+                                            "com.example.pinterest_clone_test2.fileprovider",
+                                            imageFile);
+
+                                    // Update UI on main thread
+                                    requireActivity().runOnUiThread(() -> {
+                                        loadingDialog.dismiss();
+                                        onMediaSelected(localUri);
+                                    });
+                                } else {
+                                    requireActivity().runOnUiThread(() -> {
+                                        loadingDialog.dismiss();
+                                        Toast.makeText(getContext(), "Failed to create image file", Toast.LENGTH_SHORT).show();
+                                    });
+                                }
+                            } catch (Exception e) {
+                                requireActivity().runOnUiThread(() -> {
+                                    loadingDialog.dismiss();
+                                    Toast.makeText(getContext(), getString(R.string.error_saving_image, e.getMessage()), Toast.LENGTH_SHORT).show();
+                                    Log.e("WebImageExtractor", "Error saving image", e);
+                                });
+                            }
+                        }).start();
+                        return false;
+                    }
+                })
+                .submit();
+    }
+    private void processImageUrl(String url, LoadingDialog loadingDialog) {
+        loadingDialog.setMessage("Loading image...");
+
+        // Using Glide to fetch and process the image
+        Glide.with(requireContext())
+                .asBitmap()
+                .load(url)
+                .listener(new RequestListener<>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                        loadingDialog.dismiss();
+                        Toast.makeText(getContext(), "Failed to load image: " + (e != null ? e.getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
+                        Log.e("WebImageExtractor", "Image load failed", e);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(@NonNull Bitmap resource, @NonNull Object model, @NonNull Target<Bitmap> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                        // Save bitmap to file in background
+                        new Thread(() -> {
+                            try {
+                                File imageFile = createImageFile();
+                                if (imageFile != null) {
+                                    try (FileOutputStream outputStream = new FileOutputStream(imageFile)) {
+                                        resource.compress(Bitmap.CompressFormat.JPEG, 95, outputStream);
+                                        outputStream.flush();
+                                    }
+
+                                    Uri localUri = FileProvider.getUriForFile(
+                                            requireContext(),
+                                            "com.example.pinterest_clone_test2.fileprovider",
+                                            imageFile);
+
+                                    // Update UI on main thread
+                                    requireActivity().runOnUiThread(() -> {
+                                        loadingDialog.dismiss();
+                                        onMediaSelected(localUri);
+                                    });
+                                } else {
+                                    requireActivity().runOnUiThread(() -> {
+                                        loadingDialog.dismiss();
+                                        Toast.makeText(getContext(), "Failed to create image file", Toast.LENGTH_SHORT).show();
+                                    });
+                                }
+                            } catch (Exception e) {
+                                requireActivity().runOnUiThread(() -> {
+                                    loadingDialog.dismiss();
+                                    Toast.makeText(getContext(), "Error saving image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Log.e("WebImageExtractor", "Error saving image file", e);
+                                });
+                            }
+                        }).start();
+                        return false;
+                    }
+                })
+                .submit();
+    }
+    private void processVideoUrl(String url, LoadingDialog loadingDialog) {
+        loadingDialog.setMessage(getString(R.string.validating));
+
+        // Create a handler to manage timeout
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        // Try with resources for MediaMetadataRetriever
+        try (MediaMetadataRetriever retriever = new MediaMetadataRetriever()) {
+            // Create a runnable to handle timeout
+            Runnable timeoutRunnable = () -> {
+                Toast.makeText(getContext(), R.string.video_valid_fail_message, Toast.LENGTH_SHORT).show();
+                loadingDialog.dismiss();
+                try {
+                    retriever.release();
+                } catch (Exception e) {
+                    Log.d("WebImageExtractor", "Error releasing retriever", e);
+                }
+            };
+
+            handler.postDelayed(timeoutRunnable, 5000);
+
+            // Run validation in background
+            new Thread(() -> {
+                try {
+                    // Try to set data source and retrieve metadata
+                    retriever.setDataSource(url, new HashMap<>());
+
+                    // Try to get a frame to confirm it's a valid video
+                    Bitmap frame = retriever.getFrameAtTime();
+
+                    // Remove the timeout handler
+                    handler.removeCallbacks(timeoutRunnable);
+
+                    if (frame != null) {
+                        // Video is valid, create URI and continue
+                        Uri videoUri = Uri.parse(url);
+                        requireActivity().runOnUiThread(() -> {
+                            loadingDialog.dismiss();
+                            onMediaSelected(videoUri);
+                        });
+                    } else {
+                        // No frames could be retrieved, likely not a valid video
+                        handler.removeCallbacks(timeoutRunnable);
+                        requireActivity().runOnUiThread(() -> {
+                            loadingDialog.dismiss();
+                            Toast.makeText(getContext(), R.string.invalid_video_content, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                } catch (Exception e) {
+                    // Remove the timeout handler
+                    handler.removeCallbacks(timeoutRunnable);
+                    requireActivity().runOnUiThread(() -> {
+                        loadingDialog.dismiss();
+                        Toast.makeText(getContext(), getString(R.string.failed_validate_video, e.getMessage()), Toast.LENGTH_SHORT).show();
+                        Log.e("WebImageExtractor", "Video validation failed", e);
+                    });
+                }
+            }).start();
+        } catch (Exception e) {
+            loadingDialog.dismiss();
+            Toast.makeText(getContext(), R.string.error_video_validator, Toast.LENGTH_SHORT).show();
+            Log.e("WebImageExtractor", "Error with media retriever", e);
+        }
+    }
+
 
     private void proceedToNextStep() {
         if (getActivity() instanceof UploadActivity) {
