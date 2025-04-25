@@ -378,6 +378,7 @@
     <string name="unban_button">BỎ CẤM</string>
     <string name="no_users_found">Không có người dùng nào</string>
     <string name="no_banned_users">Không có người dùng nào bị cấm</string>
+    <string name="user_banned">Tài khoản của bạn đã bị cấm</string>
     <string name="user_avatar_desc">Ảnh đại diện người dùng</string>
     <string name="placeholder_username">Tên người dùng</string>
     <string name="placeholder_email">Email người dùng</string>

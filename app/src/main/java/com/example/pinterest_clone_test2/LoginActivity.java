@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.pinterest_clone_test2.models.User;
+import com.example.pinterest_clone_test2.services.firebase.FirebaseUserService;
 import com.example.pinterest_clone_test2.ui.auth.FragmentLogin;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterBirthdate;
 import com.example.pinterest_clone_test2.ui.auth.FragmentRegisterEmail;
@@ -24,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -124,7 +126,6 @@ public class LoginActivity extends AppCompatActivity {
     public void registerInterests(List<String> interests) {
         // Convert localized tags back to English for storage
         user.setInterests(interests);
-        showLoading(); // Show loading dialog
         createUser();
     }
 
@@ -198,19 +199,54 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     void loginUserEmailPassword() {
+        showLoading();
+
         auth.signInWithEmailAndPassword(user.getEmail(), currentPassword)
                 .addOnSuccessListener(authResult -> {
-                    hideLoading(); // Hide loading dialog before navigation
+                    // Get the current user ID
+                    FirebaseUser firebaseUser = auth.getCurrentUser();
+                    assert firebaseUser != null;
+                    String userId = firebaseUser.getUid();
 
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    Log.d("LoginActivity", "Login successful for userId: " + userId);
+
+                    // Directly check if this specific user is banned
+                    db.collection("bannedUsers")
+                            .whereEqualTo("userId", userId)
+                            .get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    Log.d("LoginActivity", "Ban check query successful. Results: " + task.getResult().size());
+
+                                    if (!task.getResult().isEmpty()) {
+                                        // User is banned
+                                        Log.d("LoginActivity", "User is BANNED - signing out");
+                                        Toast.makeText(LoginActivity.this, getResources().getString(R.string.user_banned), Toast.LENGTH_LONG).show();
+
+                                        // Sign out the user
+                                        auth.signOut();
+                                        hideLoading();
+                                    } else {
+                                        // User is not banned, proceed to MainActivity
+                                        Log.d("LoginActivity", "User is not banned - proceeding to MainActivity");
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                } else {
+                                    // Error checking banned status, log it
+                                    Log.e("LoginActivity", "Error checking banned status", task.getException());
+
+                                    // For security reasons, if we can't determine ban status,
+                                    // we should sign the user out rather than proceeding
+                                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+                                    auth.signOut();
+                                }
+                            });
                 })
                 .addOnFailureListener(e -> {
-                    hideLoading(); // Hide loading dialog on failure
-
                     Toast.makeText(LoginActivity.this, getResources().getString(R.string.login_failure), Toast.LENGTH_SHORT).show();
-                    Log.e("firebase-auth-login", "Error logging in", e);
+                    Log.e("LoginActivity", "Error logging in", e);
                 });
     }
 
