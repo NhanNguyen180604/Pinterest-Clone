@@ -1,4 +1,4 @@
-package com.example.pinterest_clone_test2;
+package com.example.pinterest_clone_test2.deep_link;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.example.pinterest_clone_test2.LoginActivity;
+import com.example.pinterest_clone_test2.MainActivity;
+import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.broadcast_receivers.DownloadMediaBroadcastReceiver;
 import com.example.pinterest_clone_test2.databinding.ActivityPinDeepLinkBinding;
 import com.example.pinterest_clone_test2.models.Pin;

@@ -55,7 +55,7 @@
             android:name=".CreateBoardActivity"
             android:exported="false" />
         <activity
-            android:name=".PinDeepLinkActivity"
+            android:name=".deep_link.PinDeepLinkActivity"
             android:exported="true">
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
