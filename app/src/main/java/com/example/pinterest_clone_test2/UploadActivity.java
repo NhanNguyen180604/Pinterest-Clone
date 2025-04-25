@@ -21,7 +21,6 @@ import com.example.pinterest_clone_test2.utils.CloudinaryManager;
 import com.example.pinterest_clone_test2.utils.LoadingDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +30,12 @@ import java.util.Objects;
 public class UploadActivity extends AppCompatActivity {
     private ActivityUploadBinding binding;
     private LoadingDialog loadingDialog;
+    private Uri selectedMediaUri;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityUploadBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
         Intent intent = getIntent();
         if (savedInstanceState == null) {
@@ -58,6 +56,7 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     public void showDetailFragment(Uri mediaUri) {
+        this.selectedMediaUri = mediaUri;
         Log.d("Cloudinary", "Navigating to UploadImageDetailsFragment with mediaUri: " + mediaUri);
 
         UploadPinDetailsFragment detailsFragment = new UploadPinDetailsFragment();
@@ -74,7 +73,9 @@ public class UploadActivity extends AppCompatActivity {
                 .addToBackStack(null)
                 .commit();
     }
-
+    public Uri getSavedMediaUri() {
+        return selectedMediaUri;
+    }
     public void uploadMedia(Uri mediaUri, String title, String description, boolean isCollage) {
         Log.d("Cloudinary", "Attempting to upload media");
 
