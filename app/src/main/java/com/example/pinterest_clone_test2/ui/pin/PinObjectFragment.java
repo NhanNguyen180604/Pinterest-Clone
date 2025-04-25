@@ -372,6 +372,10 @@ public class PinObjectFragment extends Fragment {
                             return;
                         }
 
+                        binding.btnSave.setText(getString(R.string.saved));
+                        binding.btnSave.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.gray_button_pinterest));
+                        binding.btnSave.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+
                         // seems like pinterest always saves to profile
                         FirebaseUserService.savePinToProfile(pin.getId(), new FirebaseUserService.SavePinToProfileCallback() {
                             @Override
