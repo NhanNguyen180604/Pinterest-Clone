@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/add_collab_navigation"
+    app:startDestination="@id/boardDetailFragment3">
+
+    <fragment
+        android:id="@+id/boardDetailFragment3"
+        android:name="com.example.pinterest_clone_test2.ui.board.board_detail.BoardDetailFragment"
+        android:label="fragment_board_detail"
+        tools:layout="@layout/fragment_board_detail" />
+</navigation>
