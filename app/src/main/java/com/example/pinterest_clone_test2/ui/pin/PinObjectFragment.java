@@ -37,6 +37,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
+import com.example.pinterest_clone_test2.BoardDetailActivity;
 import com.example.pinterest_clone_test2.ChooseBoardActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.RemoveBgActivity;
@@ -958,16 +959,7 @@ public class PinObjectFragment extends Fragment {
             bundle.putString("source", source);
             bundle.putParcelableArrayList("pins", new ArrayList<>(relevantPins));
 
-            int action = 0;
-            if (Objects.equals(source, "home")) {
-                action = R.id.action_pinFragment_self;
-            } else if (Objects.equals(source, "search")) {
-                action = R.id.action_pinFragment2_self;
-            } else if (Objects.equals(source, "account")) {
-                action = R.id.action_pinFragment3_self;
-            } else if (Objects.equals(source, "pinDeepLink")) {
-                action = R.id.action_pinFragmentDeepLink_self;
-            }
+            int action = getRelevantPinNavAction();
 
             navController.navigate(
                     action,
@@ -977,6 +969,22 @@ public class PinObjectFragment extends Fragment {
             );
         }
     };
+
+    private int getRelevantPinNavAction() {
+        int action = 0;
+        if (Objects.equals(source, "home")) {
+            action = R.id.action_pinFragment_self;
+        } else if (Objects.equals(source, "search")) {
+            action = R.id.action_pinFragment2_self;
+        } else if (Objects.equals(source, "account")) {
+            action = R.id.action_pinFragment3_self;
+        } else if (Objects.equals(source, "pinDeepLink")) {
+            action = R.id.action_pinFragmentDeepLink_self;
+        } else if (Objects.equals(source, BoardDetailActivity.SOURCE)) {
+            action = R.id.action_pinFragment4_self;
+        }
+        return action;
+    }
 
     public interface DownloadPinMediaCallback {
         void Download();
@@ -1068,6 +1076,12 @@ public class PinObjectFragment extends Fragment {
         args.putString("userId", userId);
         args.putString("source", source);
 
+        int action = getUserProfileNavAction();
+
+        navController.navigate(action, args, null, null);
+    }
+
+    private int getUserProfileNavAction() {
         int action = R.id.action_pinFragment_to_userProfileFragment;
         if (Objects.equals(source, "search")) {
             action = R.id.action_pinFragment2_to_userProfileFragment;
@@ -1075,9 +1089,10 @@ public class PinObjectFragment extends Fragment {
             action = R.id.action_pinFragment3_to_userProfileFragment;
         } else if (Objects.equals(source, "pinDeepLink")) {
             action = R.id.action_pinFragmentDeepLink_to_userProfileFragmentDeepLink;
+        } else if (Objects.equals(source, BoardDetailActivity.SOURCE)) {
+            action = R.id.action_pinFragment4_to_userProfileFragment5;
         }
-
-        navController.navigate(action, args, null, null);
+        return action;
     }
 
     @NonNull
@@ -1085,6 +1100,8 @@ public class PinObjectFragment extends Fragment {
         NavController navController;
         if (Objects.equals(source, "pinDeepLink")) {
             navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_pin_deep_link);
+        } else if (Objects.equals(source, BoardDetailActivity.SOURCE)) {
+            navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_board_detail);
         } else {
             navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
         }

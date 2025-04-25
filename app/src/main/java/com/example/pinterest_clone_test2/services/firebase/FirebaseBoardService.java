@@ -119,9 +119,7 @@ public abstract class FirebaseBoardService {
         firestore.collection("boards")
                 .document(boardId)
                 .update("pins", pinIds)
-                .addOnSuccessListener(unused -> {
-                    callback.OnSuccess();
-                })
+                .addOnSuccessListener(unused -> callback.OnSuccess())
                 .addOnFailureListener(callback::OnFailure);
     }
 
