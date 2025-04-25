@@ -1,5 +1,6 @@
 package com.example.pinterest_clone_test2.ui.home;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.pinterest_clone_test2.BoardDetailActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentHomePagerItemBinding;
@@ -116,8 +118,9 @@ public class TabObjectFragment extends Fragment {
             }
             binding.boardContainer.setVisibility(View.VISIBLE);
             binding.boardContainer.setOnClickListener(v -> {
-                //TODO: go to board details
-                Log.d("HomeTab", "clicked");
+                Intent intent = new Intent(requireContext(), BoardDetailActivity.class);
+                intent.putExtra("boardId", board.getId());
+                startActivity(intent);
             });
         } else {
             binding.boardContainer.setVisibility(View.GONE);

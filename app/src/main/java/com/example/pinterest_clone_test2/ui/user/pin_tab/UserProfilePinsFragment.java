@@ -14,6 +14,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.example.pinterest_clone_test2.BoardDetailActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentUserProfilePinsBinding;
@@ -70,6 +71,7 @@ public class UserProfilePinsFragment extends Fragment {
         navActionIds.put(UserProfileFragment.SOURCE_SEARCH, R.id.action_userProfileFragment2_to_pinFragment2);
         navActionIds.put(UserProfileFragment.SOURCE_ACCOUNT, R.id.action_userProfileFragment3_to_pinFragment3);
         navActionIds.put(UserProfileFragment.SOURCE_PIN_DEEP_LINK, R.id.action_userProfileFragmentDeepLink_to_pinFragmentDeepLink);
+        navActionIds.put(BoardDetailActivity.SOURCE, R.id.action_userProfileFragment5_to_pinFragment4);
     }
 
     @Nullable
@@ -100,12 +102,12 @@ public class UserProfilePinsFragment extends Fragment {
         binding.rvUserPins.setAdapter(pinAdapter);
     }
 
-    private void navigateToPin( ArrayList<Pin> pins, int position) {
+    private void navigateToPin(ArrayList<Pin> pins, int position) {
         NavController navController = getNavController();
 
         Bundle bundle = new Bundle();
         bundle.putString("source", source);
-        bundle.putInt("position",position);
+        bundle.putInt("position", position);
         bundle.putParcelableArrayList("pins", pins);
 
         Integer actionId = navActionIds.get(source);
@@ -149,6 +151,8 @@ public class UserProfilePinsFragment extends Fragment {
         int navHostId;
         if (source.equals(UserProfileFragment.SOURCE_PIN_DEEP_LINK)) {
             navHostId = R.id.nav_host_fragment_activity_pin_deep_link;
+        } else if (source.equals(BoardDetailActivity.SOURCE)) {
+            navHostId = R.id.nav_host_fragment_activity_board_detail;
         } else {
             navHostId = R.id.nav_host_fragment_activity_main;
         }

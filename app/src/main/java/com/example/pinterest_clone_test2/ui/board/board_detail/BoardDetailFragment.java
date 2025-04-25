@@ -24,11 +24,10 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.pinterest_clone_test2.BoardDetailActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.PinInBoardAdapter;
-import com.example.pinterest_clone_test2.adapters.PinListAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentBoardDetailBinding;
-import com.example.pinterest_clone_test2.interfaces.OnViewModeSelectedListener;
 import com.example.pinterest_clone_test2.interfaces.PinClickListener;
 import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
@@ -50,7 +49,7 @@ public class BoardDetailFragment extends Fragment {
     private String source = "haha";
     private List<Pin> pins;
     FragmentBoardDetailBinding binding;
-    private Handler inactivityHandler = new Handler();
+    private final Handler inactivityHandler = new Handler();
     private Runnable showBarRunnable;
     LinearLayout bottomBar;
     LinearLayout layoutCollaborators;
@@ -71,7 +70,7 @@ public class BoardDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         board = getArguments() != null ? getArguments().getParcelable("board") : null;
-        source = getArguments()!= null ? getArguments().getString("source") : null;
+        source = getArguments() != null ? getArguments().getString("source") : null;
         if (board == null) return;
         binding.tvBoardTitle.setText(board.getName());
         if (board.getPins().size() > 1) {
@@ -86,7 +85,7 @@ public class BoardDetailFragment extends Fragment {
         AtomicInteger avatarsAdded = new AtomicInteger(0);
         int totalAvatars = collaboratorIds.size() + 1;
         DocumentSnapshot currentUserBoardDocument = FirebaseBoardService.getCurrentUserBoardDocument();
-        FirebaseUserService.getUserById(currentUserBoardDocument.getString("userId"),task -> {
+        FirebaseUserService.getUserById(currentUserBoardDocument.getString("userId"), task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
@@ -99,7 +98,7 @@ public class BoardDetailFragment extends Fragment {
                     imageView.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.bg_circle_white));
                     imageView.setClickable(true);
                     imageView.setImageResource(R.drawable.ic_account_circle);
-                    imageView.setOnClickListener(v->{
+                    imageView.setOnClickListener(v -> {
                         showAddCollabBottomSheet();
                     });
 
@@ -132,7 +131,7 @@ public class BoardDetailFragment extends Fragment {
                                 imageView.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.bg_circle_white));
                                 imageView.setClickable(true);
                                 imageView.setImageResource(R.drawable.ic_account_circle);
-                                imageView.setOnClickListener(v->{
+                                imageView.setOnClickListener(v -> {
                                     showAddCollabBottomSheet();
                                 });
 
@@ -177,7 +176,7 @@ public class BoardDetailFragment extends Fragment {
         rvBoardPins.setLayoutManager(layoutManager);
         rvBoardPins.setAdapter(adapter);
         Log.d("BoardDetailFragment", "Source: " + source);
-        binding.btnTune.setOnClickListener(v->{
+        binding.btnTune.setOnClickListener(v -> {
             BoardDetailSetViewBottomSheet bottomSheet = BoardDetailSetViewBottomSheet.newInstance(adapter.getViewMode());
             bottomSheet.setOnViewModeSelectedListener(selectedViewMode -> {
                 adapter.setViewMode(selectedViewMode);
@@ -186,29 +185,28 @@ public class BoardDetailFragment extends Fragment {
             bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
         });
         binding.progressLoading.setVisibility(View.GONE);
-        binding.btnAddCollaborators.setOnClickListener(v->{
+        binding.btnAddCollaborators.setOnClickListener(v -> {
             showAddCollabBottomSheet();
         });
         bottomBar = binding.llEditBoardOptions;
         showBarRunnable = () -> {
             if (bottomBar.getVisibility() != View.VISIBLE) {
                 bottomBar.setVisibility(View.VISIBLE);
-                bottomBar.startAnimation(AnimationUtils.loadAnimation(requireContext() ,R.anim.slide_up));
+                bottomBar.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up));
             }
         };
-        binding.btnOrganize.setOnClickListener(v->{
+        binding.btnOrganize.setOnClickListener(v -> {
             Bundle args = new Bundle();
             args.putParcelable("board", board);
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_board_detail);
             navController.navigate(R.id.action_boardDetailFragment2_to_boardDetailOrganizeFragment, args, null, null);
         });
-        if(!Objects.equals(source, "DeepLink")) {
+        if (!Objects.equals(source, "DeepLink")) {
             rvBoardPins.setOnTouchListener((v, e) -> {
                 resetInactivityTimer();
                 return false;
             });
-        }
-        else {
+        } else {
             binding.llEditBoardOptions.setVisibility(View.GONE);
         }
     }
@@ -226,7 +224,7 @@ public class BoardDetailFragment extends Fragment {
                 Bundle args = new Bundle();
                 args.putParcelableArrayList("pins", new ArrayList<>(pins));
                 args.putInt("position", position);
-                args.putString("source", "account");
+                args.putString("source", BoardDetailActivity.SOURCE);
                 PinFragment fragment = new PinFragment();
                 fragment.setArguments(args);
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_board_detail);
@@ -244,7 +242,8 @@ public class BoardDetailFragment extends Fragment {
         inactivityHandler.postDelayed(showBarRunnable, 2000);
 
         if (bottomBar.getVisibility() == View.VISIBLE) {
-            bottomBar.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down));;
+            bottomBar.startAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down));
+            ;
             bottomBar.setVisibility(View.GONE);
         }
     }
@@ -260,7 +259,7 @@ public class BoardDetailFragment extends Fragment {
         addIcon.setBackgroundResource(R.drawable.bg_circle_gray);
         addIcon.setImageResource(R.drawable.ic_add_person);
         addIcon.setClickable(true);
-        addIcon.setOnClickListener(v->{
+        addIcon.setOnClickListener(v -> {
             showAddCollabBottomSheet();
         });
         addIcon.setPadding(
@@ -273,13 +272,13 @@ public class BoardDetailFragment extends Fragment {
         layoutCollaborators.addView(addIcon);
     }
 
-    private void showAddCollabBottomSheet(){
+    private void showAddCollabBottomSheet() {
         AddCollaboratorBottomSheet bottomSheet = AddCollaboratorBottomSheet.newInstance(board.getId());
         Log.d("BoardDetailFragment", "Board ID: " + board.getId());
         bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
     }
 
-    private void applyChanges(int viewMode){
+    private void applyChanges(int viewMode) {
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(viewMode, StaggeredGridLayoutManager.VERTICAL);
         layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         RecyclerView rvBoardPins = binding.rvBoardPins;

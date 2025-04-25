@@ -1,7 +1,6 @@
 package com.example.pinterest_clone_test2.ui.user;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import androidx.navigation.Navigation;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.pinterest_clone_test2.BoardDetailActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.UserProfileTabAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentUserProfileBinding;
@@ -79,6 +79,7 @@ public class UserProfileFragment extends Fragment {
         navHostResIds.put(SOURCE_SEARCH, R.id.nav_host_fragment_activity_main);
         navHostResIds.put(SOURCE_ACCOUNT, R.id.nav_host_fragment_activity_main);
         navHostResIds.put(SOURCE_PIN_DEEP_LINK, R.id.nav_host_fragment_activity_pin_deep_link);
+        navHostResIds.put(BoardDetailActivity.SOURCE, R.id.nav_host_fragment_activity_board_detail);
     }
 
     @Nullable

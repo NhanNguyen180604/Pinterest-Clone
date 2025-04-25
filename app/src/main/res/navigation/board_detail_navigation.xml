@@ -11,19 +11,54 @@
         tools:layout="@layout/fragment_board_detail" >
         <action
             android:id="@+id/action_boardDetailFragment2_to_pinFragment42"
-            app:destination="@id/pinFragment4" />
+            app:destination="@id/pinFragment4"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
         <action
             android:id="@+id/action_boardDetailFragment2_to_boardDetailOrganizeFragment"
-            app:destination="@id/boardDetailOrganizeFragment" />
+            app:destination="@id/boardDetailOrganizeFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
     </fragment>
     <fragment
         android:id="@+id/pinFragment4"
         android:name="com.example.pinterest_clone_test2.ui.pin.PinFragment"
         android:label="fragment_pin"
-        tools:layout="@layout/fragment_pin" />
+        tools:layout="@layout/fragment_pin" >
+        <action
+            android:id="@+id/action_pinFragment4_self"
+            app:destination="@id/pinFragment4"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+        <action
+            android:id="@+id/action_pinFragment4_to_userProfileFragment5"
+            app:destination="@id/userProfileFragment5"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+    </fragment>
     <fragment
         android:id="@+id/boardDetailOrganizeFragment"
         android:name="com.example.pinterest_clone_test2.ui.board.board_detail.BoardDetailOrganizeFragment"
         android:label="fragment_board_detail_organize"
         tools:layout="@layout/fragment_board_detail_organize" />
+    <fragment
+        android:id="@+id/userProfileFragment5"
+        android:name="com.example.pinterest_clone_test2.ui.user.UserProfileFragment"
+        android:label="UserProfileFragment" >
+        <action
+            android:id="@+id/action_userProfileFragment5_to_pinFragment4"
+            app:destination="@id/pinFragment4"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+    </fragment>
 </navigation>
