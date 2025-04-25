@@ -1,5 +1,6 @@
 package com.example.pinterest_clone_test2.ui.user.board_tab;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.example.pinterest_clone_test2.BoardDetailActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.BoardAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentUserProfileBoardsBinding;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class UserProfileBoardsFragment extends Fragment {
     private static final String TAG = "UserProfileBoardsFragment";
@@ -91,12 +94,7 @@ public class UserProfileBoardsFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        boardAdapter = new BoardAdapter(requireContext(), userBoards, new OnBoardClickListener() {
-            @Override
-            public void onBoardClick(Board board) {
-                navigateToBoardDetail(board);
-            }
-        });
+        boardAdapter = new BoardAdapter(requireContext(), userBoards, this::navigateToBoardDetail);
 
         GridLayoutManager layoutManager = new GridLayoutManager(requireContext(), 2);
         binding.rvUserBoards.setLayoutManager(layoutManager);
@@ -104,31 +102,13 @@ public class UserProfileBoardsFragment extends Fragment {
     }
 
     private void navigateToBoardDetail(Board board) {
-        NavController navController = getNavController();
-
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("board", board);
-        bundle.putString("source", source);
-
-        Integer actionId = navActionIds.get(source);
-
-        if (actionId == null) {
-            Log.w(TAG, "No actionId found for source: " + source + ". Using fallback method.");
-            try {
-                navController.navigate(R.id.boardDetailFragment, bundle);
-            } catch (Exception e) {
-                Log.e(TAG, "Error during navigation: " + e.getMessage());
-                Toast.makeText(requireContext(), getString(R.string.error_open_board_detail), Toast.LENGTH_SHORT).show();
-            }
-            return;
+        Intent intent = new Intent(requireContext(), BoardDetailActivity.class);
+        intent.putExtra("boardId", board.getId());
+        if (Objects.equals(board.getId(), "allPins")) {
+            intent.putExtra("userId", userId);
+            intent.putExtra("allPins", true);
         }
-
-        try {
-            navController.navigate(actionId, bundle);
-        } catch (Exception e) {
-            Log.e(TAG, "Error navigating with action ID " + actionId + ": " + e.getMessage());
-            Toast.makeText(requireContext(), getString(R.string.error_open_board_detail), Toast.LENGTH_SHORT).show();
-        }
+        startActivity(intent);
     }
 
     private NavController getNavController() {
@@ -150,10 +130,11 @@ public class UserProfileBoardsFragment extends Fragment {
         boardAdapter.notifyDataSetChanged();
 
         // Create "All Pins" board
-        FirebaseBoardService.createAllPinsBoard(getContext(),userId, new FirebaseBoardService.CreateAllPinsBoardCallback() {
+        FirebaseBoardService.createAllPinsBoard(getContext(), userId, new FirebaseBoardService.CreateAllPinsBoardCallback() {
             @Override
             public void OnSuccess(Board allPinsBoard) {
                 // Add "All Pins" board to the start of the list
+                allPinsBoard.setId("allPins");
                 userBoards.add(allPinsBoard);
                 boardAdapter.notifyItemInserted(0);
 
