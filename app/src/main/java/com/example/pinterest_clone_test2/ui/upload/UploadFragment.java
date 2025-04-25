@@ -128,7 +128,20 @@ public class UploadFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+    @Override
+    public void onResume() {
+        super.onResume();
 
+        // Check if there's a saved media URI in the parent activity
+        if (getActivity() instanceof UploadActivity) {
+            Uri savedUri = ((UploadActivity) getActivity()).getSavedMediaUri();
+            if (savedUri != null) {
+                // Restore the previously selected media
+                selectMediaUri = savedUri;
+                onMediaSelected(savedUri);
+            }
+        }
+    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

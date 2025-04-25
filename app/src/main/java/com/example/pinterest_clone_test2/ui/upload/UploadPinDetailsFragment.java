@@ -78,15 +78,6 @@ public class UploadPinDetailsFragment extends Fragment {
                 String title = binding.titleEditText.getText().toString().trim();
                 String description = binding.descriptionEditText.getText().toString();
 
-                // Check if title is empty
-                if (title.isEmpty()) {
-                    // Show error message that title is required
-                    Toast.makeText(getContext(), R.string.no_title_message, Toast.LENGTH_SHORT).show();
-
-                    binding.titleEditText.setError(getResources().getString(R.string.no_title_message));
-                    return;
-                }
-
                 if (getActivity() instanceof UploadActivity) {
                     ((UploadActivity) getActivity()).uploadMedia(mediaUri, title, description, isCollage);
                 }
