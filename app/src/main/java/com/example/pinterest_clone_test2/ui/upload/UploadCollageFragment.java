@@ -1,7 +1,11 @@
 package com.example.pinterest_clone_test2.ui.upload;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -11,6 +15,7 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,10 +40,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
@@ -63,6 +69,11 @@ import java.util.Stack;
 import java.util.UUID;
 
 public class UploadCollageFragment extends Fragment implements ScaleListener {
+    private int requestingCode;
+    private static final int GALLERY_REQUEST_CODE = 100;
+    private static final int CAMERA_REQUEST_CODE = 101;
+    private static final int STORAGE_PERMISSION_CODE = 102;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
     private FragmentUploadCollageBinding binding;
     private ArrayList<Uri> addedImagesList;
     private ImageView activeImageView;
@@ -93,7 +104,26 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
     public UploadCollageFragment() {
     }
-
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            switch (requestingCode) {
+                case GALLERY_REQUEST_CODE:
+                    if (isGranted) {
+                        openPhotos();
+                    }
+                    break;
+                case CAMERA_REQUEST_CODE:
+                    if (isGranted) {
+                        openCamera();
+                    }
+                    break;
+                case STORAGE_PERMISSION_CODE:
+                    break;
+            }
+        });
+    }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentUploadCollageBinding.inflate(inflater, container, false);
@@ -187,10 +217,19 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         binding.collageArea.addView(drawingPathView);
     }
     private void setupButtonListeners() {
-        binding.btnExit.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
+        binding.btnExit.setOnClickListener(v -> {
+            // Check if there are unsaved changes
+            if (!addedImagesList.isEmpty() || hasDrawings() || activeTextView != null) {
+                // Show confirmation dialog
+                showExitConfirmationDialog();
+            } else {
+                // No changes to lose, just go back
+                requireActivity().getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
         binding.btnNext.setOnClickListener(v -> saveAndProceed());
 
-        binding.btnAddImage.setOnClickListener(v -> openGallery());
+        binding.btnAddImage.setOnClickListener(v -> openPhotos());
 
         binding.btnBrush.setOnClickListener(v -> toggleDrawingMode());
         binding.btnText.setOnClickListener(v -> showTextInputDialog());
@@ -205,7 +244,31 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         binding.btnRedo.setAlpha(0.5f);
         binding.btnRedo.setEnabled(false);
     }
+    private void showExitConfirmationDialog() {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_confirm_exit);
 
+        // Make the dialog width match the screen width with padding
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.copyFrom(dialog.getWindow().getAttributes());
+        layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.getWindow().setAttributes(layoutParams);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        Button btnCancelExit = dialog.findViewById(R.id.btnCancelExit);
+        Button btnConfirmExit = dialog.findViewById(R.id.btnConfirmExit);
+
+        btnCancelExit.setOnClickListener(v -> dialog.dismiss());
+
+        btnConfirmExit.setOnClickListener(v -> {
+            dialog.dismiss();
+            requireActivity().getOnBackPressedDispatcher().onBackPressed();
+        });
+
+        dialog.show();
+    }
     private void toggleDrawingMode() {
         isDrawingMode = !isDrawingMode;
         drawingPathView.setDrawingEnabled(isDrawingMode);
@@ -449,28 +512,7 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
     }
 
     private void openCamera() {
-        File photoFile;
-        try {
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
-            File storageDir = requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
-            photoFile = File.createTempFile(
-                    "JPEG_" + timeStamp + "_",
-                    ".jpg",
-                    storageDir
-            );
-
-            currentPhotoUri = Uri.fromFile(photoFile);
-        } catch (IOException ex) {
-            Toast.makeText(requireContext(), "Error creating image file", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Uri photoURI = FileProvider.getUriForFile(
-                requireContext(),
-                requireContext().getPackageName() + ".fileprovider",
-                photoFile);
-
-        takePictureLauncher.launch(photoURI);
+        requestPermissionIfNeeded(Manifest.permission.CAMERA, CAMERA_REQUEST_CODE);
     }
     private final ActivityResultLauncher<Uri> takePictureLauncher = registerForActivityResult(
             new ActivityResultContracts.TakePicture(),
@@ -487,22 +529,66 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
                 }
             }
     );
-    private void openGallery() {
-        photoPickerLauncher.launch(new PickVisualMediaRequest.Builder().setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build());
+    private void openPhotos() {
+        requestPermissionIfNeeded(Manifest.permission.READ_EXTERNAL_STORAGE, GALLERY_REQUEST_CODE);
     }
+    private final ActivityResultLauncher<Intent> photoPickerActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri imageUri = result.getData().getData();
+                    if (imageUri != null) {
+                        ImageView addedImage = addImageToCollage(imageUri);
+                        addedImagesList.add(imageUri);
 
-    private final ActivityResultLauncher<PickVisualMediaRequest> photoPickerLauncher = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-        if (uri != null) {
-            ImageView addedImage = addImageToCollage(uri);
-            addedImagesList.add(uri);
+                        recordAddImageAction(addedImage, imageUri);
 
-            recordAddImageAction(addedImage, uri);
+                        binding.btnNext.setEnabled(true);
+                        redoStack.clear();
+                        updateUndoRedoButtonStates();
+                    }
+                }
+            }
+    );
+    private void requestPermissionIfNeeded(@NonNull String permission, int requestCode) {
+        requestingCode = requestCode;
+        if (ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED) {
+            switch (requestingCode) {
+                case GALLERY_REQUEST_CODE:
+                    // Direct call to photo picker
+                    Intent intent = new Intent(Intent.ACTION_PICK);
+                    intent.setType("image/*");
+                    photoPickerActivityResultLauncher.launch(intent);
+                    break;
+                case CAMERA_REQUEST_CODE:
+                    // Direct camera implementation from your existing code
+                    File photoFile;
+                    try {
+                        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+                        File storageDir = requireContext().getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
+                        photoFile = File.createTempFile(
+                                "JPEG_" + timeStamp + "_",
+                                ".jpg",
+                                storageDir
+                        );
 
-            binding.btnNext.setEnabled(true);
-            redoStack.clear();
-            updateUndoRedoButtonStates();
+                        currentPhotoUri = Uri.fromFile(photoFile);
+
+                        Uri photoURI = FileProvider.getUriForFile(
+                                requireContext(),
+                                requireContext().getPackageName() + ".fileprovider",
+                                photoFile);
+
+                        takePictureLauncher.launch(photoURI);
+                    } catch (IOException ex) {
+                        Toast.makeText(requireContext(), "Error creating image file", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+            }
+        } else {
+            requestPermissionLauncher.launch(permission);
         }
-    });
+    }
 
     private ImageView addImageToCollage(Uri imageUri) {
         ImageView imageView = new ImageView(requireContext());
@@ -510,7 +596,8 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         if (containerWidth <= 0) containerWidth = binding.collageArea.getMeasuredWidth();
         if (containerWidth <= 0) containerWidth = 600;
 
-        int imageSize = containerWidth / 2;
+        int imageWidth = containerWidth / 2;
+        // We'll set the height dynamically after loading the image
 
         int imageCount = 0;
         for (int i = 0; i < binding.collageArea.getChildCount(); i++) {
@@ -521,12 +608,12 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
         }
         int offset = imageCount * 20;
 
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(imageSize, imageSize);
-        params.leftMargin = 40 + (offset % (containerWidth - imageSize - 40));
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(imageWidth, imageWidth);
+        params.leftMargin = 40 + (offset % (containerWidth - imageWidth - 40));
         params.topMargin = 40 + (offset / 80) * 40;
 
         imageView.setLayoutParams(params);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         imageView.setTag(imageUri);
 
         int newZIndex = zIndexCounter++;
@@ -534,7 +621,30 @@ public class UploadCollageFragment extends Fragment implements ScaleListener {
 
         binding.collageArea.addView(imageView);
 
-        Glide.with(requireContext()).load(imageUri).centerCrop().into(imageView);
+        // Load image and adjust height based on aspect ratio
+        Glide.with(requireContext())
+                .load(imageUri)
+                .into(new com.bumptech.glide.request.target.SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(Drawable resource, com.bumptech.glide.request.transition.Transition<? super Drawable> transition) {
+                        // Get original image dimensions
+                        int originalWidth = resource.getIntrinsicWidth();
+                        int originalHeight = resource.getIntrinsicHeight();
+
+                        // Calculate height based on original aspect ratio
+                        float aspectRatio = (float) originalHeight / originalWidth;
+                        int calculatedHeight = Math.round(imageWidth * aspectRatio);
+
+                        // Update ImageView layout params with correct height
+                        FrameLayout.LayoutParams newParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+                        newParams.height = calculatedHeight;
+                        imageView.setLayoutParams(newParams);
+
+                        // Now load the image into the properly sized view
+                        imageView.setImageDrawable(resource);
+                    }
+                });
+
         setupDraggableZoomableImage(imageView);
         setActiveImage(imageView);
 

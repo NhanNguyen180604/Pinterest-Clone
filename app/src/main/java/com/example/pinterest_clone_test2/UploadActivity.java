@@ -18,6 +18,7 @@ import com.example.pinterest_clone_test2.ui.upload.UploadCollageFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadFragment;
 import com.example.pinterest_clone_test2.ui.upload.UploadPinDetailsFragment;
 import com.example.pinterest_clone_test2.utils.CloudinaryManager;
+import com.example.pinterest_clone_test2.utils.LoadingDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,7 +30,7 @@ import java.util.Objects;
 
 public class UploadActivity extends AppCompatActivity {
     private ActivityUploadBinding binding;
-
+    private LoadingDialog loadingDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +81,11 @@ public class UploadActivity extends AppCompatActivity {
         if (mediaUri != null) {
             Log.d("Cloudinary", "Media URI to upload: " + mediaUri);
 
+            // Initialize and show loading dialog
+            loadingDialog = new LoadingDialog(this);
+            loadingDialog.setMessage(getString(R.string.loading_message));
+            loadingDialog.show();
+
             // Kiểm tra MIME type và gọi hàm upload từ CloudinaryManager
             String mimeType = getContentResolver().getType(mediaUri);
             String mediaType;
@@ -108,10 +114,18 @@ public class UploadActivity extends AppCompatActivity {
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {
                         Log.d("Cloudinary", "Upload progress: " + bytes + "/" + totalBytes);
+                        // Update loading message with progress
+                        runOnUiThread(() -> {
+                            int progress = (int) ((bytes * 100) / totalBytes);
+                            loadingDialog.setMessage(getString(R.string.loading_message) + " " + progress + "%");
+                        });
                     }
 
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
+                        // Hide loading dialog
+                        loadingDialog.dismiss();
+
                         String url = (String) resultData.get("secure_url");
                         if (url == null) {
                             if (finalMimeType.startsWith("image")) {
@@ -141,6 +155,11 @@ public class UploadActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
+                        // Hide loading dialog
+                        if (loadingDialog != null) {
+                            loadingDialog.dismiss();
+                        }
+
                         Toast.makeText(UploadActivity.this, getResources().getString(R.string.media_upload_failure), Toast.LENGTH_SHORT).show();
                         Log.e("Cloudinary", "Error: " + error.getDescription());
                     }
@@ -151,6 +170,11 @@ public class UploadActivity extends AppCompatActivity {
                     }
                 });
             } else {
+                // Hide loading dialog if mime type is null
+                if (loadingDialog != null) {
+                    loadingDialog.dismiss();
+                }
+
                 Log.d("Cloudinary", "No media selected");
                 Toast.makeText(this, getResources().getString(R.string.no_media_selected), Toast.LENGTH_SHORT).show();
             }
