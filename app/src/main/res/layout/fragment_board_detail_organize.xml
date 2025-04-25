@@ -1,62 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_board_detail_container_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.board.board_detail.BoardDetailFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.board.board_detail.BoardDetailOrganizeFragment">
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_organize"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            android:id="@+id/tv_board_title"
-            android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:paddingVertical="40dp"
+        android:paddingHorizontal="8dp">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="50dp"
-            android:text="Board Title"
-            android:textColor="@color/black"
-            android:textSize="20dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_number_of_pins"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingBottom="20dp"
-            android:text="number of pins"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_board_title" />
-
-        <FrameLayout
-            android:id="@+id/btn_add_collaborators"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/tv_number_of_pins"
-            app:layout_constraintStart_toStartOf="parent"
-            android:padding="4dp">
-            <LinearLayout
-                android:id="@+id/layout_collaborators"
+            app:layout_constraintTop_toTopOf="parent">
+            <ImageButton
+                android:id="@+id/btn_close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:clipChildren="false"
-                android:clipToPadding="false">
-            </LinearLayout>
-        </FrameLayout>
-
-        <ImageButton
-            android:id="@+id/btn_tune"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_number_of_pins"
-            android:background="@null"
-            android:src="@drawable/ic_tune"
-            />
+                android:src="@drawable/ic_close"
+                android:background="@null"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@+id/tv_organize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="@string/organize"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@id/btn_close"
+                app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@+id/tv_organize_caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/select_or_reorder"
+                style="@style/TextAppearance.AppCompat.Caption"
+                app:layout_constraintTop_toBottomOf="@id/tv_organize"
+                app:layout_constraintStart_toStartOf="@id/tv_organize"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_select_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/select_all"
+                android:background="@drawable/gray_button_pinterest"
+                android:padding="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ProgressBar
             android:id="@+id/progress_loading"
@@ -76,11 +75,11 @@
             android:paddingVertical="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_tune"
-            android:layout_marginTop="20dp"/>
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="69dp"/>
 
         <LinearLayout
-            android:id="@+id/ll_edit_board_options"
+            android:id="@+id/ll_organize_board_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -88,11 +87,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:background="@drawable/rounded_bar_background"
-            android:layout_margin="12dp"
+            android:layout_margin="30dp"
             android:padding="8dp">
 
             <LinearLayout
-                android:id="@+id/btnOrganize"
+                android:id="@+id/btn_move_to"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -109,7 +108,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_organize"
+                        android:src="@drawable/ic_move_to"
                         app:tint="@color/black" />
                 </FrameLayout>
 
@@ -118,13 +117,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@string/organize"
+                    android:text="@string/move_to"
                     android:textStyle="bold"
                     android:textColor="@color/black" />
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/btnAdd"
+                android:id="@+id/btn_section"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -141,7 +140,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_add"
+                        android:src="@drawable/ic_section"
                         app:tint="@color/black" />
                 </FrameLayout>
 
@@ -149,13 +148,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@string/add"
+                    android:text="@string/section"
                     android:textStyle="bold"
                     android:textColor="@color/black" />
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/btnMoreIdeas"
+                android:id="@+id/btn_delete"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -172,7 +171,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_more_ideas"
+                        android:src="@drawable/ic_delete"
                         app:tint="@color/black" />
                 </FrameLayout>
 
@@ -181,41 +180,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:textStyle="bold"
-                    android:text="@string/more_ideas"
-                    android:textColor="@color/black" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/btnShop"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <FrameLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="center"
-                    >
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_shop"
-                        app:tint="@color/black" />
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/shop"
-                    android:textStyle="bold"
+                    android:text="@string/delete"
                     android:textColor="@color/black" />
             </LinearLayout>
         </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

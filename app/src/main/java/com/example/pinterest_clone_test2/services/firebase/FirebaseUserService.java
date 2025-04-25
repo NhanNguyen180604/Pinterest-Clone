@@ -236,6 +236,32 @@ public class FirebaseUserService {
                 .addOnFailureListener(callback::OnFailure);
     }
 
+    public static void updateUserBoards(@NonNull String boardId, UpdateUserBoardsCallback callback) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert currentUser != null;
+        firestore.collection("users")
+                .document(currentUser.getUid())
+                .update("boards", FieldValue.arrayUnion(boardId))
+                .addOnSuccessListener(unused2 -> callback.OnSuccess())
+                .addOnFailureListener(callback::OnFailure);
+    }
+
+    public static void getUserAvatarUrl(String userId, OnUserAvatarFetchedCallback callback) {
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String avatarUrl = documentSnapshot.getString("avatarUrl");
+                        callback.onSuccess(avatarUrl);
+                    } else {
+                        callback.onFailure(new Exception("User document does not exist"));
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
     public static void followUser(@NonNull String userId, FollowUserCallback callback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         assert currentUser != null;
@@ -635,5 +661,15 @@ public class FirebaseUserService {
         void OnSuccess(DocumentSnapshot documentSnapshot);
 
         void OnFailure(Exception e);
+    }
+
+    public interface UpdateUserBoardsCallback {
+        void OnSuccess();
+        void OnFailure(Exception e);
+    }
+
+    public interface OnUserAvatarFetchedCallback {
+        void onSuccess(String avatarUrl);
+        void onFailure(Exception e);
     }
 }

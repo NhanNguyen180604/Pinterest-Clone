@@ -84,10 +84,10 @@ public class BoardDetailFragment extends Fragment {
         } else {
             binding.tvNumberOfPins.setText(String.format(Locale.US, "%d %s", board.getPins().size(), getResources().getString(R.string.pin).toLowerCase()));
         }
-        binding.btnBack.setOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(view);
-            navController.navigateUp();
-        });
+//        binding.btnBack.setOnClickListener(v -> {
+//            NavController navController = Navigation.findNavController(view);
+//            navController.navigateUp();
+//        });
         pins = board.getPinsObj();
 
         PinListAdapter adapter = getPinListAdapter();

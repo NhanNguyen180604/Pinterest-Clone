@@ -1,5 +1,6 @@
 package com.example.pinterest_clone_test2.ui.account.board_tab;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -15,6 +16,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pinterest_clone_test2.BoardDetailActivity;
 import com.example.pinterest_clone_test2.R;
 import com.example.pinterest_clone_test2.adapters.BoardAdapter;
 import com.example.pinterest_clone_test2.databinding.FragmentBoardTabObjectBinding;
@@ -22,6 +24,7 @@ import com.example.pinterest_clone_test2.models.Board;
 import com.example.pinterest_clone_test2.models.Pin;
 import com.example.pinterest_clone_test2.services.firebase.FirebaseBoardService;
 import com.example.pinterest_clone_test2.services.firebase.FirebasePinService;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -50,10 +53,9 @@ public class BoardTabObjectFragment extends Fragment {
         binding.tvMessage.setVisibility(View.GONE);
         RecyclerView recyclerView = binding.rvBoards;
         boardAdapter = new BoardAdapter(requireContext(), boardList, board -> {
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("board", board);
-            navController.navigate(R.id.action_navigation_account_to_boardDetailFragment, bundle);
+            Intent intent = new Intent(requireContext(), BoardDetailActivity.class);
+            intent.putExtra("boardId", board.getId());
+            startActivity(intent);
         });
         recyclerView.setAdapter(boardAdapter);
         recyclerView.setLayoutManager((new GridLayoutManager(requireContext(), 2)));
@@ -68,8 +70,8 @@ public class BoardTabObjectFragment extends Fragment {
             public void OnSuccess(QuerySnapshot querySnapshot) {
                 for (var doc : querySnapshot.getDocuments()) {
                     Board board = doc.toObject(Board.class);
-                    if (board == null)
-                        continue;
+                    assert board != null;
+                    board.setId(doc.getId());
 
                     if (board.getPins() != null && !board.getPins().isEmpty()) {
                         FirebasePinService.fetchPinsFromIds(board.getPins(), new FirebasePinService.OnPinsFetchedFromIdsCallback() {

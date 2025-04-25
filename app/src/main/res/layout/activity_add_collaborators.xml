@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddCollaboratorsActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="40dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_ask_collab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_bar_background"
+            android:padding="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_profile_img"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@null"
+                android:clickable="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_account_circle"
+                app:layout_constraintEnd_toStartOf="@id/tv_invite_collab"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/roundedImageView" />
+
+            <TextView
+                android:id="@+id/tv_invite_collab"
+                style="@style/TextAppearance.AppCompat.Title"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/has_invited_you"
+                app:layout_constraintBottom_toBottomOf="@id/iv_profile_img"
+                app:layout_constraintStart_toEndOf="@id/iv_profile_img"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_accept"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/red_button_pinterest"
+                android:text="@string/done"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toEndOf="@id/btn_deny"
+                app:layout_constraintTop_toBottomOf="@id/iv_profile_img" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_deny"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/gray_rounded_button"
+                android:text="@string/deny"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toEndOf="@id/iv_profile_img"
+                app:layout_constraintTop_toBottomOf="@id/iv_profile_img" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tv_board_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="20dp"
+            android:text="Board Title"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_ask_collab" />
+
+        <TextView
+            android:id="@+id/tv_number_of_pins"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="20dp"
+            android:text="number of pins"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_board_title" />
+
+        <FrameLayout
+            android:id="@+id/btn_add_collaborators"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_number_of_pins">
+
+            <!-- Profile Picture -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/img_profile"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@null"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_account_circle"
+                app:shapeAppearanceOverlay="@style/roundedImageView" />
+
+            <!-- Add Icon Overlay -->
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="0dp"
+                android:background="@drawable/bg_circle_gray"
+                android:padding="4dp"
+                android:src="@drawable/ic_add_person" />
+        </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/btn_tune"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@null"
+            android:src="@drawable/ic_tune"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_number_of_pins" />
+
+        <ProgressBar
+            android:id="@+id/progress_loading"
+            style="@style/PinterestProgressBar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_board_pins"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingVertical="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_tune" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

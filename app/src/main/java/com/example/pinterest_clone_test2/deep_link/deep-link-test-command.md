@@ -6,6 +6,7 @@ Change pinId to whatever you like.
 ## Command
 ```
 adb shell am start -W -a android.intent.action.VIEW -d "https://open.my.pinterest-clone/shared-pin/?pinId=dDPGQAM3Eox9X8XrJiV4" com.example.pinterest_clone_test2
+adb shell am start -W -a android.intent.action.VIEW -d "https://open.my.pinterest-clone/add-collaborators/?boardId=6g4XkATx3GZYgw6mdTzp\&userId=3BleBo6wwIQd7JOgHxuLy1aWDMe2" com.example.pinterest_clone_test2
 ```
 
 ## Have no adb?
